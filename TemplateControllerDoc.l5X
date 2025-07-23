@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="32.01" TargetName="Name" TargetType="Controller" ContainsContext="false" ExportDate="Day Mon Date hr:min:sec Year" ExportOptions="NoRawData L5KData DecoratedData ForceProtectedEncoding AllProjDocTrans">
+<Controller [controller_attributes] >
+	<Description>
+		<![CDATA [text] ]>
+	</Description>
+	<RedundancyInfo [redundancyinfo_attributes] />
+	<Security [security_attributes] />
+		<PrimaryActionSets>
+			<PrimaryActionSet PermissionSet="PermissionSetName1" IsPermissionSet="true">
+				<! [CDATA[ encoded_cached_permissions ]]>
+			</PrimaryActionSet>
+			<PrimaryActionSet PermissionSet="PermissionSetName2" IsPermissionSet="false">
+				<! [CDATA[ encoded_cached_permissions ]]>
+			</PrimaryActionSet>
+			…
+		</ PrimaryActionSets >
+	</Security>
+	<SafetyInfo [safetyinfo_attributes] >
+		<SafetyTagMap>
+		[comma separated safety tag map]
+		</SafetyTagMap>
+	</SafetyInfo>
+	<DataTypes>
+		[datatype]
+	</DataTypes>
+	<modules>
+		[module]
+	</modules>
+	<AddOnInstructionDefinitions>
+		[addoninstructiondefinition]
+	</AddOnInstructionDefinitions>
+	<Tags>
+		[tag]
+	</Tags>
+	<Programs>
+		[program]
+	</Programs>
+	<Tasks>
+		[task]
+	</Tasks>
+	<parameterConnections>
+		[parameter_connection]
+	</parameterConnections>
+	<CommPorts>
+		[commport]
+	</CommPorts>
+	<CST [attribute_list] />
+	<WallClockTime [attribute_list] />
+	<Trends>
+		[trend]
+	</Trends>
+	<QuickWatchLists>
+		[watch_list]
+	</QuickWatchLists>
+	< InternetProtocol [Internet_Protocol_Attributes] />
+<EthernetPorts>
+	<EthernetPort [Ethernet_Port_Attributes] />
+</EthernetPorts>
+<EthernetNetwork [Ethernet_Network_Attributes] />
+</Controller>
