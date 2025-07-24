@@ -188,33 +188,41 @@ namespace ThesisProjectV1
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
         {
-            XElement insertNodeParent = inDoc.Descendants(element.Name).First();
-            // If the parent element is empty:
-            if (insertNodeParent.IsEmpty)
+            Queue<string> rootPath = FindPathtoRootSchema(element);
+            XName parentName = rootPath.Dequeue();
+
+            // Check that parent node exists in document
+
+            while(!(inDoc.Descendants(parentName).Any()))
             {
-                insertNodeParent.ReplaceWith(element);
+                parentName = rootPath.Dequeue();
+                element = new XElement(parentName, element);
             }
-            // If the parent element has content:
-            else if (!insertNodeParent.IsEmpty)
+
+            XElement childNode = inDoc.Descendants(element.Name).First();
+            if (childNode.IsEmpty)
             {
+                childNode.ReplaceWith(element);
+            }
+            else
+            {
+                XElement parentNode = inDoc.Descendants(parentName).First();
                 IEnumerable<XAttribute> xAttributes = element.Attributes();
 
                 foreach (XAttribute xAttribute in xAttributes)
                 {
-                    insertNodeParent.SetAttributeValue(xAttribute.Name, xAttribute.Value);
+                    childNode.SetAttributeValue(xAttribute.Name, xAttribute.Value);
                 }
-                insertNodeParent.Add(element.Elements());
+                childNode.Add(element.Elements());
             }
-            else
-                throw new Exception("Parent Element not found");
-
             return inDoc;
         }
 
         // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
-        public List<string> FindPathtoRootSchema(XElement element)
+        public Queue<string> FindPathtoRootSchema(XElement element)
         {
-            List<string> paths = new List<string>();
+            Queue<string> paths = new Queue<string>();
+            paths.Enqueue(element.Name.ToString());
             XDocument schema = XDocument.Load("../../../../RSLogix5000_V35.xsd");
 
             string name = element.Name.ToString();
@@ -229,8 +237,7 @@ namespace ThesisProjectV1
                 // search for something with that type
                 schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).FirstOrDefault();
 
-                
-                paths.Add(schemaElement.Attribute("name").Value);
+                paths.Enqueue(schemaElement.Attribute("name").Value);
 
                 // if it is a schema it has gone too far
             }
