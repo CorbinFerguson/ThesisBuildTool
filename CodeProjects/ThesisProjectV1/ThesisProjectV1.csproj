@@ -33,13 +33,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\..\RSLogix5000_V35.xsd">
+      <Link>RSLogix5000_V35.xsd</Link>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicXMLCreate.cs" />
     <Compile Include="Execute.cs" />
+    <Compile Include="XMLClasses.cs" />
+    <Compile Include="XMLSchemaValidation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>

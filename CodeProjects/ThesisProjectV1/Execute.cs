@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace ThesisProjectV1
 {
@@ -12,17 +15,22 @@ namespace ThesisProjectV1
         static void Main()
         {
             XMLHandler handler = new XMLHandler();
-            XDocument doc = handler.loadBasicFile();
+            XDocument doc = handler.loadBasicFile();            
 
-            XElement routines = new XElement("Routines");
-            IEnumerable<XElement> routineSubElements = handler.GetSubElements(routines, "../../../EmptyProgram.L5X");
-
+            // Try to insert an AOI which is easily accessed
             XElement topLevelElement = new XElement("AddOnInstructionDefinitions");
-            IEnumerable<XElement> elementsReturned = handler.GetSubElements(topLevelElement, "../../../TestAOI.L5X");
+            XElement elementsReturned = handler.GetElementFromFile(topLevelElement, "../../../TestAOI.L5X");
+            doc = handler.InsertElement(doc, elementsReturned);
 
-            XElement modules= new XElement("AddOnInstructionDefinitions", elementsReturned);
+            // Try to insert a routine, which is below the programs section
+            XElement routines = new XElement("Routines");
+            XElement routineSubElements = handler.GetElementFromFile(routines, "../../../EmptyProgram.L5X");
+            doc = handler.InsertElement(doc, routineSubElements);
 
-            doc = handler.InsertElement(doc, modules);
+            // Try to insert a module, which is formatted uniquely in the file
+            XElement modules = new XElement("Modules");
+            XElement returnedModules = handler.GetElementFromFile(modules, "../../../TestAQ.L5X");
+            doc = handler.InsertElement(doc, returnedModules);
 
             // Save the document to a file
             string filePath = "../../../GenFile.L5X";

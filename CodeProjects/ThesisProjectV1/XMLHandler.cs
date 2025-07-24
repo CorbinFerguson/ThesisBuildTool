@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 namespace ThesisProjectV1
@@ -15,21 +14,8 @@ namespace ThesisProjectV1
 
         #endregion
 
-        #region datainfo
-        public enum ParentElementType { Content, Controller, DataTypes, Modules, AddOnInstructionDefinitions, Tags, Programs, Routines, Tasks, ParameterConnections, Trends, QuickWatchLists, Commports, CST, WallClocktime };
-
-        public string[] parents = null; // TODO
-
-        #endregion
-
         #region functions
-
-        // Verifies that the XML structure matches the expected
-        public bool VerifyXMLStructure(XElement xmlStructure, ParentElementType pType)
-        {
-            throw new NotImplementedException();
-        }
-        
+       
         public XDocument CreateBasicDocument()
         {
             XDocument doc = new XDocument();
@@ -186,36 +172,36 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        public IEnumerable<XElement> GetSubElements(XElement subElement, string filePath)
+        public XElement GetElementFromFile(XElement subElement, string pathItemtoAdd)
         {
-            XDocument fullDocument = XDocument.Load(filePath);
-            IEnumerable<XElement> xElements=null;
+            XDocument itemtoAddDoc = XDocument.Load(pathItemtoAdd);
 
-            XAttribute targetType = fullDocument.Element("RSLogix5000Content").Attribute("TargetType");
+            XElement elements = itemtoAddDoc.Element(subElement.Name); // Returning Null
+            
+            //if (schemaPath.LastNode.Parent.Equals(element.Ancestors().First()))
+            //{
+            //    // Get parent from pulled file, insert that
+            //}
+            //else
+            //{
+            //    element = fullDocument.Descendants(subElement.Name);
+            //    XElement modules = new XElement(elementParent.Name, element);
+            //    element = modules.DescendantsAndSelf();
+            //}
 
-            if (targetType.Value.Equals("Module"))
-            {
-                xElements = fullDocument.Elements("Module");
-            }
-            else
-            {
-                // search for subElementType
-                xElements = fullDocument.Elements(subElement.Name);
-            }
-
-                return xElements;
+            return elements;
         }
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
         {
             XElement insertNodeParent = inDoc.Descendants(element.Name).First();
             // If the parent element is empty:
-            if (insertNodeParent.IsEmpty) // TODO: recognize if parent is empty or full
+            if (insertNodeParent.IsEmpty)
             {
                 insertNodeParent.ReplaceWith(element);
             }
             // If the parent element has content:
-            else if (!insertNodeParent.IsEmpty) // TODO
+            else if (!insertNodeParent.IsEmpty)
             {
                 IEnumerable<XAttribute> xAttributes = element.Attributes();
 
@@ -228,7 +214,33 @@ namespace ThesisProjectV1
             else
                 throw new Exception("Parent Element not found");
 
-                return inDoc;
+            return inDoc;
+        }
+
+        // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
+        public List<string> FindPathtoRootSchema(XElement element)
+        {
+            List<string> paths = new List<string>();
+            XDocument schema = XDocument.Load("../../../../RSLogix5000_V35.xsd");
+
+            string name = element.Name.ToString();
+
+            XElement schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("type") != null).Where(i => i.Attribute("name").Value.Equals(name)).FirstOrDefault();
+            // Loop until RSLogix5000Content(root of L5X) is found
+            while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
+            {
+                // Go to parent complex type, find name of that
+                name = schemaElement.Parent.Parent.Attribute("name").Value;
+
+                // search for something with that type
+                schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).FirstOrDefault();
+
+                
+                paths.Add(schemaElement.Attribute("name").Value);
+
+                // if it is a schema it has gone too far
+            }
+            return paths;
         }
 
         #endregion
