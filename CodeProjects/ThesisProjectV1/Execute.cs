@@ -22,13 +22,20 @@ namespace ThesisProjectV1
             XElement elementsReturned = handler.GetElementFromFile(topLevelElement, "../../../TestAOI.L5X");
             doc = handler.InsertElement(doc, elementsReturned);
 
+            // Insert an AOI with name
+            XElement aoiElement1 = new XElement("AddOnInstructionDefinition");
+            XElement aoiFirst = handler.GetElementFromFile(aoiElement1, "../../../TestFileWith2AOI.L5X", "testAOIV1");
+            XElement aoiElement2 = new XElement("AddOnInstructionDefinition");
+            XElement aoiSec = handler.GetElementFromFile(aoiElement2, "../../../TestFileWith2AOI.L5X", "testAOIV2");
+
+
             // Try to insert a routine, which is below the programs section
             XElement routines = new XElement("Routines");
             XElement routineSubElements = handler.GetElementFromFile(routines, "../../../EmptyProgram.L5X");
             doc = handler.InsertElement(doc, routineSubElements);
 
             // Try to insert a module, which is formatted uniquely in the file
-            XElement modules = new XElement("Modules");
+            XElement modules = new XElement("Module");
             XElement returnedModules = handler.GetElementFromFile(modules, "../../../TestAQ.L5X");
             doc = handler.InsertElement(doc, returnedModules);
 

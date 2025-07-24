@@ -40,10 +40,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicXMLCreate.cs" />
+    <Compile Include="XMLHandler.cs" />
     <Compile Include="Execute.cs" />
-    <Compile Include="XMLClasses.cs" />
-    <Compile Include="XMLSchemaValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

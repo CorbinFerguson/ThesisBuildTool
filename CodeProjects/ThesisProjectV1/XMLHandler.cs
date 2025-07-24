@@ -175,21 +175,15 @@ namespace ThesisProjectV1
         public XElement GetElementFromFile(XElement subElement, string pathItemtoAdd)
         {
             XDocument itemtoAddDoc = XDocument.Load(pathItemtoAdd);
+            XElement element = itemtoAddDoc.Descendants(subElement.Name).First(); // Returning Null
+            return element;
+        }
 
-            XElement elements = itemtoAddDoc.Element(subElement.Name); // Returning Null
-            
-            //if (schemaPath.LastNode.Parent.Equals(element.Ancestors().First()))
-            //{
-            //    // Get parent from pulled file, insert that
-            //}
-            //else
-            //{
-            //    element = fullDocument.Descendants(subElement.Name);
-            //    XElement modules = new XElement(elementParent.Name, element);
-            //    element = modules.DescendantsAndSelf();
-            //}
-
-            return elements;
+        public XElement GetElementFromFile(XElement elementType, string pathItemtoAdd, string elementName)
+        {
+            XDocument itemToAddDoc = XDocument.Load(pathItemtoAdd);
+            XElement element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).First();
+            return element;
         }
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
@@ -225,7 +219,7 @@ namespace ThesisProjectV1
 
             string name = element.Name.ToString();
 
-            XElement schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("type") != null).Where(i => i.Attribute("name").Value.Equals(name)).FirstOrDefault();
+            XElement schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name)).FirstOrDefault();
             // Loop until RSLogix5000Content(root of L5X) is found
             while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
             {
