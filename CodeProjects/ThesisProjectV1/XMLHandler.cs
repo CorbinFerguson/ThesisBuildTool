@@ -175,7 +175,7 @@ namespace ThesisProjectV1
         public XElement GetElementFromFile(XElement subElement, string pathItemtoAdd)
         {
             XDocument itemtoAddDoc = XDocument.Load(pathItemtoAdd);
-            XElement element = itemtoAddDoc.Descendants(subElement.Name).First(); // Returning Null
+            XElement element = itemtoAddDoc.Descendants(subElement.Name).First();
             return element;
         }
 
@@ -206,14 +206,28 @@ namespace ThesisProjectV1
             }
             else
             {
-                XElement parentNode = inDoc.Descendants(parentName).First();
-                IEnumerable<XAttribute> xAttributes = element.Attributes();
+                XElement parentNode = inDoc.Descendants(parentName).Ancestors().First();
+                IEnumerable<XAttribute> elementAttributes = element.Attributes();
+                IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
 
-                foreach (XAttribute xAttribute in xAttributes)
+                // If attributes are the same:
+                if (elementAttributes.Equals(parentAttributes))
                 {
-                    childNode.SetAttributeValue(xAttribute.Name, xAttribute.Value);
+                    parentNode.Add(element.Elements());
                 }
-                childNode.Add(element.Elements());
+                // if Attributes are different
+                else
+                {
+                    foreach (XAttribute attribute in parentAttributes) 
+                    {
+                        if (!parentAttributes.Contains(attribute))
+                        {
+                            parentNode.Add(attribute);
+                        }
+                    }
+                    parentNode.Add(element);
+                }
+
             }
             return inDoc;
         }
