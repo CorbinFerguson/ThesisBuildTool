@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace ThesisProjectV1
 {
@@ -12,10 +15,24 @@ namespace ThesisProjectV1
 
         public string projectName = "GenProject";
 
+        public static string schemaPath = "../../../../RSLogix5000_V35.xsd";
+
+        public XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
+
+        public XDocument schema;
+
+        #endregion
+
+        #region Constructors
+        public XMLHandler() 
+        {
+            schema = XDocument.Load(schemaPath);
+        }
+
         #endregion
 
         #region functions
-       
+
         public XDocument CreateBasicDocument()
         {
             XDocument doc = new XDocument();
@@ -237,7 +254,6 @@ namespace ThesisProjectV1
         {
             Queue<string> paths = new Queue<string>();
             paths.Enqueue(element.Name.ToString());
-            XDocument schema = XDocument.Load("../../../../RSLogix5000_V35.xsd");
 
             string name = element.Name.ToString();
 
@@ -258,6 +274,20 @@ namespace ThesisProjectV1
             return paths;
         }
 
+        // Gets all the simple elements in the XML Schema
+        public List<String> GetSimpleElements()
+        {
+            IEnumerable<XElement> elements = schema.Descendants(ns + "element");
+
+            List<String> elementsInList= new List<String>();
+
+            foreach (XElement element in elements)
+            {
+                if (!element.Attribute("name").Value.Equals("CustomProperties"))
+                    elementsInList.Add(element.Attribute("name").Value);
+            }
+            return elementsInList;
+        }
         #endregion
     }
 

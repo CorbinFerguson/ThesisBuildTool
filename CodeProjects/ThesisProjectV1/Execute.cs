@@ -14,24 +14,40 @@ namespace ThesisProjectV1
     {
         static void Main()
         {
-            XMLHandler handler = new XMLHandler();
-            XDocument doc = handler.loadBasicFile();
+            XMLHandler xmlHandler = new XMLHandler();
+            XDocument doc = xmlHandler.loadBasicFile();
+            CmdHandler cmdHandler = new CmdHandler();
 
-            string nameOfElement="";
+
+            string typeOfElement;
             string filePath = "";
+            string nameOfElement;
             // Take in user input
+            while (!filePath.Equals("Exit"))
+            {
+                // User input:
+                Console.WriteLine("Please input the path of the file to be accessed or Exit to end selection");
+                filePath = Console.ReadLine();
 
-            while (!nameOfElement.Equals("Exit")){
-                Console.WriteLine("Input the type of the element being added or Exit to exit the program");
-                nameOfElement = Console.ReadLine();
-
-                if (!nameOfElement.Equals("Exit"))
+                if (!filePath.Equals("Exit"))
                 {
-                    Console.WriteLine("Please input the file to be accessed");
-                    filePath = Console.ReadLine();
-                    XElement parentElement = new XElement(nameOfElement);
-                    XElement returnedElement = handler.GetElementFromFile(parentElement, filePath);
-                    doc = handler.InsertElement(doc, returnedElement);
+                    Console.WriteLine("Select the type of the element being added or Exit to exit the program");
+                    typeOfElement = cmdHandler.Navigate();
+
+                    Console.WriteLine("Please input the name of the item");
+                    nameOfElement = Console.ReadLine();
+
+                    try
+                    {
+                        XElement parentElement = new XElement(typeOfElement);
+                        XElement returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath);
+                        doc = xmlHandler.InsertElement(doc, returnedElement);
+                        Console.WriteLine("Inserted: " + returnedElement.Name.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
 
             }
