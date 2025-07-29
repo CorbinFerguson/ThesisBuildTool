@@ -5,8 +5,7 @@
 <DataTypes Use="Context">
 </DataTypes>
 <AddOnInstructionDefinitions Use="Context">
-<AddOnInstructionDefinition Use="Target" Name="TestAOI" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-07-17T19:06:05.196Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-07-17T19:06:09.234Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01"
->
+<AddOnInstructionDefinition Use="Target" Name="TestAOI" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-07-17T19:06:05.196Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-07-17T19:06:09.234Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
 <Description>
 <![CDATA[Dummy AOI]]>
 </Description>

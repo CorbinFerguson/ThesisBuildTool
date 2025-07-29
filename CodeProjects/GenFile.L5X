@@ -6,7 +6,22 @@
     <SafetyInfo />
     <DataTypes />
     <Modules />
-    <AddOnInstructionDefinitions />
+    <AddOnInstructionDefinitions>
+      <AddOnInstructionDefinition Name="testAOIV1" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-07-24T17:33:30.284Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-07-24T17:33:30.320Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
+        <Parameters>
+          <Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Input - System Defined Parameter]]></Description>
+          </Parameter>
+          <Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Output - System Defined Parameter]]></Description>
+          </Parameter>
+        </Parameters>
+        <LocalTags />
+        <Routines>
+          <Routine Name="Logic" Type="RLL" />
+        </Routines>
+      </AddOnInstructionDefinition>
+    </AddOnInstructionDefinitions>
     <Tags />
     <Programs />
     <Tasks />
