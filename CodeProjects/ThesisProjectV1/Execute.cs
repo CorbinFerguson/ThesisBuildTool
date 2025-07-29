@@ -15,38 +15,32 @@ namespace ThesisProjectV1
         static void Main()
         {
             XMLHandler handler = new XMLHandler();
-            XDocument doc = handler.loadBasicFile();            
+            XDocument doc = handler.loadBasicFile();
 
-            // Try to insert an AOI which is easily accessed
-            XElement topLevelElement = new XElement("AddOnInstructionDefinitions");
-            XElement elementsReturned = handler.GetElementFromFile(topLevelElement, "../../../TestAOI.L5X");
-            doc = handler.InsertElement(doc, elementsReturned);
+            string nameOfElement="";
+            string filePath = "";
+            // Take in user input
 
-            // Insert an AOI with name
-            XElement aoiElement1 = new XElement("AddOnInstructionDefinition");
-            XElement aoiFirst = handler.GetElementFromFile(aoiElement1, "../../../TestFileWith2AOI.L5X", "testAOIV1");
-            doc = handler.InsertElement(doc, aoiFirst);
+            while (!nameOfElement.Equals("Exit")){
+                Console.WriteLine("Input the type of the element being added or Exit to exit the program");
+                nameOfElement = Console.ReadLine();
 
-            XElement aoiElement2 = new XElement("AddOnInstructionDefinition");
-            XElement aoiSec = handler.GetElementFromFile(aoiElement2, "../../../TestFileWith2AOI.L5X", "testAOIV2");
-            doc = handler.InsertElement(doc, aoiSec);
+                if (!nameOfElement.Equals("Exit"))
+                {
+                    Console.WriteLine("Please input the file to be accessed");
+                    filePath = Console.ReadLine();
+                    XElement parentElement = new XElement(nameOfElement);
+                    XElement returnedElement = handler.GetElementFromFile(parentElement, filePath);
+                    doc = handler.InsertElement(doc, returnedElement);
+                }
 
-
-            // Try to insert a routine, which is below the programs section
-            XElement routines = new XElement("Program");
-            XElement routineSubElements = handler.GetElementFromFile(routines, "../../../EmptyProgram.L5X");
-            doc = handler.InsertElement(doc, routineSubElements);
-
-            // Try to insert a module, which is formatted uniquely in the file
-            XElement modules = new XElement("Module");
-            XElement returnedModules = handler.GetElementFromFile(modules, "../../../TestAQ.L5X", "AQ");
-            doc = handler.InsertElement(doc, returnedModules);
+            }
 
             // Save the document to a file
-            string filePath = "../../../GenFile.L5X";
-            doc.Save(filePath);
+            string genFilePath = "../../../GenFile.L5X";
+            doc.Save(genFilePath);
 
-            Console.WriteLine($"XML file created at: {filePath}");
+            Console.WriteLine($"XML file created at: {genFilePath}");
         }
     }
 }
