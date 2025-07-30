@@ -212,14 +212,20 @@ namespace ThesisProjectV1
             return element;
         }
 
+        public List<XElement> GetElementFromFile(XElement elementType, string filePath, List<string> elementNames)
+        {
+            List<XElement> elementList = new List<XElement>();
+            foreach (string elementName in elementNames)
+                elementList.Add(GetElementFromFile(elementType, filePath, elementName));
+            return elementList;
+        }
+
         public List<String> GetElementsOfType(string elementType, string filePath)
         {
             List<String> names = new List<String>();
             XDocument doc = XDocument.Load(filePath);
             foreach (XElement element in doc.Descendants(elementType))
-            {
                 names.Add(element.Attribute("Name").Value.ToString());
-            }
 
             return names;
         }
@@ -272,9 +278,7 @@ namespace ThesisProjectV1
                     foreach (XAttribute attribute in parentAttributes) 
                     {
                         if (!parentAttributes.Contains(attribute))
-                        {
                             parentNode.Add(attribute);
-                        }
                     }
                     parentNode.Add(element);
                 }
@@ -285,6 +289,13 @@ namespace ThesisProjectV1
             inDoc.Validate(validationSchemaSet, null);
 
             return inDoc;
+        }
+
+        public XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
+        {
+            foreach(XElement element in returnedElement)
+                InsertElement(doc, element);
+            return doc;
         }
 
         // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
@@ -326,6 +337,7 @@ namespace ThesisProjectV1
             }
             return elementsInList;
         }
+
         #endregion
     }
 
