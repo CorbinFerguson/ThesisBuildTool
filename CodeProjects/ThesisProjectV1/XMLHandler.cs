@@ -19,7 +19,9 @@ namespace ThesisProjectV1
 
         public XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
-        public XDocument schema;
+        public static XDocument schema;
+
+        public XmlSchemaSet validationSchemaSet;
 
         #endregion
 
@@ -27,6 +29,7 @@ namespace ThesisProjectV1
         public XMLHandler() 
         {
             schema = XDocument.Load(schemaPath);
+            validationSchemaSet = new XmlSchemaSet();
         }
 
         #endregion
@@ -214,9 +217,22 @@ namespace ThesisProjectV1
             {
                 parentName = rootPath.Dequeue();
                 element = new XElement(parentName, element);
+
+                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).First().Attribute("type").Value; // TODO: Replace first() with Single()
+                XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).First();
+                IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
+
+                foreach (XElement requiredAttribute in requiredAttributes)
+                {
+                    // Set attributes of element
+                    Console.WriteLine("Input user value for " + requiredAttribute.Attribute("name").Value + " of " + parentName);
+                    string attributeValue = Console.ReadLine();
+                    element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
+                }
             }
 
             XElement childNode = inDoc.Descendants(element.Name).First();
+
             if (childNode.IsEmpty)
             {
                 childNode.ReplaceWith(element);
@@ -246,6 +262,10 @@ namespace ThesisProjectV1
                 }
 
             }
+
+            // Validate XML structure
+            inDoc.Validate(validationSchemaSet, null);
+
             return inDoc;
         }
 
@@ -257,7 +277,7 @@ namespace ThesisProjectV1
 
             string name = element.Name.ToString();
 
-            XElement schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name)).FirstOrDefault();
+            XElement schemaElement = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name)).First(); // TODO: Replace first() with Single()
             // Loop until RSLogix5000Content(root of L5X) is found
             while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
             {
@@ -265,7 +285,7 @@ namespace ThesisProjectV1
                 name = schemaElement.Parent.Parent.Attribute("name").Value;
 
                 // search for something with that type
-                schemaElement = schema.Descendants().Where(i => i.HasAttributes == true).Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).FirstOrDefault();
+                schemaElement = schema.Descendants().Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).First(); // TODO: Replace first() with Single()
 
                 paths.Enqueue(schemaElement.Attribute("name").Value);
 

@@ -19,7 +19,7 @@ namespace ThesisProjectV1
         {
             options = new List<string>()
             {
-                "Controller","Routine","Program","AddOnInstructionDefinition","DataType","Tag","Module", "AlarmCondition", "Task", "Trend"
+                "Controller","Program","AddOnInstructionDefinition","DataType","Tag","Module", "AlarmCondition", "Task", "Trend"
             };
         }
         public CmdHandler(List<string> ops) { options = ops; }

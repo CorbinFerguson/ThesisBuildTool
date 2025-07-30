@@ -18,6 +18,7 @@ namespace ThesisProjectV1
             XDocument doc = xmlHandler.loadBasicFile();
             CmdHandler cmdHandler = new CmdHandler();
 
+            
 
             string typeOfElement;
             string filePath = "";
@@ -47,10 +48,13 @@ namespace ThesisProjectV1
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        Console.WriteLine("Stack trace: " + ex.StackTrace);
                     }
                 }
 
             }
+
+            // Validate function 
 
             // Save the document to a file
             string genFilePath = "../../../GenFile.L5X";
