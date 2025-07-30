@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -192,6 +193,22 @@ namespace ThesisProjectV1
             return doc;
         }
 
+        // Get all distinct types in the document. They must have a name to be addable.
+        public List<string> GetDistinctTypes(string path)
+        {
+            XDocument doc = XDocument.Load(path);
+            List<string> types = new List<string>();
+
+            foreach (XElement type in doc.Descendants())
+            {
+                if(type.Attribute("Name")!=null && type.Name.ToString()!="Controller")
+                    if(!types.Contains(type.Name.ToString()))
+                        types.Add(type.Name.ToString());
+            }
+
+            return types;
+        }
+
         public XElement GetElementFromFile(XElement subElement, string filePath)
         {
             XDocument itemtoAddDoc = XDocument.Load(filePath);
@@ -220,12 +237,12 @@ namespace ThesisProjectV1
             return elementList;
         }
 
-        public List<String> GetElementsOfType(string elementType, string filePath)
+        public List<string> GetElementsOfType(string elementType, string filePath)
         {
             List<String> names = new List<String>();
             XDocument doc = XDocument.Load(filePath);
             foreach (XElement element in doc.Descendants(elementType))
-                names.Add(element.Attribute("Name").Value.ToString());
+                names.Add(element.Attribute("Name").Value.ToString());  
 
             return names;
         }

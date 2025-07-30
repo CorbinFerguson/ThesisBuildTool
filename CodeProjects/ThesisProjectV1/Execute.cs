@@ -50,7 +50,7 @@ namespace ThesisProjectV1
                     while(insertElement)
                     {
                         // Prompt user to select type of element to insert
-                        List<string> elementTypes = new List<string>() { "Controller", "Program", "AddOnInstructionDefinition", "DataType", "Tag", "Module", "AlarmCondition", "Task", "Trend" };
+                        List<string> elementTypes = xmlHandler.GetDistinctTypes(filePath);
                         DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
                         selectType.ShowDialog(out string typeOfElement);
 
