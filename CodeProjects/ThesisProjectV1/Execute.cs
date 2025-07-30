@@ -22,56 +22,68 @@ namespace ThesisProjectV1
             XDocument doc = xmlHandler.LoadBasicFile();
             CmdHandler cmdHandler = new CmdHandler();
 
-            
 
-            string typeOfElement;
+
             string filePath = "";
-            string nameOfElement;
+            bool insertElement = true;
             // Take in user input
             while (true)
             {
-                // User input:
-                Console.WriteLine("Please input the path of the file to be accessed");
-                OpenFileDialog openFileSearch = new OpenFileDialog();
-                openFileSearch.InitialDirectory = "../";
-                openFileSearch.Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*";
-                openFileSearch.FilterIndex = 2;
-                openFileSearch.RestoreDirectory = true;
-                if (openFileSearch.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    filePath = openFileSearch.FileName;
-                }
-                else
-                {
-                    filePath = "Exit";
-                }
-
-                if (!filePath.Equals("Exit"))
-                {
-                    Console.WriteLine("Select the type of the element being added or Exit to exit the program");
-                    typeOfElement = cmdHandler.Navigate();
-
-                    // Get all elements in file of the type
-                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
-                    DropdownGui selectElement = new DropdownGui(availableElements);
-                    selectElement.ShowDialog(out nameOfElement);
-
-                    try
+                    // User input:
+                    Console.WriteLine("Please input the path of the file to be accessed");
+                    OpenFileDialog openFileSearch = new OpenFileDialog();
+                    openFileSearch.InitialDirectory = "../";
+                    openFileSearch.Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*";
+                    openFileSearch.FilterIndex = 2;
+                    openFileSearch.RestoreDirectory = true;
+                    if (openFileSearch.ShowDialog() == DialogResult.OK)
                     {
-                        XElement parentElement = new XElement(typeOfElement);
-                        XElement returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
-                        doc = xmlHandler.InsertElement(doc, returnedElement);
-                        Console.WriteLine("Inserted: " + returnedElement.Name.ToString());
+                        filePath = openFileSearch.FileName;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine("Stack trace: " + ex.StackTrace);
+                        insertElement = false;
+                    }
+
+                    while(insertElement)
+                    {
+                        // Prompt user to select type of element to insert
+                        List<string> elementTypes = new List<string>() { "Controller", "Program", "AddOnInstructionDefinition", "DataType", "Tag", "Module", "AlarmCondition", "Task", "Trend" };
+                        DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
+                        selectType.ShowDialog(out string typeOfElement);
+
+                        // Get all elements in file of the type
+                        List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
+                        MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select element to insert");
+                        selectElement.ShowDialog(out List<string> nameOfElement);
+
+                        try
+                        {
+                            XElement parentElement = new XElement(typeOfElement);
+                            List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
+                            doc = xmlHandler.InsertElement(doc, returnedElement);
+                            returnedElement.ForEach(element => { Console.WriteLine("Inserted: " + element.Name); });
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Stack trace: " + ex.StackTrace);
+                        }
+                        DialogResult newElementFile= MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+                        if (newElementFile == DialogResult.No)
+                            break;
                     }
                 }
+                catch (EmptyListException ex)
+                {
+                    // Create a popup telling user what happened
+                    MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
+                }
 
-                EndSelectionForm endSelect = new EndSelectionForm();
-                if (endSelect.ShowDialog() == DialogResult.Yes)
+                DialogResult endSelect = MessageBox.Show("End Selection?", "Element Select", MessageBoxButtons.YesNo);
+                if (endSelect == DialogResult.Yes)
                     break;
             }
 

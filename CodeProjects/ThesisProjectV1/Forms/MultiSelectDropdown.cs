@@ -10,27 +10,27 @@ using System.Windows.Forms;
 
 namespace ThesisProjectV1.Forms
 {
-    public partial class DropdownGui : Form
+    public partial class MultiSelectDropdown : Form
     {
-        public DropdownGui()
+        public MultiSelectDropdown()
         {
             InitializeComponent();
         }
-        public DropdownGui(List<string> names, string text)
+        public MultiSelectDropdown(List<string> names, string text)
         {
             if (names.Count() == 0)
             {
                 throw new EmptyListException("Attempted to initialize dropdown gui with no elements");
             }
             InitializeComponent();
-            this.dropdownelements.Items.AddRange(names.ToArray());
-            this.textBox.Text = text;
+            this.DropdownElements.Items.AddRange(names.ToArray());
+            this.TextBox.Text = text;
         }
 
-        public void ShowDialog(out string selected)
+        public void ShowDialog(out List<string> selected)
         {
             base.ShowDialog();
-            selected = this.dropdownelements.SelectedItem.ToString();
+            selected = this.DropdownElements.SelectedItems.Cast<string>().ToList();
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)

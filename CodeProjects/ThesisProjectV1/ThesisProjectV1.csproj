@@ -45,22 +45,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdHandler.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Forms\DropdownGui.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\DropdownGui.Designer.cs">
       <DependentUpon>DropdownGui.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Form1.cs">
+    <Compile Include="Forms\MultiSelectDropdown.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\MultiSelectDropdown.Designer.cs">
+      <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
     </Compile>
     <Compile Include="XMLHandler.cs" />
     <Compile Include="Execute.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -72,8 +74,8 @@
     <EmbeddedResource Include="Forms\DropdownGui.resx">
       <DependentUpon>DropdownGui.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\MultiSelectDropdown.resx">
+      <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
