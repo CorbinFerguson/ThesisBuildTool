@@ -11,17 +11,17 @@ namespace ThesisProjectV1
     public class XMLHandler
     {
         #region Variables
-        public string processorType = "1756-L81E";
+        private readonly string processorType = "1756-L81E";
 
-        public string projectName = "GenProject";
+        private readonly string projectName = "GenProject";
 
-        public static string schemaPath = "../../../../RSLogix5000_V35.xsd";
+        private static string schemaPath = "../../../../RSLogix5000_V35.xsd";
 
-        public XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
+        private readonly XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
-        public static XDocument schema;
+        private static XDocument schema;
 
-        public XmlSchemaSet validationSchemaSet;
+        private readonly XmlSchemaSet validationSchemaSet;
 
         #endregion
 
@@ -186,24 +186,42 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        public XDocument loadBasicFile()
+        public XDocument LoadBasicFile()
         {
             XDocument doc = XDocument.Load("../../../EmptyGenFile.l5X");
             return doc;
         }
 
-        public XElement GetElementFromFile(XElement subElement, string pathItemtoAdd)
+        public XElement GetElementFromFile(XElement subElement, string filePath)
         {
-            XDocument itemtoAddDoc = XDocument.Load(pathItemtoAdd);
+            XDocument itemtoAddDoc = XDocument.Load(filePath);
             XElement element = itemtoAddDoc.Descendants(subElement.Name).First();
             return element;
         }
 
-        public XElement GetElementFromFile(XElement elementType, string pathItemtoAdd, string elementName)
+        public XElement GetElementFromFile(XElement elementType, string filePath, string elementName)
         {
-            XDocument itemToAddDoc = XDocument.Load(pathItemtoAdd);
-            XElement element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).First();
+            XElement element;
+            if (elementName.Equals(""))
+                element = GetElementFromFile(elementType, filePath);
+            else
+            {
+                XDocument itemToAddDoc = XDocument.Load(filePath);
+                element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).First();
+            }
             return element;
+        }
+
+        public List<String> GetElementsOfType(string elementType, string filePath)
+        {
+            List<String> names = new List<String>();
+            XDocument doc = XDocument.Load(filePath);
+            foreach (XElement element in doc.Descendants(elementType))
+            {
+                names.Add(element.Attribute("Name").Value.ToString());
+            }
+
+            return names;
         }
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
