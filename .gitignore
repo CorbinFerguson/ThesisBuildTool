@@ -31,4 +31,4 @@ _ReSharper*/
 .idea/
 #Nuget packages folder
 packages/
-/CodeProjects/L5XFiles/*
+CodeProjects/L5XFiles/
