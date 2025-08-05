@@ -36,7 +36,7 @@ namespace ThesisProjectV1
                     OpenFileDialog openFileSearch = new OpenFileDialog();
                     openFileSearch.InitialDirectory = "../";
                     openFileSearch.Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*";
-                    openFileSearch.FilterIndex = 2;
+                    openFileSearch.FilterIndex = 0;
                     openFileSearch.RestoreDirectory = true;
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
                     {
@@ -56,7 +56,7 @@ namespace ThesisProjectV1
 
                         // Get all elements in file of the type
                         List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
-                        MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select element to insert");
+                        MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                         selectElement.ShowDialog(out List<string> nameOfElement);
 
                         try
