@@ -21,8 +21,13 @@ namespace ThesisProjectV1
             XMLHandler xmlHandler = new XMLHandler();
             XDocument doc = xmlHandler.LoadBasicFile();
             CmdHandler cmdHandler = new CmdHandler();
-
-
+            OpenFileDialog openFileSearch = new OpenFileDialog
+            {
+                InitialDirectory = "../",
+                Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
+                FilterIndex = 0,
+                RestoreDirectory = true
+            };
 
             string filePath = "";
             bool insertElement = true;
@@ -33,11 +38,6 @@ namespace ThesisProjectV1
                 {
                     // User input:
                     Console.WriteLine("Please input the path of the file to be accessed");
-                    OpenFileDialog openFileSearch = new OpenFileDialog();
-                    openFileSearch.InitialDirectory = "../";
-                    openFileSearch.Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*";
-                    openFileSearch.FilterIndex = 0;
-                    openFileSearch.RestoreDirectory = true;
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
                     {
                         filePath = openFileSearch.FileName;
@@ -51,6 +51,9 @@ namespace ThesisProjectV1
                     {
                         // Prompt user to select type of element to insert
                         List<string> elementTypes = xmlHandler.GetDistinctTypes(filePath);
+                        
+                        // Filter out any types
+                        
                         DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
                         selectType.ShowDialog(out string typeOfElement);
 
