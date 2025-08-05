@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
@@ -259,8 +261,8 @@ namespace ThesisProjectV1
                 parentName = rootPath.Dequeue();
                 element = new XElement(parentName, element);
 
-                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).First().Attribute("type").Value; // TODO: Replace first() with Single()
-                XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).First();
+                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).First().Attribute("type").Value;
+                XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
                 IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
 
                 foreach (XElement requiredAttribute in requiredAttributes)
@@ -322,20 +324,42 @@ namespace ThesisProjectV1
             paths.Enqueue(element.Name.ToString());
 
             string name = element.Name.ToString();
+            XElement schemaElement = null;
 
-            XElement schemaElement = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name)).First(); // TODO: Replace first() with Single()
-            // Loop until RSLogix5000Content(root of L5X) is found
-            while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
+            try
             {
-                // Go to parent complex type, find name of that
-                name = schemaElement.Parent.Parent.Attribute("name").Value;
+                schemaElement = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name)).Where(i => i.Name.Equals(ns + "element") || i.Name.Equals(ns + "complexType")).Single();
 
-                // search for something with that type
-                schemaElement = schema.Descendants().Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).First(); // TODO: Replace first() with Single()
+                // Loop until RSLogix5000Content(root of L5X) is found
+                while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
+                {
+                    // Go to parent complex type, find name of that
+                    name = schemaElement.Parent.Parent.Attribute("name").Value;
 
-                paths.Enqueue(schemaElement.Attribute("name").Value);
+                    // search for something with that type
+                    schemaElement = schema.Descendants().Where(i => i.Attribute("type") != null).Where(i => i.Attribute("type").Value.Equals(name)).Where(i => i.Name.Equals(ns + "element")).Single();
 
-                // if it is a schema it has gone too far
+                    paths.Enqueue(schemaElement.Attribute("name").Value);
+
+                    // if it is a schema it has gone too far
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Create a popup telling user what happened
+                MessageBox.Show("Ambiguous Parent, please select intended parent", ex.Message, MessageBoxButtons.OK);
+                IEnumerable<XElement> ambiguousElements = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(name));
+                List<string> parentNames = new List<string>();
+                foreach (XElement ambiguousElement in ambiguousElements)
+                    parentNames.Add(ambiguousElement.Attribute("name").Value.ToString());
+                DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent");
+                selectElement.ShowDialog(out string nameOfElement);
+                XElement unambiguousParent = new XElement(nameOfElement);
+                Queue<string> rootPath = FindPathtoRootSchema(unambiguousParent);
+                foreach (string parent in rootPath)
+                    paths.Enqueue(parent);
+                return paths;
             }
             return paths;
         }
