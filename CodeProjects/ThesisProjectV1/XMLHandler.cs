@@ -192,7 +192,7 @@ namespace ThesisProjectV1
 
         public XDocument LoadBasicFile()
         {
-            XDocument doc = XDocument.Load("../../../EmptyGenFile.l5X");
+            XDocument doc = XDocument.Load("../../../L5XFiles/EmptyGenFile.l5X");
             return doc;
         }
 

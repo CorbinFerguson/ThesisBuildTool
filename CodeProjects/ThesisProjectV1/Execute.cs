@@ -93,7 +93,7 @@ namespace ThesisProjectV1
             // Validate function 
 
             // Save the document to a file
-            string genFilePath = "../../../GenFile.L5X";
+            string genFilePath = "../../../L5XFiles/GenFile.L5X";
             doc.Save(genFilePath);
 
             Console.WriteLine($"XML file created at: {genFilePath}");

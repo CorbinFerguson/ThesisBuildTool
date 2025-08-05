@@ -10,8 +10,7 @@
 <SafetyInfo/>
 <DataTypes/>
 <Modules>
-<Module Name="Local" CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="11" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="true"
->
+<Module Name="Local" CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="11" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="true">
 <EKey State="Disabled"/>
 <Ports>
 <Port Id="1" Address="0" Type="ICP" Upstream="false">
@@ -22,8 +21,7 @@
 </Port>
 </Ports>
 </Module>
-<Module Name="AnalogIO_HART" CatalogNumber="1756-IF16IH/A" Vendor="1" ProductType="10" ProductCode="457" Major="1" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false"
->
+<Module Name="AnalogIO_HART" CatalogNumber="1756-IF16IH/A" Vendor="1" ProductType="10" ProductCode="457" Major="1" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false">
 <EKey State="CompatibleModule"/>
 <Ports>
 <Port Id="1" Address="1" Type="ICP" Upstream="true"/>

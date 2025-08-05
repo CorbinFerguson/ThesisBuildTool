@@ -6,20 +6,13 @@
     <SafetyInfo />
     <DataTypes />
     <Modules />
-    <AddOnInstructionDefinitions>
-      <AddOnInstructionDefinition Name="aoi">
-        <Parameters>
-          <Parameter Name="EnableInput" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
-            <Description><![CDATA[Enable Input - System Defined Parameter]]></Description>
-          </Parameter>
-          <Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
-            <Description><![CDATA[Enable Output - System Defined Parameter]]></Description>
-          </Parameter>
-        </Parameters>
-      </AddOnInstructionDefinition>
-    </AddOnInstructionDefinitions>
+    <AddOnInstructionDefinitions />
     <Tags />
-    <Programs />
+    <Programs>
+      <Program Name="genName">
+        <Routine Name="MainRoutine" Type="RLL" />
+      </Program>
+    </Programs>
     <Tasks />
     <CST MasterID="0" />
     <WallClockTime LocalTimeAdjustment="0" TimeZone="0" />
