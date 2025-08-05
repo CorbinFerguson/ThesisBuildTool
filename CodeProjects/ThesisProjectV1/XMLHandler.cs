@@ -215,7 +215,7 @@ namespace ThesisProjectV1
         public XElement GetElementFromFile(XElement subElement, string filePath)
         {
             XDocument itemtoAddDoc = XDocument.Load(filePath);
-            XElement element = itemtoAddDoc.Descendants(subElement.Name).First();
+            XElement element = itemtoAddDoc.Descendants(subElement.Name).Single();
             return element;
         }
 
@@ -227,7 +227,7 @@ namespace ThesisProjectV1
             else
             {
                 XDocument itemToAddDoc = XDocument.Load(filePath);
-                element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).First();
+                element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
             }
             return element;
         }
@@ -262,7 +262,7 @@ namespace ThesisProjectV1
                 parentName = rootPath.Dequeue();
                 element = new XElement(parentName, element);
 
-                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).First().Attribute("type").Value;
+                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
                 XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
                 IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
 
@@ -275,7 +275,7 @@ namespace ThesisProjectV1
                 }
             }
 
-            XElement childNode = inDoc.Descendants(element.Name).First();
+            XElement childNode = inDoc.Descendants(element.Name).Single();
 
             if (childNode.IsEmpty)
             {
@@ -283,7 +283,7 @@ namespace ThesisProjectV1
             }
             else
             {
-                XElement parentNode = inDoc.Descendants(parentName).Ancestors().First();
+                XElement parentNode = inDoc.Descendants(parentName).Ancestors().Single();
                 IEnumerable<XAttribute> elementAttributes = element.Attributes();
                 IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
 
@@ -334,7 +334,7 @@ namespace ThesisProjectV1
                 schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Where(i => !i.Name.Equals(ns + "attribute")).Single();
 
                 // Loop until RSLogix5000Content(root of L5X) is found
-                while (!schemaElement.FirstAttribute.Value.Equals("RSLogix5000Content"))
+                while (!schemaElement.Attribute("name").Value.Equals("Controller"))
                 {
                     // Go to parent complex type, find name of that
                     attributeFilter = "name";
