@@ -23,7 +23,7 @@ namespace ThesisProjectV1
 
         private readonly XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
-        public static XDocument schema;
+        private static XDocument schema;
 
         private readonly XmlSchemaSet validationSchemaSet;
 
@@ -221,13 +221,36 @@ namespace ThesisProjectV1
 
         public XElement GetElementFromFile(XElement elementType, string filePath, string elementName)
         {
-            XElement element;
+            XElement element=null;
             if (elementName.Equals(""))
                 element = GetElementFromFile(elementType, filePath);
             else
             {
                 XDocument itemToAddDoc = XDocument.Load(filePath);
-                element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+                try
+                {
+                    element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+
+                }
+                catch (InvalidOperationException ex)
+                {
+                    List<string> guiElements = new List<string>();
+                    if (ex.Message.Contains("Sequence contains more than one element"))
+                    {
+                        // There exists more than one element of that name
+                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                        // Create a popup telling user what happened
+                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended parent type", ex.Message, MessageBoxButtons.OK);
+                        foreach (XElement availableElement in elementsToChoose)
+                        {
+                            XElement lowestParent = availableElement.Ancestors().First();
+                            guiElements.Add(lowestParent.Name.ToString());
+                        }
+                        DropdownGui selectElement = new DropdownGui(guiElements, "Select intended parent type");
+                        selectElement.ShowDialog(out string nameOfElement);
+                        XElement unambiguousParent = new XElement(nameOfElement);
+                    }
+                }
             }
             return element;
         }
@@ -250,13 +273,14 @@ namespace ThesisProjectV1
             return names;
         }
 
+        public XDocument GetSchema() { return schema; }
+
         public XDocument InsertElement(XDocument inDoc, XElement element)
         {
             Queue<string> rootPath = FindPathtoRootSchema(element);
             XName parentName = rootPath.Dequeue();
 
             // Check that parent node exists in document
-
             while(!(inDoc.Descendants(parentName).Any()))
             {
                 parentName = rootPath.Dequeue();
@@ -275,38 +299,54 @@ namespace ThesisProjectV1
                 }
             }
 
-            XElement childNode = inDoc.Descendants(element.Name).Single();
+            bool multOptions = false;
+            XElement parentNode = null;
 
-            if (childNode.IsEmpty)
+            try
             {
-                childNode.ReplaceWith(element);
+                parentNode = inDoc.Descendants(parentName).Single();
+            }
+            catch(InvalidOperationException)
+            {
+                multOptions = true;
+            }
+
+            if (parentNode != null && parentNode.IsEmpty)
+            {
+                parentNode.ReplaceWith(element);
+                return inDoc;
+            }
+            else if (multOptions) // If there exists one option for insertion location
+            {
+                MessageBox.Show("Multiple options for parent element", "", MessageBoxButtons.OK);
+                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Name.ToString()).ToList();
+                DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
+                parentSelect.ShowDialog(out string selectedName);
+                parentNode = inDoc.Descendants(selectedName).Single();
             }
             else
             {
-                XElement parentNode = inDoc.Descendants(parentName).Ancestors().Single();
-                IEnumerable<XAttribute> elementAttributes = element.Attributes();
-                IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
-
-                // If attributes are the same:
-                if (elementAttributes.Equals(parentAttributes))
-                {
-                    parentNode.Add(element.Elements());
-                }
-                // if Attributes are different
-                else
-                {
-                    foreach (XAttribute attribute in parentAttributes) 
-                    {
-                        if (!parentAttributes.Contains(attribute))
-                            parentNode.Add(attribute);
-                    }
-                    parentNode.Add(element);
-                }
-
+                parentNode = parentNode.Parent;
             }
 
-            // Validate XML structure
-            inDoc.Validate(validationSchemaSet, null);
+            IEnumerable<XAttribute> elementAttributes = element.Attributes();
+            IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
+
+            // If attributes are the same:
+            if (elementAttributes.Equals(parentAttributes))
+            {
+                parentNode.Add(element.Elements());
+            }
+            // if Attributes are different
+            else
+            {
+                foreach (XAttribute attribute in parentAttributes)
+                {
+                    if (!parentAttributes.Contains(attribute))
+                        parentNode.Add(attribute);
+                }
+                parentNode.Add(element);
+            }
 
             return inDoc;
         }
@@ -355,7 +395,7 @@ namespace ThesisProjectV1
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
                     // Create a popup telling user what happened
-                    MessageBox.Show("Ambiguous Parent, please select intended parent", ex.Message, MessageBoxButtons.OK);
+                    MessageBox.Show("Ambiguous parent type for " + schemaElement.Attribute("name").Value +", please select intended parent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
                     List<string> parentNames = new List<string>();
                     foreach (XElement ambiguousElement in ambiguousElements)
