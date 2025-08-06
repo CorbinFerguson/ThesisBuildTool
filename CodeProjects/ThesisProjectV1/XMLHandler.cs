@@ -313,7 +313,7 @@ namespace ThesisProjectV1
 
             if (parentNode != null && parentNode.IsEmpty)
             {
-                parentNode.ReplaceWith(element);
+                parentNode.ReplaceWith(element.Parent);
                 return inDoc;
             }
             else if (multOptions) // If there exists one option for insertion location
@@ -324,13 +324,10 @@ namespace ThesisProjectV1
                 parentSelect.ShowDialog(out string selectedName);
                 parentNode = inDoc.Descendants(selectedName).Single();
             }
-            else
-            {
-                parentNode = parentNode.Parent;
-            }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
             IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
+            parentAttributes = parentAttributes.Except(elementAttributes);
 
             // If attributes are the same:
             if (elementAttributes.Equals(parentAttributes))
@@ -362,7 +359,6 @@ namespace ThesisProjectV1
         public Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
-            paths.Enqueue(element.Name.ToString());
             string attributeFilter=null;
 
             string name = element.Name.ToString();
