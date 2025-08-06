@@ -51,9 +51,9 @@ namespace ThesisProjectV1
                     {
                         // Prompt user to select type of element to insert
                         List<string> elementTypes = xmlHandler.GetDistinctTypes(filePath);
-                        
-                        // Filter out any types
-                        
+                        IEnumerable<XElement> typesWDataStruc = xmlHandler.GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
+                        elementTypes = elementTypes.Where(name => !typesWDataStruc.Any(x => (string)x.Attribute("name") == name)).ToList();
+
                         DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
                         selectType.ShowDialog(out string typeOfElement);
 
@@ -61,19 +61,10 @@ namespace ThesisProjectV1
                         List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
                         MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                         selectElement.ShowDialog(out List<string> nameOfElement);
-
-                        try
-                        {
-                            XElement parentElement = new XElement(typeOfElement);
-                            List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
-                            doc = xmlHandler.InsertElement(doc, returnedElement);
-                            returnedElement.ForEach(element => { Console.WriteLine("Inserted: " + element.Name); });
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                            Console.WriteLine("Stack trace: " + ex.StackTrace);
-                        }
+                        XElement parentElement = new XElement(typeOfElement);
+                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
+                        doc = xmlHandler.InsertElement(doc, returnedElement);
+                        returnedElement.ForEach(element => { Console.WriteLine("Inserted: " + element.Name); });
                         DialogResult newElementFile= MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
                             break;
@@ -89,8 +80,6 @@ namespace ThesisProjectV1
                 if (endSelect == DialogResult.Yes)
                     break;
             }
-
-            // Validate function 
 
             // Save the document to a file
             string genFilePath = "../../../L5XFiles/GenFile.L5X";
