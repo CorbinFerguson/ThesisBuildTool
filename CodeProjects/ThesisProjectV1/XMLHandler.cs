@@ -217,9 +217,7 @@ namespace ThesisProjectV1
 
         public XElement GetElementFromFile(XElement subElement, string filePath)
         {
-            XDocument itemtoAddDoc = XDocument.Load(filePath);
-            XElement element = itemtoAddDoc.Descendants(subElement.Name).Single();
-            return element;
+            throw new NotImplementedException();
         }
 
         public XElement GetElementFromFile(XElement elementType, string filePath, string elementName)
@@ -232,22 +230,32 @@ namespace ThesisProjectV1
                 XDocument itemToAddDoc = XDocument.Load(filePath);
                 try
                 {
-                    element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
-
+                    element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
                 }
                 catch (InvalidOperationException ex)
                 {
-                    List<string> guiElements = new List<string>();
                     if (ex.Message.Contains("Sequence contains more than one element"))
                     {
                         // There exists more than one element of that name
-                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                         // Create a popup telling user what happened
-                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
-                        List<string> parentOptions = element.Descendants(elementName).Select(i => i.Parent.Name.ToString()).ToList();
-                        DropdownGui selectElement = new DropdownGui(guiElements, "Select intended parent type");
+                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended grandparent type", "Element from File Selection", MessageBoxButtons.OK);
+                        List<string> parentOptions = itemToAddDoc.Descendants(elementType.Name).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList(); 
+                        DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
                         selectElement.ShowDialog(out string nameOfElement);
-                        XElement unambiguousParent = new XElement(nameOfElement);
+                        try
+                        {
+                            element = itemToAddDoc.Descendants(nameOfElement).Single();
+                        }
+                        catch(InvalidOperationException nestEX)
+                        {
+                            MessageBox.Show("Multiple objects of chosen type", "Disambiguate Element from File Selection", MessageBoxButtons.OK);
+                            List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific objct parent");
+                            elementSelect.ShowDialog( out string selectedObject);
+                            XElement parentElement = itemToAddDoc.Descendants().Where(i=> i.Attribute("Name") != null).Where(i=>i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
+                            element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
+                        }
                     }
                 }
             }
@@ -307,6 +315,14 @@ namespace ThesisProjectV1
                 }
             }
 
+            // Check that the element being added doesn't already exist
+            IEnumerable<XElement> elementToAdd = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
+            if (elementToAdd.Count() > 0)
+            {
+                MessageBox.Show("Element by that name already exists. Canceling Insertion", "Add Element Error", MessageBoxButtons.OK);
+                return inDoc;
+            }
+
             try
             {
                 parentNode = inDoc.Descendants(parentName).Single();
@@ -319,11 +335,12 @@ namespace ThesisProjectV1
             if (parentNode != null && parentNode.IsEmpty)
             {
                 parentNode.Add(element);
+                Console.WriteLine("Inserted: " + element.Name);
                 return inDoc;
             }
             else if (multOptions) // If there exists multiple options for insertion location
             {
-                MessageBox.Show("Multiple options for parent element", "", MessageBoxButtons.OK);
+                MessageBox.Show("Multiple options for parent element", "Parent Element Options", MessageBoxButtons.OK);
                 List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).ToList();
                 DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
                 parentSelect.ShowDialog(out string selectedName);
@@ -350,6 +367,7 @@ namespace ThesisProjectV1
                 parentNode.Add(element);
             }
 
+            Console.WriteLine("Inserted: " + element.Name);
             return inDoc;
         }
 
@@ -432,7 +450,6 @@ namespace ThesisProjectV1
             }
             catch(EmptyListException ex)
             {
-                //MessageBox.Show(ex.Message, "Path Failed", MessageBoxButtons.OK);
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }

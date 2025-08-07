@@ -64,7 +64,6 @@ namespace ThesisProjectV1
                         XElement parentElement = new XElement(typeOfElement);
                         List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
                         doc = xmlHandler.InsertElement(doc, returnedElement);
-                        returnedElement.ForEach(element => { Console.WriteLine("Inserted: " + element.Name); });
                         DialogResult newElementFile= MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
                             break;

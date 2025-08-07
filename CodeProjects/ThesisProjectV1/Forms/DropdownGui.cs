@@ -41,7 +41,8 @@ namespace ThesisProjectV1.Forms
 
         private void Dropdownelements_DoubleClick(object sender, EventArgs e)
         {
-            this.Close();
+            if (this.Dropdownelements.SelectedItems != null)
+                this.Close();
         }
     }
 }

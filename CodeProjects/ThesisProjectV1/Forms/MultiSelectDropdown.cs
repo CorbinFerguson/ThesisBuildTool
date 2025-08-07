@@ -35,7 +35,8 @@ namespace ThesisProjectV1.Forms
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            this.Close();
+            if(this.DropdownElements.SelectedItems.Count > 0)
+                this.Close();
         }
     }
 }
