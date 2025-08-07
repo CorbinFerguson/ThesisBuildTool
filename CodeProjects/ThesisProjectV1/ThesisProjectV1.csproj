@@ -38,10 +38,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="App.config" />
-    <None Include="Properties\DataSources\CmdHandler.datasource" />
-    <None Include="Properties\DataSources\EndSelectionForm.datasource" />
-    <None Include="Properties\DataSources\Execute.datasource" />
-    <None Include="Properties\DataSources\XMLHandler.datasource" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdHandler.cs" />
@@ -77,6 +73,9 @@
     <EmbeddedResource Include="Forms\MultiSelectDropdown.resx">
       <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

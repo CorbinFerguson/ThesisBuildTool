@@ -410,7 +410,7 @@ namespace ThesisProjectV1
                     }
 
                     // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent");
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
                     XElement unambiguousGrandparent = new XElement(nameOfElement);
 
