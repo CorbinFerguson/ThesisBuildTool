@@ -207,7 +207,7 @@ namespace ThesisProjectV1
 
             foreach (XElement type in doc.Descendants())
             {
-                if(type.Attribute("Name")!=null && type.Name.ToString()!="Controller")
+                if(type.Attribute("Name")!=null && type.Name.ToString()!= "RSLogix5000Content")
                     if(!types.Contains(type.Name.ToString()))
                         types.Add(type.Name.ToString());
             }
@@ -374,8 +374,8 @@ namespace ThesisProjectV1
                 attributeFilter = "name";
                 schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
-                // Loop until Controller(root of L5X) is found
-                while (!schemaElement.Attribute("name").Value.Equals("Controller"))
+                // Loop until RSLogix5000Content(root of L5X) is found
+                while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
                 {
                     // Go to parent complex type, find name of that
                     attributeFilter = "name";
@@ -388,7 +388,7 @@ namespace ThesisProjectV1
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
                 if (paths.Count == 0)
-                    throw new EmptyListException("Empty path to root. Started at Controller");
+                    throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
             }
             catch (InvalidOperationException ex)
             {
