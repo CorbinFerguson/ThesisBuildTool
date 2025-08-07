@@ -19,7 +19,7 @@ namespace ThesisProjectV1
 
         private readonly string projectName = "GenProject";
 
-        private static readonly string schemaPath = "../../../../RSLogix5000_V35.xsd";
+        private static readonly string schemaPath = "../../../RSLogix5000_V35.xsd";
 
         private readonly XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
@@ -39,8 +39,8 @@ namespace ThesisProjectV1
         #endregion
 
         #region functions
-
-        public XDocument CreateBasicDocument()
+        // Outdated document creation function //TODO: update
+        public void CreateBasicDocument()
         {
             XDocument doc = new XDocument();
 
@@ -186,10 +186,13 @@ namespace ThesisProjectV1
             #endregion
 
             #endregion
-
-            return doc;
+            
+            // Save the document to a file
+            string genFilePath = "../../../L5XFiles/EmptyGenFile.L5X";
+            doc.Save(genFilePath);
         }
 
+        // Loads a premade blank file containig basic structure for the program to build off
         public XDocument LoadBasicFile()
         {
             XDocument doc = XDocument.Load("../../../L5XFiles/EmptyGenFile.l5X");
@@ -321,10 +324,10 @@ namespace ThesisProjectV1
             else if (multOptions) // If there exists multiple options for insertion location
             {
                 MessageBox.Show("Multiple options for parent element", "", MessageBoxButtons.OK);
-                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("name").ToString()).ToList();
+                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).ToList();
                 DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
                 parentSelect.ShowDialog(out string selectedName);
-                parentNode = inDoc.Descendants().Where(i => i.Attribute("name").ToString().Equals(selectedName)).Single();
+                parentNode = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName)).Single();
             }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
@@ -392,7 +395,7 @@ namespace ThesisProjectV1
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
                     // Create a popup telling user what happened
-                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value +", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
+                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value +" of "+ element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
                     List<string> parentNames = new List<string>();
 
@@ -429,7 +432,9 @@ namespace ThesisProjectV1
             }
             catch(EmptyListException ex)
             {
-                MessageBox.Show(ex.Message, "Path Failed", MessageBoxButtons.OK);
+                //MessageBox.Show(ex.Message, "Path Failed", MessageBoxButtons.OK);
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
             return paths;
         }
