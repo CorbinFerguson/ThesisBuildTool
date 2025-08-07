@@ -28,46 +28,52 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dropdownelements = new System.Windows.Forms.ListBox();
+            this.Dropdownelements = new System.Windows.Forms.ListBox();
             this.textBox = new System.Windows.Forms.TextBox();
-            this.exitSelect = new System.Windows.Forms.Button();
+            this.ExitSelect = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // dropdownelements
+            // Dropdownelements
             // 
-            this.dropdownelements.FormattingEnabled = true;
-            this.dropdownelements.HorizontalScrollbar = true;
-            this.dropdownelements.Location = new System.Drawing.Point(118, 82);
-            this.dropdownelements.Name = "dropdownelements";
-            this.dropdownelements.Size = new System.Drawing.Size(205, 147);
-            this.dropdownelements.TabIndex = 0;
+            this.Dropdownelements.FormattingEnabled = true;
+            this.Dropdownelements.HorizontalScrollbar = true;
+            this.Dropdownelements.ItemHeight = 16;
+            this.Dropdownelements.Location = new System.Drawing.Point(157, 101);
+            this.Dropdownelements.Margin = new System.Windows.Forms.Padding(4);
+            this.Dropdownelements.Name = "Dropdownelements";
+            this.Dropdownelements.Size = new System.Drawing.Size(272, 180);
+            this.Dropdownelements.TabIndex = 0;
+            this.Dropdownelements.DoubleClick += new System.EventHandler(this.Dropdownelements_DoubleClick);
             // 
             // textBox
             // 
-            this.textBox.Location = new System.Drawing.Point(32, 24);
+            this.textBox.Location = new System.Drawing.Point(43, 30);
+            this.textBox.Margin = new System.Windows.Forms.Padding(4);
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
-            this.textBox.Size = new System.Drawing.Size(291, 20);
+            this.textBox.Size = new System.Drawing.Size(387, 22);
             this.textBox.TabIndex = 1;
             // 
-            // exitSelect
+            // ExitSelect
             // 
-            this.exitSelect.Location = new System.Drawing.Point(32, 82);
-            this.exitSelect.Name = "exitSelect";
-            this.exitSelect.Size = new System.Drawing.Size(80, 27);
-            this.exitSelect.TabIndex = 2;
-            this.exitSelect.Text = "Confirm";
-            this.exitSelect.UseVisualStyleBackColor = true;
-            this.exitSelect.Click += new System.EventHandler(this.ExitSelect_Click);
+            this.ExitSelect.Location = new System.Drawing.Point(43, 101);
+            this.ExitSelect.Margin = new System.Windows.Forms.Padding(4);
+            this.ExitSelect.Name = "ExitSelect";
+            this.ExitSelect.Size = new System.Drawing.Size(107, 33);
+            this.ExitSelect.TabIndex = 2;
+            this.ExitSelect.Text = "Confirm";
+            this.ExitSelect.UseVisualStyleBackColor = true;
+            this.ExitSelect.Click += new System.EventHandler(this.ExitSelect_Click);
             // 
             // DropdownGui
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(369, 261);
-            this.Controls.Add(this.exitSelect);
+            this.ClientSize = new System.Drawing.Size(492, 321);
+            this.Controls.Add(this.ExitSelect);
             this.Controls.Add(this.textBox);
-            this.Controls.Add(this.dropdownelements);
+            this.Controls.Add(this.Dropdownelements);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "DropdownGui";
             this.Text = "DropdownGui";
@@ -79,8 +85,8 @@
 
         #endregion
 
-        private System.Windows.Forms.ListBox dropdownelements;
+        private System.Windows.Forms.ListBox Dropdownelements;
         private System.Windows.Forms.TextBox textBox;
-        private System.Windows.Forms.Button exitSelect;
+        private System.Windows.Forms.Button ExitSelect;
     }
 }
