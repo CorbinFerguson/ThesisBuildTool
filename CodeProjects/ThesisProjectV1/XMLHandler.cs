@@ -240,12 +240,8 @@ namespace ThesisProjectV1
                         // There exists more than one element of that name
                         IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.HasAttributes == true).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                         // Create a popup telling user what happened
-                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended parent type", ex.Message, MessageBoxButtons.OK);
-                        foreach (XElement availableElement in elementsToChoose)
-                        {
-                            XElement lowestParent = availableElement.Ancestors().First();
-                            guiElements.Add(lowestParent.Name.ToString());
-                        }
+                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
+                        List<string> parentOptions = element.Descendants(elementName).Select(i => i.Parent.Name.ToString()).ToList();
                         DropdownGui selectElement = new DropdownGui(guiElements, "Select intended parent type");
                         selectElement.ShowDialog(out string nameOfElement);
                         XElement unambiguousParent = new XElement(nameOfElement);
@@ -279,28 +275,34 @@ namespace ThesisProjectV1
         {
             Queue<string> rootPath = FindPathtoRootSchema(element);
             XName parentName = rootPath.Dequeue();
-
-            // Check that parent node exists in document
-            while(!(inDoc.Descendants(parentName).Any()))
-            {
-                parentName = rootPath.Dequeue();
-                element = new XElement(parentName, element);
-
-                string complexType = schema.Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
-                IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
-
-                foreach (XElement requiredAttribute in requiredAttributes)
-                {
-                    // Set attributes of element
-                    Console.WriteLine("Input user value for " + requiredAttribute.Attribute("name").Value + " of " + parentName);
-                    string attributeValue = Console.ReadLine();
-                    element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
-                }
-            }
-
             bool multOptions = false;
             XElement parentNode = null;
+
+            // Check that parent node exists in document
+            while (!(inDoc.Descendants(parentName).Any()))
+            {
+                element = new XElement(parentName, element);
+
+                try
+                {
+                    // Verify that the parent element has all required attributes
+                    string complexType = schema.Descendants().Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
+                    XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
+                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
+                    foreach (XElement requiredAttribute in requiredAttributes)
+                    {
+                        Console.WriteLine("Input user value for " + requiredAttribute.Attribute("name").Value + " of " + parentName);
+                        string attributeValue = Console.ReadLine();
+                        element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
+                    }
+                    parentName = rootPath.Dequeue();
+                }
+                catch (InvalidOperationException)
+                {
+                    // Multiple options for parent element, already handled in findRoot
+                    parentName = rootPath.Dequeue();
+                }
+            }
 
             try
             {
@@ -313,16 +315,16 @@ namespace ThesisProjectV1
 
             if (parentNode != null && parentNode.IsEmpty)
             {
-                parentNode.ReplaceWith(element.Parent);
+                parentNode.Add(element);
                 return inDoc;
             }
-            else if (multOptions) // If there exists one option for insertion location
+            else if (multOptions) // If there exists multiple options for insertion location
             {
                 MessageBox.Show("Multiple options for parent element", "", MessageBoxButtons.OK);
-                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Name.ToString()).ToList();
+                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("name").ToString()).ToList();
                 DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
                 parentSelect.ShowDialog(out string selectedName);
-                parentNode = inDoc.Descendants(selectedName).Single();
+                parentNode = inDoc.Descendants().Where(i => i.Attribute("name").ToString().Equals(selectedName)).Single();
             }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
@@ -367,9 +369,9 @@ namespace ThesisProjectV1
             try
             {
                 attributeFilter = "name";
-                schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Where(i => !i.Name.Equals(ns + "attribute")).Single();
+                schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
-                // Loop until RSLogix5000Content(root of L5X) is found
+                // Loop until Controller(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("Controller"))
                 {
                     // Go to parent complex type, find name of that
@@ -378,40 +380,56 @@ namespace ThesisProjectV1
 
                     // search for something with that type
                     attributeFilter = "type";
-                    schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Where(i => i.Name.Equals(ns + "element")).Single();
+                    schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
-
-                    // if it is a schema it has gone too far
                 }
-
+                if (paths.Count == 0)
+                    throw new EmptyListException("Empty path to root. Started at Controller");
             }
             catch (InvalidOperationException ex)
             {
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
                     // Create a popup telling user what happened
-                    MessageBox.Show("Ambiguous parent type for " + schemaElement.Attribute("name").Value +", please select intended parent type", ex.Message, MessageBoxButtons.OK);
+                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value +", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
                     List<string> parentNames = new List<string>();
+
+                    // Get parent of all ambiguous parent elements
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
                         if (attributeFilter.Equals("type"))
-                            schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Where(i => i.Name.Equals(ns + "element")).Single();
+                            schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         else
                             throw;
                         parentNames.Add(schemaElement.Attribute("name").Value);
                     }
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent");
+
+                    // Prompt user to select grandparent for the element
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent");
                     selectElement.ShowDialog(out string nameOfElement);
-                    XElement unambiguousParent = new XElement(nameOfElement);
-                    Queue<string> rootPath = FindPathtoRootSchema(unambiguousParent);
+                    XElement unambiguousGrandparent = new XElement(nameOfElement);
+
+                    // Create the path queue
+                    Queue<string> rootPath= new Queue<string>();
+                    rootPath.Enqueue(element.Parent.Name.ToString());
+                    rootPath.Enqueue(unambiguousGrandparent.Name.ToString());
+                    foreach (string node in FindPathtoRootSchema(unambiguousGrandparent))
+                        rootPath.Enqueue(node);
+
+                    if (rootPath.Count == 0) 
+                        return rootPath;
                     foreach (string parent in rootPath)
                         paths.Enqueue(parent);
                     return paths;
                 }
                 else
-                { MessageBox.Show("how did you hit this", ex.Message, MessageBoxButtons.OK); }
+                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "how did you hit this", MessageBoxButtons.OK); }
+            }
+            catch(EmptyListException ex)
+            {
+                MessageBox.Show(ex.Message, "Path Failed", MessageBoxButtons.OK);
             }
             return paths;
         }
