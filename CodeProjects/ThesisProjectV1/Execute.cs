@@ -7,11 +7,11 @@ using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
-    class Execute
+    internal class Execute
     {
         private static readonly XMLHandler xmlHandler = new XMLHandler();
         private static XDocument doc = new XDocument();
-        private static OpenFileDialog openFileSearch = new OpenFileDialog
+        private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
         {
             Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
             FilterIndex = 0,
@@ -19,7 +19,7 @@ namespace ThesisProjectV1
         };
 
         [STAThread]
-        static void Main()
+        private static void Main()
         {
 
             // Take in user input

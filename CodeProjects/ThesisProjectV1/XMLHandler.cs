@@ -70,109 +70,109 @@ namespace ThesisProjectV1
             XElement controller = new XElement("Controller", controllerAttributes);
             logixContent.Add(controller);
 
-                #region ControllSubElements
-                //Redundancy Info
-                XAttribute[] redundancyAttributes = {
+            #region ControllSubElements
+            //Redundancy Info
+            XAttribute[] redundancyAttributes = {
                     new XAttribute("Enabled", "false"),
                     new XAttribute("KeepTestEditsOnSwitchOver", "false")
                 };
-                XElement redundancyInfo = new XElement("RedundancyInfo", redundancyAttributes);
-                controller.Add(redundancyInfo);
+            XElement redundancyInfo = new XElement("RedundancyInfo", redundancyAttributes);
+            controller.Add(redundancyInfo);
 
-                //Security
-                XAttribute[] securityAttributes = {
+            //Security
+            XAttribute[] securityAttributes = {
                     new XAttribute("Code", "0"),
                     new XAttribute("ChangesToDetect", "16#ffff_ffff_ffff_ffff")
                 };
-                XElement security = new XElement("Security", securityAttributes);
-                controller.Add(security);
+            XElement security = new XElement("Security", securityAttributes);
+            controller.Add(security);
 
-                //Safety
-                XAttribute[] safetyInfoAttributes = {
+            //Safety
+            XAttribute[] safetyInfoAttributes = {
                 };
-                XElement safetyInfo = new XElement("SafetyInfo", safetyInfoAttributes);
-                controller.Add(safetyInfo);
+            XElement safetyInfo = new XElement("SafetyInfo", safetyInfoAttributes);
+            controller.Add(safetyInfo);
 
-                //DataTypes
-                XAttribute[] dataTypesAttributes = {
+            //DataTypes
+            XAttribute[] dataTypesAttributes = {
                 };
-                XElement dataTypes = new XElement("DataTypes", dataTypesAttributes);
-                controller.Add(dataTypes);
+            XElement dataTypes = new XElement("DataTypes", dataTypesAttributes);
+            controller.Add(dataTypes);
 
-                //Modules
-                XAttribute[] modulesAttributes = {
+            //Modules
+            XAttribute[] modulesAttributes = {
                 };
-                XElement modules = new XElement("Modules", modulesAttributes);
-                controller.Add(modules);
+            XElement modules = new XElement("Modules", modulesAttributes);
+            controller.Add(modules);
 
-                //AOI
-                XAttribute[] addOnInstructionsAttributes = {
+            //AOI
+            XAttribute[] addOnInstructionsAttributes = {
                 };
-                XElement addOnInstructions = new XElement("AddOnInstructionDefinitions", addOnInstructionsAttributes);
-                controller.Add(addOnInstructions);
+            XElement addOnInstructions = new XElement("AddOnInstructionDefinitions", addOnInstructionsAttributes);
+            controller.Add(addOnInstructions);
 
-                //Tags
-                XAttribute[] tagsAttributes = {
+            //Tags
+            XAttribute[] tagsAttributes = {
                 };
-                XElement tags = new XElement("Tags", tagsAttributes);
-                controller.Add(tags);
+            XElement tags = new XElement("Tags", tagsAttributes);
+            controller.Add(tags);
 
-                //Programs
-                XAttribute[] programsAttributes = {
+            //Programs
+            XAttribute[] programsAttributes = {
                 };
-                XElement programs = new XElement("Programs", programsAttributes);
-                controller.Add(programs);
+            XElement programs = new XElement("Programs", programsAttributes);
+            controller.Add(programs);
 
-                //Tasks
-                XAttribute[] tasksAttributes = {
+            //Tasks
+            XAttribute[] tasksAttributes = {
                 };
-                XElement tasks = new XElement("Tasks", tasksAttributes);
-                controller.Add(tasks);
+            XElement tasks = new XElement("Tasks", tasksAttributes);
+            controller.Add(tasks);
 
-                //CST
-                XAttribute[] cstAttributes = {
+            //CST
+            XAttribute[] cstAttributes = {
                     new XAttribute("MasterID", "0")
                 };
-                XElement cst = new XElement("CST", cstAttributes);
-                controller.Add(cst);
+            XElement cst = new XElement("CST", cstAttributes);
+            controller.Add(cst);
 
-                //WallClockTime
-                XAttribute[] wallClockTimeAttributes = {
+            //WallClockTime
+            XAttribute[] wallClockTimeAttributes = {
                     new XAttribute("LocalTimeAdjustment", "0"),
                     new XAttribute("TimeZone", "0")
                 };
-                XElement wallClockTime = new XElement("WallClockTime", wallClockTimeAttributes);
-                controller.Add(wallClockTime);
+            XElement wallClockTime = new XElement("WallClockTime", wallClockTimeAttributes);
+            controller.Add(wallClockTime);
 
-                //Trends
-                XAttribute[] trendsAttributes = {
+            //Trends
+            XAttribute[] trendsAttributes = {
                 };
-                XElement trends = new XElement("Trends", trendsAttributes);
-                controller.Add(trends);
+            XElement trends = new XElement("Trends", trendsAttributes);
+            controller.Add(trends);
 
-                //DataLogs
-                XAttribute[] dataLogsAttributes = {
+            //DataLogs
+            XAttribute[] dataLogsAttributes = {
                 };
-                XElement dataLogs = new XElement("DataLogs", dataLogsAttributes);
-                controller.Add(dataLogs);
+            XElement dataLogs = new XElement("DataLogs", dataLogsAttributes);
+            controller.Add(dataLogs);
 
-                //TimeSync
-                XAttribute[] timeSynchronizeAttributes = {
+            //TimeSync
+            XAttribute[] timeSynchronizeAttributes = {
                     new XAttribute("Priority1", "128"),
                     new XAttribute("Priority2", "128"),
                     new XAttribute("PTPEnable", "false")
                 };
-                XElement timeSynchronize = new XElement("TimeSynchronize", timeSynchronizeAttributes);
-                controller.Add(timeSynchronize);
+            XElement timeSynchronize = new XElement("TimeSynchronize", timeSynchronizeAttributes);
+            controller.Add(timeSynchronize);
 
-                //EthernetPorts
-                XElement ethernetPorts = new XElement("EthernetPorts", null);
-                controller.Add(ethernetPorts);
+            //EthernetPorts
+            XElement ethernetPorts = new XElement("EthernetPorts", null);
+            controller.Add(ethernetPorts);
+
+            #endregion
 
             #endregion
 
-            #endregion
-            
             // Save the document to a file
             string genFilePath = "../../../L5XFiles/EmptyGenFile.L5X";
             doc.Save(genFilePath);
@@ -193,8 +193,8 @@ namespace ThesisProjectV1
 
             foreach (XElement type in doc.Descendants())
             {
-                if(type.Attribute("Name")!=null && type.Name.ToString()!= "RSLogix5000Content")
-                    if(!types.Contains(type.Name.ToString()))
+                if (type.Attribute("Name") != null && type.Name.ToString() != "RSLogix5000Content")
+                    if (!types.Contains(type.Name.ToString()))
                         types.Add(type.Name.ToString());
             }
 
@@ -208,7 +208,7 @@ namespace ThesisProjectV1
 
         public XElement GetElementFromFile(XElement elementType, string filePath, string elementName)
         {
-            XElement element=null;
+            XElement element = null;
             if (elementName.Equals(""))
                 element = GetElementFromFile(elementType, filePath);
             else
@@ -225,21 +225,21 @@ namespace ThesisProjectV1
                         // There exists more than one element of that name
                         IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                         // Create a popup telling user what happened
-                        MessageBox.Show("Ambiguous parent type for " + elementName +", please select intended grandparent type", "Element from File Selection", MessageBoxButtons.OK);
-                        List<string> parentOptions = itemToAddDoc.Descendants(elementType.Name).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList(); 
+                        MessageBox.Show("Ambiguous parent type for " + elementName + ", please select intended grandparent type", "Element from File Selection", MessageBoxButtons.OK);
+                        List<string> parentOptions = itemToAddDoc.Descendants(elementType.Name).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
                         DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
                         selectElement.ShowDialog(out string nameOfElement);
                         try
                         {
                             element = itemToAddDoc.Descendants(nameOfElement).Single();
                         }
-                        catch(InvalidOperationException)
+                        catch (InvalidOperationException)
                         {
                             MessageBox.Show("Multiple objects of chosen type", "Disambiguate Element from File Selection", MessageBoxButtons.OK);
                             List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
                             DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific objct parent");
-                            elementSelect.ShowDialog( out string selectedObject);
-                            XElement parentElement = itemToAddDoc.Descendants().Where(i=> i.Attribute("Name") != null).Where(i=>i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
+                            elementSelect.ShowDialog(out string selectedObject);
+                            XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
                             element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
                         }
                     }
@@ -261,7 +261,7 @@ namespace ThesisProjectV1
             List<String> names = new List<String>();
             XDocument doc = XDocument.Load(filePath);
             foreach (XElement element in doc.Descendants(elementType))
-                names.Add(element.Attribute("Name").Value.ToString());  
+                names.Add(element.Attribute("Name").Value.ToString());
 
             return names;
         }
@@ -292,7 +292,7 @@ namespace ThesisProjectV1
             XElement parentNode = null;
 
             // Check that parent node exists in document
-            while (!(inDoc.Descendants(parentName).Any()))
+            while (!inDoc.Descendants(parentName).Any())
             {
                 element = new XElement(parentName, element);
 
@@ -329,7 +329,7 @@ namespace ThesisProjectV1
             {
                 parentNode = inDoc.Descendants(parentName).Single();
             }
-            catch(InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 multOptions = true;
             }
@@ -375,7 +375,7 @@ namespace ThesisProjectV1
 
         public XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
-            foreach(XElement element in returnedElement)
+            foreach (XElement element in returnedElement)
                 InsertElement(doc, element);
             return doc;
         }
@@ -384,7 +384,7 @@ namespace ThesisProjectV1
         public Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
-            string attributeFilter=null;
+            string attributeFilter = null;
 
             string name = element.Name.ToString();
             XElement schemaElement = null;
@@ -415,7 +415,7 @@ namespace ThesisProjectV1
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
                     // Create a popup telling user what happened
-                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value +" of "+ element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
+                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value + " of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
                     List<string> parentNames = new List<string>();
 
@@ -435,9 +435,9 @@ namespace ThesisProjectV1
                     XElement unambiguousGrandparent = new XElement(nameOfElement);
 
                     // Create the path queue
-                    Queue<string> rootPath= new Queue<string>();
+                    Queue<string> rootPath = new Queue<string>();
                     // If paths is empty, use element parent
-                    if(paths.Any() == false) 
+                    if (paths.Any() == false)
                         rootPath.Enqueue(element.Parent.Name.ToString());
                     // If it is not empty, use the parent of the last element in the queue
                     else
@@ -446,7 +446,7 @@ namespace ThesisProjectV1
                     foreach (string node in FindPathtoRootSchema(unambiguousGrandparent))
                         rootPath.Enqueue(node);
 
-                    if (rootPath.Count == 0) 
+                    if (rootPath.Count == 0)
                         return rootPath;
                     foreach (string parent in rootPath)
                         paths.Enqueue(parent);
@@ -455,7 +455,7 @@ namespace ThesisProjectV1
                 else
                 { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "how did you hit this", MessageBoxButtons.OK); }
             }
-            catch(EmptyListException ex)
+            catch (EmptyListException ex)
             {
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
