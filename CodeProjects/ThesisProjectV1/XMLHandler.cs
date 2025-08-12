@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Schema;
 using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
@@ -19,23 +14,14 @@ namespace ThesisProjectV1
 
         private readonly string projectName = "GenProject";
 
-        private static readonly string schemaPath = "../../../RSLogix5000_V35.xsd";
-
         private readonly XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
-        private static XDocument schema;
+        private readonly Validate validator = new Validate();
 
-        private readonly XmlSchemaSet validationSchemaSet;
 
         #endregion
 
         #region Constructors
-        public XMLHandler() 
-        {
-            schema = XDocument.Load(schemaPath);
-            validationSchemaSet = new XmlSchemaSet();
-        }
-
         #endregion
 
         #region functions
@@ -247,7 +233,7 @@ namespace ThesisProjectV1
                         {
                             element = itemToAddDoc.Descendants(nameOfElement).Single();
                         }
-                        catch(InvalidOperationException nestEX)
+                        catch(InvalidOperationException)
                         {
                             MessageBox.Show("Multiple objects of chosen type", "Disambiguate Element from File Selection", MessageBoxButtons.OK);
                             List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
@@ -280,7 +266,23 @@ namespace ThesisProjectV1
             return names;
         }
 
-        public XDocument GetSchema() { return schema; }
+
+        // Gets all the simple elements in the XML Schema
+        public List<String> GetSimpleElements()
+        {
+            IEnumerable<XElement> elements = validator.GetSchema().Descendants(ns + "element");
+
+            List<String> elementsInList = new List<String>();
+
+            foreach (XElement element in elements)
+            {
+                if (!element.Attribute("name").Value.Equals("CustomProperties"))
+                    elementsInList.Add(element.Attribute("name").Value);
+            }
+            return elementsInList;
+        }
+
+        internal Validate GetValidator() { return validator; }
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
         {
@@ -297,8 +299,8 @@ namespace ThesisProjectV1
                 try
                 {
                     // Verify that the parent element has all required attributes
-                    string complexType = schema.Descendants().Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                    XElement schemaElement = schema.Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
+                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
+                    XElement schemaElement = validator.GetSchema().Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
@@ -390,7 +392,7 @@ namespace ThesisProjectV1
             try
             {
                 attributeFilter = "name";
-                schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
                 // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
@@ -401,7 +403,7 @@ namespace ThesisProjectV1
 
                     // search for something with that type
                     attributeFilter = "type";
-                    schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
@@ -414,14 +416,14 @@ namespace ThesisProjectV1
                 {
                     // Create a popup telling user what happened
                     MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value +" of "+ element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
-                    IEnumerable<XElement> ambiguousElements = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
                     List<string> parentNames = new List<string>();
 
                     // Get parent of all ambiguous parent elements
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
                         if (attributeFilter.Equals("type"))
-                            schemaElement = schema.Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
+                            schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         else
                             throw;
                         parentNames.Add(schemaElement.Attribute("name").Value);
@@ -434,7 +436,12 @@ namespace ThesisProjectV1
 
                     // Create the path queue
                     Queue<string> rootPath= new Queue<string>();
-                    rootPath.Enqueue(element.Parent.Name.ToString());
+                    // If paths is empty, use element parent
+                    if(paths.Any() == false) 
+                        rootPath.Enqueue(element.Parent.Name.ToString());
+                    // If it is not empty, use the parent of the last element in the queue
+                    else
+                        rootPath.Enqueue(paths.Last());
                     rootPath.Enqueue(unambiguousGrandparent.Name.ToString());
                     foreach (string node in FindPathtoRootSchema(unambiguousGrandparent))
                         rootPath.Enqueue(node);
@@ -456,22 +463,8 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        // Gets all the simple elements in the XML Schema
-        public List<String> GetSimpleElements()
-        {
-            IEnumerable<XElement> elements = schema.Descendants(ns + "element");
-
-            List<String> elementsInList= new List<String>();
-
-            foreach (XElement element in elements)
-            {
-                if (!element.Attribute("name").Value.Equals("CustomProperties"))
-                    elementsInList.Add(element.Attribute("name").Value);
-            }
-            return elementsInList;
-        }
-
         #endregion
     }
+
 
 }

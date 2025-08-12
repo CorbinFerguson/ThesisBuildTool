@@ -1,43 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Schema;
 using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
     class Execute
     {
+        private static readonly XMLHandler xmlHandler = new XMLHandler();
+        private static XDocument doc = new XDocument();
+        private static OpenFileDialog openFileSearch = new OpenFileDialog
+        {
+            Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
+            FilterIndex = 0,
+            RestoreDirectory = true
+        };
+
         [STAThread]
         static void Main()
         {
-            XMLHandler xmlHandler = new XMLHandler();
-            XDocument doc = xmlHandler.LoadBasicFile();
-            CmdHandler cmdHandler = new CmdHandler();
-            OpenFileDialog openFileSearch = new OpenFileDialog
-            {
-                InitialDirectory = "../",
-                Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
-                FilterIndex = 0,
-                RestoreDirectory = true
-            };
 
+            // Take in user input
+            while (true)
+            {
+                // Prompt user for selection
+                ImportElement();
+                break;
+            }
+
+            // Save the document to a file
+            string genFilePath = "../../../L5XFiles/GenFile.L5X";
+            doc.Save(genFilePath);
+
+            Console.WriteLine($"XML file created at: {genFilePath}");
+        }
+
+        // Function for taking in an element from a file
+        private static void ImportElement()
+        {
             string filePath = "";
             bool insertElement = true;
-            // Take in user input
+            doc = xmlHandler.LoadBasicFile();
+            openFileSearch.InitialDirectory = "../";
             while (true)
             {
                 try
                 {
-                    // User input:
-                    Console.WriteLine("Please input the path of the file to be accessed");
+                    // Select File being imported from
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
                     {
                         filePath = openFileSearch.FileName;
@@ -47,11 +58,11 @@ namespace ThesisProjectV1
                         insertElement = false;
                     }
 
-                    while(insertElement)
+                    while (insertElement)
                     {
                         // Prompt user to select type of element to insert
                         List<string> elementTypes = xmlHandler.GetDistinctTypes(filePath);
-                        IEnumerable<XElement> typesWDataStruc = xmlHandler.GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
+                        IEnumerable<XElement> typesWDataStruc = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
                         elementTypes = elementTypes.Where(name => !typesWDataStruc.Any(x => (string)x.Attribute("name") == name)).ToList();
 
                         DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
@@ -64,7 +75,7 @@ namespace ThesisProjectV1
                         XElement parentElement = new XElement(typeOfElement);
                         List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
                         doc = xmlHandler.InsertElement(doc, returnedElement);
-                        DialogResult newElementFile= MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+                        DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
                             break;
                     }
@@ -75,16 +86,20 @@ namespace ThesisProjectV1
                     MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
                 }
 
+                // Validate the document against the xml Schema
+                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                string errors = string.Join(Environment.NewLine, errorList);
+
+                if (errors.Length > 0)
+                {
+                    MessageBox.Show(errors, "Errors", MessageBoxButtons.OK);
+                    // TODO: when validation fails, Fix it
+                }
+
                 DialogResult endSelect = MessageBox.Show("End Selection?", "Element Select", MessageBoxButtons.YesNo);
                 if (endSelect == DialogResult.Yes)
                     break;
             }
-
-            // Save the document to a file
-            string genFilePath = "../../../L5XFiles/GenFile.L5X";
-            doc.Save(genFilePath);
-
-            Console.WriteLine($"XML file created at: {genFilePath}");
         }
     }
 }

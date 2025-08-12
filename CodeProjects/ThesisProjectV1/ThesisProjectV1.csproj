@@ -54,6 +54,7 @@
     <Compile Include="Forms\MultiSelectDropdown.Designer.cs">
       <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
     </Compile>
+    <Compile Include="Validate.cs" />
     <Compile Include="XMLHandler.cs" />
     <Compile Include="Execute.cs" />
   </ItemGroup>
