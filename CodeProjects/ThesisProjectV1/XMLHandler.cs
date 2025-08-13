@@ -13,11 +13,9 @@ namespace ThesisProjectV1
         private readonly string processorType = "1756-L81E";
 
         private readonly string projectName = "GenProject";
-
-        private readonly XNamespace ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
-
         private readonly Validate validator = new Validate();
 
+        public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
         #endregion
 
@@ -201,12 +199,12 @@ namespace ThesisProjectV1
             return types;
         }
 
-        public XElement GetElementFromFile(XElement subElement, string filePath)
+        public XElement GetElementFromFile(string subElement, string filePath)
         {
             throw new NotImplementedException();
         }
 
-        public XElement GetElementFromFile(XElement elementType, string filePath, string elementName)
+        public XElement GetElementFromFile(string elementType, string filePath, string elementName)
         {
             XElement element = null;
             if (elementName.Equals(""))
@@ -216,17 +214,17 @@ namespace ThesisProjectV1
                 XDocument itemToAddDoc = XDocument.Load(filePath);
                 try
                 {
-                    element = itemToAddDoc.Descendants(elementType.Name).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+                    element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
                 }
                 catch (InvalidOperationException ex)
                 {
                     if (ex.Message.Contains("Sequence contains more than one element"))
                     {
                         // There exists more than one element of that name
-                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType.Name).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                         // Create a popup telling user what happened
                         MessageBox.Show("Ambiguous parent type for " + elementName + ", please select intended grandparent type", "Element from File Selection", MessageBoxButtons.OK);
-                        List<string> parentOptions = itemToAddDoc.Descendants(elementType.Name).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
+                        List<string> parentOptions = itemToAddDoc.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
                         DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
                         selectElement.ShowDialog(out string nameOfElement);
                         try
@@ -237,7 +235,7 @@ namespace ThesisProjectV1
                         {
                             MessageBox.Show("Multiple objects of chosen type", "Disambiguate Element from File Selection", MessageBoxButtons.OK);
                             List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
-                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific objct parent");
+                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
                             elementSelect.ShowDialog(out string selectedObject);
                             XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
                             element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
@@ -248,7 +246,7 @@ namespace ThesisProjectV1
             return element;
         }
 
-        public List<XElement> GetElementFromFile(XElement elementType, string filePath, List<string> elementNames)
+        public List<XElement> GetElementFromFile(string elementType, string filePath, List<string> elementNames)
         {
             List<XElement> elementList = new List<XElement>();
             foreach (string elementName in elementNames)
@@ -266,11 +264,22 @@ namespace ThesisProjectV1
             return names;
         }
 
+        public string GetTypeAndSelect(string filePath)
+        {
+            // Prompt user to select type of element to insert
+            List<string> elementTypes = this.GetDistinctTypes(filePath);
+            IEnumerable<XElement> typesWDataStruc = this.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
+            elementTypes = elementTypes.Where(name => !typesWDataStruc.Any(x => (string)x.Attribute("name") == name)).ToList();
+
+            DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
+            selectType.ShowDialog(out string typeOfElement);
+            return typeOfElement;
+        }
 
         // Gets all the simple elements in the XML Schema
         public List<String> GetSimpleElements()
         {
-            IEnumerable<XElement> elements = validator.GetSchema().Descendants(ns + "element");
+            IEnumerable<XElement> elements = validator.GetSchema().Descendants(Ns + "element");
 
             List<String> elementsInList = new List<String>();
 
@@ -299,9 +308,9 @@ namespace ThesisProjectV1
                 try
                 {
                     // Verify that the parent element has all required attributes
-                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                    XElement schemaElement = validator.GetSchema().Descendants(ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
-                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
+                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
+                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
+                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
                         Console.WriteLine("Input user value for " + requiredAttribute.Attribute("name").Value + " of " + parentName);
@@ -392,7 +401,7 @@ namespace ThesisProjectV1
             try
             {
                 attributeFilter = "name";
-                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
                 // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
@@ -403,7 +412,7 @@ namespace ThesisProjectV1
 
                     // search for something with that type
                     attributeFilter = "type";
-                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
@@ -423,7 +432,7 @@ namespace ThesisProjectV1
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
                         if (attributeFilter.Equals("type"))
-                            schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
+                            schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         else
                             throw;
                         parentNames.Add(schemaElement.Attribute("name").Value);

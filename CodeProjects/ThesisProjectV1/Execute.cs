@@ -11,6 +11,7 @@ namespace ThesisProjectV1
     {
         private static readonly XMLHandler xmlHandler = new XMLHandler();
         private static XDocument doc = new XDocument();
+        private static string filePath = "";
         private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
         {
             Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
@@ -21,13 +22,25 @@ namespace ThesisProjectV1
         [STAThread]
         private static void Main()
         {
-
+            bool exitLoop = false;
+            doc = xmlHandler.LoadBasicFile();
             // Take in user input
-            while (true)
+            while (!exitLoop)
             {
-                // Prompt user for selection
-                ImportElement();
-                break;
+                ActionSelect actionSelect = new ActionSelect();
+                actionSelect.ShowDialog(out ActionSelect.Actions selectedAction);
+                switch (selectedAction)
+                {
+                    case ActionSelect.Actions.Import:
+                        ImportElement();
+                        break;
+                    case ActionSelect.Actions.Generate:
+                        GenerateElement();
+                        break;
+                    default:
+                        exitLoop = true;
+                        break;
+                }
             }
 
             // Save the document to a file
@@ -40,40 +53,27 @@ namespace ThesisProjectV1
         // Function for taking in an element from a file
         private static void ImportElement()
         {
-            string filePath = "";
-            bool insertElement = true;
-            doc = xmlHandler.LoadBasicFile();
             openFileSearch.InitialDirectory = "../";
             while (true)
             {
+                bool insertElement = true;
                 try
                 {
                     // Select File being imported from
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
-                    {
                         filePath = openFileSearch.FileName;
-                    }
                     else
-                    {
                         insertElement = false;
-                    }
 
                     while (insertElement)
                     {
-                        // Prompt user to select type of element to insert
-                        List<string> elementTypes = xmlHandler.GetDistinctTypes(filePath);
-                        IEnumerable<XElement> typesWDataStruc = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
-                        elementTypes = elementTypes.Where(name => !typesWDataStruc.Any(x => (string)x.Attribute("name") == name)).ToList();
-
-                        DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
-                        selectType.ShowDialog(out string typeOfElement);
+                        string typeOfElement = xmlHandler.GetTypeAndSelect(filePath);
 
                         // Get all elements in file of the type
                         List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
                         MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                         selectElement.ShowDialog(out List<string> nameOfElement);
-                        XElement parentElement = new XElement(typeOfElement);
-                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(parentElement, filePath, nameOfElement);
+                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, filePath, nameOfElement);
                         doc = xmlHandler.InsertElement(doc, returnedElement);
                         DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
@@ -97,6 +97,104 @@ namespace ThesisProjectV1
                 }
 
                 DialogResult endSelect = MessageBox.Show("End Selection?", "Element Select", MessageBoxButtons.YesNo);
+                if (endSelect == DialogResult.Yes)
+                    break;
+            }
+        }
+
+        private static void GenerateElement()
+        {
+            while (true)
+            {
+                // Prompt user for what template file they would like to pull from
+                openFileSearch.InitialDirectory = "../TemplateFiles/";
+                try
+                {
+                    // Select File being imported from
+                    if (openFileSearch.ShowDialog() == DialogResult.OK)
+                        filePath = openFileSearch.FileName;
+                    else
+                        return;
+
+                    // Prompt user to select the element to insert
+                    string typeOfElement = xmlHandler.GetTypeAndSelect(filePath);
+                    // Get all elements in file of the type
+                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
+                    MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
+                    selectElement.ShowDialog(out List<string> nameOfElement);
+
+                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, filePath, nameOfElement);
+
+                    // Prompt user to select the subelements/values to change(required elements are not selectable)
+                    foreach (XElement element in elementList)
+                    {
+                        XElement elementAttr;
+                        try
+                        {
+                            XElement basicSchemaElement = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
+                            elementAttr = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Name.Equals(xmlHandler.Ns + "complexType")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString())).Single();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // Get tag type from document file
+                            XElement grandparent = element.Parent.Parent;
+                            elementAttr = xmlHandler.GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single();
+                            
+                            // Search for complexType with name of type of element
+                        }
+                        IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(xmlHandler.Ns + "attribute")); // TODO: this should be aquired from the schema
+                        List<XAttribute> attributesTochange = new List<XAttribute>();
+                        List<string> attributesThatDefault = new List<string>();
+
+                        // Foreach subelement/value
+                        foreach (XElement attribute in attributesEl)
+                        {
+                            // Add the required elements to list of attributes to prompt user for
+                            if (attribute.Attribute("use") != null)
+                            {
+                                XAttribute wantedAttribute = element.Attribute(attribute.Attribute("name").Value);
+                                attributesTochange.Add(wantedAttribute);
+                            }
+                            else
+                                attributesThatDefault.Add(attribute.Attribute("name").Value);
+                        }
+                        // Prompt user for other attribute to not take default value for
+                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesThatDefault, "Select elements to manually modify");
+                        selectAttributes.ShowDialog(out List<string> selectedAttributenames);
+                        foreach (string attributeName in selectedAttributenames) 
+                        {
+                            attributesTochange.Add(element.Attribute(attributeName));
+                        }
+
+                        foreach(XAttribute )
+
+                        // Prompt user for values of each attribute
+
+                        // Get default values for all other elements from the file
+                        // assign to subelement
+
+                        // insert
+                    }
+
+                    // Prompt user for each subelement, the values to be changed
+                }
+                catch (EmptyListException ex)
+                {
+                    // Create a popup telling user what happened
+                    MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
+                }
+
+                // Validate the document against the xml Schema
+                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                string errors = string.Join(Environment.NewLine, errorList);
+
+                if (errors.Length > 0)
+                {
+                    MessageBox.Show(errors, "Errors", MessageBoxButtons.OK);
+                    // TODO: when validation fails, Fix it
+                }
+
+                DialogResult endSelect = MessageBox.Show("End Creation of Elements?", "Element Select", MessageBoxButtons.YesNo);
                 if (endSelect == DialogResult.Yes)
                     break;
             }
