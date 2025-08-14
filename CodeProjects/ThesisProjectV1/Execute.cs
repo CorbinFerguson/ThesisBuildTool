@@ -139,7 +139,7 @@ namespace ThesisProjectV1
                             // Get tag type from document file
                             XElement grandparent = element.Parent.Parent;
                             elementAttr = xmlHandler.GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single();
-                            
+
                             // Search for complexType with name of type of element
                         }
                         IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(xmlHandler.Ns + "attribute")); // TODO: this should be aquired from the schema
@@ -156,27 +156,27 @@ namespace ThesisProjectV1
 
                             XAttribute wantedAttribute = new XAttribute(attribute.Attribute("name").Value.ToString(), attributeValue);
                             attributesTochange.Add(wantedAttribute);
-                            }
+                        }
                         // Prompt user for other attributes to not take default value for
                         MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value", true);
                         selectAttributes.ShowDialog(out List<string> selectedAttributenames);
-                        foreach (string attributeName in selectedAttributenames) 
+                        foreach (string attributeName in selectedAttributenames)
                         {
                             nonDefaultAttributes.Add(element.Attribute(attributeName));
                             attributesTochange.RemoveAll(i => i.Name == attributeName);
                         }
 
                         // Get user values for attributes
-                        foreach(XAttribute changeAttribute in nonDefaultAttributes)
+                        foreach (XAttribute changeAttribute in nonDefaultAttributes)
                         {
                             TextInput input = new TextInput($"Input a value for {changeAttribute.Name} attribute of {element.Name}", changeAttribute.Value);
                             input.ShowDialog(out string attributeValue);
                             element.Attribute(changeAttribute.Name).SetValue(attributeValue);
                         }
 
-                        foreach(XAttribute setDefaultAttribute in attributesTochange)
+                        foreach (XAttribute setDefaultAttribute in attributesTochange)
                         {
-                            if(element.Attribute(setDefaultAttribute.Name) != null)
+                            if (element.Attribute(setDefaultAttribute.Name) != null)
                                 element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
                             else
                                 element.Add(setDefaultAttribute);

@@ -1,24 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ThesisProjectV1.Forms
 {
     public partial class MultiSelectDropdown : Form
     {
-        private bool emptyReturn;
+        private readonly bool emptyReturn;
 
         public MultiSelectDropdown()
         {
             InitializeComponent();
         }
-        public MultiSelectDropdown(List<string> names, string text, bool allowEmptyReturn=false)
+        public MultiSelectDropdown(List<string> names, string text, bool allowEmptyReturn = false)
         {
             if (names.Count() == 0)
             {
@@ -38,7 +33,7 @@ namespace ThesisProjectV1.Forms
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if(this.DropdownElements.SelectedItems.Count > 0 || emptyReturn)
+            if (this.DropdownElements.SelectedItems.Count > 0 || emptyReturn)
                 this.Close();
         }
     }
