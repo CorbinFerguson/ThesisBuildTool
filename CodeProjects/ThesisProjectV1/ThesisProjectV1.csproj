@@ -40,7 +40,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CmdHandler.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Forms\ActionSelect.cs">
       <SubType>Form</SubType>
