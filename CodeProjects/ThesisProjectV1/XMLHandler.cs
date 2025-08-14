@@ -426,25 +426,29 @@ namespace ThesisProjectV1
             {
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
+
                     // Create a popup telling user what happened
                     MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value + " of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
+                    
                     List<string> parentNames = new List<string>();
+                    XElement ambiguousSelect;
 
                     // Get parent of all ambiguous parent elements
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
                         if (attributeFilter.Equals("type"))
-                            schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
+                             ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         else
                             throw;
-                        parentNames.Add(schemaElement.Attribute("name").Value);
+                        parentNames.Add(ambiguousSelect.Attribute("name").Value);
                     }
 
                     // Prompt user to select grandparent for the element
                     DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
-                    XElement unambiguousGrandparent = new XElement(nameOfElement);
+                    string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type") != null && i.Attribute("type").Value.ToString().Equals(name)).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
+                    paths.Enqueue(disambiguousParent);
 
                     // Create the path queue
                     Queue<string> rootPath = new Queue<string>();
@@ -452,14 +456,19 @@ namespace ThesisProjectV1
                     if (paths.Any() == false)
                         rootPath.Enqueue(element.Parent.Name.ToString());
                     // If it is not empty, use the parent of the last element in the queue
-                    else
-                        rootPath.Enqueue(paths.Last());
-                    rootPath.Enqueue(unambiguousGrandparent.Name.ToString());
-                    foreach (string node in FindPathtoRootSchema(unambiguousGrandparent))
+                    rootPath.Enqueue(nameOfElement);
+                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
+
+                    // Check if parent of where the schema currently is exists in path queue
+
+
+                    foreach (string node in grandparentToRoot)
                         rootPath.Enqueue(node);
 
                     if (rootPath.Count == 0)
                         return rootPath;
+                    if (rootPath.Peek() == paths.Last())
+                        rootPath.Dequeue();
                     foreach (string parent in rootPath)
                         paths.Enqueue(parent);
                     return paths;

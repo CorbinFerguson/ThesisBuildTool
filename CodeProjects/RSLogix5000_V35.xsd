@@ -398,7 +398,7 @@
     <xs:attribute name="SafetyEnabled" type="xs:string" />
     <xs:attribute name="TrackingGroups" type="xs:string" />
     <xs:attribute name="ImportCreateMode" type="xs:string" />
-    <xs:attribute name="AutoDiagsEnabled " type="xs:string" />
+    <xs:attribute name="AutoDiagsEnabled" type="xs:string" />
     <xs:attribute name="DiagnosticProfileID" type="xs:string" />
     <xs:attribute name="DuplexEnabled" type="xs:string" />
     <xs:attribute name="Use" type="xs:string" />
@@ -1040,7 +1040,7 @@
     <xs:attribute name="AssocTag3" type="xs:string" />
     <xs:attribute name="AssocTag4" type="xs:string" />
     <xs:attribute name="UId" type="xs:string" />
-    <xs:attribute name="IsTemplate " type="xs:string" />
+    <xs:attribute name="IsTemplate" type="xs:string" />
     <xs:attribute name="Use" type="xs:string" />
   </xs:complexType>
   <xs:complexType name="TagCollectionType">
