@@ -313,8 +313,8 @@ namespace ThesisProjectV1
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
-                        Console.WriteLine("Input user value for " + requiredAttribute.Attribute("name").Value + " of " + parentName);
-                        string attributeValue = Console.ReadLine();
+                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}","");
+                        input.ShowDialog(out string attributeValue);
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
                     parentName = rootPath.Dequeue();
