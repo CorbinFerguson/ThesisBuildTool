@@ -24,7 +24,7 @@ namespace ThesisProjectV1.Forms
             base.ShowDialog();
             if (this.DialogResult == DialogResult.OK)
                 buttonPress = Actions.Import;
-            else if (this.DialogResult == DialogResult.Cancel)
+            else if (this.DialogResult == DialogResult.Yes)
                 buttonPress = Actions.Generate;
             else
                 buttonPress = Actions.Error;
@@ -37,7 +37,7 @@ namespace ThesisProjectV1.Forms
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
         {
-            this.DialogResult= DialogResult.Cancel;
+            this.DialogResult= DialogResult.Yes;
             this.Close();
         }
     }
