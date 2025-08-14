@@ -39,7 +39,7 @@
             this.ImportSelect.Name = "ImportSelect";
             this.ImportSelect.Size = new System.Drawing.Size(183, 100);
             this.ImportSelect.TabIndex = 0;
-            this.ImportSelect.Text = "Import";
+            this.ImportSelect.Text = "Import Element";
             this.ImportSelect.UseVisualStyleBackColor = true;
             this.ImportSelect.Click += new System.EventHandler(this.ImportSelect_Click);
             // 
@@ -49,7 +49,7 @@
             this.GenerateSelect.Name = "GenerateSelect";
             this.GenerateSelect.Size = new System.Drawing.Size(183, 100);
             this.GenerateSelect.TabIndex = 1;
-            this.GenerateSelect.Text = "Generate";
+            this.GenerateSelect.Text = "Generate from Template";
             this.GenerateSelect.UseVisualStyleBackColor = true;
             this.GenerateSelect.Click += new System.EventHandler(this.GenerateSelect_Click);
             // 
@@ -59,6 +59,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(433, 26);
             this.textBox1.TabIndex = 2;
+            this.textBox1.Text = "Select the action you wish to take:";
             // 
             // ActionSelect
             // 

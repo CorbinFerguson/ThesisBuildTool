@@ -158,7 +158,7 @@ namespace ThesisProjectV1
                             attributesTochange.Add(wantedAttribute);
                             }
                         // Prompt user for other attributes to not take default value for
-                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select elements to manually set value");
+                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value", true);
                         selectAttributes.ShowDialog(out List<string> selectedAttributenames);
                         foreach (string attributeName in selectedAttributenames) 
                         {
@@ -169,8 +169,8 @@ namespace ThesisProjectV1
                         // Get user values for attributes
                         foreach(XAttribute changeAttribute in nonDefaultAttributes)
                         {
-                            Console.WriteLine($"Input a value for {changeAttribute.Name} attribute of {element.Name}");
-                            string attributeValue = Console.ReadLine();
+                            TextInput input = new TextInput($"Input a value for {changeAttribute.Name} attribute of {element.Name}", changeAttribute.Value);
+                            input.ShowDialog(out string attributeValue);
                             element.Attribute(changeAttribute.Name).SetValue(attributeValue);
                         }
 

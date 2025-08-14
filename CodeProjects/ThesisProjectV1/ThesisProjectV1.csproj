@@ -60,6 +60,12 @@
     <Compile Include="Forms\MultiSelectDropdown.Designer.cs">
       <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\TextInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TextInput.Designer.cs">
+      <DependentUpon>TextInput.cs</DependentUpon>
+    </Compile>
     <Compile Include="Validate.cs" />
     <Compile Include="XMLHandler.cs" />
     <Compile Include="Execute.cs" />
@@ -82,6 +88,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MultiSelectDropdown.resx">
       <DependentUpon>MultiSelectDropdown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TextInput.resx">
+      <DependentUpon>TextInput.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
