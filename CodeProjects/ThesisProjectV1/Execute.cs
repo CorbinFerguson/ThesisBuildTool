@@ -144,39 +144,48 @@ namespace ThesisProjectV1
                         }
                         IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(xmlHandler.Ns + "attribute")); // TODO: this should be aquired from the schema
                         List<XAttribute> attributesTochange = new List<XAttribute>();
-                        List<string> attributesThatDefault = new List<string>();
+                        List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
 
                         // Foreach subelement/value
                         foreach (XElement attribute in attributesEl)
                         {
+                            string attributeValue = "";
                             // Add the required elements to list of attributes to prompt user for
-                            if (attribute.Attribute("use") != null)
-                            {
-                                XAttribute wantedAttribute = element.Attribute(attribute.Attribute("name").Value);
-                                attributesTochange.Add(wantedAttribute);
+                            if (element.Attribute(attribute.Attribute("name").Value) != null)
+                                attributeValue = element.Attribute(attribute.Attribute("name").Value).Value;
+
+                            XAttribute wantedAttribute = new XAttribute(attribute.Attribute("name").Value.ToString(), attributeValue);
+                            attributesTochange.Add(wantedAttribute);
                             }
-                            else
-                                attributesThatDefault.Add(attribute.Attribute("name").Value);
-                        }
-                        // Prompt user for other attribute to not take default value for
-                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesThatDefault, "Select elements to manually modify");
+                        // Prompt user for other attributes to not take default value for
+                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select elements to manually set value");
                         selectAttributes.ShowDialog(out List<string> selectedAttributenames);
                         foreach (string attributeName in selectedAttributenames) 
                         {
-                            attributesTochange.Add(element.Attribute(attributeName));
+                            nonDefaultAttributes.Add(element.Attribute(attributeName));
+                            attributesTochange.RemoveAll(i => i.Name == attributeName);
                         }
 
-                        foreach(XAttribute )
+                        // Get user values for attributes
+                        foreach(XAttribute changeAttribute in nonDefaultAttributes)
+                        {
+                            Console.WriteLine($"Input a value for {changeAttribute.Name} attribute of {element.Name}");
+                            string attributeValue = Console.ReadLine();
+                            element.Attribute(changeAttribute.Name).SetValue(attributeValue);
+                        }
 
-                        // Prompt user for values of each attribute
+                        foreach(XAttribute setDefaultAttribute in attributesTochange)
+                        {
+                            if(element.Attribute(setDefaultAttribute.Name) != null)
+                                element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
+                            else
+                                element.Add(setDefaultAttribute);
+                            if (setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) != null)
+                                element.Attribute(setDefaultAttribute.Name).Remove();
+                        }
 
-                        // Get default values for all other elements from the file
-                        // assign to subelement
-
-                        // insert
+                        xmlHandler.InsertElement(doc, element);
                     }
-
-                    // Prompt user for each subelement, the values to be changed
                 }
                 catch (EmptyListException ex)
                 {
