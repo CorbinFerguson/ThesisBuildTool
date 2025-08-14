@@ -31,6 +31,7 @@
             this.ImportSelect = new System.Windows.Forms.Button();
             this.GenerateSelect = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ExitButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ImportSelect
@@ -61,11 +62,22 @@
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Select the action you wish to take:";
             // 
+            // ExitButton
+            // 
+            this.ExitButton.Location = new System.Drawing.Point(224, 181);
+            this.ExitButton.Name = "ExitButton";
+            this.ExitButton.Size = new System.Drawing.Size(75, 41);
+            this.ExitButton.TabIndex = 3;
+            this.ExitButton.Text = "Exit";
+            this.ExitButton.UseVisualStyleBackColor = true;
+            this.ExitButton.Click += new System.EventHandler(this.ExitButton_Click);
+            // 
             // ActionSelect
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 234);
+            this.Controls.Add(this.ExitButton);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.GenerateSelect);
             this.Controls.Add(this.ImportSelect);
@@ -81,5 +93,6 @@
         private System.Windows.Forms.Button ImportSelect;
         private System.Windows.Forms.Button GenerateSelect;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button ExitButton;
     }
 }
