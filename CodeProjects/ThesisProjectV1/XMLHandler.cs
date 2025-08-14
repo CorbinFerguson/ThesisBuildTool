@@ -330,7 +330,10 @@ namespace ThesisProjectV1
             IEnumerable<XElement> elementToAdd = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
             if (elementToAdd.Count() > 0)
             {
-                MessageBox.Show("Element by that name already exists. Canceling Insertion", "Add Element Error", MessageBoxButtons.OK);
+                TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
+                renameElement.ShowDialog(out string newName);
+                element.Attribute("Name").SetValue(newName);
+                inDoc = InsertElement(inDoc, element);
                 return inDoc;
             }
 
@@ -346,7 +349,7 @@ namespace ThesisProjectV1
             if (parentNode != null && parentNode.IsEmpty)
             {
                 parentNode.Add(element);
-                Console.WriteLine("Inserted: " + element.Name);
+                Console.WriteLine("Inserted: " + element.Attribute("Name").Value);
                 return inDoc;
             }
             else if (multOptions) // If there exists multiple options for insertion location
