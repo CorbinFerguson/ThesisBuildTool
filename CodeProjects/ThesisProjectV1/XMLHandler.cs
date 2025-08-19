@@ -268,9 +268,7 @@ namespace ThesisProjectV1
         {
             // Prompt user to select type of element to insert
             List<string> elementTypes = this.GetDistinctTypes(filePath);
-            IEnumerable<XElement> typesWDataStruc = this.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals("DataStructure")).Descendants();
-            elementTypes = elementTypes.Where(name => !typesWDataStruc.Any(x => (string)x.Attribute("name") == name)).ToList();
-
+            
             DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
             selectType.ShowDialog(out string typeOfElement);
             return typeOfElement;
@@ -382,6 +380,17 @@ namespace ThesisProjectV1
             }
 
             Console.WriteLine("Inserted: " + element.Name);
+
+            // Check if there are any dependencies in the inserted element
+            if (element.Attributes("Dependencies") != null)
+            {
+                List<XElement> dependencies = element.Descendants("Dependencies").ToList();
+                foreach (XElement dependency in dependencies)
+                {
+                    XElement dependentElement = dependency.Descendants(dependency.Attribute("type").ToString()).Where(i => i.Attribute("Name").Value.Equals(element.Attribute("Name"))).Single();
+                    inDoc = this.InsertElement(inDoc, dependentElement);
+                }
+            }
             return inDoc;
         }
 
@@ -437,10 +446,7 @@ namespace ThesisProjectV1
                     // Get parent of all ambiguous parent elements
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
-                        if (attributeFilter.Equals("type"))
-                            ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
-                        else
-                            throw;
+                        ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         parentNames.Add(ambiguousSelect.Attribute("name").Value);
                     }
 
