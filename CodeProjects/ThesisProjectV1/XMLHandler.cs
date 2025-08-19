@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace ThesisProjectV1
 {
@@ -236,18 +237,11 @@ namespace ThesisProjectV1
 
                     // Create a popup telling user what happened
                     MessageBox.Show("Multiple options for parent of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
 
                     List<string> parentNames = new List<string>();
-                    XElement ambiguousSelect;
-
-                    // Get parent of all ambiguous parent elements
-                    foreach (XElement ambiguousElement in ambiguousElements)
-                    {
-                        ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
-                        parentNames.Add(ambiguousSelect.Attribute("name").Value);
-                    }
-
+                    parentNames = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name").Value.ToString()).ToList().Contains(i.Attribute(attributeFilter).Value)).Select(i => i.Attribute("name").Value).ToList();
+                    
                     // Prompt user to select grandparent for the element
                     DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
