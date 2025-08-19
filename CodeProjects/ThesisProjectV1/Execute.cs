@@ -48,7 +48,7 @@ namespace ThesisProjectV1
             }
 
             // Save the document to a file
-            for(int i=0;  File.Exists(outputPath + outputName + ".L5X"); i++)
+            for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
             doc.Save(outputPath + outputName + ".L5X");
 

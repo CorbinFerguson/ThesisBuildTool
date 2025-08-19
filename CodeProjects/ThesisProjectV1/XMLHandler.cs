@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace ThesisProjectV1
 {
@@ -241,7 +240,7 @@ namespace ThesisProjectV1
 
                     List<string> parentNames = new List<string>();
                     parentNames = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name").Value.ToString()).ToList().Contains(i.Attribute(attributeFilter).Value)).Select(i => i.Attribute("name").Value).ToList();
-                    
+
                     // Prompt user to select grandparent for the element
                     DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
