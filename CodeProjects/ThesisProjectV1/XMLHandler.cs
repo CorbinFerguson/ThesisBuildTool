@@ -199,27 +199,90 @@ namespace ThesisProjectV1
             return docToInsert;
         }
 
-        // Loads a premade blank file containig basic structure for the program to build off
-        public XDocument LoadBasicFile()
+        // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
+        public Queue<string> FindPathtoRootSchema(XElement element)
         {
-            XDocument doc = XDocument.Load("../../../L5XFiles/EmptyGenFile.l5X");
-            return doc;
-        }
+            Queue<string> paths = new Queue<string>();
+            string attributeFilter = null;
 
-        // Get all distinct types in the document. They must have a name to be addable.
-        public List<string> GetDistinctTypes(string path)
-        {
-            XDocument doc = XDocument.Load(path);
-            List<string> types = new List<string>();
+            string name = element.Name.ToString();
+            XElement schemaElement = null;
 
-            foreach (XElement type in doc.Descendants())
+            try
             {
-                if (type.Attribute("Name") != null && type.Name.ToString() != "RSLogix5000Content")
-                    if (!types.Contains(type.Name.ToString()))
-                        types.Add(type.Name.ToString());
-            }
+                attributeFilter = "name";
+                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
 
-            return types;
+                // Loop until RSLogix5000Content(root of L5X) is found
+                while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
+                {
+                    // Go to parent complex type, find name of that
+                    attributeFilter = "name";
+                    name = schemaElement.Parent.Parent.Attribute(attributeFilter).Value;
+
+                    // search for something with that type
+                    attributeFilter = "type";
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+
+                    paths.Enqueue(schemaElement.Attribute("name").Value);
+                }
+                if (paths.Count == 0)
+                    throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (ex.Message.Contains("Sequence contains more than one element"))
+                {
+
+                    // Create a popup telling user what happened
+                    MessageBox.Show("Multiple options for parent of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
+
+                    List<string> parentNames = new List<string>();
+                    XElement ambiguousSelect;
+
+                    // Get parent of all ambiguous parent elements
+                    foreach (XElement ambiguousElement in ambiguousElements)
+                    {
+                        ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
+                        parentNames.Add(ambiguousSelect.Attribute("name").Value);
+                    }
+
+                    // Prompt user to select grandparent for the element
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
+                    selectElement.ShowDialog(out string nameOfElement);
+                    string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type") != null && i.Attribute("type").Value.ToString().Equals(name)).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
+                    paths.Enqueue(disambiguousParent);
+
+                    // Create the path queue
+                    Queue<string> rootPath = new Queue<string>();
+                    // If paths is empty, use element parent
+                    if (paths.Any() == false)
+                        rootPath.Enqueue(element.Parent.Name.ToString());
+                    // If it is not empty, use the parent of the last element in the queue
+                    rootPath.Enqueue(nameOfElement);
+                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
+
+                    foreach (string node in grandparentToRoot)
+                        rootPath.Enqueue(node);
+
+                    if (rootPath.Count == 0)
+                        return rootPath;
+                    if (rootPath.Peek() == paths.Last())
+                        rootPath.Dequeue();
+                    foreach (string parent in rootPath)
+                        paths.Enqueue(parent);
+                    return paths;
+                }
+                else
+                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "how did you hit this", MessageBoxButtons.OK); }
+            }
+            catch (EmptyListException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+            return paths;
         }
 
         public XElement GetElementFromFile(string subElement, string filePath)
@@ -287,11 +350,40 @@ namespace ThesisProjectV1
             return names;
         }
 
+        // Get all distinct types in the document. They must have a name to be addable.
+        public List<string> GetDistinctTypes(string path)
+        {
+            XDocument doc = XDocument.Load(path);
+            List<string> types = new List<string>();
+
+            foreach (XElement type in doc.Descendants())
+            {
+                if (type.Attribute("Name") != null && type.Name.ToString() != "RSLogix5000Content")
+                    if (!types.Contains(type.Name.ToString()))
+                        types.Add(type.Name.ToString());
+            }
+
+            return types;
+        }
+
         public string GetTypeAndSelect(string filePath)
         {
             // Prompt user to select type of element to insert
             List<string> elementTypes = this.GetDistinctTypes(filePath);
-            
+            List<string> namesOfTypesToIgnore = new List<string>()
+            {
+                "Controller",
+                "DataValueMember",
+                "StructureMember",
+                "Dependency",
+                "Member",
+                "Trend",
+                "Pen"
+            };
+            List<XElement> typesToIgnore = this.GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name") != null).Where(i => namesOfTypesToIgnore.Contains(i.Attribute("name").Value)).ToList();
+
+            elementTypes = elementTypes.Where(name => !typesToIgnore.Any(x => (string)x.Attribute("name") == name)).ToList();
+
             DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
             selectType.ShowDialog(out string typeOfElement);
             return typeOfElement;
@@ -414,90 +506,11 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
-        public Queue<string> FindPathtoRootSchema(XElement element)
+        // Loads a premade blank file containig basic structure for the program to build off
+        public XDocument LoadBasicFile()
         {
-            Queue<string> paths = new Queue<string>();
-            string attributeFilter = null;
-
-            string name = element.Name.ToString();
-            XElement schemaElement = null;
-
-            try
-            {
-                attributeFilter = "name";
-                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
-
-                // Loop until RSLogix5000Content(root of L5X) is found
-                while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
-                {
-                    // Go to parent complex type, find name of that
-                    attributeFilter = "name";
-                    name = schemaElement.Parent.Parent.Attribute(attributeFilter).Value;
-
-                    // search for something with that type
-                    attributeFilter = "type";
-                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
-
-                    paths.Enqueue(schemaElement.Attribute("name").Value);
-                }
-                if (paths.Count == 0)
-                    throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
-            }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("Sequence contains more than one element"))
-                {
-
-                    // Create a popup telling user what happened
-                    MessageBox.Show("Multiple options for parent of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
-
-                    List<string> parentNames = new List<string>();
-                    XElement ambiguousSelect;
-
-                    // Get parent of all ambiguous parent elements
-                    foreach (XElement ambiguousElement in ambiguousElements)
-                    {
-                        ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
-                        parentNames.Add(ambiguousSelect.Attribute("name").Value);
-                    }
-
-                    // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
-                    selectElement.ShowDialog(out string nameOfElement);
-                    string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type") != null && i.Attribute("type").Value.ToString().Equals(name)).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
-                    paths.Enqueue(disambiguousParent);
-
-                    // Create the path queue
-                    Queue<string> rootPath = new Queue<string>();
-                    // If paths is empty, use element parent
-                    if (paths.Any() == false)
-                        rootPath.Enqueue(element.Parent.Name.ToString());
-                    // If it is not empty, use the parent of the last element in the queue
-                    rootPath.Enqueue(nameOfElement);
-                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
-
-                    foreach (string node in grandparentToRoot)
-                        rootPath.Enqueue(node);
-
-                    if (rootPath.Count == 0)
-                        return rootPath;
-                    if (rootPath.Peek() == paths.Last())
-                        rootPath.Dequeue();
-                    foreach (string parent in rootPath)
-                        paths.Enqueue(parent);
-                    return paths;
-                }
-                else
-                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "how did you hit this", MessageBoxButtons.OK); }
-            }
-            catch (EmptyListException ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-            }
-            return paths;
+            XDocument doc = XDocument.Load("../../../L5XFiles/EmptyGenFile.l5X");
+            return doc;
         }
 
         #endregion

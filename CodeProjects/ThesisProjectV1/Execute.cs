@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -18,6 +20,8 @@ namespace ThesisProjectV1
             FilterIndex = 0,
             RestoreDirectory = true
         };
+        private static readonly string outputPath = "../../../L5XFiles/GeneratedFiles/";
+        private static string outputName = "GenFile";
 
         [STAThread]
         private static void Main()
@@ -44,10 +48,11 @@ namespace ThesisProjectV1
             }
 
             // Save the document to a file
-            string genFilePath = "../../../L5XFiles/GenFile.L5X";
-            doc.Save(genFilePath);
+            for(int i=0;  File.Exists(outputPath + outputName + ".L5X"); i++)
+                outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
+            doc.Save(outputPath + outputName + ".L5X");
 
-            Console.WriteLine($"XML file created at: {genFilePath}");
+            Console.WriteLine($"XML file created at: {outputPath}");
         }
 
         // Function for taking in an element from a file
