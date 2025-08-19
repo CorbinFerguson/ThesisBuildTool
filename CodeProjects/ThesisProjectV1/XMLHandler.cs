@@ -313,7 +313,7 @@ namespace ThesisProjectV1
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
-                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}","");
+                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}", "");
                         input.ShowDialog(out string attributeValue);
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
@@ -430,7 +430,7 @@ namespace ThesisProjectV1
                     // Create a popup telling user what happened
                     MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value + " of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
-                    
+
                     List<string> parentNames = new List<string>();
                     XElement ambiguousSelect;
 
@@ -438,7 +438,7 @@ namespace ThesisProjectV1
                     foreach (XElement ambiguousElement in ambiguousElements)
                     {
                         if (attributeFilter.Equals("type"))
-                             ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
+                            ambiguousSelect = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(ambiguousElement.Parent.Parent.Attribute("name").Value.ToString())).Single();
                         else
                             throw;
                         parentNames.Add(ambiguousSelect.Attribute("name").Value);
@@ -458,9 +458,6 @@ namespace ThesisProjectV1
                     // If it is not empty, use the parent of the last element in the queue
                     rootPath.Enqueue(nameOfElement);
                     Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
-
-                    // Check if parent of where the schema currently is exists in path queue
-
 
                     foreach (string node in grandparentToRoot)
                         rootPath.Enqueue(node);
