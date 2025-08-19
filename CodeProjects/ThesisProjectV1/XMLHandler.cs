@@ -450,7 +450,7 @@ namespace ThesisProjectV1
                 {
 
                     // Create a popup telling user what happened
-                    MessageBox.Show("Multiple options for parent " + schemaElement.Attribute("name").Value + " of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
+                    MessageBox.Show("Multiple options for parent of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
 
                     List<string> parentNames = new List<string>();
