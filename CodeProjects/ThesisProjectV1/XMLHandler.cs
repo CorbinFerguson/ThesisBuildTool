@@ -176,6 +176,29 @@ namespace ThesisProjectV1
             doc.Save(genFilePath);
         }
 
+        public XDocument CheckForDependencies(XDocument docToInsert, string elementFilepath, XElement element)
+        {
+            XDocument docForElement = XDocument.Load(elementFilepath);
+            // Check if there are any dependencies in the inserted element
+            if (element.Attributes("Dependencies") != null)
+            {
+                List<XElement> dependencies = element.Descendants("Dependencies").Elements().ToList();
+                foreach (XElement dependency in dependencies)
+                {
+                    XElement dependentElement = docForElement.Descendants(dependency.Attribute("Type").Value).Where(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value)).Single();
+                    docToInsert = this.InsertElement(docToInsert, dependentElement);
+                }
+            }
+            return docToInsert;
+        }
+
+        public XDocument CheckForDependencies(XDocument docToInsert, string elementFilepath, List<XElement> elements)
+        {
+            foreach (XElement element in elements)
+                docToInsert = this.CheckForDependencies(docToInsert, elementFilepath, element);
+            return docToInsert;
+        }
+
         // Loads a premade blank file containig basic structure for the program to build off
         public XDocument LoadBasicFile()
         {
@@ -381,16 +404,6 @@ namespace ThesisProjectV1
 
             Console.WriteLine("Inserted: " + element.Name);
 
-            // Check if there are any dependencies in the inserted element
-            if (element.Attributes("Dependencies") != null)
-            {
-                List<XElement> dependencies = element.Descendants("Dependencies").ToList();
-                foreach (XElement dependency in dependencies)
-                {
-                    XElement dependentElement = dependency.Descendants(dependency.Attribute("type").ToString()).Where(i => i.Attribute("Name").Value.Equals(element.Attribute("Name"))).Single();
-                    inDoc = this.InsertElement(inDoc, dependentElement);
-                }
-            }
             return inDoc;
         }
 

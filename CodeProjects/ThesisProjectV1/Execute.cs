@@ -75,6 +75,7 @@ namespace ThesisProjectV1
                         selectElement.ShowDialog(out List<string> nameOfElement);
                         List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, filePath, nameOfElement);
                         doc = xmlHandler.InsertElement(doc, returnedElement);
+                        doc = xmlHandler.CheckForDependencies(doc, filePath, returnedElement);
                         DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
                             break;
@@ -185,6 +186,7 @@ namespace ThesisProjectV1
                         }
 
                         xmlHandler.InsertElement(doc, element);
+                        doc = xmlHandler.CheckForDependencies(doc, filePath, element);
                     }
                 }
                 catch (EmptyListException ex)
@@ -200,7 +202,7 @@ namespace ThesisProjectV1
                 if (errors.Length > 0)
                 {
                     MessageBox.Show(errors, "Errors", MessageBoxButtons.OK);
-                    // TODO: when validation fails, Fix it
+                    continue;
                 }
 
                 DialogResult endSelect = MessageBox.Show("End Creation of Elements?", "Element Select", MessageBoxButtons.YesNo);
