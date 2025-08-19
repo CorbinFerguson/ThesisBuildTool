@@ -16,7 +16,7 @@ namespace ThesisProjectV1
         private static string filePath = "";
         private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
         {
-            Filter = "L5X Files (*.L5X)|*.L5X|All files (*.*)|*.*",
+            Filter = "L5X Files (*.L5X)|*.L5X",
             FilterIndex = 0,
             RestoreDirectory = true
         };
