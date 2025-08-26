@@ -444,11 +444,24 @@ namespace ThesisProjectV1
                 }
             }
 
-            
+            try
+            {
+                parentNode = inDoc.Descendants(parentName).Single();
+            }
+            catch (InvalidOperationException)
+            {
+                // Multiple elements of chosen type, prompt user to select which element should be the parent
+                MessageBox.Show("Multiple options for parent element", "Parent Element Options", MessageBoxButtons.OK);
+                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).ToList();
+                DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
+                parentSelect.ShowDialog(out string selectedName);
+                parentNode = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName)).Single();
+            }
+
             // Check that the element being added doesn't already exist
-            IEnumerable<XElement> elementToAdd = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            if (elementToAdd.Select(i => i.Parent.Name.Equals(rootPath.Dequeue())).Any() && elementToAdd.Count() > 0 && elementToAdd.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
-                {
+            IEnumerable<XElement> clashingElements = inDoc.Descendants(element.Parent.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
+            if (clashingElements.Count() > 0 && clashingElements.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
+            {
                 List<string> actionOps = new List<string>() { "Replace", "Revision Increment", "Rename", "Cancel" };
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What action would you like to take for {element.Attribute("Name").Value}?");
                 elementExists.ShowDialog(out string selected);
@@ -456,10 +469,9 @@ namespace ThesisProjectV1
                 {
                     case "Replace":
                         // Replace the already existing element
-                        DropdownGui elementReplace = new DropdownGui(elementToAdd.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
+                        DropdownGui elementReplace = new DropdownGui(clashingElements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
                         elementReplace.ShowDialog(out string replaceVersion);
                         element.Attribute("Revision").SetValue(replaceVersion);
-                        ////inDoc.Descendants(element.Name).Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion) && i.Attribute("Name").Value.ToString().Equals(element.Attribute("Name").Value)).Single().ReplaceWith(element);
                         break;
                     case "Rename":
                         // Rename the element being inserted to not clash with existing element
@@ -483,30 +495,6 @@ namespace ThesisProjectV1
                         // Cancel insertion
                         return inDoc;
                 }
-            }
-
-            try
-            {
-                parentNode = inDoc.Descendants(parentName).Single();
-            }
-            catch (InvalidOperationException)
-            {
-                multOptions = true;
-            }
-
-            if (parentNode != null && parentNode.IsEmpty)
-            {
-                parentNode.Add(element);
-                Console.WriteLine("Inserted: " + element.Attribute("Name").Value);
-                return inDoc;
-            }
-            else if (multOptions) // If there exists multiple options for insertion location
-            {
-                MessageBox.Show("Multiple options for parent element", "Parent Element Options", MessageBoxButtons.OK);
-                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).ToList();
-                DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
-                parentSelect.ShowDialog(out string selectedName);
-                parentNode = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName)).Single();
             }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
