@@ -453,8 +453,8 @@ namespace ThesisProjectV1
                             // Replace the already existing element
                             DropdownGui elementReplace = new DropdownGui(elementToAdd.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
                             elementReplace.ShowDialog(out string replaceVersion);
-                            XElement replaced = elementToAdd.Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion)).Single();
-                            replaced.ReplaceWith(element);
+                            element.Attribute("Revision").SetValue(replaceVersion);
+                            inDoc.Descendants(element.Name).Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion) && i.Attribute("Name").Value.ToString().Equals(element.Attribute("Name").Value)).Single().ReplaceWith(element);
                             return inDoc;
                         case "Rename":
                             // Rename the element being inserted to not clash with existing element
