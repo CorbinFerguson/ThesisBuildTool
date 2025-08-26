@@ -30,13 +30,13 @@ namespace ThesisProjectV1.Forms
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if (this.Dropdownelements.SelectedItems != null)
+            if (this.Dropdownelements.SelectedItem != null)
                 this.Close();
         }
 
         private void Dropdownelements_DoubleClick(object sender, EventArgs e)
         {
-            if (this.Dropdownelements.SelectedItems != null)
+            if (this.Dropdownelements.SelectedItem != null)
                 this.Close();
         }
     }
