@@ -406,7 +406,7 @@ namespace ThesisProjectV1
             bool multOptions = false;
             XElement parentNode = null;
 
-            // Check that parent node exists in document
+            // Check that parent node exists in document using the schema
             while (!inDoc.Descendants(parentName).Any())
             {
                 element = new XElement(parentName, element);
@@ -436,11 +436,41 @@ namespace ThesisProjectV1
             IEnumerable<XElement> elementToAdd = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
             if (elementToAdd.Count() > 0)
             {
-                TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
-                renameElement.ShowDialog(out string newName);
-                element.Attribute("Name").SetValue(newName);
-                inDoc = InsertElement(inDoc, element);
-                return inDoc;
+                if (elementToAdd.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
+                {
+                    List<string> actionOps = new List<string>() { "Replace", "Revision Increment", "Rename", "Cancel" };
+                    DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What action would you like to take for {element.Attribute("Name").Value}?");
+                    elementExists.ShowDialog(out string selected);
+                    switch (selected)
+                    {
+                        case "Replace":
+                            // Replace the already existing element
+                            DropdownGui elementReplace = new DropdownGui(elementToAdd.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
+                            elementReplace.ShowDialog(out string replaceVersion);
+                            XElement replaced = elementToAdd.Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion)).Single();
+                            replaced.ReplaceWith(element);
+                            break;
+                        case "Rename":
+                            // Rename the element being inserted to not clash with existing element
+                            TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
+                            string newName = element.Attribute("Name").Value.ToString();
+                            while (newName.Equals(element.Attribute("Name").Value.ToString()))
+                                renameElement.ShowDialog(out newName);
+                            element.Attribute("Name").SetValue(newName);
+                            break;
+                        case "Revision Increment":
+                            // Increment the element being inserted to not clash
+                            TextInput version = new TextInput($"Element by that name already exists. Input a new revision for {element.Attribute("Name").Value}", element.Attribute("Revision").Value.ToString());
+                            string newVersion = element.Attribute("Revision").Value.ToString();
+                            while (newVersion.Equals(element.Attribute("Revision").Value.ToString()))
+                                version.ShowDialog(out newVersion);
+                            element.Attribute("Revision").SetValue(newVersion);
+                            break;
+                        default:
+                            // Cancel insertion
+                            return inDoc;
+                    }
+                }
             }
 
             try
