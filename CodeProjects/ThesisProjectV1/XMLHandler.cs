@@ -406,11 +406,9 @@ namespace ThesisProjectV1
             bool multOptions = false;
             XElement parentNode = null;
 
-            //Ensure edit information is up to date
-            XAttribute editedDate = new XAttribute("EditedDate", DateTime.Now);
-            XAttribute editedBy = new XAttribute("EditedBy", "XMLGenerator");
-            element.SetAttributeValue(editedDate.Name, editedDate.Value);
-            element.SetAttributeValue(editedBy.Name, editedBy.Value);
+            // Add Revision num 1.0 if it doesnt have a revision
+            if(element.Attribute("Revision") == null)
+                element.SetAttributeValue("Revision", "1.0");
 
             // Check that parent node exists in document using the schema
             while (!inDoc.Descendants(parentName).Any())
@@ -420,15 +418,23 @@ namespace ThesisProjectV1
                 try
                 {
                     // Verify that the parent element has all required attributes
-                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.Equals(complexType)).Single();
-                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null).Where(i => i.Attribute("use").Value.Equals("required"));
+                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name") != null && i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
+                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null && i.Attribute("name").Value.Equals(complexType)).Single();
+                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null && i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
                         TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}", "");
                         input.ShowDialog(out string attributeValue);
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
+
+                    if (schemaElement.Descendants().Where(i=> i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("EditedDate") != null).Any())
+                    {
+                        //Ensure edit information is up to date
+                        XAttribute editedDate = new XAttribute("EditedDate", DateTime.Now);
+                        element.SetAttributeValue(editedDate.Name, editedDate.Value);
+                    }
+
                     parentName = rootPath.Dequeue();
                 }
                 catch (InvalidOperationException)
@@ -438,46 +444,44 @@ namespace ThesisProjectV1
                 }
             }
 
+            
             // Check that the element being added doesn't already exist
             IEnumerable<XElement> elementToAdd = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            if (elementToAdd.Count() > 0)
-            {
-                if (elementToAdd.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
+            if (elementToAdd.Select(i => i.Parent.Name.Equals(rootPath.Dequeue())).Any() && elementToAdd.Count() > 0 && elementToAdd.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
                 {
-                    List<string> actionOps = new List<string>() { "Replace", "Revision Increment", "Rename", "Cancel" };
-                    DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What action would you like to take for {element.Attribute("Name").Value}?");
-                    elementExists.ShowDialog(out string selected);
-                    switch (selected)
-                    {
-                        case "Replace":
-                            // Replace the already existing element
-                            DropdownGui elementReplace = new DropdownGui(elementToAdd.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
-                            elementReplace.ShowDialog(out string replaceVersion);
-                            element.Attribute("Revision").SetValue(replaceVersion);
-                            inDoc.Descendants(element.Name).Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion) && i.Attribute("Name").Value.ToString().Equals(element.Attribute("Name").Value)).Single().ReplaceWith(element);
-                            return inDoc;
-                        case "Rename":
-                            // Rename the element being inserted to not clash with existing element
-                            TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
-                            string newName = element.Attribute("Name").Value.ToString();
-                            while (newName.Equals(element.Attribute("Name").Value.ToString()))
-                                renameElement.ShowDialog(out newName);
-                            element.Attribute("Name").SetValue(newName);
-                            inDoc = InsertElement(inDoc, element);
-                            return inDoc;
-                        case "Revision Increment":
-                            // Increment the element being inserted to not clash
-                            TextInput version = new TextInput($"Element by that name already exists. Input a new revision for {element.Attribute("Name").Value}", element.Attribute("Revision").Value.ToString());
-                            string newVersion = element.Attribute("Revision").Value.ToString();
-                            while (newVersion.Equals(element.Attribute("Revision").Value.ToString()))
-                                version.ShowDialog(out newVersion);
-                            element.Attribute("Revision").SetValue(newVersion);
-                            inDoc = InsertElement(inDoc, element);
-                            return inDoc;
-                        default:
-                            // Cancel insertion
-                            return inDoc;
-                    }
+                List<string> actionOps = new List<string>() { "Replace", "Revision Increment", "Rename", "Cancel" };
+                DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What action would you like to take for {element.Attribute("Name").Value}?");
+                elementExists.ShowDialog(out string selected);
+                switch (selected)
+                {
+                    case "Replace":
+                        // Replace the already existing element
+                        DropdownGui elementReplace = new DropdownGui(elementToAdd.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
+                        elementReplace.ShowDialog(out string replaceVersion);
+                        element.Attribute("Revision").SetValue(replaceVersion);
+                        ////inDoc.Descendants(element.Name).Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion) && i.Attribute("Name").Value.ToString().Equals(element.Attribute("Name").Value)).Single().ReplaceWith(element);
+                        break;
+                    case "Rename":
+                        // Rename the element being inserted to not clash with existing element
+                        TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
+                        string newName = element.Attribute("Name").Value.ToString();
+                        /// TODO: Add handling for if element by THAT name exists
+                        while (newName.Equals(element.Attribute("Name").Value.ToString()))
+                            renameElement.ShowDialog(out newName);
+                        element.Attribute("Name").SetValue(newName);
+                        break;
+                    case "Revision Increment":
+                        // Increment the element being inserted to not clash
+                        TextInput version = new TextInput($"Element by that name already exists. Input a new revision for {element.Attribute("Name").Value}", element.Attribute("Revision").Value.ToString());
+                        string newVersion = element.Attribute("Revision").Value.ToString();
+                        /// TODO: Add handling for if element by revision name exists
+                        while (newVersion.Equals(element.Attribute("Revision").Value.ToString()))
+                            version.ShowDialog(out newVersion);
+                        element.Attribute("Revision").SetValue(newVersion);
+                        break;
+                    default:
+                        // Cancel insertion
+                        return inDoc;
                 }
             }
 
