@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -451,45 +452,45 @@ namespace ThesisProjectV1
             catch (InvalidOperationException)
             {
                 // Multiple elements of chosen type, prompt user to select which element should be the parent
-                MessageBox.Show("Multiple options for parent element", "Parent Element Options", MessageBoxButtons.OK);
-                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).ToList();
+                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
                 DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
                 parentSelect.ShowDialog(out string selectedName);
-                parentNode = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName)).Single();
+                IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName));
+                if (parentNodes.Count() == 1)
+                    parentNode=parentNodes.First();
+                else
+                {
+                    DropdownGui revisionSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revision");
+                    revisionSelect.ShowDialog(out string Revision);
+                    parentNode = parentNodes.Where(i => i.Attribute("Revision").Value.ToString() == Revision).Single();
+                }
             }
 
             // Check that the element being added doesn't already exist
-            IEnumerable<XElement> clashingElements = inDoc.Descendants(element.Parent.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            if (clashingElements.Count() > 0 && clashingElements.Select(i => i.Attribute("Revision").Value.ToString().Equals(element.Attribute("Revision").Value.ToString())).Contains(true))
+            IEnumerable<XElement> clashingElements = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
+            bool revisionClashes = clashingElements.Where(i => i.Attribute("Revision") !=null && i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).Any();
+            if (clashingElements.Count() > 0 && revisionClashes)
             {
-                List<string> actionOps = new List<string>() { "Replace", "Revision Increment", "Rename", "Cancel" };
-                DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What action would you like to take for {element.Attribute("Name").Value}?");
+                List<string> actionOps = new List<string>() { "Replace", "Revision", "Name", "Cancel" };
+                DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What would you like to change for {element.Attribute("Name").Value}?");
                 elementExists.ShowDialog(out string selected);
                 switch (selected)
                 {
                     case "Replace":
                         // Replace the already existing element
                         DropdownGui elementReplace = new DropdownGui(clashingElements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
-                        elementReplace.ShowDialog(out string replaceVersion);
-                        element.Attribute("Revision").SetValue(replaceVersion);
+                        elementReplace.ShowDialog(out string replaceRevision);
+                        element.Attribute("Revision").SetValue(replaceRevision);
                         break;
-                    case "Rename":
+                    case "Name":
+                    case "Revision":
                         // Rename the element being inserted to not clash with existing element
-                        TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
-                        string newName = element.Attribute("Name").Value.ToString();
+                        TextInput renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString());
+                        string newAtrVal = element.Attribute(selected).Value.ToString();
                         /// TODO: Add handling for if element by THAT name exists
-                        while (newName.Equals(element.Attribute("Name").Value.ToString()))
-                            renameElement.ShowDialog(out newName);
-                        element.Attribute("Name").SetValue(newName);
-                        break;
-                    case "Revision Increment":
-                        // Increment the element being inserted to not clash
-                        TextInput version = new TextInput($"Element by that name already exists. Input a new revision for {element.Attribute("Name").Value}", element.Attribute("Revision").Value.ToString());
-                        string newVersion = element.Attribute("Revision").Value.ToString();
-                        /// TODO: Add handling for if element by revision name exists
-                        while (newVersion.Equals(element.Attribute("Revision").Value.ToString()))
-                            version.ShowDialog(out newVersion);
-                        element.Attribute("Revision").SetValue(newVersion);
+                        while (newAtrVal.Equals(element.Attribute(selected).Value.ToString()))
+                            renameElement.ShowDialog(out newAtrVal);
+                        element.Attribute(selected).SetValue(newAtrVal);
                         break;
                     default:
                         // Cancel insertion
