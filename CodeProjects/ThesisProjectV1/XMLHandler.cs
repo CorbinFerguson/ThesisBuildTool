@@ -406,6 +406,12 @@ namespace ThesisProjectV1
             bool multOptions = false;
             XElement parentNode = null;
 
+            //Ensure edit information is up to date
+            XAttribute editedDate = new XAttribute("EditedDate", DateTime.Now);
+            XAttribute editedBy = new XAttribute("EditedBy", "XMLGenerator");
+            element.SetAttributeValue(editedDate.Name, editedDate.Value);
+            element.SetAttributeValue(editedBy.Name, editedBy.Value);
+
             // Check that parent node exists in document using the schema
             while (!inDoc.Descendants(parentName).Any())
             {
@@ -449,7 +455,7 @@ namespace ThesisProjectV1
                             elementReplace.ShowDialog(out string replaceVersion);
                             XElement replaced = elementToAdd.Where(i => i.Attribute("Revision").Value.ToString().Equals(replaceVersion)).Single();
                             replaced.ReplaceWith(element);
-                            break;
+                            return inDoc;
                         case "Rename":
                             // Rename the element being inserted to not clash with existing element
                             TextInput renameElement = new TextInput($"Element by that name already exists. Input a new name for {element.Attribute("Name").Value}", element.Attribute("Name").Value.ToString());
@@ -457,7 +463,8 @@ namespace ThesisProjectV1
                             while (newName.Equals(element.Attribute("Name").Value.ToString()))
                                 renameElement.ShowDialog(out newName);
                             element.Attribute("Name").SetValue(newName);
-                            break;
+                            inDoc = InsertElement(inDoc, element);
+                            return inDoc;
                         case "Revision Increment":
                             // Increment the element being inserted to not clash
                             TextInput version = new TextInput($"Element by that name already exists. Input a new revision for {element.Attribute("Name").Value}", element.Attribute("Revision").Value.ToString());
@@ -465,7 +472,8 @@ namespace ThesisProjectV1
                             while (newVersion.Equals(element.Attribute("Revision").Value.ToString()))
                                 version.ShowDialog(out newVersion);
                             element.Attribute("Revision").SetValue(newVersion);
-                            break;
+                            inDoc = InsertElement(inDoc, element);
+                            return inDoc;
                         default:
                             // Cancel insertion
                             return inDoc;
