@@ -250,7 +250,6 @@ namespace ThesisProjectV1
                 {
 
                     // Create a popup telling user what happened
-                    MessageBox.Show("Multiple options for parent of " + element.Attribute("Name").Value + ", please select intended grandparent type", ex.Message, MessageBoxButtons.OK);
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
 
                     List<string> parentNames = new List<string>();
@@ -317,7 +316,6 @@ namespace ThesisProjectV1
                         // There exists more than one element of that name
                         IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                         // Create a popup telling user what happened
-                        MessageBox.Show("Ambiguous parent type for " + elementName + ", please select intended grandparent type", "Element from File Selection", MessageBoxButtons.OK);
                         List<string> parentOptions = itemToAddDoc.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
                         DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
                         selectElement.ShowDialog(out string nameOfElement);
@@ -327,7 +325,6 @@ namespace ThesisProjectV1
                         }
                         catch (InvalidOperationException)
                         {
-                            MessageBox.Show("Multiple objects of chosen type", "Disambiguate Element from File Selection", MessageBoxButtons.OK);
                             List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
                             DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
                             elementSelect.ShowDialog(out string selectedObject);

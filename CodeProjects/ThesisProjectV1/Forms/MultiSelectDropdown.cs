@@ -9,10 +9,6 @@ namespace ThesisProjectV1.Forms
     {
         private readonly bool emptyReturn;
 
-        public MultiSelectDropdown()
-        {
-            InitializeComponent();
-        }
         public MultiSelectDropdown(List<string> names, string text, bool allowEmptyReturn = false)
         {
             if (names.Count() == 0)

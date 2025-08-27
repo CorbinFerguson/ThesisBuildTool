@@ -25,26 +25,10 @@ namespace ThesisProjectV1
         [STAThread]
         private static void Main()
         {
-            bool exitLoop = false;
             doc = xmlHandler.LoadBasicFile();
             // Take in user input
-            while (!exitLoop)
-            {
-                ActionSelect actionSelect = new ActionSelect();
-                actionSelect.ShowDialog(out ActionSelect.Actions selectedAction);
-                switch (selectedAction)
-                {
-                    case ActionSelect.Actions.Import:
-                        ImportElement();
-                        break;
-                    case ActionSelect.Actions.Generate:
-                        GenerateElement();
-                        break;
-                    default:
-                        exitLoop = true;
-                        break;
-                }
-            }
+            ActionSelect actionSelect = new ActionSelect();
+            actionSelect.ShowDialog();
 
             // Save the document to a file
             for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
@@ -55,58 +39,35 @@ namespace ThesisProjectV1
         }
 
         // Function for taking in an element from a file
-        private static void ImportElement()
+        public static void ImportElement()
         {
             openFileSearch.InitialDirectory = "../";
-            while (true)
+            bool insertElement = true;
+
+            // Select File being imported from
+            if (openFileSearch.ShowDialog() == DialogResult.OK)
+                xmlHandler.inputFilepath = openFileSearch.FileName;
+            else
+                insertElement = false;
+
+            // While loop to contain importing elements from chosen file
+            while (insertElement)
             {
-                bool insertElement = true;
-                try
-                {
-                    // Select File being imported from
-                    if (openFileSearch.ShowDialog() == DialogResult.OK)
-                        xmlHandler.inputFilepath = openFileSearch.FileName;
-                    else
-                        insertElement = false;
+                string typeOfElement = xmlHandler.GetTypeAndSelect();
 
-                    while (insertElement)
-                    {
-                        string typeOfElement = xmlHandler.GetTypeAndSelect();
-
-                        // Get all elements in file of the type
-                        List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
-                        MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                        selectElement.ShowDialog(out List<string> nameOfElement);
-                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
-                        doc = xmlHandler.InsertElement(doc, returnedElement);
-                        DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
-                        if (newElementFile == DialogResult.No)
-                            break;
-                    }
-                }
-                catch (EmptyListException ex)
-                {
-                    // Create a popup telling user what happened
-                    MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
-                }
-
-                // Validate the document against the xml Schema
-                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-                string errors = string.Join(Environment.NewLine, errorList);
-
-                if (errors.Length > 0)
-                {
-                    MessageBox.Show(errors, "Errors", MessageBoxButtons.OK);
-                    // TODO: when validation fails, Fix it
-                }
-
-                DialogResult endSelect = MessageBox.Show("End Selection?", "Element Select", MessageBoxButtons.YesNo);
-                if (endSelect == DialogResult.Yes)
+                // Get all elements in file of the type
+                List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
+                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
+                selectElement.ShowDialog(out List<string> nameOfElement);
+                List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+                doc = xmlHandler.InsertElement(doc, returnedElement);
+                DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+                if (newElementFile == DialogResult.No)
                     break;
             }
         }
 
-        private static void GenerateElement()
+        public static void GenerateElement()
         {
             while (true)
             {
