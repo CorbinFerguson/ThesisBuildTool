@@ -486,8 +486,16 @@ namespace ThesisProjectV1
                         break;
                     case "Name":
                     case "Revision":
+                        TextInput renameElement;
                         // Rename the element being inserted to not clash with existing element
-                        TextInput renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString());
+                        if (selected == "Name")
+                        {
+                            renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString());
+                        }
+                        else
+                        {
+                            renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString(), @"\d+\.[0-9]");
+                        }
                         string newAtrVal = element.Attribute(selected).Value.ToString();
                         /// TODO: Add handling for if element by THAT name exists
                         while (newAtrVal.Equals(element.Attribute(selected).Value.ToString()))

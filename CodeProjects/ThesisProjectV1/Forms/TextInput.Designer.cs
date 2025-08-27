@@ -42,7 +42,7 @@
             this.UserInstructionTextBox.Location = new System.Drawing.Point(3, 12);
             this.UserInstructionTextBox.Name = "UserInstructionTextBox";
             this.UserInstructionTextBox.ReadOnly = true;
-            this.UserInstructionTextBox.Size = new System.Drawing.Size(1053, 53);
+            this.UserInstructionTextBox.Size = new System.Drawing.Size(1053, 30);
             this.UserInstructionTextBox.TabIndex = 0;
             // 
             // contextMenuStrip1
@@ -57,6 +57,7 @@
             this.InputValueName.Name = "InputValueName";
             this.InputValueName.Size = new System.Drawing.Size(438, 26);
             this.InputValueName.TabIndex = 2;
+            this.InputValueName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.InputValueName_KeyDown);
             // 
             // SubmitButton
             // 
