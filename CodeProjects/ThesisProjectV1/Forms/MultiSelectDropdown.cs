@@ -21,16 +21,12 @@ namespace ThesisProjectV1.Forms
             this.TextBox.Text = text;
         }
 
-        public void ShowDialog(out List<string> selected)
-        {
-            base.ShowDialog();
-            selected = this.DropdownElements.SelectedItems.Cast<string>().ToList();
-        }
-
         private void ExitSelect_Click(object sender, EventArgs e)
         {
             if (this.DropdownElements.SelectedItems.Count > 0 || emptyReturn)
-                this.Close();
+            {
+                InsertionHelper.elementAttrList.AddRange((IEnumerable<string>)this.DropdownElements.SelectedItems);
+            }
         }
     }
 }

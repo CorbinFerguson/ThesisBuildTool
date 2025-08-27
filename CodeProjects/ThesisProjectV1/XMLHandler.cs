@@ -292,13 +292,12 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        public XElement GetElementFromFile(string elementType, string elementName)
+        public void GetElementFromFile(string elementType, string elementName)
         {
-            XElement element = null;
             XDocument itemToAddDoc = XDocument.Load(inputFilepath);
             try
             {
-                element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+                InsertionHelper.currentElement = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
             }
             catch (InvalidOperationException)
             {
@@ -310,7 +309,7 @@ namespace ThesisProjectV1
                 selectElement.ShowDialog(out string nameOfElement);
                 try
                 {
-                    element = itemToAddDoc.Descendants(nameOfElement).Single();
+                    InsertionHelper.currentElement = itemToAddDoc.Descendants(nameOfElement).Single();
                 }
                 catch (InvalidOperationException)
                 {
@@ -318,10 +317,9 @@ namespace ThesisProjectV1
                     DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
                     elementSelect.ShowDialog(out string selectedObject);
                     XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
-                    element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
+                    InsertionHelper.currentElement = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
                 }
             }
-            return element;
         }
 
         public List<XElement> GetElementFromFile(string elementType, List<string> elementNames)

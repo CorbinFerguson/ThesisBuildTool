@@ -9,6 +9,13 @@ using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
+    internal class InsertionHelper
+    {
+        public static XElement currentElement = new XElement("UserShouldNotSeeThis");
+        public bool selectedAction; // 0 for Import, 1 for Generate
+        public static List<string> elementAttrList = new List<string>();
+    }
+
     internal class Execute
     {
         private static readonly XMLHandler xmlHandler = new XMLHandler();
@@ -42,29 +49,37 @@ namespace ThesisProjectV1
         public static void ImportElement()
         {
             openFileSearch.InitialDirectory = "../";
-            bool insertElement = true;
 
             // Select File being imported from
             if (openFileSearch.ShowDialog() == DialogResult.OK)
                 xmlHandler.inputFilepath = openFileSearch.FileName;
             else
-                insertElement = false;
+                return;
 
-            // While loop to contain importing elements from chosen file
-            while (insertElement)
+            // Select Type to insert
+            InsertionHelper.currentElement.Name = xmlHandler.GetTypeAndSelect();
+
+            //Select Element to Insert
+            ElementSelect();
+
+            DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+            if (newElementFile == DialogResult.Yes)
             {
-                string typeOfElement = xmlHandler.GetTypeAndSelect();
-
-                // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
-                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement);
-                List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
-                doc = xmlHandler.InsertElement(doc, returnedElement);
-                DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
-                if (newElementFile == DialogResult.No)
-                    break;
+                InsertionHelper.currentElement.Name = xmlHandler.GetTypeAndSelect();
             }
+        }
+
+        public static void ElementSelect()
+        {
+            // Get all elements in file of the type
+            List<string> availableElements = xmlHandler.GetElementsOfType(InsertionHelper.currentElement.Name.ToString());
+            MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
+            selectElement.ShowDialog();
+
+            xmlHandler.GetElementFromFile(InsertionHelper.currentElement.Name.ToString(), InsertionHelper.currentElement.Attribute("Name").Value);
+            doc = xmlHandler.InsertElement(doc, InsertionHelper.currentElement);
+
+
         }
 
         public static void GenerateElement()
@@ -82,13 +97,13 @@ namespace ThesisProjectV1
                         return;
 
                     // Prompt user to select the element to insert
-                    string typeOfElement = xmlHandler.GetTypeAndSelect();
+                    InsertionHelper.currentElement.Name = xmlHandler.GetTypeAndSelect();
                     // Get all elements in file of the type
-                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
+                    List<string> availableElements = xmlHandler.GetElementsOfType(InsertionHelper.currentElement.Name.ToString());
                     MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                    selectElement.ShowDialog(out List<string> nameOfElement);
+                    selectElement.ShowDialog();
 
-                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(InsertionHelper.currentElement.Name.ToString(), InsertionHelper.elementAttrList);
 
                     // Prompt user to select the subelements/values to change(required elements are not selectable)
                     foreach (XElement element in elementList)
