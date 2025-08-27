@@ -71,7 +71,7 @@ namespace ThesisProjectV1
 
                     while (insertElement)
                     {
-                        string typeOfElement = xmlHandler.GetTypeAndSelect(xmlHandler.inputFilepath);
+                        string typeOfElement = xmlHandler.GetTypeAndSelect();
 
                         // Get all elements in file of the type
                         List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);

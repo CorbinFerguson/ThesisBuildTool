@@ -195,7 +195,7 @@ namespace ThesisProjectV1
                 foreach (XElement dependency in dependencies)
                 {
                     // Check that element doesnt exist
-                    IEnumerable<XElement> clashingElements = docToInsert.Descendants(dependency.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
+                    IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
                     if (!clashingElements.Any())
                     {
                         // If it doesn't, insert dependency into file
@@ -505,11 +505,11 @@ namespace ThesisProjectV1
                         // Rename the element being inserted to not clash with existing element
                         if (selected == "Name")
                         {
-                            renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString());
+                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString());
                         }
                         else
                         {
-                            renameElement = new TextInput($"Element by that name already exists. Input a new {selected} for {element.Attribute(selected).Value}", element.Attribute(selected).Value.ToString(), @"\d+\.[0-9]");
+                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString(), @"\d+\.[0-9]");
                         }
                         string newAtrVal = element.Attribute(selected).Value.ToString();
                         /// TODO: Add handling for if element by THAT name exists
