@@ -16,12 +16,10 @@ namespace ThesisProjectV1.Forms
         private void ImportSelect_Click(object sender, EventArgs e)
         {
             Execute.ImportElement();
-            this.Close();
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
         {
             Execute.GenerateElement();
-            this.Close();
         }
 
         private void ExitButton_Click(object sender, EventArgs e)

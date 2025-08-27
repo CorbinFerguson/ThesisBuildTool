@@ -292,46 +292,33 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        public XElement GetElementFromFile(string subElement)
-        {
-            throw new NotImplementedException();
-        }
-
         public XElement GetElementFromFile(string elementType, string elementName)
         {
             XElement element = null;
-            if (elementName.Equals(""))
-                element = GetElementFromFile(elementType);
-            else
+            XDocument itemToAddDoc = XDocument.Load(inputFilepath);
+            try
             {
-                XDocument itemToAddDoc = XDocument.Load(inputFilepath);
+                element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+            }
+            catch (InvalidOperationException)
+            {
+                // There exists more than one element of that name
+                IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                // Create a popup telling user what happened
+                List<string> parentOptions = itemToAddDoc.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
+                DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
+                selectElement.ShowDialog(out string nameOfElement);
                 try
                 {
-                    element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+                    element = itemToAddDoc.Descendants(nameOfElement).Single();
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
-                    if (ex.Message.Contains("Sequence contains more than one element"))
-                    {
-                        // There exists more than one element of that name
-                        IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
-                        // Create a popup telling user what happened
-                        List<string> parentOptions = itemToAddDoc.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
-                        DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
-                        selectElement.ShowDialog(out string nameOfElement);
-                        try
-                        {
-                            element = itemToAddDoc.Descendants(nameOfElement).Single();
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
-                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                            elementSelect.ShowDialog(out string selectedObject);
-                            XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
-                            element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
-                        }
-                    }
+                    List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                    DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
+                    elementSelect.ShowDialog(out string selectedObject);
+                    XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
+                    element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
                 }
             }
             return element;
