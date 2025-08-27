@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -407,7 +406,7 @@ namespace ThesisProjectV1
             XElement parentNode = null;
 
             // Add Revision num 1.0 if it doesnt have a revision
-            if(element.Attribute("Revision") == null)
+            if (element.Attribute("Revision") == null)
                 element.SetAttributeValue("Revision", "1.0");
 
             // Check that parent node exists in document using the schema
@@ -428,7 +427,7 @@ namespace ThesisProjectV1
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
 
-                    if (schemaElement.Descendants().Where(i=> i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("EditedDate") != null).Any())
+                    if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("EditedDate") != null).Any())
                     {
                         //Ensure edit information is up to date
                         XAttribute editedDate = new XAttribute("EditedDate", DateTime.Now);
@@ -469,9 +468,9 @@ namespace ThesisProjectV1
 
             // Check that the element being added doesn't already exist
             IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            XElement revisionClashes = clashingElements.Where(i => i.Attribute("Revision") ==null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).SingleOrDefault();
+            XElement revisionClashes = clashingElements.Where(i => i.Attribute("Revision") == null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).SingleOrDefault();
 
-            if (clashingElements.Count() > 0 && !revisionClashes.IsEmpty)
+            if (clashingElements.Count() > 0 && revisionClashes != null && !revisionClashes.IsEmpty)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
                 if (element.Name == "AddOnInstructionDefinition")
@@ -501,7 +500,8 @@ namespace ThesisProjectV1
                         while (newAtrVal.Equals(element.Attribute(selected).Value.ToString()))
                             renameElement.ShowDialog(out newAtrVal);
                         element.Attribute(selected).SetValue(newAtrVal);
-                        break;
+                        inDoc = InsertElement(inDoc, element);
+                        return inDoc;
                     default:
                         // Cancel insertion
                         return inDoc;
@@ -549,6 +549,4 @@ namespace ThesisProjectV1
 
         #endregion
     }
-
-
 }
