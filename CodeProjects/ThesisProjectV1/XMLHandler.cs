@@ -15,6 +15,15 @@ namespace ThesisProjectV1
         private readonly string projectName = "GenProject";
         private readonly Validate validator = new Validate();
 
+        private readonly List<string> versionElements = new List<string>()
+        {
+            "AddOnInstructionDefinition",
+            "DataType",
+            "Program"
+        };
+
+        public string inputFilepath;
+
         public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
         #endregion
@@ -176,26 +185,32 @@ namespace ThesisProjectV1
             doc.Save(genFilePath);
         }
 
-        public XDocument CheckForDependencies(XDocument docToInsert, string elementFilepath, XElement element)
+        public XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
-            XDocument docForElement = XDocument.Load(elementFilepath);
+            XDocument docForElement = XDocument.Load(inputFilepath);
             // Check if there are any dependencies in the inserted element
             if (element.Attributes("Dependencies") != null)
             {
                 List<XElement> dependencies = element.Descendants("Dependencies").Elements().ToList();
                 foreach (XElement dependency in dependencies)
                 {
-                    XElement dependentElement = docForElement.Descendants(dependency.Attribute("Type").Value).Where(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value)).Single();
-                    docToInsert = this.InsertElement(docToInsert, dependentElement);
+                    // Check that element doesnt exist
+                    IEnumerable<XElement> clashingElements = docToInsert.Descendants(dependency.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
+                    if (!clashingElements.Any())
+                    {
+                        // If it doesn't, insert dependency into file
+                        XElement dependentElement = docForElement.Descendants(dependency.Attribute("Type").Value).Where(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value)).Single();
+                        docToInsert = this.InsertElement(docToInsert, dependentElement);
+                    }
                 }
             }
             return docToInsert;
         }
 
-        public XDocument CheckForDependencies(XDocument docToInsert, string elementFilepath, List<XElement> elements)
+        public XDocument CheckForDependencies(XDocument docToInsert,List<XElement> elements)
         {
             foreach (XElement element in elements)
-                docToInsert = this.CheckForDependencies(docToInsert, elementFilepath, element);
+                docToInsert = this.CheckForDependencies(docToInsert, element);
             return docToInsert;
         }
 
@@ -278,19 +293,19 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        public XElement GetElementFromFile(string subElement, string filePath)
+        public XElement GetElementFromFile(string subElement)
         {
             throw new NotImplementedException();
         }
 
-        public XElement GetElementFromFile(string elementType, string filePath, string elementName)
+        public XElement GetElementFromFile(string elementType, string elementName)
         {
             XElement element = null;
             if (elementName.Equals(""))
-                element = GetElementFromFile(elementType, filePath);
+                element = GetElementFromFile(elementType);
             else
             {
-                XDocument itemToAddDoc = XDocument.Load(filePath);
+                XDocument itemToAddDoc = XDocument.Load(inputFilepath);
                 try
                 {
                     element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
@@ -325,18 +340,18 @@ namespace ThesisProjectV1
             return element;
         }
 
-        public List<XElement> GetElementFromFile(string elementType, string filePath, List<string> elementNames)
+        public List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
         {
             List<XElement> elementList = new List<XElement>();
             foreach (string elementName in elementNames)
-                elementList.Add(GetElementFromFile(elementType, filePath, elementName));
+                elementList.Add(GetElementFromFile(elementType, elementName));
             return elementList;
         }
 
-        public List<string> GetElementsOfType(string elementType, string filePath)
+        public List<string> GetElementsOfType(string elementType)
         {
             List<String> names = new List<String>();
-            XDocument doc = XDocument.Load(filePath);
+            XDocument doc = XDocument.Load(inputFilepath);
             foreach (XElement element in doc.Descendants(elementType))
                 names.Add(element.Attribute("Name").Value.ToString());
 
@@ -344,9 +359,9 @@ namespace ThesisProjectV1
         }
 
         // Get all distinct types in the document. They must have a name to be addable.
-        public List<string> GetDistinctTypes(string path)
+        public List<string> GetDistinctTypes()
         {
-            XDocument doc = XDocument.Load(path);
+            XDocument doc = XDocument.Load(inputFilepath);
             List<string> types = new List<string>();
 
             foreach (XElement type in doc.Descendants())
@@ -359,10 +374,10 @@ namespace ThesisProjectV1
             return types;
         }
 
-        public string GetTypeAndSelect(string filePath)
+        public string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
-            List<string> elementTypes = this.GetDistinctTypes(filePath);
+            List<string> elementTypes = this.GetDistinctTypes();
             List<string> namesOfTypesToIgnore = new List<string>()
             {
                 "Controller",
@@ -401,6 +416,7 @@ namespace ThesisProjectV1
 
         public XDocument InsertElement(XDocument inDoc, XElement element)
         {
+            inDoc = CheckForDependencies(inDoc, element);
             Queue<string> rootPath = FindPathtoRootSchema(element);
             XName parentName = rootPath.Dequeue();
             XElement parentNode = null;
@@ -473,7 +489,7 @@ namespace ThesisProjectV1
             if (clashingElements.Count() > 0 && revisionClashes != null && !revisionClashes.IsEmpty)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-                if (element.Name == "AddOnInstructionDefinition")
+                if (versionElements.Contains(element.Name.ToString()))
                     actionOps.Add("Revision");
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What would you like to change for {element.Attribute("Name").Value}?");
                 elementExists.ShowDialog(out string selected);

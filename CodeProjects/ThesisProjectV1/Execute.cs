@@ -13,7 +13,6 @@ namespace ThesisProjectV1
     {
         private static readonly XMLHandler xmlHandler = new XMLHandler();
         private static XDocument doc = new XDocument();
-        private static string filePath = "";
         private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
         {
             Filter = "L5X Files (*.L5X)|*.L5X",
@@ -66,21 +65,20 @@ namespace ThesisProjectV1
                 {
                     // Select File being imported from
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
-                        filePath = openFileSearch.FileName;
+                        xmlHandler.inputFilepath = openFileSearch.FileName;
                     else
                         insertElement = false;
 
                     while (insertElement)
                     {
-                        string typeOfElement = xmlHandler.GetTypeAndSelect(filePath);
+                        string typeOfElement = xmlHandler.GetTypeAndSelect(xmlHandler.inputFilepath);
 
                         // Get all elements in file of the type
-                        List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
+                        List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
                         MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                         selectElement.ShowDialog(out List<string> nameOfElement);
-                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, filePath, nameOfElement);
+                        List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
                         doc = xmlHandler.InsertElement(doc, returnedElement);
-                        doc = xmlHandler.CheckForDependencies(doc, filePath, returnedElement);
                         DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                         if (newElementFile == DialogResult.No)
                             break;
@@ -118,18 +116,18 @@ namespace ThesisProjectV1
                 {
                     // Select File being imported from
                     if (openFileSearch.ShowDialog() == DialogResult.OK)
-                        filePath = openFileSearch.FileName;
+                        xmlHandler.inputFilepath = openFileSearch.FileName;
                     else
                         return;
 
                     // Prompt user to select the element to insert
-                    string typeOfElement = xmlHandler.GetTypeAndSelect(filePath);
+                    string typeOfElement = xmlHandler.GetTypeAndSelect();
                     // Get all elements in file of the type
-                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement, filePath);
+                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
                     MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                     selectElement.ShowDialog(out List<string> nameOfElement);
 
-                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, filePath, nameOfElement);
+                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
 
                     // Prompt user to select the subelements/values to change(required elements are not selectable)
                     foreach (XElement element in elementList)
@@ -191,7 +189,6 @@ namespace ThesisProjectV1
                         }
 
                         xmlHandler.InsertElement(doc, element);
-                        doc = xmlHandler.CheckForDependencies(doc, filePath, element);
                     }
                 }
                 catch (EmptyListException ex)
