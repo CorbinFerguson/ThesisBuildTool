@@ -404,7 +404,6 @@ namespace ThesisProjectV1
         {
             Queue<string> rootPath = FindPathtoRootSchema(element);
             XName parentName = rootPath.Dequeue();
-            bool multOptions = false;
             XElement parentNode = null;
 
             // Add Revision num 1.0 if it doesnt have a revision
@@ -457,30 +456,33 @@ namespace ThesisProjectV1
                 parentSelect.ShowDialog(out string selectedName);
                 IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName));
                 if (parentNodes.Count() == 1)
-                    parentNode=parentNodes.First();
-                else
+                    parentNode = parentNodes.Single();
+                else if (parentNodes.Count() > 1)
                 {
                     DropdownGui revisionSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revision");
                     revisionSelect.ShowDialog(out string Revision);
                     parentNode = parentNodes.Where(i => i.Attribute("Revision").Value.ToString() == Revision).Single();
                 }
+                else
+                    throw new EmptyListException("No Parent Nodes found");
             }
 
             // Check that the element being added doesn't already exist
-            IEnumerable<XElement> clashingElements = inDoc.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            bool revisionClashes = clashingElements.Where(i => i.Attribute("Revision") !=null && i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).Any();
-            if (clashingElements.Count() > 0 && revisionClashes)
+            IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
+            XElement revisionClashes = clashingElements.Where(i => i.Attribute("Revision") ==null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).SingleOrDefault();
+
+            if (clashingElements.Count() > 0 && !revisionClashes.IsEmpty)
             {
-                List<string> actionOps = new List<string>() { "Replace", "Revision", "Name", "Cancel" };
+                List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
+                if (element.Name == "AddOnInstructionDefinition")
+                    actionOps.Add("Revision");
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What would you like to change for {element.Attribute("Name").Value}?");
                 elementExists.ShowDialog(out string selected);
                 switch (selected)
                 {
                     case "Replace":
                         // Replace the already existing element
-                        DropdownGui elementReplace = new DropdownGui(clashingElements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Element revision to replace");
-                        elementReplace.ShowDialog(out string replaceRevision);
-                        element.Attribute("Revision").SetValue(replaceRevision);
+                        revisionClashes.Remove();
                         break;
                     case "Name":
                     case "Revision":
