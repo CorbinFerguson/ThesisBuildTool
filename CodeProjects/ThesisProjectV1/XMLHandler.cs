@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -22,7 +23,7 @@ namespace ThesisProjectV1
             "Program"
         };
 
-        public string inputFilepath;
+        public XDocument inputFile;
 
         public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
@@ -57,7 +58,7 @@ namespace ThesisProjectV1
             XAttribute[] controllerAttributes = {
                 new XAttribute("Use", "Target"),
                 new XAttribute("Name", projectName),
-                new XAttribute("ProcessorType", this.processorType),
+                new XAttribute("ProcessorType", processorType),
                 new XAttribute("MajorRev", "32"),
                 new XAttribute("MinorRev", "11"),
                 new XAttribute("ProjectCreationDate", DateTime.Now),
@@ -187,7 +188,6 @@ namespace ThesisProjectV1
 
         public XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
-            XDocument docForElement = XDocument.Load(inputFilepath);
             // Check if there are any dependencies in the inserted element
             if (element.Attributes("Dependencies") != null)
             {
@@ -199,18 +199,18 @@ namespace ThesisProjectV1
                     if (!clashingElements.Any())
                     {
                         // If it doesn't, insert dependency into file
-                        XElement dependentElement = docForElement.Descendants(dependency.Attribute("Type").Value).Where(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value)).Single();
-                        docToInsert = this.InsertElement(docToInsert, dependentElement);
+                        XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
+                        docToInsert = InsertElement(docToInsert, dependentElement);
                     }
                 }
             }
             return docToInsert;
         }
 
-        public XDocument CheckForDependencies(XDocument docToInsert,List<XElement> elements)
+        public XDocument CheckForDependencies(XDocument docToInsert, List<XElement> elements)
         {
             foreach (XElement element in elements)
-                docToInsert = this.CheckForDependencies(docToInsert, element);
+                docToInsert = CheckForDependencies(docToInsert, element);
             return docToInsert;
         }
 
@@ -295,30 +295,29 @@ namespace ThesisProjectV1
         public XElement GetElementFromFile(string elementType, string elementName)
         {
             XElement element = null;
-            XDocument itemToAddDoc = XDocument.Load(inputFilepath);
             try
             {
-                element = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName).Single();
+                element = inputFile.Descendants(elementType).Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value == elementName);
             }
             catch (InvalidOperationException)
             {
                 // There exists more than one element of that name
-                IEnumerable<XElement> elementsToChoose = itemToAddDoc.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                 // Create a popup telling user what happened
-                List<string> parentOptions = itemToAddDoc.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
+                List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
                 DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
                 selectElement.ShowDialog(out string nameOfElement);
                 try
                 {
-                    element = itemToAddDoc.Descendants(nameOfElement).Single();
+                    element = inputFile.Descendants(nameOfElement).Single();
                 }
                 catch (InvalidOperationException)
                 {
-                    List<string> typeObjects = itemToAddDoc.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                    List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
                     DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
                     elementSelect.ShowDialog(out string selectedObject);
-                    XElement parentElement = itemToAddDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedObject)).Single();
-                    element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(elementName)).Single();
+                    XElement parentElement = inputFile.Descendants().Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value.ToString().Equals(selectedObject));
+                    element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value.ToString().Equals(elementName));
                 }
             }
             return element;
@@ -326,55 +325,15 @@ namespace ThesisProjectV1
 
         public List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
         {
-            List<XElement> elementList = new List<XElement>();
-            foreach (string elementName in elementNames)
-                elementList.Add(GetElementFromFile(elementType, elementName));
+            List<XElement> elementList = elementNames.Select(elementName => GetElementFromFile(elementType, elementName)).ToList();
             return elementList;
-        }
-
-        public List<string> GetElementsOfType(string elementType)
-        {
-            List<String> names = new List<String>();
-            XDocument doc = XDocument.Load(inputFilepath);
-            foreach (XElement element in doc.Descendants(elementType))
-                names.Add(element.Attribute("Name").Value.ToString());
-
-            return names;
-        }
-
-        // Get all distinct types in the document. They must have a name to be addable.
-        public List<string> GetDistinctTypes()
-        {
-            XDocument doc = XDocument.Load(inputFilepath);
-            List<string> types = new List<string>();
-
-            foreach (XElement type in doc.Descendants())
-            {
-                if (type.Attribute("Name") != null && type.Name.ToString() != "RSLogix5000Content")
-                    if (!types.Contains(type.Name.ToString()))
-                        types.Add(type.Name.ToString());
-            }
-
-            return types;
         }
 
         public string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
-            List<string> elementTypes = this.GetDistinctTypes();
-            List<string> namesOfTypesToIgnore = new List<string>()
-            {
-                "Controller",
-                "DataValueMember",
-                "StructureMember",
-                "Dependency",
-                "Member",
-                "Trend",
-                "Pen"
-            };
-            List<XElement> typesToIgnore = this.GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name") != null).Where(i => namesOfTypesToIgnore.Contains(i.Attribute("name").Value)).ToList();
-
-            elementTypes = elementTypes.Where(name => !typesToIgnore.Any(x => (string)x.Attribute("name") == name)).ToList();
+            List<string> elementTypes = inputFile.Descendants().Where(i => i.Attribute("Name") != null).Select(i => i.Name.ToString()).Distinct().ToList();
+            elementTypes.Remove("Controller");
 
             DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
             selectType.ShowDialog(out string typeOfElement);
@@ -418,7 +377,7 @@ namespace ThesisProjectV1
                 {
                     // Verify that the parent element has all required attributes
                     string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name") != null && i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null && i.Attribute("name").Value.Equals(complexType)).Single();
+                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name") != null && i.Attribute("name").Value.Equals(complexType));
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null && i.Attribute("use").Value.Equals("required"));
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
@@ -460,7 +419,7 @@ namespace ThesisProjectV1
                 {
                     DropdownGui revisionSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revision");
                     revisionSelect.ShowDialog(out string Revision);
-                    parentNode = parentNodes.Where(i => i.Attribute("Revision").Value.ToString() == Revision).Single();
+                    parentNode = parentNodes.Single(i => i.Attribute("Revision").Value.ToString() == Revision);
                 }
                 else
                     throw new EmptyListException("No Parent Nodes found");
@@ -468,7 +427,7 @@ namespace ThesisProjectV1
 
             // Check that the element being added doesn't already exist
             IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
-            XElement revisionClashes = clashingElements.Where(i => i.Attribute("Revision") == null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value)).SingleOrDefault();
+            XElement revisionClashes = clashingElements.SingleOrDefault(i => i.Attribute("Revision") == null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value));
 
             if (clashingElements.Count() > 0 && revisionClashes != null && !revisionClashes.IsEmpty)
             {
@@ -545,6 +504,83 @@ namespace ThesisProjectV1
         {
             XDocument doc = XDocument.Load("../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
+        }
+
+        public XElement GetSetAttributes(XElement element)
+        {
+            XElement elementAttr;
+            try
+            {
+                XElement basicSchemaElement = GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
+                elementAttr = GetValidator().GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "complexType")).Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()));
+            }
+            catch (InvalidOperationException)
+            {
+                // Get tag type from document file
+                XElement grandparent = element.Parent.Parent;
+                elementAttr = GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString()));
+
+                // Search for complexType with name of type of element
+            }
+            IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(Ns + "attribute")); // TODO: this should be aquired from the schema
+            List<XAttribute> attributesTochange = new List<XAttribute>();
+            List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
+
+            // Foreach subelement/value
+            foreach (XElement attribute in attributesEl)
+            {
+                string attributeValue = "";
+                // Add the required elements to list of attributes to prompt user for
+                if (element.Attribute(attribute.Attribute("name").Value) != null)
+                    attributeValue = element.Attribute(attribute.Attribute("name").Value).Value;
+
+                XAttribute wantedAttribute = new XAttribute(attribute.Attribute("name").Value.ToString(), attributeValue);
+                attributesTochange.Add(wantedAttribute);
+            }
+            // Prompt user for other attributes to not take default value for
+            MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value", true);
+            selectAttributes.ShowDialog(out List<string> selectedAttributenames);
+            foreach (string attributeName in selectedAttributenames)
+            {
+                nonDefaultAttributes.Add(element.Attribute(attributeName));
+                attributesTochange.RemoveAll(i => i.Name == attributeName);
+            }
+
+            // Get user values for attributes
+            foreach (XAttribute changeAttribute in nonDefaultAttributes)
+            {
+                TextInput input = new TextInput($"Input a value for {changeAttribute.Name} attribute of {element.Name}", changeAttribute.Value);
+                input.ShowDialog(out string attributeValue);
+                element.Attribute(changeAttribute.Name).SetValue(attributeValue);
+            }
+
+            foreach (XAttribute setDefaultAttribute in attributesTochange)
+            {
+                if (element.Attribute(setDefaultAttribute.Name) != null)
+                    element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
+                else
+                    element.Add(setDefaultAttribute);
+                if (setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) != null)
+                    element.Attribute(setDefaultAttribute.Name).Remove();
+            }
+            return element;
+        }
+
+        public string GetElementTypes(XDocument doc)
+        {
+            // Select Element Types
+            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name")!=null).Select(i => i.Name.ToString()).Distinct().ToList();
+            uniqueTypes.Remove("Controller");
+
+            if (uniqueTypes.Count == 0)
+            {
+                MessageBox.Show("No valid elements found");
+                return null;
+            }
+
+            DropdownGui typesToRemove = new DropdownGui(uniqueTypes, "Select Element Types");
+            typesToRemove.ShowDialog(out string typeSelected);
+            return typeSelected;
         }
 
         #endregion

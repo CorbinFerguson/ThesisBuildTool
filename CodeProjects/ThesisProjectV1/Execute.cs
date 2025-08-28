@@ -40,28 +40,31 @@ namespace ThesisProjectV1
 
         public static void ModifyElement()
         {
-            MessageBox.Show("Modify Elements: WIP");
+            string typeSelected = xmlHandler.GetElementTypes(doc);
+            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name").Value.ToString()).Distinct().ToList();
+            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
+            nameSelect.ShowDialog(out List<string> namesSelected);
+
+            foreach (string elementName in namesSelected)
+            {
+                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName);
+                if(elements.Count() >1)
+                {
+                    // Multiple revisions
+                    MultiSelectDropdown revisionSelect = new MultiSelectDropdown(elements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revisions to modify");
+                    revisionSelect.ShowDialog(out List<string> revisionsModify);
+                    elements = elements.Where(i => revisionsModify.Contains(i.Attribute("Revision").Value));
+                }
+                IEnumerable<XElement> modified = elements.Select(i => xmlHandler.GetSetAttributes(i));
+            }
         }
 
         public static void DeleteElement()
         {
-            // Select Element Types
-            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") !=null).Select(i => i.Name.ToString()).Distinct().ToList();
-            uniqueTypes.Remove("Controller");
-
-            if (uniqueTypes.Count == 0)
-            {
-                MessageBox.Show("No valid elements to delete");
-                return;
-            }
-
-            DropdownGui typesToRemove = new DropdownGui(uniqueTypes, "Select Element Types to remove");
-            typesToRemove.ShowDialog(out string typeSelected);
-
-            // Select Element By Name
-            List<string> elementsByName = doc.Descendants().Where(i => i.Name.ToString().Equals(typeSelected)).Select(i => i.Attribute("Name").Value.ToString()).Distinct().ToList();
-            MultiSelectDropdown elementsToRemove = new MultiSelectDropdown(elementsByName, "Select Elements to remove");
-            elementsToRemove.ShowDialog(out List<string> namesSelected);
+            string typeSelected = xmlHandler.GetElementTypes(doc);
+            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
+            nameSelect.ShowDialog(out List<string> namesSelected);
 
             // For all selected element names, remove the associated element
             foreach (string name in namesSelected)
@@ -87,7 +90,7 @@ namespace ThesisProjectV1
 
             // Select File being imported from
             if (openFileSearch.ShowDialog() == DialogResult.OK)
-                xmlHandler.inputFilepath = openFileSearch.FileName;
+                xmlHandler.inputFile = XDocument.Load(openFileSearch.FileName);
             else
                 insertElement = false;
 
@@ -97,7 +100,7 @@ namespace ThesisProjectV1
                 string typeOfElement = xmlHandler.GetTypeAndSelect();
 
                 // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                 selectElement.ShowDialog(out List<string> nameOfElement);
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
@@ -110,108 +113,37 @@ namespace ThesisProjectV1
 
         public static void GenerateElement()
         {
-            while (true)
+            // Prompt user for what template file they would like to pull from
+            openFileSearch.InitialDirectory = "../TemplateFiles/";
+            try
             {
-                // Prompt user for what template file they would like to pull from
-                openFileSearch.InitialDirectory = "../TemplateFiles/";
-                try
+                // Select File being imported from
+                if (openFileSearch.ShowDialog() == DialogResult.OK)
+                    xmlHandler.inputFile = XDocument.Load(openFileSearch.FileName);
+                else
+                    return;
+
+                // Prompt user to select the element to insert
+                string typeOfElement = xmlHandler.GetTypeAndSelect();
+                // Get all elements in file of the type
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
+                selectElement.ShowDialog(out List<string> nameOfElement);
+
+                IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+
+                // Prompt user to select the subelements/values to change(required elements are not selectable)
+                foreach (XElement element in elementList)
                 {
-                    // Select File being imported from
-                    if (openFileSearch.ShowDialog() == DialogResult.OK)
-                        xmlHandler.inputFilepath = openFileSearch.FileName;
-                    else
-                        return;
+                    XElement setElement = xmlHandler.GetSetAttributes(element);
 
-                    // Prompt user to select the element to insert
-                    string typeOfElement = xmlHandler.GetTypeAndSelect();
-                    // Get all elements in file of the type
-                    List<string> availableElements = xmlHandler.GetElementsOfType(typeOfElement);
-                    MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                    selectElement.ShowDialog(out List<string> nameOfElement);
-
-                    IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
-
-                    // Prompt user to select the subelements/values to change(required elements are not selectable)
-                    foreach (XElement element in elementList)
-                    {
-                        XElement elementAttr;
-                        try
-                        {
-                            XElement basicSchemaElement = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
-                            elementAttr = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => i.Name.Equals(xmlHandler.Ns + "complexType")).Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString())).Single();
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            // Get tag type from document file
-                            XElement grandparent = element.Parent.Parent;
-                            elementAttr = xmlHandler.GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single();
-
-                            // Search for complexType with name of type of element
-                        }
-                        IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(xmlHandler.Ns + "attribute")); // TODO: this should be aquired from the schema
-                        List<XAttribute> attributesTochange = new List<XAttribute>();
-                        List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
-
-                        // Foreach subelement/value
-                        foreach (XElement attribute in attributesEl)
-                        {
-                            string attributeValue = "";
-                            // Add the required elements to list of attributes to prompt user for
-                            if (element.Attribute(attribute.Attribute("name").Value) != null)
-                                attributeValue = element.Attribute(attribute.Attribute("name").Value).Value;
-
-                            XAttribute wantedAttribute = new XAttribute(attribute.Attribute("name").Value.ToString(), attributeValue);
-                            attributesTochange.Add(wantedAttribute);
-                        }
-                        // Prompt user for other attributes to not take default value for
-                        MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value", true);
-                        selectAttributes.ShowDialog(out List<string> selectedAttributenames);
-                        foreach (string attributeName in selectedAttributenames)
-                        {
-                            nonDefaultAttributes.Add(element.Attribute(attributeName));
-                            attributesTochange.RemoveAll(i => i.Name == attributeName);
-                        }
-
-                        // Get user values for attributes
-                        foreach (XAttribute changeAttribute in nonDefaultAttributes)
-                        {
-                            TextInput input = new TextInput($"Input a value for {changeAttribute.Name} attribute of {element.Name}", changeAttribute.Value);
-                            input.ShowDialog(out string attributeValue);
-                            element.Attribute(changeAttribute.Name).SetValue(attributeValue);
-                        }
-
-                        foreach (XAttribute setDefaultAttribute in attributesTochange)
-                        {
-                            if (element.Attribute(setDefaultAttribute.Name) != null)
-                                element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
-                            else
-                                element.Add(setDefaultAttribute);
-                            if (setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) != null)
-                                element.Attribute(setDefaultAttribute.Name).Remove();
-                        }
-
-                        xmlHandler.InsertElement(doc, element);
-                    }
+                    xmlHandler.InsertElement(doc, setElement);
                 }
-                catch (EmptyListException ex)
-                {
-                    // Create a popup telling user what happened
-                    MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
-                }
-
-                // Validate the document against the xml Schema
-                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-                string errors = string.Join(Environment.NewLine, errorList);
-
-                if (errors.Length > 0)
-                {
-                    MessageBox.Show(errors, "Errors", MessageBoxButtons.OK);
-                    continue;
-                }
-
-                DialogResult endSelect = MessageBox.Show("End Creation of Elements?", "Element Select", MessageBoxButtons.YesNo);
-                if (endSelect == DialogResult.Yes)
-                    break;
+            }
+            catch (EmptyListException ex)
+            {
+                // Create a popup telling user what happened
+                MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
             }
         }
     }
