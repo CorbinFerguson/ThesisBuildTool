@@ -72,7 +72,7 @@
             // 
             // ExitButton
             // 
-            this.ExitButton.Location = new System.Drawing.Point(166, 143);
+            this.ExitButton.Location = new System.Drawing.Point(312, 143);
             this.ExitButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ExitButton.Name = "ExitButton";
             this.ExitButton.Size = new System.Drawing.Size(67, 33);
@@ -105,7 +105,7 @@
             // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(93, 143);
+            this.SaveButton.Location = new System.Drawing.Point(166, 143);
             this.SaveButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(67, 33);
@@ -127,7 +127,7 @@
             // 
             // NewFile
             // 
-            this.NewFile.Location = new System.Drawing.Point(312, 143);
+            this.NewFile.Location = new System.Drawing.Point(93, 143);
             this.NewFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.NewFile.Name = "NewFile";
             this.NewFile.Size = new System.Drawing.Size(67, 33);
