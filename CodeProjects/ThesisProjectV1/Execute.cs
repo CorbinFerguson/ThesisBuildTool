@@ -12,7 +12,7 @@ namespace ThesisProjectV1
     internal class Execute
     {
         private static readonly XMLHandler xmlHandler = new XMLHandler();
-        private static XDocument doc = new XDocument();
+        public static XDocument doc = new XDocument();
         private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
         {
             Filter = "L5X Files (*.L5X)|*.L5X",
@@ -25,17 +25,37 @@ namespace ThesisProjectV1
         [STAThread]
         private static void Main()
         {
-            doc = xmlHandler.LoadBasicFile();
+            // Default to generated basic file
+            NewFile();
+
             // Take in user input
             ActionSelect actionSelect = new ActionSelect();
             actionSelect.ShowDialog();
+        }
 
+        public static void NewFile()
+        {
+            doc = xmlHandler.LoadBasicFile();
+        }
+
+        public static void SaveFile()
+        {
             // Save the document to a file
             for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
-            doc.Save(outputPath + outputName + ".L5X");
 
+            TextInput fileName = new TextInput("File name", outputName);
+            fileName.ShowDialog(out outputName);
+
+            doc.Save(outputPath + outputName + ".L5X");
             Console.WriteLine($"XML file created at: {outputPath}");
+        }
+
+        public static void LoadFile()
+        {
+            // Select File being loaded to modifiy
+            if (openFileSearch.ShowDialog() == DialogResult.OK)
+                doc = XDocument.Load(openFileSearch.FileName);
         }
 
         public static void ModifyElement()
@@ -48,7 +68,7 @@ namespace ThesisProjectV1
             foreach (string elementName in namesSelected)
             {
                 IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName);
-                if(elements.Count() >1)
+                if (elements.Count() > 1)
                 {
                     // Multiple revisions
                     MultiSelectDropdown revisionSelect = new MultiSelectDropdown(elements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revisions to modify");

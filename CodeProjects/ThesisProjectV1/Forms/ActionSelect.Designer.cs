@@ -34,6 +34,9 @@
             this.ExitButton = new System.Windows.Forms.Button();
             this.ModifySelect = new System.Windows.Forms.Button();
             this.DeleteSelect = new System.Windows.Forms.Button();
+            this.SaveButton = new System.Windows.Forms.Button();
+            this.LoadButton = new System.Windows.Forms.Button();
+            this.NewFile = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ImportSelect
@@ -69,7 +72,7 @@
             // 
             // ExitButton
             // 
-            this.ExitButton.Location = new System.Drawing.Point(199, 145);
+            this.ExitButton.Location = new System.Drawing.Point(166, 143);
             this.ExitButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ExitButton.Name = "ExitButton";
             this.ExitButton.Size = new System.Drawing.Size(67, 33);
@@ -85,7 +88,7 @@
             this.ModifySelect.Name = "ModifySelect";
             this.ModifySelect.Size = new System.Drawing.Size(107, 80);
             this.ModifySelect.TabIndex = 4;
-            this.ModifySelect.Text = "Modify";
+            this.ModifySelect.Text = "Modify Element";
             this.ModifySelect.UseVisualStyleBackColor = true;
             this.ModifySelect.Click += new System.EventHandler(this.ModifySelect_Click);
             // 
@@ -96,15 +99,51 @@
             this.DeleteSelect.Name = "DeleteSelect";
             this.DeleteSelect.Size = new System.Drawing.Size(107, 80);
             this.DeleteSelect.TabIndex = 5;
-            this.DeleteSelect.Text = "Delete";
+            this.DeleteSelect.Text = "Delete Element";
             this.DeleteSelect.UseVisualStyleBackColor = true;
             this.DeleteSelect.Click += new System.EventHandler(this.DeleteSelect_Click);
+            // 
+            // SaveButton
+            // 
+            this.SaveButton.Location = new System.Drawing.Point(93, 143);
+            this.SaveButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.SaveButton.Name = "SaveButton";
+            this.SaveButton.Size = new System.Drawing.Size(67, 33);
+            this.SaveButton.TabIndex = 6;
+            this.SaveButton.Text = "Save";
+            this.SaveButton.UseVisualStyleBackColor = true;
+            this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
+            // 
+            // LoadButton
+            // 
+            this.LoadButton.Location = new System.Drawing.Point(239, 143);
+            this.LoadButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.LoadButton.Name = "LoadButton";
+            this.LoadButton.Size = new System.Drawing.Size(67, 33);
+            this.LoadButton.TabIndex = 7;
+            this.LoadButton.Text = "Load";
+            this.LoadButton.UseVisualStyleBackColor = true;
+            this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
+            // 
+            // NewFile
+            // 
+            this.NewFile.Location = new System.Drawing.Point(312, 143);
+            this.NewFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.NewFile.Name = "NewFile";
+            this.NewFile.Size = new System.Drawing.Size(67, 33);
+            this.NewFile.TabIndex = 8;
+            this.NewFile.Text = "New";
+            this.NewFile.UseVisualStyleBackColor = true;
+            this.NewFile.Click += new System.EventHandler(this.NewFile_Click);
             // 
             // ActionSelect
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(469, 187);
+            this.Controls.Add(this.NewFile);
+            this.Controls.Add(this.LoadButton);
+            this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.DeleteSelect);
             this.Controls.Add(this.ModifySelect);
             this.Controls.Add(this.ExitButton);
@@ -127,5 +166,8 @@
         private System.Windows.Forms.Button ExitButton;
         private System.Windows.Forms.Button ModifySelect;
         private System.Windows.Forms.Button DeleteSelect;
+        private System.Windows.Forms.Button SaveButton;
+        private System.Windows.Forms.Button LoadButton;
+        private System.Windows.Forms.Button NewFile;
     }
 }

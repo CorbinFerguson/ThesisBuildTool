@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -452,7 +451,7 @@ namespace ThesisProjectV1
                         }
                         else
                         {
-                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString(), @"\d+\.[0-9]");
+                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString(), @"^\d+\.\d$");
                         }
                         string newAtrVal = element.Attribute(selected).Value.ToString();
                         /// TODO: Add handling for if element by THAT name exists
@@ -569,7 +568,7 @@ namespace ThesisProjectV1
         public string GetElementTypes(XDocument doc)
         {
             // Select Element Types
-            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name")!=null).Select(i => i.Name.ToString()).Distinct().ToList();
+            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null).Select(i => i.Name.ToString()).Distinct().ToList();
             uniqueTypes.Remove("Controller");
 
             if (uniqueTypes.Count == 0)

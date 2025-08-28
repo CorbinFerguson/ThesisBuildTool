@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Xml.Serialization.Configuration;
 
 namespace ThesisProjectV1.Forms
 {
@@ -24,7 +23,7 @@ namespace ThesisProjectV1.Forms
 
         private void ExitButton_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void ModifySelect_Click(object sender, EventArgs e)
@@ -35,6 +34,21 @@ namespace ThesisProjectV1.Forms
         private void DeleteSelect_Click(object sender, EventArgs e)
         {
             Execute.DeleteElement();
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            Execute.SaveFile();
+        }
+
+        private void LoadButton_Click(object sender, EventArgs e)
+        {
+            Execute.LoadFile();
+        }
+
+        private void NewFile_Click(object sender, EventArgs e)
+        {
+            Execute.NewFile();
         }
     }
 }
