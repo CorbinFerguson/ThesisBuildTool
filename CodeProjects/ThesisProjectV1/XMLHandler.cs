@@ -406,7 +406,7 @@ namespace ThesisProjectV1
             XElement parentNode = null;
 
             // Add Revision num 1.0 if it doesnt have a revision
-            if (element.Attribute("Revision") == null)
+            if (element.Attribute("Revision") == null && element.Name.Equals("AddOnInstructionDefinition"))
                 element.SetAttributeValue("Revision", "1.0");
 
             // Check that parent node exists in document using the schema
@@ -543,7 +543,7 @@ namespace ThesisProjectV1
         // Loads a premade blank file containig basic structure for the program to build off
         public XDocument LoadBasicFile()
         {
-            XDocument doc = XDocument.Load("../../../L5XFiles/EmptyGenFile.l5X");
+            XDocument doc = XDocument.Load("../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
         }
 

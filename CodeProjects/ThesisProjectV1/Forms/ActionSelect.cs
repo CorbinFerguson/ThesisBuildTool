@@ -26,5 +26,15 @@ namespace ThesisProjectV1.Forms
         {
             this.Close();
         }
+
+        private void ModifySelect_Click(object sender, EventArgs e)
+        {
+            Execute.ModifyElement();
+        }
+
+        private void DeleteSelect_Click(object sender, EventArgs e)
+        {
+            Execute.DeleteElement();
+        }
     }
 }

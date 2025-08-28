@@ -38,6 +38,47 @@ namespace ThesisProjectV1
             Console.WriteLine($"XML file created at: {outputPath}");
         }
 
+        public static void ModifyElement()
+        {
+            MessageBox.Show("Modify Elements: WIP");
+        }
+
+        public static void DeleteElement()
+        {
+            // Select Element Types
+            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") !=null).Select(i => i.Name.ToString()).Distinct().ToList();
+            uniqueTypes.Remove("Controller");
+
+            if (uniqueTypes.Count == 0)
+            {
+                MessageBox.Show("No valid elements to delete");
+                return;
+            }
+
+            DropdownGui typesToRemove = new DropdownGui(uniqueTypes, "Select Element Types to remove");
+            typesToRemove.ShowDialog(out string typeSelected);
+
+            // Select Element By Name
+            List<string> elementsByName = doc.Descendants().Where(i => i.Name.ToString().Equals(typeSelected)).Select(i => i.Attribute("Name").Value.ToString()).Distinct().ToList();
+            MultiSelectDropdown elementsToRemove = new MultiSelectDropdown(elementsByName, "Select Elements to remove");
+            elementsToRemove.ShowDialog(out List<string> namesSelected);
+
+            // For all selected element names, remove the associated element
+            foreach (string name in namesSelected)
+            {
+                List<XElement> removeElements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value.Equals(name)).ToList();
+                // Multiple elements by that name. Must have multiple revisions.(assumes it is working with a valid document)
+                if (removeElements.Count() > 1)
+                {
+                    MultiSelectDropdown revisionSelect = new MultiSelectDropdown(removeElements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revisions to remove");
+                    revisionSelect.ShowDialog(out List<string> revisionsRemove);
+                    removeElements = removeElements.Where(i => revisionsRemove.Contains(i.Attribute("Revision").Value.ToString())).ToList();
+                }
+                removeElements.Remove();
+            }
+
+        }
+
         // Function for taking in an element from a file
         public static void ImportElement()
         {
