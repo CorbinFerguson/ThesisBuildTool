@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Tue Jan 26 12:38:10 2010" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjects">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_LES" Revision="1.0" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2009-06-23T14:20:15.609Z" CreatedBy="Not Available" EditedDate="2010-01-26T17:36:20.366Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Less Than (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Deleted unused Local Tag]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction compares two LINT (64-bit signed integer) variables.
+
+If Inp_A is less than Inp_B, EnableOut and Out are set to true (1).
+Otherwise EnableOut and Out are cleared to false (0).]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp_A" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Input A]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_B" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Input B]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[TRUE if Inp_A is greater than or equal to Inp_B]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Inp_B" DataType="DINT" Dimensions="4" Radix="Decimal">
+<Description>
+<![CDATA[32-bit portions of Input B]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Inp_A" DataType="DINT" Dimensions="4" Radix="Decimal">
+<Description>
+<![CDATA[32-bit portions of Input A]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[If rung is false, clear output "Out"]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE LOGIC
+============================================================
+When EnableIn is false (false rung in LD, input of 0 in FBD),
+the main Logic Routine is not scanned.
+However, we still want to generate "Out" to provide animation!
+===================================================
+CONVERT LINTs TO DINTs
+===================================================
+These COPies and BTDs take the input LINTs and break them into a
+pair of DINTs each, then take the low-order signed DINT and breaks it
+further into two 16-bit values so we can do unsigned compares on them.
+
+Logix V17 has a LINT data type, but math instructions
+(and AOI Input and Output Parameters) don't support LINT.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_Inp_A[2],2)COP(Inp_A,Wrk_Inp_A[0],2)BTD(Wrk_Inp_A[0],16,Wrk_Inp_A[3],0,16)BTD(Wrk_Inp_A[0],0,Wrk_Inp_A[2],0,16);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Text>
+<![CDATA[FLL(0,Wrk_Inp_B[2],2)COP(Inp_B,Wrk_Inp_B[0],2)BTD(Wrk_Inp_B[0],16,Wrk_Inp_B[3],0,16)BTD(Wrk_Inp_B[0],0,Wrk_Inp_B[2],0,16);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[This rung determines the overall LINT "LES" result.
+If the Inp_A 32-bit (signed) upper longword is less than that
+for Inp_B, then A is less.
+If the two signed 32-bit upper longwords are equal,
+compare the next 16-bit (unsigned) values.  If A is less,
+then LINT A is less.  If these values are equal,
+then compare the lowest-order 16-bit (unsigned) values.
+If A is less, then LINT A is less.]]>
+</Comment>
+<Text>
+<![CDATA[[LES(Wrk_Inp_A[1],Wrk_Inp_B[1]) ,EQU(Wrk_Inp_A[1],Wrk_Inp_B[1]) [LES(Wrk_Inp_A[3],Wrk_Inp_B[3]) ,EQU(Wrk_Inp_A[3],Wrk_Inp_B[3]) LES(Wrk_Inp_A[2],Wrk_Inp_B[2]) ] ]OTE(Out);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Compare inputs and output TRUE if Inp_A < Inp_B]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_LES : 64-bit Less Than
+============================================================
+Revision 1.0-01 Release:  2010-01-26
+Deleted unused Local Tag
+============================================================
+Compares two LINT (signed 64-bit) inputs (Inp_A and Inp_B) and returns
+TRUE if Inp_A is less than or equal to Inp_B, FALSE otherwise.
+
+This instruction breaks the LINT inputs into three DINTs
+(32 bit signed, 16 bit unsigned and 16 bit unsigned) to do the comparison.
+===================================================
+CONVERT LINTs TO DINTs
+===================================================
+These COPies and BTDs take the input LINTs and break them into a
+pair of DINTs each, then take the low-order signed DINT and breaks it
+further into two 16-bit values so we can do unsigned compares on them.
+
+Logix V17 has a LINT data type, but math instructions
+(and AOI Input and Output Parameters) don't support LINT.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_Inp_A[2],2)COP(Inp_A,Wrk_Inp_A[0],2)BTD(Wrk_Inp_A[0],16,Wrk_Inp_A[3],0,16)BTD(Wrk_Inp_A[0],0,Wrk_Inp_A[2],0,16);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Text>
+<![CDATA[FLL(0,Wrk_Inp_B[2],2)COP(Inp_B,Wrk_Inp_B[0],2)BTD(Wrk_Inp_B[0],16,Wrk_Inp_B[3],0,16)BTD(Wrk_Inp_B[0],0,Wrk_Inp_B[2],0,16);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[This rung determines the overall LINT "LES" result.
+If the Inp_A 32-bit (signed) upper longword is less than that
+for Inp_B, then A is less.
+If the two signed 32-bit upper longwords are equal,
+compare the next 16-bit (unsigned) values.  If A is less,
+then LINT A is less.  If these values are equal,
+then compare the lowest-order 16-bit (unsigned) values.
+If A is less, then LINT A is less.]]>
+</Comment>
+<Text>
+<![CDATA[[LES(Wrk_Inp_A[1],Wrk_Inp_B[1]) ,EQU(Wrk_Inp_A[1],Wrk_Inp_B[1]) [LES(Wrk_Inp_A[3],Wrk_Inp_B[3]) ,EQU(Wrk_Inp_A[3],Wrk_Inp_B[3]) LES(Wrk_Inp_A[2],Wrk_Inp_B[2]) ] ]OTE(Out)OTE(EnableOut);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

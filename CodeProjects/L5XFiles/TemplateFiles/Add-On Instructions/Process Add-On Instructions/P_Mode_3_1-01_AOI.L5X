@@ -1,0 +1,765 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Mode-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_Mode" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:26:08.810Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:26:20 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_Mode" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2008-06-11T19:19:37.168Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:26:08.810Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Mode]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This instruction provides selection of Mode (owner) for a Device level
+object  (from highest priority to lowest):
+
+*  No Mode (no owner, EnableIn is false)
+*  Hand (typically tracks hardwired control of device)
+*  Maint (Maintenance) (taken out of normal service for maintenance)
+*  Ovrd (Override) (typically used for process overrides)
+*  Prog  (Program) (automated control, and default if Cfg_ProgNorm = 1)
+*  Oper (Operator (manual control, and default if Cfg_ProgNorm = 0)
+
+(Program and Operator have the same priority.)
+
+The current mode is shown with Status bits and also as the primary
+Value for the instruction: an enumeration "Val" as follows:
+
+  0 = No Mode,
+  1 = Hand,
+  2 = Maintenance,
+  3 = Override,
+  4 = Program (Locked),
+  5 = Operator (Locked),
+  6 = Program (Unlocked, Oper default),
+  7 = Operator (Unlocked, Prog default),
+  8 = Program (Unlocked, = default),
+  9 = Operator (Unlocked, = default).
+
+When EnableIn is false, all ownership acquire/release and lock/unlock
+Commands are processed "behind the scenes", but the Mode is shown
+as "No Mode" (no owner).  When EnableIn becomes true, the Mode
+takes into account the Commands received -- in other words, the Mode
+becomes the one that would have been in effect had the EnableIn
+False / No Mode condition never occurred.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Hand" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Acquire Hand (typ. hardwired local) Mode, 0=Release Hand Mode]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Ovrd" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Acquire Override (higher priority program logic) Mode, 0=Release Override Mode]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_PCmdClear" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Clear Program Command on receipt; 0=Use Level-based (maintained) PCmds]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OvrdOverLock" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Override supersedes Prog/Oper Lock, 0=don't override Lock]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_ProgDefault" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Default Mode: 1=Program Mode if no requests; 0=Operator Mode if no requests]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Acq" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Acquire Ownership (Oper to Prog)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Rel" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Release Ownership (Prog to Oper)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Lock" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Lock Mode in Prog]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Unlock" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Unlock Mode]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_Acq" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Acquire Ownership (Oper/Prog/Ovrd to Maint)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_Rel" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Release Ownership (Maint to Oper/Prog/Ovrd)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_AcqLock" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Acquire (Prog to Oper) / Lock Ownership]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_UnlockRel" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Unlock / Release (Oper to Prog) Ownership]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val" TagType="Base" DataType="SINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Mode enum: 0=No, 1=H, 2=M, 3=!, 4=P Lock, 5=O Lock, 6=P (O Def), 7=O (P Def), 8=P (= Def), 9=O (= Def)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Hand" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is Hand (supersedes Maint, Ovrd, Prog, Oper)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Maint" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is Maintenance (supersedes Ovrd, Prog, Oper)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Ovrd" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is Override (supersedes Prog, Oper)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Prog" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is Program]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Oper" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is Operator]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_ProgOperLock" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Program or Operator has requested Mode Lock]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_ProgOperSel" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Prog/Oper selection 1=Program, 0=Operator]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_NoMode" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Mode is No Mode (no owner, disabled or not scanned)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MAcqRcvd" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Maintenance Acquire command received this scan]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_MAcq" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for MCmd_Acq, enable button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_MRel" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for MCmd_Rel, enable button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_OAcq" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for OCmd_AcqLock, enable Acquire (to Oper) button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_OLock" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for OCmd_AcqLock, enable Oper Lock button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_OUnlock" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for OCmd_UnlockRel, enable Oper Unlock button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_ORel" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for OCmd_UnlockRel, enable Release (to Prog) button]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_Mode" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Locked" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[1=Program/Operator Mode selection is Locked]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Prog" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Internal Program (1) / Operator (0) Mode selection]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Maint" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Internal Maintenance Mode]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>06 00 00 00 50 5F 4D 6F 64 65 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['P_Mode']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[Processes received Commands, but shows "NO mode" (no owner)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+P_Mode:  EnableInFalse Handling
+============================================================
+When EnableIn is False, this Routine is scanned instead of the "Logic" Routine.
+All Commands are processed "behind the scenes", but the Mode is shown
+as "No Mode" (no owner).  When EnableIn becomes true, the Mode
+takes into account the Commands received -- in other words, the Mode
+becomes the one that would have been in effect had the EnableIn
+False / No Mode condition never occurred.
+============================================================
+COMMAND HANDLING
+============================================================
+NOTE:  These rungs MUST be in the order given to meet the following
+multiple-actions-at-the-same-time scenarios:
+
+* Maintenance Release beats Maintenance Acquire
+* Program Release beats Program Acquire
+* Program Unlock beats Program Lock
+* Operator Unlock beats Operator Acquire and Lock (results in Oper Unlocked)
+* Operator Acquire/Lock must come after Program Unlock
+* Program Acquire must come after Operator Unlock
+===========================================================
+MCmd_Acq: Acquire for Maintenance Mode, and blink the status
+that indicates a Maintenance Acquire command was received.
+
+#####  V3.1-00  2014-06-30:  Added Sts_MAcqRcvd  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(MCmd_Acq)OTU(MCmd_Acq)OTE(Sts_MAcqRcvd)OTL(Wrk_Maint);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[MCmd_Rel: Release from Maintenance Mode.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(MCmd_Rel)OTU(MCmd_Rel)OTU(Wrk_Maint);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[OCmd_AcqLock: Operator Lock (if acquired), Operator Acquire (take from Program if not locked)
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Program to Operator Locked a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(OCmd_AcqLock)OTU(OCmd_AcqLock)XIO(Wrk_Locked)[XIO(PCmd_Acq) [XIO(Wrk_Prog) OTL(Wrk_Locked) ,OTU(Wrk_Prog) ] ,XIC(PCmd_Acq) OTU(Wrk_Prog) OTL(Wrk_Locked) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[OCmd_Unlock: Unlock Operator Mode
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Operator Locked to Program a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(OCmd_UnlockRel)OTU(OCmd_UnlockRel)XIO(Wrk_Prog)[XIO(Wrk_Locked) XIC(Cfg_ProgDefault) OTL(Wrk_Prog) ,OTU(Wrk_Locked) ];]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[============================================================
+OPERATOR COMMAND READIES
+============================================================
+Ready for OPERATOR ACQUIRE AND LOCK comand if the Mode is
+ is NOT Locked. (Oper "acquire and lock" when in Prog Mode is a "grab"!)
+
+Ready fpr OPERATOR UNLOCK command if the Lock is set and the
+internal Program bit is cleared (Operator has the lock, even if in Ovrd, Maint or Hand!)
+
+Ready for MAINTENANCE ACQUIRE if internal Maintenance latch is NOT set.
+But we need to display Ready even if latch IS set so that Sts_MAcqRcvd
+can blink to reset an external Maintenance expiration timer!!!
+
+Ready for MAINTENANCE RELEASE if internal Maintenance latch IS set.
+
+#####  V3.0-00  2013-06-30:  Modified Rdy_Unlock for two-step Operator Locked to Program process.  #####
+#####  V3.1-00  2014-06-30:  Added Sts_MAcqRcvd  #####]]>
+</Comment>
+<Text>
+<![CDATA[[OTE(Rdy_MAcq) ,XIC(Wrk_Maint) OTE(Rdy_MRel) ,XIO(Wrk_Locked) [[XIO(Wrk_Prog) ,XIC(PCmd_Acq) ] OTE(Rdy_OLock) ,XIO(PCmd_Acq) XIC(Wrk_Prog) OTE(Rdy_OAcq) ] ,XIO(Wrk_Prog) [XIC(Wrk_Locked) OTE(Rdy_OUnlock) ,XIO(Wrk_Locked) XIC(Cfg_ProgDefault) OTE(Rdy_ORel) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[PCmd_Acq: Acquire for Program Mode
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Operator Locked to Program a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(PCmd_Acq)[XIC(Cfg_PCmdClear) OTU(PCmd_Acq) ,NOP() ]XIO(Wrk_Locked)OTL(Wrk_Prog);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[PCmd_Lock: Lock Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[XIC(PCmd_Lock)[XIC(Cfg_PCmdClear) OTU(PCmd_Lock) ,NOP() ]XIC(Wrk_Prog)OTL(Wrk_Locked);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[PCmd_Unlock: Unlock Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Unlock) XIC(Cfg_PCmdClear) OTU(PCmd_Unlock) ,XIO(PCmd_Lock) XIO(Cfg_PCmdClear) ]XIC(Wrk_Prog)OTU(Wrk_Locked);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[PCmd_Rel: Release from Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Rel) XIC(Cfg_PCmdClear) OTU(PCmd_Rel) ,XIO(PCmd_Acq) XIO(Cfg_PCmdClear) ]XIO(Cfg_ProgDefault)XIO(Wrk_Locked)OTU(Wrk_Prog);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[============================================================
+STATUS GENERATION
+============================================================
+With EnableIn False, there is NO owner !!!  ALL Mode Status bits
+EXCEPT Sts_NoMode are CLEARED!
+
+#####  V3.1-00  2014-06-30:  "Val" (mode enumeration) changed from DINT to SINT.  #####]]>
+</Comment>
+<Text>
+<![CDATA[OTU(Sts_Hand)OTU(Sts_Maint)OTU(Sts_Ovrd)OTU(Sts_Prog)OTU(Sts_Oper)OTL(Sts_NoMode)CLR(Val);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[Public Status for:
+Sts_ProgOperSel:    Program/Operator substate selection (Prog = 1, Oper = 0)
+Sts_ProgOperLock:    Program/Operator Lock substate selection (Locked = 1, Unlocked = 0)]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_Prog) OTE(Sts_ProgOperSel) ,XIC(Wrk_Locked) OTE(Sts_ProgOperLock) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Selects Modes (Hand, Maint, Ovrd, Oper, Prog) based on Inputs and Commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_Mode:  PROCESS -- MODE SELECTOR
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V1.x and V2.x Revision History archived.
+V3.0-00  2013-06-30:  Containing objects MUST now expose OCmd_AcqLock
+and OCmd_Unlock. Made Operator Commands for going from Operator
+Locked to Program (unlocked) and Program (unlocked) to Operator
+Lock two-step processes.  Added Inf_Lib, Inf_Type.
+V3.1-00  2014-06-30:  Containing objects must expose Maintenance Acquire /
+Release commands and new Sts_MAcqRcvd.
+Changed Val (enum) to SINT. Fixed parameter descriptions.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This instruction provides selection of Mode (owner) for a Device level
+object  (from highest priority to lowest):
+* NO Mode (EnableIn is false)
+*  Hand (typically tracks hardwired control of device)
+*  Maint (Maintenance) (taken out of normal service for maintenance)
+*  Ovrd (Override) (typically used for process overrides)
+*  Prog  (Program) (automated control, and default if Cfg_ProgNorm = 1)
+*  Oper (Operator (manual control, and default if Cfg_ProgNorm = 0)
+
+The current mode is shown with Status bits and also as the
+primary Value for the instruction: an enumeration as follows:
+0 = No Mode, 1 = Hand, 2 = Maintenance, 3 = Override,
+4 = Program (Locked), 5 = Operator (Locked),
+6 = Program (Unlocked, Oper default), 7 = Operator (Unlocked, Prog default),
+8 = Program (Unlocked, Prog default), 9 = Operator (Unlocked, Oper default).
+============================================================
+COMMAND HANDLING
+============================================================
+NOTE:  These rungs MUST be in the order given to meet the following
+multiple-actions-at-the-same-time scenarios:
+
+* Maintenance Release beats Maintenance Acquire
+* Program Release beats Program Acquire
+* Program Unlock beats Program Lock
+* Operator Unlock beats Operator Acquire / Lock (results in Oper Unlocked)
+* Program Acquire must come after Operator Unlock
+
+If Cfg_ProgDefault = 1, the Mode defaults to Program
+(instead of Operator) if all other Modes release their requests.
+============================================================
+MCmd_Acq: Acquire for Maintenance Mode, and blink the status
+that indicates a Maintenance Acquire command was received.
+
+#####  V3.1-00  2014-06-30:  Added Sts_MAcqRcvd  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(MCmd_Acq)OTU(MCmd_Acq)OTE(Sts_MAcqRcvd)OTL(Wrk_Maint);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[MCmd_Rel: Release from Maintenance Mode.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(MCmd_Rel)OTU(MCmd_Rel)OTU(Wrk_Maint);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[OCmd_AcqLock: Operator Lock (if acquired), Operator Acquire (take from Program if not locked) (if allowed)
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Program to Operator Locked a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(OCmd_AcqLock)OTU(OCmd_AcqLock)XIO(Wrk_Locked)[XIO(PCmd_Acq) [XIO(Wrk_Prog) OTL(Wrk_Locked) ,OTU(Wrk_Prog) ] ,XIC(PCmd_Acq) OTU(Wrk_Prog) OTL(Wrk_Locked) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[OCmd_Unlock: Unlock Operator Mode
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Operator Locked to Program a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(OCmd_UnlockRel)OTU(OCmd_UnlockRel)XIO(Wrk_Prog)[XIO(Wrk_Locked) XIC(Cfg_ProgDefault) OTL(Wrk_Prog) ,OTU(Wrk_Locked) ];]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[============================================================
+OPERATOR COMMAND READIES
+============================================================
+Ready for OPERATOR ACQUIRE AND LOCK comand if the Mode is
+ is NOT Locked. (Oper "acquire and lock" when in Prog Mode is a "grab"!)
+
+Ready fpr OPERATOR UNLOCK command if the Lock is set and the
+internal Program bit is cleared (Operator has the lock, even if in Ovrd, Maint or Hand!)
+
+Ready for MAINTENANCE ACQUIRE if internal Maintenance latch is NOT set.
+But we need to display Ready even if latch IS set so that Sts_MAcqRcvd
+can blink to reset an external Maintenance expiration timer!!!
+
+Ready for MAINTENANCE RELEASE if internal Maintenance latch IS set.
+
+#####  V3.0-00  2013-06-30:  Modified Rdy_Unlock for two-step Operator Locked to Program process.  #####
+#####  V3.1-00  2014-06-30:  Added Sts_MAcqRcvd  #####]]>
+</Comment>
+<Text>
+<![CDATA[[OTE(Rdy_MAcq) ,XIC(Wrk_Maint) OTE(Rdy_MRel) ,XIO(Wrk_Locked) [[XIO(Wrk_Prog) ,XIC(PCmd_Acq) ] OTE(Rdy_OLock) ,XIO(PCmd_Acq) XIC(Wrk_Prog) OTE(Rdy_OAcq) ] ,XIO(Wrk_Prog) [XIC(Wrk_Locked) OTE(Rdy_OUnlock) ,XIO(Wrk_Locked) XIC(Cfg_ProgDefault) OTE(Rdy_ORel) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[PCmd_Acq: Acquire for Program Mode
+
+#####  V3.0-00  2013-06-30:  Modified to make going from Operator Locked to Program a two-step process.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(PCmd_Acq)[XIC(Cfg_PCmdClear) OTU(PCmd_Acq) ,NOP() ]XIO(Wrk_Locked)OTL(Wrk_Prog);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[PCmd_Lock: Lock Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[XIC(PCmd_Lock)[XIC(Cfg_PCmdClear) OTU(PCmd_Lock) ,NOP() ]XIC(Wrk_Prog)OTL(Wrk_Locked);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[PCmd_Unlock: Unlock Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Unlock) XIC(Cfg_PCmdClear) OTU(PCmd_Unlock) ,XIO(PCmd_Lock) XIO(Cfg_PCmdClear) ]XIC(Wrk_Prog)OTU(Wrk_Locked);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[PCmd_Rel: Release from Program Mode]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Rel) XIC(Cfg_PCmdClear) OTU(PCmd_Rel) ,XIO(PCmd_Acq) XIO(Cfg_PCmdClear) ]XIO(Cfg_ProgDefault)XIO(Wrk_Locked)OTU(Wrk_Prog);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[============================================================
+STATUS GENERATION
+============================================================
+This rung determines the Mode based on the states of the inputs and internal working bits.
+The logic here does the vast mahority of the implementation of the Mode selection rules.
+
+Between the internal working bits used above and the rules implemented here,
+outside objects cannot manipulate the state of this object by setting/clearing its Status bits.
+
+Public Status is generated for:
+*  Hand Mode
+*  Maintenance Mode
+*  Override Mode
+*  Program Mode
+*  Operator Mode
+*  No Mode (none of the above)
+
+#####  V3.1-00  2014-06-30:  "Val" (mode enumeration) changed from DINT to SINT.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Inp_Hand) OTE(Sts_Hand) MOV(1,Val) ,XIO(Inp_Hand) [XIC(Wrk_Maint) OTE(Sts_Maint) MOV(2,Val) ,XIO(Wrk_Maint) [XIC(Inp_Ovrd) [XIO(Wrk_Locked) ,XIC(Cfg_OvrdOverLock) ,XIC(Sts_Ovrd) ] OTE(Sts_Ovrd) MOV(3,Val) ,XIO(Sts_Ovrd) [XIC(Wrk_Prog) [XIC(Wrk_Locked) MOV(4,Val) ,XIO(Wrk_Locked) [XIO(Cfg_ProgDefault) MOV(6,Val) ,XIC(Cfg_ProgDefault) MOV(8,Val) ] ] OTE(Sts_Prog) ,XIO(Wrk_Prog) [XIC(Wrk_Locked) MOV(5,Val) ,XIO(Wrk_Locked) [XIC(Cfg_ProgDefault) MOV(7,Val) ,XIO(Cfg_ProgDefault) MOV(9,Val) ] ] OTE(Sts_Oper) ] ] ] ]OTU(Sts_NoMode);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[Public Status for:
+Sts_ProgOperSel:    Program/Operator substate selection (Prog = 1, Oper = 0)
+Sts_ProgOperLock:    Program/Operator Lock substate selection (Locked = 1, Unlocked = 0)]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_Prog) OTE(Sts_ProgOperSel) ,XIC(Wrk_Locked) OTE(Sts_ProgOperLock) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Clear "lurking" Commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+PRESCAN (POWERUP) HANDLING
+============================================================
+On Prescan, clear any "lurking" Commands.]]>
+</Comment>
+<Text>
+<![CDATA[[OTU(OCmd_AcqLock) OTU(OCmd_UnlockRel) OTU(MCmd_Acq) OTU(MCmd_Rel) ,OTU(PCmd_Acq) OTU(PCmd_Rel) OTU(PCmd_Lock) OTU(PCmd_Unlock) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[On Prescan, go to the default Mode (between Program and Operator)
+and clear the Prog/Oper Mode Lock.]]>
+</Comment>
+<Text>
+<![CDATA[[OTU(Wrk_Locked) ,XIC(Cfg_ProgDefault) OTE(Wrk_Prog) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

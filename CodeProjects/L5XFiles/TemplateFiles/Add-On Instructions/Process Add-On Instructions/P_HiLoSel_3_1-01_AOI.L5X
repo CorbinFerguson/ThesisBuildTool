@@ -1,0 +1,1318 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--High or Low Selector-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_HiLoSel" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:33:39.141Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:33:51 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_8" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="8" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_HiLoSel" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2011-10-11T13:13:06.892Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:33:39.141Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[High or Low Selector]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This instruction is used in an "Override Selector" control strategy.
+It selects:
+    the lowest of the (up to 6) incoming CVs (if Cfg_HiLoSel = 0), or
+    the highest of the incoming CVs (if Cfg_HiLoSel =1)
+and outputs sht selected CV value (Out_CV).
+
+The unselected CVs are flagged to track the selected CV
+(Out_CVnInitReq = 1).
+
+The tracking value can optionally be offset by an amount
+equal to the upstream PID or PIDE Gain*Error (Kp*E) to avoid
+problems with ever-decreasing (if Low-Select) or
+ever-increasing (if High-Select) output.
+
+IMPORTANT:
+    Inp_CV should come from the PIDE "CV" (in percent);
+    Inp_Kpn should come from the PIDE "PGain" parameter;
+    Inp_En should come from the PIDE "EPercent" parameter.
+
+Scaling of the output of this block to CVEU can be done by a
+downstream P_ValveC or P_AOut block.
+
+This block also supports initialization from a downstream block;
+the initialization is forwarded (with offset, if so configured) to
+upstream blocks.
+
+Refer to Liptak, Bela G., ed., _Instrument Engineers' Handbook:
+Process Control and Optimization, 4th Edition,
+section 2.28: Selective, Override and Limit Controls
+(Shinskey, Shunta, Jamison and Rohr),
+especially "Antireset Windup Overrides" on pages 341-342.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_CV1" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #1]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E1" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #1 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp1" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #1 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CV2" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #2]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E2" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #2 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp2" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #2 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CV3" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #3]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E3" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #3 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp3" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #3 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CV4" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #4]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E4" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #4 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp4" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #4 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CV5" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #5]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E5" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #5 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp5" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #5 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CV6" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV from Primary #6]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_E6" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop Error from Primary #6 (opt., for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Kp6" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Prop. Gain from Primary #6 (opt. for offset calc)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CVInitVal" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Initialization Value from downstream block]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_CVInitReq" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Initialization Value from downstream block (1 = init to Inp_CVInitVal)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HiLoSel" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Selection: 1=High-Select, 0=Low-Select]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV1" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV1 is connected]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV1" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV1 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV1Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV1Init = CVSel +/- Kp1*E1 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV2" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV2 is connected]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV2" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV2 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV2Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV2Init = CVSel +/- Kp2*E2 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV3" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV3 is connected]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV3" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV3 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV3Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV3Init = CVSel +/- Kp3*E3 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV4" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV4 is connected]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV4" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV4 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV4Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV4Init = CVSel +/- Kp4*E4 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV5" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV5 is connected]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV5" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV5 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV5Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV5Init = CVSel +/- Kp5*E5 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCV6" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV6 is connected]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseCV6" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Inp_CV6 is included in selection (for Maintenance use)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CV6Offset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1 = Use CV6Init = CVSel +/- Kp6*E6 Offset, 0 = no Offset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasCVNav" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Tells HMI to enable navigation to a connected output CV  object]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasNav" TagType="Base" DataType="SINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Set bits indicate which Navigation buttons are enabled .0=CV1, ..., .5=CV6]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CVMin" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minimum CV to output]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_CVMax" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maximum CV to output]]>
+</Description>
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output CV (selected min or max) for downstream block]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV1Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #1]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV1Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #1 to use feedback Out_CV1Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV2Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #2]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV2Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #2 to use feedback Out_CV2Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV3Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #3]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV3Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #3 to use feedback Out_CV3Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV4Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #4]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV4Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #4 to use feedback Out_CV4Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV5Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #5]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV5Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #5 to use feedback Out_CV5Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_CV6Prev" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Previous (Feedback) CV Value for Primary #6]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_UseCV6Prev" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Request for Primary #6 to use feedback Out_CV6Prev]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CVOut" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output CV (selected min or max) for HMI]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Selected" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Selected CV 0=CVMin, 1=CV1, 2=CV2, 3=CV3, 4=CV4, 5=CV5, 6=CV6, 7=CVMax, 8=Inp_CVInitVal]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MaintByp" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=A Maintenance Bypass is Active, display icon]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1 = Error in Configuration, check Err_ bits for reason]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_Has" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1 = Config Error: must HAVE at least one CV]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_Limit" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1 = CVMax less than or equal to CVMin, must be greater]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_HiLoSel" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_CV" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[CV selection working copy]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Selected" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Working copy of selection enum]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV1Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV1 = Kp1 * E1]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV6Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV6 = Kp6 * E6]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV5Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV5 = Kp5 * E5]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV4Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV4 = Kp4 * E4]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV3Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV3 = Kp3 * E3]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CV2Offset" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Offset for CV2 = Kp2 * E2]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>09 00 00 00 50 5F 48 69 4C 6F 53 65 6C 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="9">
+<![CDATA['P_HiLoSel']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>09 00 00 00 50 5F 48 69 4C 6F 53 65 6C 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="9">
+<![CDATA['P_HiLoSel']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>11 00 00 00 48 69 67 68 2F 4C 6F 77 20 53 65 6C 
+65 63 74 6F 72 00 00 00</DefaultData>
+<DefaultData Format="String" Length="17">
+<![CDATA['High/Low Selector']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>14 00 00 00 48 69 67 68 20 6F 72 20 4C 6F 77 20 
+53 65 6C 65 63 74 6F 72 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="20">
+<![CDATA['High or Low Selector']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_EU" DataType="STRING_8" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CV Engineering Units for display on HMI]]>
+</Description>
+<DefaultData>01 00 00 00 25 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="1">
+<![CDATA['%']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_NavTag" DataType="STRING_20" Dimensions="6" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagnames for destinations of Navigation buttons ([0]=input 1, ..., [5]=input 6)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CVNavTag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for destination of output CV Navigation button]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV6_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 6 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 36 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 6']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV5_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 5 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 35 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 5']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV4_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 4 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 34 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 4']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV3_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 3 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 33 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 3']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV2_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 2 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 32 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 2']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_CV1_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output 1 Label for display on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 70 75 74 20 43 56 20 31 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Input CV 1']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Select Highest or Lowest input CV as the output, and initializae the other CVs (with offset if needed).]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_HiLoSel : HIGH OR LOW SELECTOR
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V3.0-00  2013-06-30:  Initial Release (Part of Library of Process Objects V3.0, so Major = 3).
+V3.0-01  2014-02-28:  Updated formal descriptive name and Instruction Help text.
+V3.1-00  2014-06-30:  Added limiting of CVnPrev outputs.
+V3.1-01  2014-09-03: Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This instruction is used in an "Override Selector" control strategy.
+It selects:
+* the lowest of the (up to 6) incoming CVs (if Cfg_HiLoSel = 0), or
+* the highest of the incoming CVs (if Cfg_HiLoSel =1)
+and outputs the selected value (Out_CV).
+
+The unselected CVs are flagged to track the selected CV
+(Out_CVnInitReq = 1).
+
+The tracking value can optionally be offset by an amount
+equal to the upstream PID/PIDE Gain * Error (Kp*E) to avoid
+problems with ever-decreasing (if Low-Select) or
+ever-increasing (if High-Select) output.
+
+Refer to Liptak, Bela G., ed., _Instrument Engineers' Handbook:
+Process Control and Optimization_, 4th Edition,
+section 2.28: Selective, Override and Limit Controls
+(Shinskey, Shunta, Jamison and Rohr),
+especially "Antireset Windup Overrides" on pages 341-342.
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)[CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag) CONCAT(Cfg_EU,Inf_Lib,Inf_Type) ,CONCAT(Cfg_CVNavTag,Cfg_NavTag[0],Cfg_NavTag[1]) LOWER(Cfg_NavTag[2],Cfg_NavTag[3]) LOWER(Cfg_NavTag[4],Cfg_NavTag[5]) ,LOWER(Cfg_CV1_Label,Cfg_CV2_Label) LOWER(Cfg_CV3_Label,Cfg_CV4_Label) LOWER(Cfg_CV5_Label,Cfg_CV6_Label) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+CHECK CONFIGURATION
+============================================================
+This rung checks to make sure that the instruction is configured to 
+HAVE at least one CV input.  If no, flag the configuration error.
+
+Check to see that the Maximum CV (clamping limit) is greater
+than the Minimum CV (clamping limit).  If not, flag the configuration error.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)[XIO(Cfg_HasCV1) XIO(Cfg_HasCV2) XIO(Cfg_HasCV3) XIO(Cfg_HasCV4) XIO(Cfg_HasCV5) XIO(Cfg_HasCV6) OTU(Err_Has) ,LEQ(Cfg_CVMax,Cfg_CVMin) OTE(Err_Limit) ]OTE(Sts_Err);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[If a particular CV Input is not connected (doesn't HAVE), it cannot participate in
+the selection (be USED).
+
+The "USE" bits are available to Maintenance to allow a particular CV to be
+ignored if that primary is disabled for maintenance.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Cfg_HasCV1)OTU(Cfg_UseCV1);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Text>
+<![CDATA[XIO(Cfg_HasCV2)OTU(Cfg_UseCV2);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Text>
+<![CDATA[XIO(Cfg_HasCV3)OTU(Cfg_UseCV3);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Text>
+<![CDATA[XIO(Cfg_HasCV4)OTU(Cfg_UseCV4);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Text>
+<![CDATA[XIO(Cfg_HasCV5)OTU(Cfg_UseCV5);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Text>
+<![CDATA[XIO(Cfg_HasCV6)OTU(Cfg_UseCV6);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[If any CV has its "Has" bit set (part of the strategy per Engineering
+configuration) and has its "Use" bit cleared (CV not being used in
+the strategy per Maintenance), set the "Maintenance Bypass"
+Status, to show the breadcrumb for Maintenance attention.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Cfg_HasCV1) XIO(Cfg_UseCV1) ,XIC(Cfg_HasCV2) XIO(Cfg_UseCV2) ,XIC(Cfg_HasCV3) XIO(Cfg_UseCV3) ,XIC(Cfg_HasCV4) XIO(Cfg_UseCV4) ,XIC(Cfg_HasCV5) XIO(Cfg_UseCV5) ,XIC(Cfg_HasCV6) XIO(Cfg_UseCV6) ]OTE(Sts_MaintByp);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[============================================================
+SELECTION LOGIC
+============================================================
+If configured as a High Select, skip to the High Select rung (below).
+Otherwise, fall through to the Low Select (next) rung.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Cfg_HiLoSel)JMP(HiSel);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[-----------------------------------------------------------------------------------------
+LOW SELECT
+-----------------------------------------------------------------------------------------
+If configured as a Low Select, start with the Maximum CV
+(configured) selected, and work your way down.
+
+NOTE:  If two CVs have the same value, pick the lower-numbered one.
+CVs should be connected to CV1, CV2, etc., inputs in PRIORITY order.]]>
+</Comment>
+<Text>
+<![CDATA[[MOV(Cfg_CVMax,Wrk_CV) MOV(7,Wrk_Selected) ,XIC(Cfg_HasCV6) LEQ(Inp_CV6,Wrk_CV) MOV(Inp_CV6,Wrk_CV) MOV(6,Wrk_Selected) ,XIC(Cfg_HasCV5) LEQ(Inp_CV5,Wrk_CV) MOV(Inp_CV5,Wrk_CV) MOV(5,Wrk_Selected) ,XIC(Cfg_HasCV4) LEQ(Inp_CV4,Wrk_CV) MOV(Inp_CV4,Wrk_CV) MOV(4,Wrk_Selected) ,XIC(Cfg_HasCV3) LEQ(Inp_CV3,Wrk_CV) MOV(Inp_CV3,Wrk_CV) MOV(3,Wrk_Selected) ,XIC(Cfg_HasCV2) LEQ(Inp_CV2,Wrk_CV) MOV(Inp_CV2,Wrk_CV) MOV(2,Wrk_Selected) ,XIC(Cfg_HasCV1) LEQ(Inp_CV1,Wrk_CV) MOV(Inp_CV1,Wrk_CV) MOV(1,Wrk_Selected) ]JMP(InitReqs);]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[-----------------------------------------------------------------------------------------
+HIGH SELECT
+-----------------------------------------------------------------------------------------
+If configured as a High Select, start with the Minimum CV
+(configured) selected, and work your way up.
+
+NOTE:  If two CVs have the same value, pick the lower-numbered one.
+CVs should be connected to CV1, CV2, etc., inputs in PRIORITY order.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(HiSel)[MOV(Cfg_CVMin,Wrk_CV) CLR(Wrk_Selected) ,XIC(Cfg_HasCV6) GEQ(Inp_CV6,Wrk_CV) MOV(Inp_CV6,Wrk_CV) MOV(6,Wrk_Selected) ,XIC(Cfg_HasCV5) GEQ(Inp_CV5,Wrk_CV) MOV(Inp_CV5,Wrk_CV) MOV(5,Wrk_Selected) ,XIC(Cfg_HasCV4) GEQ(Inp_CV4,Wrk_CV) MOV(Inp_CV4,Wrk_CV) MOV(4,Wrk_Selected) ,XIC(Cfg_HasCV3) GEQ(Inp_CV3,Wrk_CV) MOV(Inp_CV3,Wrk_CV) MOV(3,Wrk_Selected) ,XIC(Cfg_HasCV2) GEQ(Inp_CV2,Wrk_CV) MOV(Inp_CV2,Wrk_CV) MOV(2,Wrk_Selected) ,XIC(Cfg_HasCV1) GEQ(Inp_CV1,Wrk_CV) MOV(Inp_CV1,Wrk_CV) MOV(1,Wrk_Selected) ];]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[============================================================
+DOWNSTREAM INITIALIZATION REQUEST
+============================================================
+If a downstream block (secondary) requests that this block initialize,
+go to that CV initialization value, and flag the initialization value
+as the selected CV.
+
+This will force all the upstream blocks (primaries) to initialize
+to this same value (with offset, if required).]]>
+</Comment>
+<Text>
+<![CDATA[LBL(InitReqs)XIC(Inp_CVInitReq)MOV(Inp_CVInitVal,Wrk_CV)MOV(8,Wrk_Selected);]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[============================================================
+CLAMP CV TO BE IN RANGE
+============================================================
+If the selected CV is outside the configured range,
+clamp it at the appropriate range limit.
+
+Identify the range limit (not the CV) as the
+selected output -- to force initialization.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_CV,Cfg_CVMax) MOV(Cfg_CVMax,Wrk_CV) MOV(7,Wrk_Selected) ,LES(Wrk_CV,Cfg_CVMin) MOV(Cfg_CVMin,Wrk_CV) CLR(Wrk_Selected) ];]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[============================================================
+PUBLISH FINAL OUTPUT CV, SELECTION VALUE
+============================================================
+Selection above is done with internal Work registers, as the
+data are changing through the above logic.
+
+Send the final values out to the public parameters.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_CV,Out_CV)MOV(Wrk_CV,Val_CVOut)MOV(Wrk_Selected,Val_Selected);]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[============================================================
+OUTPUT INITIALIZATION REQUESTS
+============================================================
+If a CV is NOT selected and it IS being used,
+send the initialization request to it.]]>
+</Comment>
+<Text>
+<![CDATA[NEQ(Wrk_Selected,1)XIC(Cfg_UseCV1)OTE(Out_UseCV1Prev);]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Text>
+<![CDATA[NEQ(Wrk_Selected,2)XIC(Cfg_UseCV2)OTE(Out_UseCV2Prev);]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Text>
+<![CDATA[NEQ(Wrk_Selected,3)XIC(Cfg_UseCV3)OTE(Out_UseCV3Prev);]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Text>
+<![CDATA[NEQ(Wrk_Selected,4)XIC(Cfg_UseCV4)OTE(Out_UseCV4Prev);]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Text>
+<![CDATA[NEQ(Wrk_Selected,5)XIC(Cfg_UseCV5)OTE(Out_UseCV5Prev);]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Text>
+<![CDATA[NEQ(Wrk_Selected,6)XIC(Cfg_UseCV6)OTE(Out_UseCV6Prev);]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[============================================================
+OUTPUT INITIALIZATION VALUES
+============================================================
+If CV1 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV1 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #1 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV1 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E1) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp1 should come from the PIDE "PGain" parameter
+and Inp_E1 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV1Prev) XIC(Cfg_CV1Offset) GRT(Inp_Kp1,0.0) [MUL(Inp_Kp1,Inp_E1,Wrk_CV1Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV1Offset,0.0) ADD(Wrk_CV,Wrk_CV1Offset,Out_CV1Prev) ,LES(Wrk_CV1Offset,0.0) MOV(Wrk_CV,Out_CV1Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV1Offset,0.0) ADD(Wrk_CV,Wrk_CV1Offset,Out_CV1Prev) ,GRT(Wrk_CV1Offset,0.0) MOV(Wrk_CV,Out_CV1Prev) ] ] ,[XIO(Out_UseCV1Prev) ,XIO(Cfg_CV1Offset) ,LEQ(Inp_Kp1,0.0) ] MOV(Wrk_CV,Out_CV1Prev) ,LES(Out_CV1Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV1Prev) ,GRT(Out_CV1Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV1Prev) ];]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[If CV2 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV2 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #2 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV2 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E2) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp2 should come from the PIDE "PGain" parameter
+and Inp_E2 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV2Prev) XIC(Cfg_CV2Offset) GRT(Inp_Kp2,0.0) [MUL(Inp_Kp2,Inp_E2,Wrk_CV2Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV2Offset,0.0) ADD(Wrk_CV,Wrk_CV2Offset,Out_CV2Prev) ,LES(Wrk_CV2Offset,0.0) MOV(Wrk_CV,Out_CV2Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV2Offset,0.0) ADD(Wrk_CV,Wrk_CV2Offset,Out_CV2Prev) ,GRT(Wrk_CV2Offset,0.0) MOV(Wrk_CV,Out_CV2Prev) ] ] ,[XIO(Out_UseCV2Prev) ,XIO(Cfg_CV2Offset) ,LEQ(Inp_Kp2,0.0) ] MOV(Wrk_CV,Out_CV2Prev) ,LES(Out_CV2Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV2Prev) ,GRT(Out_CV2Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV2Prev) ];]]>
+</Text>
+</Rung>
+<Rung Number="23" Type="N">
+<Comment>
+<![CDATA[If CV3 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV3 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #3 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV3 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E3) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp3 should come from the PIDE "PGain" parameter
+and Inp_E3 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV3Prev) XIC(Cfg_CV3Offset) GRT(Inp_Kp3,0.0) [MUL(Inp_Kp3,Inp_E3,Wrk_CV3Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV3Offset,0.0) ADD(Wrk_CV,Wrk_CV3Offset,Out_CV3Prev) ,LES(Wrk_CV3Offset,0.0) MOV(Wrk_CV,Out_CV3Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV3Offset,0.0) ADD(Wrk_CV,Wrk_CV3Offset,Out_CV3Prev) ,GRT(Wrk_CV3Offset,0.0) MOV(Wrk_CV,Out_CV3Prev) ] ] ,[XIO(Out_UseCV3Prev) ,XIO(Cfg_CV3Offset) ,LEQ(Inp_Kp3,0.0) ] MOV(Wrk_CV,Out_CV3Prev) ,LES(Out_CV3Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV3Prev) ,GRT(Out_CV3Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV3Prev) ];]]>
+</Text>
+</Rung>
+<Rung Number="24" Type="N">
+<Comment>
+<![CDATA[If CV4 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV4 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #4 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV4 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E4) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp4 should come from the PIDE "PGain" parameter
+and Inp_E4 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV4Prev) XIC(Cfg_CV4Offset) GRT(Inp_Kp4,0.0) [MUL(Inp_Kp4,Inp_E4,Wrk_CV4Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV4Offset,0.0) ADD(Wrk_CV,Wrk_CV4Offset,Out_CV4Prev) ,LES(Wrk_CV4Offset,0.0) MOV(Wrk_CV,Out_CV4Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV4Offset,0.0) ADD(Wrk_CV,Wrk_CV4Offset,Out_CV4Prev) ,GRT(Wrk_CV4Offset,0.0) MOV(Wrk_CV,Out_CV4Prev) ] ] ,[XIO(Out_UseCV4Prev) ,XIO(Cfg_CV4Offset) ,LEQ(Inp_Kp4,0.0) ] MOV(Wrk_CV,Out_CV4Prev) ,LES(Out_CV4Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV4Prev) ,GRT(Out_CV4Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV4Prev) ];]]>
+</Text>
+</Rung>
+<Rung Number="25" Type="N">
+<Comment>
+<![CDATA[If CV5 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV5 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #5 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV5 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E5) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp5 should come from the PIDE "PGain" parameter
+and Inp_E5 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV5Prev) XIC(Cfg_CV5Offset) GRT(Inp_Kp5,0.0) [MUL(Inp_Kp5,Inp_E5,Wrk_CV5Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV5Offset,0.0) ADD(Wrk_CV,Wrk_CV5Offset,Out_CV5Prev) ,LES(Wrk_CV5Offset,0.0) MOV(Wrk_CV,Out_CV5Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV5Offset,0.0) ADD(Wrk_CV,Wrk_CV5Offset,Out_CV5Prev) ,GRT(Wrk_CV5Offset,0.0) MOV(Wrk_CV,Out_CV5Prev) ] ] ,[XIO(Out_UseCV5Prev) ,XIO(Cfg_CV5Offset) ,LEQ(Inp_Kp5,0.0) ] MOV(Wrk_CV,Out_CV5Prev) ,LES(Out_CV5Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV5Prev) ,GRT(Out_CV5Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV5Prev) ];]]>
+</Text>
+</Rung>
+<Rung Number="26" Type="N">
+<Comment>
+<![CDATA[If CV6 is NOT being initialized, or if its initialization does not use the
+Kp * E Offset function, copy the selected CV to the CV6 Initialization value.
+
+If CV IS being initialized, AND the Offset function is being use,
+and the primary's Proportional Gain is > 0.0,
+we need to calculate a uni-directional offset to force
+Primary #6 to have its error (difference between SP and PV)
+change sign to be selected.
+The offset pushes the CV6 primary away from being
+selected (only), but only if its error sign is such that it will
+not want to take control.
+
+Note that the Error (Inp_E6) sign is based on the Control Action
+configured in the PIDE, so we don't need to configure control action.
+We just need to know whether this is a High-Select or a Low-Select
+to know which direction to offset.
+
+IMPORTANT:  Inp_Kp6 should come from the PIDE "PGain" parameter
+and Inp_E6 should come from the PIDE "EPercent" parameter!
+
+#####  V3.1-00  2014-06-30:  Added limiting of CVPrev to within Cfg_CVMin to Cfg_CVMax.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Out_UseCV6Prev) XIC(Cfg_CV6Offset) GRT(Inp_Kp6,0.0) [MUL(Inp_Kp6,Inp_E6,Wrk_CV6Offset) ,XIO(Cfg_HiLoSel) [GRT(Wrk_CV6Offset,0.0) ADD(Wrk_CV,Wrk_CV6Offset,Out_CV6Prev) ,LES(Wrk_CV6Offset,0.0) MOV(Wrk_CV,Out_CV6Prev) ] ,XIC(Cfg_HiLoSel) [LES(Wrk_CV6Offset,0.0) ADD(Wrk_CV,Wrk_CV6Offset,Out_CV6Prev) ,GRT(Wrk_CV6Offset,0.0) MOV(Wrk_CV,Out_CV6Prev) ] ] ,[XIO(Out_UseCV6Prev) ,XIO(Cfg_CV6Offset) ,LEQ(Inp_Kp6,0.0) ] MOV(Wrk_CV,Out_CV6Prev) ,LES(Out_CV6Prev,Cfg_CVMin) MOV(Cfg_CVMin,Out_CV6Prev) ,GRT(Out_CV6Prev,Cfg_CVMax) MOV(Cfg_CVMax,Out_CV6Prev) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_8"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

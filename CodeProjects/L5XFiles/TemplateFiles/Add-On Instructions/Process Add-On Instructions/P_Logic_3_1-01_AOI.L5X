@@ -1,0 +1,1803 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Boolean Logic-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_Logic" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:34:13.307Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:34:22 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_8" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="8" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_Logic" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2008-04-02T16:58:50.551Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:34:13.307Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Boolean Logic]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Exposed On-Delay and Off-Delay timers ACC/PRE (read-only).]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction executes logic on up to 8 input conditions.
+It provides these features:
+
+*  Up to eight 4-source logic gates can be used.
+*  Each of the gates can be configured as:
+  -  an AND Gate(result true if ALL sources are true)
+  -  an OR Gate (result true if ANY source is true)
+  -  an XOR (exclusive OR) Gate (result true if an ODD
+      number of sources are true)
+  -  a Majority (1oo1: 2oo2, 2oo3 or 3oo4) Voting Gate
+      (result true if a majority of sources are true)
+-  a Set-Reset (Latch) Gate (result turned ON by Set
+      source, turned OFF by Reset source)
+-  a Select Gate (result = Source A if selector false, Source B if true)
+
+* Each of the 4 sources for each gate can be configured to be
+    any of the instruction's inputs or any gate's result.
+* Each of the 4 sources for each gate can be enabled or disabled
+    and can be optionally inverted (logical NOT).
+* Any input or gate result can be selected, and optionally inverted,
+    as the source for the instruction output 
+* The output has OnDelay and OffDelay timers; the output bit is set when
+    the source for the output is true for the OnDelay time; the
+    output is cleared when the source is false for the OffDelay time.
+* A status register is updated with the states of all inputs and gate results.
+* Snapshot registers capture the instruction state either when the Output
+    goes to its configured "snap state", on Command, or when
+    Inp_Hold  input is true (configurable) (for example, for capture
+    for Root Cause Failure Analysis of Interlocks).  The snapshot can be
+    configured for "snap first" requiring a reset before the next snapshot
+    can be taked, or "snap over" ("snap last") where a snapshot is
+    captured with each snapshot condition  (without reset).
+
+Configuration Error Rules:
+*   If a gate has no gate type selected (function code = 0),
+      no error is flagged (NULL gate) and its Result bit is cleared.
+*   If a gate has an invalid function code, an error (function code)
+      is flagged and the Result bit is held in its last state.
+*   If a gate has an invalid source pointer, an error (source pointer)
+      is flagged and the Result bit is held in its last state.
+*   If a gate has a valid function code but no sources enabled (used),
+     an error (sources used) is flagged and the Result bit is held in its
+     last state.
+*   For Set/Reset, at least one of the Set sources and at least one of
+     the Reset sources must be used.
+*   For Selector, source 3 (the select) must be used and at least one
+     of the A (source 1) or B (source 2) sources must be used.
+*   All other gates can have any number of sources used from 1 to 4.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_0" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.0" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 0]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_1" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.1" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 1]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_2" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.2" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 2]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_3" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.3" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 3]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_4" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.4" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 4]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_5" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.5" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 5]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_6" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.6" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 6]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_7" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Src.7" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Logic Input 7]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Hold" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Hold prev states in Snapshot; 0=Pass live states to Snapshot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Reset Snapshot latch, show live states]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseInpHold" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Use Inp_Hold to snap state; 0=Use Cmds or Output transition to snap]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UsePCmd" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Enable snapshot on PCmd_Snap 0 --> 1 (edge)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseOCmd" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Enable snapshot on OCmd_Snap 0 --> 1 (edge)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseOut01" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Enable snapshot on Output 0 --> 1 (rising edge)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseOut10" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Enable snapshot on Output 1 --> 0 (falling edge)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_TSonSnap" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Generate a TimeStamp when Snapshot occurs]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_SnapOver" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=New snapshot overwrites without reset, 0=save first snapshot till reset]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OnDelay" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output ON delay time (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OffDelay" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output OFF delay time (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Snap" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to capture Input, Gate states in Snapshot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Reset (re-arm) Snapshot Latch]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_Snap" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to capture Input, Gate states in Snapshot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Reset (re-arm) Snapshot Latch]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Live" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Condition Logic Output (result) after delay]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Snap" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Condition Logic Output (result) at Snapshot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_DelayPctLive" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output OnDelay or OffDelay percent complete: live]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_DelayPctSnap" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output OnDelay or OffDelay percent complete: snapshot]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_SnapInit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot Initiator: 1=OCmd, 2=PCmd, 3=Out 0-->1, 4=Out 1-->0, 5=Inp_Hold]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Snapped" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Snapshot has been triggered, 0=Snapshot showing live states]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_InpLive" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live Input Status bits:  .0 to .7 = Inp_0 to Inp_7]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateLive" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live Gate Result Status bits: .0 to .7 = Gate 0 to 7]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_InpSnap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Input Status bits: .0 to .7 = Inp_0 to Inp_7]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSnap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Gate Result Status bits: .0 to .7 = Gate 0 to 7]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc1Live" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live wire state for Source 1 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc2Live" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live wire state for Source 2 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc3Live" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live wire state for Source 3 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc4Live" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Live wire state for Source 4 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc1Snap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Wire state for Source 1 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc2Snap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Wire state for Source 2 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc3Snap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Wire state for Source 3 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_GateSrc4Snap" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Wire state for Source 4 of each gate (bit# = gate#)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_OutInvLive" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output after inverter but before TON/TOF timers]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_OutInvSnap" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot of Output after inverter but before TON/TOF]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Config: see detail bits for reason]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_GateFunc" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in each Gate's Function Code (use 0 to 6)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_GateSrcPtr" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in each Gate's Source Pointer (use 0 to 15)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_GateSrcMask" TagType="Base" DataType="SINT" Usage="Output" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in each Gate's Mask (source used) configuration (qty, choice)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_OutSrcPtr" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Output's Source Pointer (use 0 to 15)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_Timer" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Output's On Delay or Off Delay Preset (use 0 to 2147483)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Snap" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready to receive OCmd_Snap (enables button)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Reset" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready to receive OCmd_Reset (enables button)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_Logic" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Cfg_GateSrc4Inv" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #4 is Inverted (M by bit) (1=invert)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc3Inv" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #3 is Inverted (M by bit) (1=invert)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc2Inv" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #2 is Inverted (M by bit) (1=invert)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc1Inv" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #1 is Inverted (M by bit) (1=invert)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ErrFunc" DataType="SINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Error detected in each gate's Function Code (must be 0..6)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ErrGateSrcPtr" DataType="SINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Error detected in each Gate's Source pointer (must be 0..15)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ErrMask" DataType="SINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Error in Source Mask (sources used) for each gate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc4Mask" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #4 is Used (M by bit) (1=used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc3Mask" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #3 is Used (M by bit) (1=used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc2Mask" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #2 is Used (M by bit) (1=used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc1Mask" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate M Source #1 is Used (M by bit) (1=used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src" DataType="INT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Working Source (Input and Gate Status) bits .0 to .15]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_HasNav" DataType="SINT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Set bits indicate which Navigation buttons are enabled]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Binary" Value="2#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc4Ptr" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Pointer to Gate M Source #4 (0..7 = inputs, 8..15 = gate outputs)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc3Ptr" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Pointer to Gate M Source #3 (0..7 = inputs, 8..15 = gate outputs)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc2Ptr" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Pointer to Gate M Source #2 (0..7 = inputs, 8..15 = gate outputs)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateSrc1Ptr" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Pointer to Gate M Source #1 (0..7 = inputs, 8..15 = gate outputs)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateFunc" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Function code for gate M (1=AND, 2=OR, 3=XOR, 4=2oo3, 5=Set-Reset)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_OutSrcPtr" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Source bit for Output (0..7 = inputs, 8..15 = gates)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_InpTxt" DataType="STRING_20" Dimensions="8" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Short HMI description of each Input]]>
+</Description>
+<DefaultData>11 00 00 00 49 6E 70 75 74 20 43 6F 6E 64 69 74 
+69 6F 6E 20 30 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="17">
+<![CDATA['Input Condition 0']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OnDelayT" DataType="TIMER" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output ON Delay Timer]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Mplus8" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Pointer to Sts bit for gate result (.8 .. .15)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_M" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Gate (0 to 7) currently being processed]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src1Ptr" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Pointer to this gate's Source #1 bit in Sts]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src2Ptr" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Pointer to this gate's Source #2 bit in Sts]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src3Ptr" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Pointer to this gate's Source #3 bit in Sts]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src4Ptr" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Pointer to this gate's Source #4 bit in Sts]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src1" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[This gate's Source #1 state (after inversion)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src2" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[This gate's Source #2 state (after inversion)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src3" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[This gate's Source #3 state (after inversion)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Src4" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[This gate's Source #4 state (after inversion)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SrcsUsed" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number of Sources configured to be used]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SrcsTrue" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number or Sources (after inversion) which are True]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ErrOutSrcPtr" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Error in Output Source Pointer (must be 0..15)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_OutSrcInv" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Out Source (before Min Duration Timer) is Inverted (1=invert)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SnapLatch" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[1=a snapshot has been captured, 0=armed, ready to get snapshot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>20 00 00 00 43 6F 6E 66 69 67 75 72 61 62 6C 65 
+20 42 6F 6F 6C 65 61 6E 20 4C 6F 67 69 63 20 42 
+6C 6F 63 6B 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="32">
+<![CDATA['Configurable Boolean Logic Block']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_1StText" DataType="STRING_8" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Text to display in Out=1 State]]>
+</Description>
+<DefaultData>07 00 00 00 54 52 49 50 50 45 44 00</DefaultData>
+<DefaultData Format="String" Length="7">
+<![CDATA['TRIPPED']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_0StText" DataType="STRING_8" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Text to display in Out=0 State]]>
+</Description>
+<DefaultData>02 00 00 00 4F 4B 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="2">
+<![CDATA['OK']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_LastGate" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Last Gate pin which uses this Gate Result (0=not used 1..3= gates, 33=output)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastGate" DataType="DINT" Dimensions="16" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Last Gate pin which uses this Source (0=not used 1..4= gate 1.., 33=output)
+(for animation)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="16" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+<Element Index="[8]" Value="0"/>
+<Element Index="[9]" Value="0"/>
+<Element Index="[10]" Value="0"/>
+<Element Index="[11]" Value="0"/>
+<Element Index="[12]" Value="0"/>
+<Element Index="[13]" Value="0"/>
+<Element Index="[14]" Value="0"/>
+<Element Index="[15]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_LastInp" DataType="DINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Last Gate pin which uses this Input (0=not used 1..3= gates, 33=output)
+(for animation)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Const" DataType="SINT" Dimensions="8" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Constants (for use in HMI indirection of parameters)]]>
+</Description>
+<DefaultData>00 01 02 03 04 05 06 07</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="SINT" Dimensions="8" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="1"/>
+<Element Index="[2]" Value="2"/>
+<Element Index="[3]" Value="3"/>
+<Element Index="[4]" Value="4"/>
+<Element Index="[5]" Value="5"/>
+<Element Index="[6]" Value="6"/>
+<Element Index="[7]" Value="7"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_SnapTS" DataType="DINT" Dimensions="7" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Snapshot Timestamp [0]=yr, [1]=mo, [2]=da, [3]=hr, [4]=min, [5]=sec, [6]=usec]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="7" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OffDelayT" DataType="TIMER" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output OFF Delay Timer]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpHoldONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Inp_Hold 0 --> 1 One-Shot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Copy" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[1=Copy Live Data to Snapshot This Scan]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Out01SnapONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Snap on Output Transition 0 --> 1 (one-shot store)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Out10SnapONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Snap on Output Transition 1 --> 0 (one-shot store)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_PCmdSnapONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Snap on Program Command 0 --> 1 (one-shot store)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Type identifier for HMI navigation]]>
+</Description>
+<DefaultData>07 00 00 00 50 5F 4C 6F 67 69 63 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="7">
+<![CDATA['P_Logic']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>07 00 00 00 50 5F 4C 6F 67 69 63 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="7">
+<![CDATA['P_Logic']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>12 00 00 00 43 6F 6E 66 69 67 75 72 61 62 6C 65 
+20 4C 6F 67 69 63 00 00</DefaultData>
+<DefaultData Format="String" Length="18">
+<![CDATA['Configurable Logic']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_DateTime" DataType="DINT" Dimensions="7" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Date/Time Stamp from scan of logic]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="7" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_NavTag" DataType="STRING_20" Dimensions="8" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagnames for destinations of Navigation buttons]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[Set Output to False and reset On-Delay and Off-Delay output timers]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+OFF-SCAN (EnableIn is False) STATUS
+============================================================
+
+If this instruction is OFF-SCAN (rung is false or EnableIn is false in FBD),
+then set the Output to FALSE (0) and reset the Output TON and TOF timers.]]>
+</Comment>
+<Text>
+<![CDATA[OTU(Out_Live)RES(Wrk_OnDelayT)RES(Wrk_OffDelayT);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Examine Inputs and execute Logic Gates and Output timers]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_Logic:  PROCESS -- BOOLEAN LOGIC
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Inf_Lib. Added Cfg_HasNav bits and
+Cfg_NavTag strings for navigation
+V3.1-00  2014-06-30:  Unmodified for Library of Process Objects V3.1, up-rev only.
+V3.1-01  2014-09-03:  Exposed On-Delay and Off-Delay timers ACC/PRE (read-only).
+============================================================
+This Instruction executes logic on up to 8 input conditions.
+It provides these features:
+
+*  Up to eight 4-source logic gates can be used.
+*  Each of the gates can be configured as:
+
+-  an AND Gate(result true if ALL sources are true)
+-  an OR Gate (result true if ANY source is true)
+-  an XOR (exclusive OR) Gate (result true if an ODD number of sources are true)
+-  a Majority (1oo1: 2oo2, 2oo3 or 3oo4) Voting Gate (result true if a majority of sources are true)
+-  a Set-Reset (Latch) Gate (result turned ON by Set source, turned OFF by Reset source)
+-  a Select Gate (result = Source A if selector false, Source B if true)
+
+* Each of the 4 sources for each gate can be configured to be
+any of the instruction's inputs or any gate's result.
+* Each of the 4 sources for each gate can be enabled or disabled
+and can be optionally inverted (logical NOT).
+* Any input or gate result can be selected, and optionally inverted,
+as the source for the instruction output 
+* The output has OnDelay and OffDelay timers; the output bit is set when
+the source for the output is true for the OnDelay time; the
+output is cleared when the source is false for the OffDelay time.
+* A status register is updated with the states of all inputs and gate results.
+* Snapshot registers capture the instruction state either when the Output
+goes to its configured "snap state", on Command, or when
+Inp_Hold  input is true (configurable) (for example, for capture
+for Root Cause Failure Analysis of Interlocks).  The snapshot can be
+configured for "snap first" requiring a reset before the next snapshot
+can be taked, or "snap over" ("snap last") where a snapshot is
+captured with each snapshot condition  (without reset).
+
+Configuration Error Rules:
+*   If a gate has no gate type selected (function code = 0), no error is flagged
+(NULL gate) and its Result bit is cleared.
+*   If a gate has an invalid function code, an error (function code) is flagged and
+the Result bit is held in its last state.
+*   If a gate has an invalid source pointer, an error (source pointer) is flagged and
+the Result bit is held in its last state.
+*   If a gate has a valid function code but no sources enabled (used), an error
+(sources used) is flagged and the Result bit is held in its last state.
+*   For Set/Reset, at least one of the Set sources and at least one of the Reset
+sources must be used.
+*   For Selector, source 3 (the select) must be used and at least one of the
+A (source 1) or B (source 2) sources must be used.
+*   All other gates can have any number of sources used from 1 to 4.
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.
+
+#####  V3.0-00  2013-06-30:  Added Cfg_NavTag strings on this rung  #####]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)[CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag) ,LOWER(Cfg_0StText,Cfg_1StText) LOWER(Cfg_InpTxt[0],Cfg_InpTxt[1]) LOWER(Cfg_InpTxt[2],Cfg_InpTxt[3]) LOWER(Cfg_InpTxt[4],Cfg_InpTxt[5]) LOWER(Cfg_InpTxt[6],Cfg_InpTxt[7]) ,LOWER(Cfg_NavTag[0],Cfg_NavTag[1]) LOWER(Cfg_NavTag[2],Cfg_NavTag[3]) LOWER(Cfg_NavTag[4],Cfg_NavTag[5]) LOWER(Cfg_NavTag[6],Cfg_NavTag[7]) LOWER(Inf_Lib,Inf_Type) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+INP_HOLD SNAPSHOT: PREVIOUS SCAN'S DATA
+============================================================
+If the Inp_Hold bit becomes set, and if the Inp_Hold bit is
+configured to be used to take a snapshot, and if we don't already
+have a snapshot or snapshot overwrite (last snap) is configured,
+copy the live state FROM LAST SCAN to the snapshot state
+(including last scan's timestamp).]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)XIC(Inp_Hold)ONS(Wrk_InpHoldONS)XIO(S:FS)XIC(Cfg_UseInpHold)[XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ][MOV(5,Val_SnapInit) OTL(Wrk_SnapLatch) ,XIC(Sts_OutInvLive) OTL(Sts_OutInvSnap) ,XIO(Sts_OutInvLive) OTU(Sts_OutInvSnap) ,XIC(Out_Live) OTL(Out_Snap) ,XIO(Out_Live) OTU(Out_Snap) ,MOV(Val_DelayPctLive,Val_DelayPctSnap) ,MOV(Sts_InpLive,Sts_InpSnap) MOV(Sts_GateLive,Sts_GateSnap) ,MOV(Sts_GateSrc1Live,Sts_GateSrc1Snap) MOV(Sts_GateSrc2Live,Sts_GateSrc2Snap) ,MOV(Sts_GateSrc3Live,Sts_GateSrc3Snap) MOV(Sts_GateSrc4Live,Sts_GateSrc4Snap) ,XIC(Cfg_TSonSnap) COP(Wrk_DateTime[0],Val_SnapTS[0],7) ,OTU(Wrk_Copy) ];]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[============================================================
+INPUT GATHERING
+============================================================
+This object uses pointerized, looping logic.  The individual
+Condition Inputs are aliased together into an 8-bit word
+for indirect referencing (by bit #).  No rungs needed for gathering.
+============================================================
+LOOP THROUGH THE GATES
+============================================================
+Set up a loop for the 8 Gates.
+Clear the "last gate" values used for HMI faceplate animation.
+Clear the flags for errors detected in configuration, and
+set the loop index to start with the first Gate (0).]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_LastGate[0],16)CLR(Wrk_M)CLR(Wrk_ErrFunc)CLR(Wrk_ErrGateSrcPtr)CLR(Wrk_ErrMask);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TOP OF LOOP, PER GATE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For this gate:
+* Set a pointer to the bit in Sts that receives the result of this gate.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(NextGate)ADD(Wrk_M,8,Wrk_Mplus8);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[* Check the Gate function code:
+- If it's zero, the gate is not used (null).  Clear the result and skip to the next gate
+- If it's invalid, flag the error, hold the result in its last state, and skip to the next gate.
+* Check the Gate Source Pointers:
+- If any are invalid, flag the error, hold the result in its last state and skip to the next gate.
+* Check the Gate Source Used Flags:
+- If a used (non null) gate has NO sources used, flag the error, hold the result
+in its last state and skip to the next gate.]]>
+</Comment>
+<Text>
+<![CDATA[[EQU(Cfg_GateFunc[Wrk_M],0) OTU(Wrk_Src.[Wrk_Mplus8]) ,LIM(7,Cfg_GateFunc[Wrk_M],-1) OTL(Wrk_ErrFunc.[Wrk_M]) ,[LIM(16,Cfg_GateSrc1Ptr[Wrk_M],-1) ,LIM(16,Cfg_GateSrc2Ptr[Wrk_M],-1) ,LIM(16,Cfg_GateSrc3Ptr[Wrk_M],-1) ,LIM(16,Cfg_GateSrc4Ptr[Wrk_M],-1) ] OTL(Wrk_ErrGateSrcPtr.[Wrk_M]) ,NEQ(Cfg_GateFunc[Wrk_M],0) XIO(Cfg_GateSrc1Mask.[Wrk_M]) XIO(Cfg_GateSrc2Mask.[Wrk_M]) XIO(Cfg_GateSrc3Mask.[Wrk_M]) XIO(Cfg_GateSrc4Mask.[Wrk_M]) OTL(Wrk_ErrMask.[Wrk_M]) ]JMP(EndGate);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[Copy this Gate's Source Pointers to working registers.
+(We need to do this because Logix only lets us indirect one thing at a time!)
+
+Once we have the pointers to the Sources, we can update the "Last Gate" registers
+used to animate lines in the HMI Popup with "how far" to draw them for each input and gate.]]>
+</Comment>
+<Text>
+<![CDATA[[MOV(Cfg_GateSrc3Ptr[Wrk_M],Wrk_Src3Ptr) XIC(Cfg_GateSrc3Mask.[Wrk_M]) CPT(Wrk_LastGate[Wrk_Src3Ptr],Wrk_M*4+1) ,MOV(Cfg_GateSrc2Ptr[Wrk_M],Wrk_Src2Ptr) XIC(Cfg_GateSrc2Mask.[Wrk_M]) CPT(Wrk_LastGate[Wrk_Src2Ptr],Wrk_M*4+2) ,MOV(Cfg_GateSrc4Ptr[Wrk_M],Wrk_Src4Ptr) XIC(Cfg_GateSrc4Mask.[Wrk_M]) CPT(Wrk_LastGate[Wrk_Src4Ptr],Wrk_M*4+3) ,MOV(Cfg_GateSrc1Ptr[Wrk_M],Wrk_Src1Ptr) XIC(Cfg_GateSrc1Mask.[Wrk_M]) CPT(Wrk_LastGate[Wrk_Src1Ptr],Wrk_M*4+4) ];]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[This rung handles gathering the pointed-to Sts bits
+and inverting them if so configured.
+
+The actual Source state for each Source on each Gate (before inversion)
+is saved in a Status for use by the HMI Popup Display.]]>
+</Comment>
+<Text>
+<![CDATA[[[XIC(Wrk_Src.[Wrk_Src1Ptr]) OTE(Sts_GateSrc1Live.[Wrk_M]) XIO(Cfg_GateSrc1Inv.[Wrk_M]) ,XIO(Wrk_Src.[Wrk_Src1Ptr]) XIC(Cfg_GateSrc1Inv.[Wrk_M]) ] OTE(Wrk_Src1) ,[XIC(Wrk_Src.[Wrk_Src2Ptr]) OTE(Sts_GateSrc2Live.[Wrk_M]) XIO(Cfg_GateSrc2Inv.[Wrk_M]) ,XIO(Wrk_Src.[Wrk_Src2Ptr]) XIC(Cfg_GateSrc2Inv.[Wrk_M]) ] OTE(Wrk_Src2) ,[XIC(Wrk_Src.[Wrk_Src3Ptr]) OTE(Sts_GateSrc3Live.[Wrk_M]) XIO(Cfg_GateSrc3Inv.[Wrk_M]) ,XIO(Wrk_Src.[Wrk_Src3Ptr]) XIC(Cfg_GateSrc3Inv.[Wrk_M]) ] OTE(Wrk_Src3) ,[XIC(Wrk_Src.[Wrk_Src4Ptr]) OTE(Sts_GateSrc4Live.[Wrk_M]) XIO(Cfg_GateSrc4Inv.[Wrk_M]) ,XIO(Wrk_Src.[Wrk_Src4Ptr]) XIC(Cfg_GateSrc4Inv.[Wrk_M]) ] OTE(Wrk_Src4) ];]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 5:  SET - RESET
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE:  THIS FUNCTION IS PROCESSED FIRST
+(and Function Code 6, Selector, is processed second)
+BECAUSE ITS RESULT STATE IS LATCHED.
+IF THIS FUNCTION IS USED, THE JMP AT THE END
+KEEPS THE OTE's IN THE OTHER FUNCTIONS,
+BELOW, FROM CLEARING THE LATCHED RESULT INADVERTANTLY!
+
+This Function requires at least one "Set" Source (Source 1 or 3) and
+at least one "Reset" Source (Source 2 or 4).
+If both "Set" Sources are not used, or if both "Reset" Sources are
+not used, flag an error and leave the gate Result in its last state.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],5)[XIO(Cfg_GateSrc1Mask.[Wrk_M]) XIO(Cfg_GateSrc3Mask.[Wrk_M]) ,XIO(Cfg_GateSrc2Mask.[Wrk_M]) XIO(Cfg_GateSrc4Mask.[Wrk_M]) ]OTL(Wrk_ErrMask.[Wrk_M])JMP(EndGate);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[Set - Reset Logic
+
+The S-R has a dominant Set (1) and Reset (2) Source, and a Non-Dominant
+Set (3) and Reset (4) Source, allowing consturction of either a
+Set-Dominant or Reset-Dominant Set-Reset Gate.
+For each pair, the first one received wins, and the Dominant pair
+wins over the Non-Dominant pair.
+
+If the Non-Dominant Set Source is True and NEITHER Reset Source is True,
+Set (OTL) the Result.
+If the Non-Dominant Reset Source is True and NEITHER Set Source is True,
+Clear (OTU) the Result.
+If the Dominant Set Source is True and the Dominant Reset Source is False,
+Set (OTL) the Result.
+If the Dominant Reset Source is True and the Dominant Set Source is False,
+Clear (OTU) the Result.
+Otherwise, the Result maintains its last state.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],5)[XIC(Wrk_Src3) XIC(Cfg_GateSrc3Mask.[Wrk_M]) [XIO(Wrk_Src2) XIC(Cfg_GateSrc2Mask.[Wrk_M]) ,XIO(Cfg_GateSrc2Mask.[Wrk_M]) ] [XIO(Wrk_Src4) XIC(Cfg_GateSrc4Mask.[Wrk_M]) ,XIO(Cfg_GateSrc4Mask.[Wrk_M]) ] OTL(Wrk_Src.[Wrk_Mplus8]) ,XIC(Wrk_Src4) XIC(Cfg_GateSrc4Mask.[Wrk_M]) [XIO(Wrk_Src1) XIC(Cfg_GateSrc1Mask.[Wrk_M]) ,XIO(Cfg_GateSrc1Mask.[Wrk_M]) ] [XIO(Wrk_Src3) XIC(Cfg_GateSrc3Mask.[Wrk_M]) ,XIO(Cfg_GateSrc3Mask.[Wrk_M]) ] OTU(Wrk_Src.[Wrk_Mplus8]) ,XIC(Wrk_Src1) XIC(Cfg_GateSrc1Mask.[Wrk_M]) [XIO(Wrk_Src2) XIC(Cfg_GateSrc2Mask.[Wrk_M]) ,XIO(Cfg_GateSrc2Mask.[Wrk_M]) ] OTL(Wrk_Src.[Wrk_Mplus8]) ,XIC(Wrk_Src2) XIC(Cfg_GateSrc2Mask.[Wrk_M]) [XIO(Wrk_Src1) XIC(Cfg_GateSrc1Mask.[Wrk_M]) ,XIO(Cfg_GateSrc1Mask.[Wrk_M]) ] OTU(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 6  A/B Selector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This Function requires that the Select (#3) source is used and AT LEAST ONE of
+its A / B sources (#1 or #2) is used.  Source #4 must be UNUSED.
+
+If source #3 is not used, if source #1 and #2 are BOTH unused, or if source #4 IS used,
+flag the error and leave the gate result in its last state.
+
+This Function selects either the A Source (#1) or the B Source (#2)
+to pass through as its result, depending on the state of the A/B Select Source (#3).
+If the A/B Select is FALSE (after inversion), pass through Source A (after inversion).
+If the A/B Select is TRUE (after inversion), pass through Source B (after inversion).]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],6)[[XIO(Cfg_GateSrc3Mask.[Wrk_M]) ,XIO(Cfg_GateSrc1Mask.[Wrk_M]) XIO(Cfg_GateSrc2Mask.[Wrk_M]) ,XIC(Cfg_GateSrc4Mask.[Wrk_M]) ] OTL(Wrk_ErrMask.[Wrk_M]) JMP(EndGate) ,[XIO(Wrk_Src3) XIC(Wrk_Src1) ,XIC(Wrk_Src3) XIC(Wrk_Src2) ] OTE(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 1:  LOGICAL   "AND"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If all of the "Used" Sources are true, this gate's Result is true.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],1)[[XIC(Wrk_Src1) XIC(Cfg_GateSrc1Mask.[Wrk_M]) ,XIO(Cfg_GateSrc1Mask.[Wrk_M]) ] [XIC(Wrk_Src2) XIC(Cfg_GateSrc2Mask.[Wrk_M]) ,XIO(Cfg_GateSrc2Mask.[Wrk_M]) ] [XIC(Wrk_Src3) XIC(Cfg_GateSrc3Mask.[Wrk_M]) ,XIO(Cfg_GateSrc3Mask.[Wrk_M]) ] [XIC(Wrk_Src4) XIC(Cfg_GateSrc4Mask.[Wrk_M]) ,XIO(Cfg_GateSrc4Mask.[Wrk_M]) ] OTE(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 2:  LOGICAL   "OR"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If any of the "Used" Sources are true, this gate's Result is true.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],2)[[XIC(Wrk_Src1) XIC(Cfg_GateSrc1Mask.[Wrk_M]) ,XIC(Wrk_Src2) XIC(Cfg_GateSrc2Mask.[Wrk_M]) ,XIC(Wrk_Src3) XIC(Cfg_GateSrc3Mask.[Wrk_M]) ,XIC(Wrk_Src4) XIC(Cfg_GateSrc4Mask.[Wrk_M]) ] OTE(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[The Logical Exclusive OR (XOR) and Majority (M out of N or "MooN") gates
+need to know how many Sources are Used
+and how many of the Used Sources are True (after input inverting).
+
+Clear the totals, then add the numbers for each Source Used and True.]]>
+</Comment>
+<Text>
+<![CDATA[[CLR(Wrk_SrcsUsed) CLR(Wrk_SrcsTrue) ,XIC(Cfg_GateSrc1Mask.[Wrk_M]) [ADD(Wrk_SrcsUsed,1,Wrk_SrcsUsed) ,XIC(Wrk_Src1) ADD(Wrk_SrcsTrue,1,Wrk_SrcsTrue) ] ,XIC(Cfg_GateSrc2Mask.[Wrk_M]) [ADD(Wrk_SrcsUsed,1,Wrk_SrcsUsed) ,XIC(Wrk_Src2) ADD(Wrk_SrcsTrue,1,Wrk_SrcsTrue) ] ,XIC(Cfg_GateSrc3Mask.[Wrk_M]) [ADD(Wrk_SrcsUsed,1,Wrk_SrcsUsed) ,XIC(Wrk_Src3) ADD(Wrk_SrcsTrue,1,Wrk_SrcsTrue) ] ,XIC(Cfg_GateSrc4Mask.[Wrk_M]) [ADD(Wrk_SrcsUsed,1,Wrk_SrcsUsed) ,XIC(Wrk_Src4) ADD(Wrk_SrcsTrue,1,Wrk_SrcsTrue) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 3:  LOGICAL "EXCLUSIVE OR" (XOR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If more Sources True than are Used, something is amiss.  Flag the error and hold last state.
+
+Of the Used sources, the XOR result is true if an ODD number of them (1 or 3) are True.
+
+(This Function will likely be most often used with TWO Sources.)]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],3)[LES(Wrk_SrcsUsed,Wrk_SrcsTrue) OTL(Wrk_ErrMask.[Wrk_M]) JMP(EndGate) ,[EQU(Wrk_SrcsTrue,1) ,EQU(Wrk_SrcsTrue,3) ] OTE(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Code = 4:  M out of N (MooN, Majority)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If more Sources True than are Used, something is amiss.  Flag the error and hold last state.
+
+This Function's Result is True when a MAJORITY of its used Sources are true.
+
+The Result is true when:
+
+if one Source is Used, when that Source is true;
+if two or three Sources are Used, when at least two are true;
+if four Sources are Used, when at lest three are true.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Cfg_GateFunc[Wrk_M],4)[LES(Wrk_SrcsUsed,Wrk_SrcsTrue) OTL(Wrk_ErrMask.[Wrk_M]) JMP(EndGate) ,[EQU(Wrk_SrcsUsed,1) GEQ(Wrk_SrcsTrue,1) ,LIM(2,Wrk_SrcsUsed,3) GEQ(Wrk_SrcsTrue,2) ,EQU(Wrk_SrcsUsed,4) GEQ(Wrk_SrcsTrue,3) ] OTE(Wrk_Src.[Wrk_Mplus8]) ,JMP(EndGate) ];]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+BOTTOM OF LOOP, PER GATE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Processing of this Gate is complete.
+If this was not the last Gate, increment the Loop Index (Wrk_M)
+and go back to process the next Gate.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(EndGate)LES(Wrk_M,7)ADD(Wrk_M,1,Wrk_M)JMP(NextGate);]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Comment>
+<![CDATA[============================================================
+PROCESS THE OUTPUT
+============================================================
+The Output has OnDelay and OffDelay Timers applied to the selected input/gate Result.
+
+* Multiply the configured presets in Seconds by 1000 to get milliseconds for the Timer Presets.
+* Check the Presets for validity; if not valid (negative), clear and flag the error.]]>
+</Comment>
+<Text>
+<![CDATA[[MUL(Cfg_OnDelay,1000,Wrk_OnDelayT.PRE) MUL(Cfg_OffDelay,1000,Wrk_OffDelayT.PRE) ,[LES(Wrk_OnDelayT.PRE,0) CLR(Wrk_OnDelayT.PRE) ,LES(Wrk_OffDelayT.PRE,0) CLR(Wrk_OffDelayT.PRE) ] OTE(Err_Timer) ];]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Comment>
+<![CDATA[Check the Output Source Pointer to make sure it points to a valid
+AOI Input (0 to 7) or Gate Result (8 to 15).
+If not, flag the error and skip evaluation of the result (to avoid a major fault)
+and reset the Output OnDelay and OffDelay Timers.]]>
+</Comment>
+<Text>
+<![CDATA[LIM(16,Cfg_OutSrcPtr,-1)OTE(Wrk_ErrOutSrcPtr)RES(Wrk_OnDelayT)RES(Wrk_OffDelayT)JMP(Output);]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Comment>
+<![CDATA[Update the "last gate" values used in animating the HMI Popup with which
+gate or input is tied to the output so a line can be drawn to the output.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(33,Wrk_LastGate[Cfg_OutSrcPtr]);]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Comment>
+<![CDATA[If the Output Source Pointer is valid, de-reference it and grab the pointed-to bit,
+invert it if so configured, and if that result is true, note it.]]>
+</Comment>
+<Text>
+<![CDATA[[XIO(Cfg_OutSrcInv) XIC(Wrk_Src.[Cfg_OutSrcPtr]) ,XIC(Cfg_OutSrcInv) XIO(Wrk_Src.[Cfg_OutSrcPtr]) ]OTE(Sts_OutInvLive);]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Comment>
+<![CDATA[The Output OnDelay and OffDelay Timers follow the logic result to generate the final output.
+
+@@@@@  The TON on each branch is doubled to ensure its .DN bit is  @@@@@
+@@@@@  set or cleared the same scan if the timer preset is zero.  @@@@@]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Sts_OutInvLive)[TON(Wrk_OnDelayT,?,?) TON(Wrk_OnDelayT,?,?) ,TOF(Wrk_OffDelayT,?,?) TOF(Wrk_OffDelayT,?,?) ];]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[If the OnDelay Timer goes DONE, or if the timer's input is true and its Preset is zero, set the Output.
+If the OffDelay Timer is TIMING and its preset is nonzero, set the Output.
+
+(The extra branch and comparisons against the Presets are needed to ensure there is
+no one-scan delay in the DN bit of the TON or the timing of the TOF affecting the Output.)]]>
+</Comment>
+<Text>
+<![CDATA[LBL(Output)[XIC(Sts_OutInvLive) XIC(Wrk_OnDelayT.DN) OTL(Out_Live) ,XIO(Sts_OutInvLive) XIO(Wrk_OffDelayT.DN) OTU(Out_Live) ];]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[============================================================
+GENERATE VALUES AND STATUS
+============================================================
+This rung generates the OnDelay / OffDelay "percent complete" value
+for the HMI progress bar for output delay.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_OnDelayT.TT) GRT(Wrk_OnDelayT.PRE,0) CPT(Val_DelayPctLive,Wrk_OnDelayT.ACC*100/Wrk_OnDelayT.PRE) ,XIC(Wrk_OffDelayT.TT) GRT(Wrk_OffDelayT.PRE,0) CPT(Val_DelayPctLive,Wrk_OffDelayT.ACC*100/Wrk_OffDelayT.PRE) ,[XIO(Wrk_OnDelayT.TT) XIO(Wrk_OffDelayT.TT) ,XIC(Sts_OutInvLive) XIC(Out_Live) ,XIO(Sts_OutInvLive) XIO(Out_Live) ] MOV(100,Val_DelayPctLive) ];]]>
+</Text>
+</Rung>
+<Rung Number="23" Type="N">
+<Comment>
+<![CDATA[This rung generates the gate-wise Err_xxx configuration error bits]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_ErrFunc,Err_GateFunc)MOV(Wrk_ErrGateSrcPtr,Err_GateSrcPtr)MOV(Wrk_ErrMask,Err_GateSrcMask);]]>
+</Text>
+</Rung>
+<Rung Number="24" Type="N">
+<Comment>
+<![CDATA[This rung generates the remaining Err_xxx configuration error bits and
+summarizes them all Err_ params into Sts_Err (summary configuration error status bit).]]>
+</Comment>
+<Text>
+<![CDATA[[NEQ(Err_GateFunc,0) ,NEQ(Err_GateSrcPtr,0) ,NEQ(Err_GateSrcMask,0) ,XIC(Wrk_ErrOutSrcPtr) OTE(Err_OutSrcPtr) ,XIC(Err_Timer) ]OTE(Sts_Err);]]>
+</Text>
+</Rung>
+<Rung Number="25" Type="N">
+<Comment>
+<![CDATA[This rung copies out the various Statuses and Values associated with Inputs and Gates:
+Current State (Sts_Inp and Sts_Gate) and values used in HMI animation (Val_LastInp, Val_LastGate).]]>
+</Comment>
+<Text>
+<![CDATA[BTD(Wrk_Src,0,Sts_InpLive,0,8)BTD(Wrk_Src,8,Sts_GateLive,0,8)COP(Wrk_LastGate[0],Val_LastInp[0],8)COP(Wrk_LastGate[8],Val_LastGate[0],8);]]>
+</Text>
+</Rung>
+<Rung Number="26" Type="N">
+<Comment>
+<![CDATA[============================================================
+GENERATE SNAPSHOT
+============================================================
+The following rungs generate the logic snapshot used to display the
+"shutdown cause" when this instruction is used for complex interlock logic (for example).
+
+This rung sets us up to copy current logic status data to the snapshot area this scan.
+If there has been no snapshot since last reset, plan on copying the live data to
+the snap shot this scan.
+
+NOTE:  All the methods below of triggering a snapshot will copy data THIS scan's state.
+Inp_Hold, which is checked at the top of this routine, captures LAST scan's state!!!]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_SnapLatch)OTL(Wrk_Copy);]]>
+</Text>
+</Rung>
+<Rung Number="27" Type="N">
+<Comment>
+<![CDATA[Capture this scan's timestamp.  (We may need it next scan if Inp_Hold comes true...)]]>
+</Comment>
+<Text>
+<![CDATA[GSV(WALLCLOCKTIME,,LocalDateTime,Wrk_DateTime[0]);]]>
+</Text>
+</Rung>
+<Rung Number="28" Type="N">
+<Comment>
+<![CDATA[This rung looks for a Snapshot command (Operator or Program) or
+for a 0-to-1 or 1-to-0 transition of the Output, or the Inp_Hold Input
+to initiate a snapshot.
+
+Note that the snapshot data are THIS scan's logic output, except for
+Inp_Hold trigger, which uses LAST scan's logic results!
+
+Record which initiator triggered the snapshot.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(OCmd_Snap) OTU(OCmd_Snap) XIC(Cfg_UseOCmd) [XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ] MOV(1,Val_SnapInit) ,XIC(PCmd_Snap) OTU(PCmd_Snap) ONS(Wrk_PCmdSnapONS) XIC(Cfg_UsePCmd) [XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ] MOV(2,Val_SnapInit) ,XIC(Out_Live) ONS(Wrk_Out01SnapONS) XIC(Cfg_UseOut01) [XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ] MOV(3,Val_SnapInit) ,XIO(Out_Live) ONS(Wrk_Out10SnapONS) XIC(Cfg_UseOut10) [XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ] MOV(4,Val_SnapInit) ]OTL(Wrk_SnapLatch)OTL(Wrk_Copy);]]>
+</Text>
+</Rung>
+<Rung Number="29" Type="N">
+<Comment>
+<![CDATA[If we don't have a snapshot (show live), or if we need to copy the live data
+to the snapshot because we just TOOK the snapshot,
+copy the live state to the snapshot state.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Copy)[XIC(Sts_OutInvLive) OTL(Sts_OutInvSnap) ,XIO(Sts_OutInvLive) OTU(Sts_OutInvSnap) ,XIC(Out_Live) OTL(Out_Snap) ,XIO(Out_Live) OTU(Out_Snap) ,MOV(Val_DelayPctLive,Val_DelayPctSnap) ,MOV(Sts_InpLive,Sts_InpSnap) MOV(Sts_GateLive,Sts_GateSnap) ,MOV(Sts_GateSrc1Live,Sts_GateSrc1Snap) MOV(Sts_GateSrc2Live,Sts_GateSrc2Snap) ,MOV(Sts_GateSrc3Live,Sts_GateSrc3Snap) MOV(Sts_GateSrc4Live,Sts_GateSrc4Snap) ,XIC(Cfg_TSonSnap) COP(Wrk_DateTime[0],Val_SnapTS[0],7) ,OTU(Wrk_Copy) ];]]>
+</Text>
+</Rung>
+<Rung Number="30" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND PROCESSING
+============================================================
+On receipt of a Reset Command, the snapshot is returned to showing live data
+and the record of what initiated the snapshot is cleared.
+
+NOTE:  This object is "Modeless" -- Operator and Program Commands
+are accepted at any time.  However, Program Reset will only be
+accepted if Program Snap is enabled.  Operator Reset (button on
+faceplate) is always available (enabled if snapped).]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Reset) OTU(PCmd_Reset) XIC(Cfg_UsePCmd) ,XIC(OCmd_Reset) OTU(OCmd_Reset) ,XIC(Inp_Reset) ,XIO(Inp_Hold) XIC(Cfg_UseInpHold) ]OTU(Wrk_SnapLatch)CLR(Val_SnapInit);]]>
+</Text>
+</Rung>
+<Rung Number="31" Type="N">
+<Comment>
+<![CDATA[Our internal Snapshot latch is copied out to a "Snapped" status.
+(Using the Wrk bit prevents logic or the HMI from writing to the Sts bit unintentionally.)]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_SnapLatch)OTE(Sts_Snapped);]]>
+</Text>
+</Rung>
+<Rung Number="32" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND READIES
+============================================================
+Snapshot Operator Command button is enabled if there is no snapshot
+currently, or Snap Over is allowed, AND Operator Snapshot is enabled in config.
+
+Operator Reset is enabled any time there's a snapshot.]]>
+</Comment>
+<Text>
+<![CDATA[[[XIO(Wrk_SnapLatch) ,XIC(Cfg_SnapOver) ] XIC(Cfg_UseOCmd) OTE(Rdy_Snap) ,XIC(Wrk_SnapLatch) OTE(Rdy_Reset) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Reset On-Delay and Off-Delay timers, clear snapshot timestamp and internal data, clear "lurking" commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+PRESCAN (POWERUP) HANDLING
+============================================================
+Clear all DINTs used as pointers / loop counters to ensure no
+"bad index/pointer" Major Fault on powerup.
+Clear the Snapshot Timestamp to indicate we haven't taken a snapshot yet.]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_M)CLR(Wrk_Mplus8)FLL(0,Val_SnapTS[0],7);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[Clear any "lurking" Commands so they don't trigger on first scan.]]>
+</Comment>
+<Text>
+<![CDATA[OTU(PCmd_Snap)OTU(OCmd_Snap)OTU(PCmd_Reset)OTU(OCmd_Reset);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_8"/>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+<WallClockTime Use="Reference">
+</WallClockTime>
+</Controller>
+</RSLogix5000Content>

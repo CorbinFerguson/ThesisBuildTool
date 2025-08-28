@@ -1,0 +1,1516 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--E+H EtherNet/IP Promass 100 (FW2.x)-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="I_EH_FlowmeterPromass100FW2" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T20:38:46.576Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 15:39:03 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Template_ProcessLib_3_1_01_all">
+<DataTypes Use="Context">
+<DataType Name="P_FaultTable" Family="NoFamily" Class="User">
+<Members>
+<Member Name="Code" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Fault Code Number]]>
+</Description>
+</Member>
+<Member Name="Desc" DataType="STRING_32" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Fault Code Description]]>
+</Description>
+</Member>
+</Members>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_32"/>
+</Dependencies>
+</DataType>
+<DataType Name="STRING_32" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="32" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="P_EUTable_EIP" Family="NoFamily" Class="User">
+<Members>
+<Member Name="Code" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="None">
+<Description>
+<![CDATA[Fault Code Number]]>
+</Description>
+</Member>
+<Member Name="Desc" DataType="STRING_16" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="None">
+<Description>
+<![CDATA[Fault Code Description]]>
+</Description>
+</Member>
+</Members>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="I_EH_FlowmeterPromass100FW2" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2007-11-05T22:18:22.070Z" CreatedBy="Not Available" EditedDate="2014-09-03T20:38:46.576Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[E+H EtherNet/IP Promass 100 (FW2.x)]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction manages an E+H Promass 100 Flowmeter
+with EtherNet/IP (with Firmware 2.x).  It:
+  * Allows clearing the three totalizers
+  * Makes available the Mass Flow, Mass Total, Volume Flow,
+     and Volume Total of the stream
+
+NOTE: This AOI is for use with meters with Version 2.x Firmware!
+There is a separate AOI for use with Version 1.x Firmware.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Input" TagType="Base" DataType="EH:Promass_100:I1:0" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[E+H Device Module Defined Input Data]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Output" TagType="Base" DataType="EH:Promass_100_R2:O1:0" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[E+H Device Module Defined Output Data]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Config" TagType="Base" DataType="EH:Promass_100_2:C:0" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[E+H Device Module Defined Configuration Data]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_EU" TagType="Base" DataType="P_EUTable_EIP" Dimensions="1" Usage="InOut" Required="true" Visible="true" Constant="false"/>
+<Parameter Name="Ref_SysCondition" TagType="Base" DataType="P_FaultTable" Dimensions="1" Usage="InOut" Required="true" Visible="true" Constant="false"/>
+<Parameter Name="Cfg_UserEUSel1" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel2" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel3" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_IOFault" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel4" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel5" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel6" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel7" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel8" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UserEUSel9" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Totalizer1_ZeroThresh" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 A0 40</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="5.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Totalizer2_ZeroThresh" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 A0 40</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="5.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Totalizer3_ZeroThresh" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 A0 40</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="5.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend1Max" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend1Min" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend2Max" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend2Min" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend3Max" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Trend3Min" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearTotalizer1" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Totalizer1]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearTotalizer2" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Totalizer2]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearTotalizer3" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Totalizer3]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_ClearTotalizer1" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Clear Totalizer1]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_ClearTotalizer2" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Clear Totalizer2]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_ClearTotalizer3" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Clear Totalizer3]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MassFlow" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUMassFlowCodeOut" TagType="Base" DataType="INT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_ActualSysConditionCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_VolumeFlow" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Density" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Fluid Density]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Temp" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Fluid Temperature]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CorDensity" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CorVolFlow" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Totalizer1" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Totalizer1 (Quantity)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Totalizer2" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Totalizer2 (Quantity)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Totalizer3" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Totalizer3 (Quantity)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_VolumeUnit" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TempUnit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_DensityUnit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MassFlowUnit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_VolumeFlowUnit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CorrVolFlowUnit" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_RefDensityUnit" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total1_AssignCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total1EU" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total2_AssignCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total2EU" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total3_AssignCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Total3EU" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUMassFlowCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUVolFlowCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUCorrVolFlowCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUDensityCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EURefDensityCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_EUTempCode" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="SrcQ_IO" TagType="Base" DataType="SINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Source and Quality of primary I/O (enumeration)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="SrcQ" TagType="Base" DataType="SINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Source and Quality of primary Val/Sts (enumeration)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_PVBad" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_PVUncertain" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_ClearTotalizer1" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for Cmd_ClearTotalizer1]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_ClearTotalizer2" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for Cmd_Totalalizer2]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_ClearTotalizer3" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready for Cmd_Totalizer3]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="I_Flowmeter" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Tot3UFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Tot3AssignFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Tot2UFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Tot2AssignFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Tot1UFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Tot1AssignFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SysConFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EUVolRateFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EUTempFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EURefDensityFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EUMassRateFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EUDensityFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EUCorrVolRateFSC" DataType="CONTROL" ExternalAccess="None">
+<DefaultData>00 00 00 00 01 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ClearTotalizer3" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Output to Clear Totalizer3 to Meter]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ClearTotalizer2" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Output to Clear Totalizer2 to Meter]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ClearTotalizer1" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Output to Clear Totalizer1 to Meter]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Total3_EU" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Total2_EU" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Total1_EU" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Tot3AssignDesc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Tot2AssignDesc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_Tot1AssignDesc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUVolFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUTot3Desc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUTot2Desc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUTot1Desc" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUTemp" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EURefDensity" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUMassFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevVolFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevTemp" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevRefDensity" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevMassFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevDensity" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDevCorrVolFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUDensity" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_EUCorrVolFlow" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_ActualSysCondition" DataType="STRING_32" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>0E 00 00 00 49 5F 45 48 5F 46 6C 6F 77 6D 65 74 
+65 72 00 00</DefaultData>
+<DefaultData Format="String" Length="14">
+<![CDATA['I_EH_Flowmeter']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Detail" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>05 00 00 00 52 41 2D 45 48 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="5">
+<![CDATA['RA-EH']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU9" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU8" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU7" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU6" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU5" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU4" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU3" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU2" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_UserEU1" DataType="STRING_16" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<DefaultData>0F 00 00 00 49 5F 45 48 5F 50 72 6F 6D 61 73 73 
+31 30 30 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="15">
+<![CDATA['I_EH_Promass100']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<DefaultData>0E 00 00 00 4D 61 73 73 20 46 6C 77 6F 6D 65 74 
+65 72 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="14">
+<![CDATA['Mass Flwometer']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_32" ExternalAccess="Read/Write">
+<DefaultData>1E 00 00 00 45 2B 48 20 50 72 6F 6D 61 73 73 20 
+31 30 30 20 4D 61 73 73 20 46 6C 6F 77 6D 65 74 
+65 72 00 00</DefaultData>
+<DefaultData Format="String" Length="30">
+<![CDATA['E+H Promass 100 Mass Flowmeter']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_HasDensity" DataType="BOOL" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[0 = Magnetic Flowmeter, 1 = Coriolis Mass Flowmeter (reports density, etc.)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpDINT" DataType="DINT" Radix="Hex" ExternalAccess="None">
+<Description>
+<![CDATA[Input REAL bit pattern as a DINT (check for Inf/NaN)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Hex" Value="16#0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SrcQ" DataType="SINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Register for building Source / Quality enumeration]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+I/O / INSTRUMENTATION -- E+H Promass 100 Magnetic Flowmeter
+on EtherNet/IP (with Firmware 2.x)
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V3.0-00  2013-10-30:  Updated to Library of Premier Integration Objects V3.0.
+V3.0-01  2014-01-22:  Backported to V18 of RSLogix 5000.
+V3.0-02  2014-02-28:  Corrected default value of Inf_Type (local string)
+V3.0-03  2014-04-04:  Add checking for Infinite / NaN on REAL input values.
+V3.1-00  2014-07-09:  Added SrcQ enumerations.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction manages a Promass 100 Flowmeter with EtherNet/IP.  It:
+* Allows clearing the three totalizers
+* Makes available the Mass Flow, Mass Total, Volume Flow,
+and Volume Total of the stream
+
+NOTE: This AOI is for use with meters with Version 2.x Firmware!
+There is a separate AOI for use with Version 1.x Firmware.
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag)LOWER(Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[==================================================================
+CLEAR TOTALIZERS 1-3
+==================================================================
+If a CLEAR TOT Command is received, send the Reset Totalizer command to the meter.
+When the Totalizer has been reset (< Zero Threshold), clear the meter command.
+
+CLEAR TOTALIZER 1
+
+This rung checks the bit pattern of the REAL input (by copying to a DINT) to see if
+the input is +Infinity, -Infinity or Not a Number.  Per ANSI 32-bit Float
+format, in these cases the Exponent bits (.30 thru .23) will all be 1s:
+0111 1111 1000 0000 0000 0000 0000 0000 = +Infinity
+1111 1111 1000 0000 0000 0000 0000 0000 = -Infinity
+x111 1111 1xxx xxxx xxxx xxxx xxxx xxxx = Not a Number
+
+#####  V3.0-03  2014-04-04:  Added checking for Infinite / NaN on REAL input values;  #####
+#####  pass through (avoiding Minor Faults) but flag as BAD  #####]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)OTL(Rdy_ClearTotalizer1)COP(Ref_Input.Process_variables_Totalizer1,Val_Totalizer1,1)COP(Ref_Input.Process_variables_Totalizer1,Wrk_InpDINT,1)MEQ(Wrk_InpDINT,16#7F80_0000,16#7F80_0000)JMP(SkipTot1Cmp);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Text>
+<![CDATA[LES(Val_Totalizer1,Cfg_Totalizer1_ZeroThresh)OTU(Rdy_ClearTotalizer1);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Text>
+<![CDATA[LBL(SkipTot1Cmp)XIO(Rdy_ClearTotalizer1)OTU(Wrk_ClearTotalizer1);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Text>
+<![CDATA[[XIC(OCmd_ClearTotalizer1) ,XIC(PCmd_ClearTotalizer1) ]OTU(OCmd_ClearTotalizer1)OTU(PCmd_ClearTotalizer1)OTL(Wrk_ClearTotalizer1);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Text>
+<![CDATA[XIC(Wrk_ClearTotalizer1)OTE(Ref_Output.Totalizer_Control_1_Activation)MOV(198,Ref_Output.Totalizer_1_Control);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Text>
+<![CDATA[XIO(Wrk_ClearTotalizer1)MOV(0,Ref_Output.Totalizer_1_Control);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[CLEAR TOTALIZER 2
+
+If a CLEAR TOT Command is received, send the Reset Totalizer command to the meter.
+When the Totalizer has been reset (< Zero Threshold), clear the meter command.
+
+#####  V3.0-03  2014-04-04:  Added checking for Infinite / NaN on REAL input values;  #####
+#####  pass through (avoiding Minor Faults) but flag as BAD  #####]]>
+</Comment>
+<Text>
+<![CDATA[OTL(Rdy_ClearTotalizer2)COP(Ref_Input.Process_variables_Totalizer2,Val_Totalizer2,1)COP(Ref_Input.Process_variables_Totalizer2,Wrk_InpDINT,1)MEQ(Wrk_InpDINT,16#7F80_0000,16#7F80_0000)JMP(SkipTot2Cmp);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Text>
+<![CDATA[LES(Val_Totalizer2,Cfg_Totalizer2_ZeroThresh)OTU(Rdy_ClearTotalizer2);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Text>
+<![CDATA[LBL(SkipTot2Cmp)XIO(Rdy_ClearTotalizer2)OTU(Wrk_ClearTotalizer2);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Text>
+<![CDATA[[XIC(OCmd_ClearTotalizer2) ,XIC(PCmd_ClearTotalizer2) ]OTU(OCmd_ClearTotalizer2)OTU(PCmd_ClearTotalizer2)OTL(Wrk_ClearTotalizer2);]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Text>
+<![CDATA[XIC(Wrk_ClearTotalizer2)OTE(Ref_Output.Totalizer_Control_2_Activation)MOV(198,Ref_Output.Totalizer_2_Control);]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Text>
+<![CDATA[XIO(Wrk_ClearTotalizer2)MOV(0,Ref_Output.Totalizer_2_Control);]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[CLEAR TOTALIZER 3
+
+If a CLEAR TOT Command is received, send the Reset Totalizer command to the meter.
+When the Totalizer has been reset (< Zero Threshold), clear the meter command.
+
+#####  V3.0-03  2014-04-04:  Added checking for Infinite / NaN on REAL input values;  #####
+#####  pass through (avoiding Minor Faults) but flag as BAD  #####]]>
+</Comment>
+<Text>
+<![CDATA[OTL(Rdy_ClearTotalizer3)COP(Ref_Input.Process_variables_Totalizer3,Val_Totalizer3,1)COP(Ref_Input.Process_variables_Totalizer3,Wrk_InpDINT,1)MEQ(Wrk_InpDINT,16#7F80_0000,16#7F80_0000)JMP(SkipTot3Cmp);]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Text>
+<![CDATA[LES(Val_Totalizer3,Cfg_Totalizer3_ZeroThresh)OTU(Rdy_ClearTotalizer3);]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Text>
+<![CDATA[LBL(SkipTot3Cmp)XIO(Rdy_ClearTotalizer3)OTU(Wrk_ClearTotalizer3);]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Text>
+<![CDATA[[XIC(OCmd_ClearTotalizer3) ,XIC(PCmd_ClearTotalizer3) ]OTU(OCmd_ClearTotalizer3)OTU(PCmd_ClearTotalizer3)OTL(Wrk_ClearTotalizer3);]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Text>
+<![CDATA[XIC(Wrk_ClearTotalizer3)OTE(Ref_Output.Totalizer_Control_3_Activation)MOV(198,Ref_Output.Totalizer_3_Control);]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Text>
+<![CDATA[XIO(Wrk_ClearTotalizer3)MOV(0,Ref_Output.Totalizer_3_Control);]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Comment>
+<![CDATA[====================================================================================
+PROCESS VALUES
+====================================================================================
+
+This rung reports the current values for MASS FLOW, VOLUME FLOW and CORRECTED VOLUME FLOW.
+
+#####  V3.0-03  2014-04-04:  Added checking for Infinite / NaN on REAL input values;  #####
+#####  pass through (avoiding Minor Faults) but flag as BAD  #####]]>
+</Comment>
+<Text>
+<![CDATA[COP(Ref_Input.Process_variables_Mass_Flow,Val_MassFlow,1)COP(Ref_Input.Process_variables_Volume_Flow,Val_VolumeFlow,1)COP(Ref_Input.Process_variables_Corrected_Volume_Flow,Val_CorVolFlow,1);]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Comment>
+<![CDATA[This rung reports the current values for  DENSITY, CORRECTED DENSITY and TEMPERATURE.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Ref_Input.Process_variables_Density,Val_Density,1)COP(Ref_Input.Process_variables_Reference_Density,Val_CorDensity,1)COP(Ref_Input.Process_variables_Temperature,Val_Temp,1);]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[
+====================================================================================
+PROCESS VALUE UNIT CODES
+====================================================================================
+
+
+This rung reports the current unit code for MASS FLOW.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitMassFlow,Val_MassFlowUnit);]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[This rung reports the current unit code for VOLUME FLOW.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitVolumeFlow,Val_VolumeFlowUnit);]]>
+</Text>
+</Rung>
+<Rung Number="23" Type="N">
+<Comment>
+<![CDATA[This rung reports the current unit code for CORRECTED VOLUME FLOW.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitCorrVolumeFlow,Val_CorrVolFlowUnit);]]>
+</Text>
+</Rung>
+<Rung Number="24" Type="N">
+<Comment>
+<![CDATA[This rung reports the current unit code for DENSITY.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitDensity,Val_DensityUnit);]]>
+</Text>
+</Rung>
+<Rung Number="25" Type="N">
+<Comment>
+<![CDATA[This rung reports the current unit code for REFERENCE DENSITY.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitRefDensity,Val_RefDensityUnit);]]>
+</Text>
+</Rung>
+<Rung Number="26" Type="N">
+<Comment>
+<![CDATA[This rung reports the current unit code for TEMPERATURE.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Config.SystemUnitTemperature,Val_TempUnit);]]>
+</Text>
+</Rung>
+<Rung Number="27" Type="N">
+<Comment>
+<![CDATA[==============================================================
+Device System Condition and Connection Loss
+=============================================================
+Use System Condition from Instrument when Connection Status is Good]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Ref_Input.Status_Actual_diagnostics,Val_ActualSysConditionCode);]]>
+</Text>
+</Rung>
+<Rung Number="28" Type="N">
+<Text>
+<![CDATA[[XIC(Ref_Input.Connection_Fault) ,XIC(Inp_IOFault) ]OTE(Sts_PVBad);]]>
+</Text>
+</Rung>
+<Rung Number="29" Type="N">
+<Text>
+<![CDATA[GEQ(Val_ActualSysConditionCode,2)OTE(Sts_PVUncertain);]]>
+</Text>
+</Rung>
+<Rung Number="30" Type="N">
+<Comment>
+<![CDATA[
+====================================================================================
+PROCESS VALUE UNIT DESCRIPTIONS
+====================================================================================
+
+Mass Flow Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EUMassRateFSC.LEN) ,RES(Wrk_EUMassRateFSC) FSC(Wrk_EUMassRateFSC,?,?,ALL,Ref_EU[Wrk_EUMassRateFSC.POS].Code=Ref_Config.SystemUnitMassFlow) ,XIC(Wrk_EUMassRateFSC.FD) [COP(Ref_EU[Wrk_EUMassRateFSC.POS].Desc,Val_EUDevMassFlow,1) ,COP(Ref_Config.SystemUnitMassFlow,Val_EUMassFlowCodeOut,1) ,XIO(Cfg_UserEUSel1) COP(Val_EUDevMassFlow,Val_EUMassFlow,1) ] ,XIC(Cfg_UserEUSel1) COP(Cfg_UserEU1,Val_EUMassFlow,1) ,MOV(Ref_Config.SystemUnitMassFlow,Val_EUMassFlowCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="31" Type="N">
+<Comment>
+<![CDATA[Volume Flow Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EUVolRateFSC.LEN) ,RES(Wrk_EUVolRateFSC) FSC(Wrk_EUVolRateFSC,?,?,ALL,Ref_EU[Wrk_EUVolRateFSC.POS].Code=Ref_Config.SystemUnitVolume) ,XIC(Wrk_EUVolRateFSC.FD) [COP(Ref_EU[Wrk_EUVolRateFSC.POS].Desc,Val_EUDevVolFlow,1) ,XIO(Cfg_UserEUSel2) COP(Val_EUDevVolFlow,Val_EUVolFlow,1) ] ,XIC(Cfg_UserEUSel2) COP(Cfg_UserEU2,Val_EUVolFlow,1) ,MOV(Ref_Config.SystemUnitVolumeFlow,Val_EUVolFlowCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="32" Type="N">
+<Comment>
+<![CDATA[Corrected Volume Flow Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EUCorrVolRateFSC.LEN) ,RES(Wrk_EUCorrVolRateFSC) FSC(Wrk_EUCorrVolRateFSC,?,?,ALL,Ref_EU[Wrk_EUCorrVolRateFSC.POS].Code=Ref_Config.SystemUnitCorrVolumeFlow) ,XIC(Wrk_EUCorrVolRateFSC.FD) [COP(Ref_EU[Wrk_EUCorrVolRateFSC.POS].Desc,Val_EUDevCorrVolFlow,1) ,XIO(Cfg_UserEUSel3) COP(Val_EUDevCorrVolFlow,Val_EUCorrVolFlow,1) ] ,XIC(Cfg_UserEUSel3) COP(Cfg_UserEU3,Val_EUCorrVolFlow,1) ,MOV(Ref_Config.SystemUnitCorrVolumeFlow,Val_EUCorrVolFlowCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="33" Type="N">
+<Comment>
+<![CDATA[Density Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EUDensityFSC.LEN) ,RES(Wrk_EUDensityFSC) FSC(Wrk_EUDensityFSC,?,?,ALL,Ref_EU[Wrk_EUDensityFSC.POS].Code=Ref_Config.SystemUnitDensity) ,XIC(Wrk_EUDensityFSC.FD) [COP(Ref_EU[Wrk_EUDensityFSC.POS].Desc,Val_EUDevDensity,1) ,XIO(Cfg_UserEUSel4) COP(Val_EUDevDensity,Val_EUDensity,1) ] ,XIC(Cfg_UserEUSel4) COP(Cfg_UserEU4,Val_EUDensity,1) ,MOV(Ref_Config.SystemUnitDensity,Val_EUDensityCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="34" Type="N">
+<Comment>
+<![CDATA[Reference Density Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EURefDensityFSC.LEN) ,RES(Wrk_EURefDensityFSC) FSC(Wrk_EURefDensityFSC,?,?,ALL,Ref_EU[Wrk_EURefDensityFSC.POS].Code=Ref_Config.SystemUnitRefDensity) ,XIC(Wrk_EURefDensityFSC.FD) [COP(Ref_EU[Wrk_EURefDensityFSC.POS].Desc,Val_EUDevRefDensity,1) ,XIO(Cfg_UserEUSel5) COP(Val_EUDevRefDensity,Val_EURefDensity,1) ] ,XIC(Cfg_UserEUSel5) COP(Cfg_UserEU5,Val_EURefDensity,1) ,MOV(Ref_Config.SystemUnitRefDensity,Val_EURefDensityCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="35" Type="N">
+<Comment>
+<![CDATA[Temperature Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_EUTempFSC.LEN) ,RES(Wrk_EUTempFSC) FSC(Wrk_EUTempFSC,?,?,ALL,Ref_EU[Wrk_EUTempFSC.POS].Code=Ref_Config.SystemUnitTemperature) ,XIC(Wrk_EUTempFSC.FD) [COP(Ref_EU[Wrk_EUTempFSC.POS].Desc,Val_EUDevTemp,1) ,XIO(Cfg_UserEUSel6) COP(Val_EUDevTemp,Val_EUTemp,1) ] ,XIC(Cfg_UserEUSel6) COP(Cfg_UserEU6,Val_EUTemp,1) ,MOV(Ref_Config.SystemUnitTemperature,Val_EUTempCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="36" Type="N">
+<Comment>
+<![CDATA[Totalizer 1 Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot1AssignFSC.LEN) ,RES(Wrk_Tot1AssignFSC) FSC(Wrk_Tot1AssignFSC,?,?,ALL,Ref_EU[Wrk_Tot1AssignFSC.POS].Code=Ref_Config.Totalizer1_Assign) ,XIC(Wrk_Tot1AssignFSC.FD) COP(Ref_EU[Wrk_Tot1AssignFSC.POS].Desc,Val_Tot1AssignDesc,1) ,MOV(Ref_Config.Totalizer1_Assign,Val_Total1_AssignCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="37" Type="N">
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot1UFSC.LEN) ,RES(Wrk_Tot1UFSC) FSC(Wrk_Tot1UFSC,?,?,ALL,Ref_EU[Wrk_Tot1UFSC.POS].Code=Ref_Config.Totalizer1_Unit) ,XIC(Wrk_Tot1UFSC.FD) COP(Ref_EU[Wrk_Tot1UFSC.POS].Desc,Val_EUTot1Desc,1) ];]]>
+</Text>
+</Rung>
+<Rung Number="38" Type="N">
+<Comment>
+<![CDATA[Totalizer 2 Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot2AssignFSC.LEN) ,RES(Wrk_Tot2AssignFSC) FSC(Wrk_Tot2AssignFSC,?,?,ALL,Ref_EU[Wrk_Tot2AssignFSC.POS].Code=Ref_Config.Totalizer2_Assign) ,XIC(Wrk_Tot2AssignFSC.FD) COP(Ref_EU[Wrk_Tot2AssignFSC.POS].Desc,Val_Tot2AssignDesc,1) ,MOV(Ref_Config.Totalizer2_Assign,Val_Total2_AssignCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="39" Type="N">
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot2UFSC.LEN) ,RES(Wrk_Tot2UFSC) FSC(Wrk_Tot2UFSC,?,?,ALL,Ref_EU[Wrk_Tot2UFSC.POS].Code=Ref_Config.Totalizer2_Unit) ,XIC(Wrk_Tot2UFSC.FD) COP(Ref_EU[Wrk_Tot2UFSC.POS].Desc,Val_EUTot2Desc,1) ];]]>
+</Text>
+</Rung>
+<Rung Number="40" Type="N">
+<Comment>
+<![CDATA[Totalizer 3 Units]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot3AssignFSC.LEN) ,RES(Wrk_Tot3AssignFSC) FSC(Wrk_Tot3AssignFSC,?,?,ALL,Ref_EU[Wrk_Tot3AssignFSC.POS].Code=Ref_Config.Totalizer3_Assign) ,XIC(Wrk_Tot3AssignFSC.FD) COP(Ref_EU[Wrk_Tot3AssignFSC.POS].Desc,Val_Tot3AssignDesc,1) ,MOV(Ref_Config.Totalizer3_Assign,Val_Total3_AssignCode) ];]]>
+</Text>
+</Rung>
+<Rung Number="41" Type="N">
+<Text>
+<![CDATA[[SIZE(Ref_EU,0,Wrk_Tot3UFSC.LEN) ,RES(Wrk_Tot3UFSC) FSC(Wrk_Tot3UFSC,?,?,ALL,Ref_EU[Wrk_Tot3UFSC.POS].Code=Ref_Config.Totalizer3_Unit) ,XIC(Wrk_Tot3UFSC.FD) COP(Ref_EU[Wrk_Tot3UFSC.POS].Desc,Val_EUTot3Desc,1) ];]]>
+</Text>
+</Rung>
+<Rung Number="42" Type="N">
+<Comment>
+<![CDATA[System Conditions]]>
+</Comment>
+<Text>
+<![CDATA[[SIZE(Ref_SysCondition,0,Wrk_SysConFSC.LEN) ,RES(Wrk_SysConFSC) FSC(Wrk_SysConFSC,?,?,ALL,Ref_SysCondition[Wrk_SysConFSC.POS].Code=Ref_Input.Status_Actual_diagnostics) ,COP(Ref_Input.Status_Actual_diagnostics,Val_ActualSysConditionCode,1) ,XIC(Wrk_SysConFSC.FD) COP(Ref_SysCondition[Wrk_SysConFSC.POS].Desc,Val_ActualSysCondition,1) ];]]>
+</Text>
+</Rung>
+<Rung Number="43" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENUMERATED SOURCE / QUALITY VALUES
+============================================================
+Source and Quality for Input / Output values / status (SrcQ_IO)
+
+0 = Good: live, confirmed good;   1 = Good: live, assumed good;
+2 = Good: no feedback, assumed good;   8 = Test: Simulated;   9 = Test: Loopback;
+10 = Test: Manually Entered;   16 = Uncertain: Live, off-spec;
+17 = Uncertain, Substituted at Device / Bus;   18 = Uncertain, Substituted at AOI;
+19 = Uncertain, using last known good;    20 = Uncertain, using replacement value;
+32 = Bad, Signal Failure;   33 = Bad, Channel Fault;
+34 = Bad, Module / Comms Fault;   35 = Bad, Invalid Configuration
+#####  V3.1-00  2014-07-09: Added SrcQ enumerations.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[CLR(Wrk_SrcQ) ,XIC(Sts_PVUncertain) MOV(16,Wrk_SrcQ) ,XIC(Sts_PVBad) MOV(34,Wrk_SrcQ) ,MOV(Wrk_SrcQ,SrcQ_IO) ];]]>
+</Text>
+</Rung>
+<Rung Number="44" Type="N">
+<Comment>
+<![CDATA[Source and Quality for primary values / status (SrcQ)
+
+0 = Good: live, confirmed good;   1 = Good: live, assumed good;
+2 = Good: no feedback, assumed good;   8 = Test: Simulated;   9 = Test: Loopback;
+10 = Test: Manually Entered;   16 = Uncertain: Live, off-spec;
+17 = Uncertain, Substituted at Device / Bus;   18 = Uncertain, Substituted at AOI;
+19 = Uncertain, using last known good;    20 = Uncertain, using replacement value;
+32 = Bad, Signal Failure;   33 = Bad, Channel Fault;
+34 = Bad, Module / Comms Fault;   35 = Bad, Invalid Configuration
+#####  V3.1-00  2014-07-09: Added SrcQ enumerations.  #####]]>
+</Comment>
+<Text>
+<![CDATA[MOV(SrcQ_IO,SrcQ);]]>
+</Text>
+</Rung>
+<Rung Number="45" Type="N">
+<Text>
+<![CDATA[OTL(Inf_HasDensity);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_32"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="P_EUTable_EIP"/>
+<Dependency Type="DataType" Name="P_FaultTable"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

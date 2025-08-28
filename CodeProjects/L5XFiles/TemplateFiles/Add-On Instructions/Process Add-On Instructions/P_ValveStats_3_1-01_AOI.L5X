@@ -1,0 +1,1776 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--2-State Valve Statistics-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_ValveStats" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:43:22.182Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:43:31 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_ValveStats" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2009-09-18T14:39:01.484Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:43:22.182Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[2-State Valve Statistics]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction monitors the "Closed" and "Opened" Status of a 2-state valve
+device (and, optionally, a "Stopped" or other status), and provides:
+     TIME STATISTICS:
+* Current time traveling Open (current opening)
+* Stroke time for last successful Open stroke (last opening)
+* Total time traveling Open (total opening)
+* Maximum time travelling Open (maximum opening)
+* Moving average of last 10 successrul Open stroke times
+* Current time traveling Closed (current closing)
+* Stroke time for last successful Close stroke (last closing)
+* Total time traveling Closed (total closing)
+* Maximum time travelling Closed (maximum closing)
+* Moving average of last 10 successrul Close stroke times
+* Current time in Open position (current opened)
+* Previous time in Open position (last opened)
+* Total time in Open position (total opened)
+* Maximum time in Open position (maximum opened)
+* Current time in Closed position (current closed)
+* Previous time in Closed position (last closed)
+* Total time in Closed position (total closed)
+* Maximum time in Closed position (maximum closed)
+      and, if option enabled
+* Current time in Stopped / Other position (current stopped)
+* Previous time in Stopped / Other position (last stopped)
+* Total time in Stopped / Other position (total stopped)
+* Maximum time in Stopped / Other position (maximum stopped)
+     COUNT STATISTICS:
+* Count of complete Open strokes (from Closed to Opened)
+* Count of complete Close strokes (from Opened to Closed)
+* Count of incomplete Open strokes (from Closed to Moving back to Closed)
+* Count of incomplete Close strokes (from Opened to Moving back to Opened)
+* Count of Slow Opens (time to open greater than configured threshold)
+* Count of Slow Closes (time to close greater than configured threshold)
+     and, if option enabled
+* Count of times in Stopped / Other position
+     COMMANDS TO:
+* Clear the Total Times
+* Clear the Maximum Times
+* Clear the Stroke Counts
+* Clear the Valve Slow Counts]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Closed" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Valve is confirmed Closed (from valve instruction)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Opened" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Valve is confirmed Opened (from valve instruction)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_StopOther" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Valve is confirmed Stopped / Other (from valve instruction)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasStopOther" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Valve has Stopped or other state(s) to be monitored]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_PCmdClear" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Clear Program Commands on receipt 0=Leave Set]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_SlowOpenT" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maximum Time Opening (sec) before raising Sts_SlowOpen]]>
+</Description>
+<DefaultData>00 00 20 41</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="10.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_SlowCloseT" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maximum Time Closing (sec) before raising Sts_SlowClose]]>
+</Description>
+<DefaultData>00 00 20 41</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="10.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearTotTimes" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Total Time statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearMaxTimes" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Maximum Time statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearStrokeCounts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Stroke Count statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearSlowCounts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Valve Slow Count statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearMAvgs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Moving Average Stroke Times]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearTotTimes" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Total Time statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearMaxTimes" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Maximum Time statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearStrokeCounts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Stroke Count statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearSlowCounts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Cmmand to Clear Valve Slow Count statistics]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearMAvgs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Moving Average Stroke Times]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurrClosedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current time in Closed state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_LastClosedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Time in Closed state (sec) last time valve was closed]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotClosedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Accumulated time in Closed state (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxClosedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum time in Closed state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurrOpeningT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current time in Opening state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_LastOpeningT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Time in Opening state (sec) last time valve was opening]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotOpeningT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Accumulated time in Opening state (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxOpeningT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum time in Opening state (sec) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MAvgOpeningT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Moving average Open stroke time, last 10 complete open strokes (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurrOpenedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current time in Opened state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_LastOpenedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Time in Opened state (sec) last time valve was opened]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotOpenedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Accumulated time in Opened state (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxOpenedT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum time in Opened state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurrClosingT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current time in Closing state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_LastClosingT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Time in Closing state (sec) last time valve was closing]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotClosingT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Accumulated time in Closing state (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxClosingT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum time in Closing state (sec) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MAvgClosingT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Moving average Clsoe stroke time, last 10 complete close strokes (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurrStopOtherT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current time in Stopped / Other state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_LastStopOtherT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Time in Stopped / Other state (sec) last time valve was stopped (or other)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotStopOtherT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Accumulated time in Stopped / Other state (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxStopOtherT" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum time in Stopped / Other state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CpltOpenC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of complete valve Open strokes (Closed to Opened)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CpltCloseC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of complete valve Close strokes (Opened to Closed)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_IncpltOpenC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of incomplete valve Open strokes (Closed - Moving - Closed)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_IncpltCloseC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of incomplete valve Close strokes (Opened - Moving - Opened)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_StopOtherC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of valve Stopped / Other occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_SlowOpenC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of valve Slow to Open occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_SlowCloseC" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Count of valve Slow to Close occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_SlowOpen" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Last Closed to Opened stroke exceeded configured time threshold]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_SlowClose" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Last Opened to Closed stroke exceeded configured time threshold]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Configuration Error: invalid Slow Open Time or Slow Close Time]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_ValveStats" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_State" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Current valve state 1=closed, 2=opening, 3=opened, 4=closing, 5=stopped / other]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OpeningT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Time in Opening state]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ClosingT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Time in Closing state]]>
+</Description>
+<DefaultData>FF FF FF 1F FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ClosedT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Time in Closed state]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OpenedT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Time in Opened state]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CpltCloseC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Count of complete valve Close strokes (Opened to Closed)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CpltOpenC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Count of complete valve Open strokes (Closed to Opened)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_IncpltCloseC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Count of incomplete valve Close strokes (Opened - Moving - Opened)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_IncpltOpenC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Count of incomplete valve Open strokes (Closed - Moving - Closed)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotClosedTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of accumulated Closed time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotClosingTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of accumulated Closing time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotOpenedTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of accumulated Opened time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotOpeningTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of accumulated Opening time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxClosedT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Maximum time in Closed state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxOpenedT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Maximum time in Opened state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxStopOtherT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Maximum time in Stopped / Other state (hours) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotStopOtherTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of accumulated Stopped / Other time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_StopOtherT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Time in Stopped / Other state]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotClosingT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Total time in Closing state (accumulates 0.1 hr)]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotOpenedT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Total time in Opened state (accumulates 0.1 hr)]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotOpeningT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Total time in Opening state (accumulates 0.1 hr)]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotClosedT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Total time in Closed state (accumulates 0.1 hr)]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotStopOtherT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Total time in Stopped/Other state (accumulates 0.1 hr)]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CurrStopOtherTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of currently in Stopped / Other state]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CurrOpenedTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of currently in Opened state]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CurrClosedTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of currently in Closed state]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastOpenedT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Previous time in Opened state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastClosedT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Previous time in Closed state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastOpeningT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Previous time in Opening state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastClosingT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Previous time in Closing state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LastStopotherT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Previous time in Stopped / Other state (sec)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_StopOtherC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Count of valve Stopped / Other occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowOpenC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number of Slow Open (Opening Time > Slow Open Time) Occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowOpenONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Valve Slow to Open: One-Shot for count]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxOpeningT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Maximum time in Opening state (sec) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxClosingT" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Maximum time in Closing state (sec) of any occurrence]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowCloseC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number of Slow Close (Closing Time > Slow Close Time) Occurrences]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowCloseONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Valve Slow to Close: One-Shot for count]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_StopOtherDesc" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Descriptive text for Stopped / Other State]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgCloseONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Close Stroke Time moving average store / calc one-shot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgOpenONS" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Open Stroke Time moving average store / calc one-shot]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgCloseSamp" DataType="REAL" Dimensions="10" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Close Stroke Time samples for moving average]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="10" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+<Element Index="[4]" Value="0.0"/>
+<Element Index="[5]" Value="0.0"/>
+<Element Index="[6]" Value="0.0"/>
+<Element Index="[7]" Value="0.0"/>
+<Element Index="[8]" Value="0.0"/>
+<Element Index="[9]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgOpenSamp" DataType="REAL" Dimensions="10" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Open Stroke Time samples for moving average]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="10" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+<Element Index="[4]" Value="0.0"/>
+<Element Index="[5]" Value="0.0"/>
+<Element Index="[6]" Value="0.0"/>
+<Element Index="[7]" Value="0.0"/>
+<Element Index="[8]" Value="0.0"/>
+<Element Index="[9]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgCloseC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number of Close stroke time samples in moving avg. array]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgOpenC" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Number of Open stroke time samples in moving avg. array]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgAveClose" DataType="CONTROL" ExternalAccess="None">
+<Description>
+<![CDATA[Control for AVE instruction: Close Stroke Time MAvg.]]>
+</Description>
+<DefaultData>00 00 00 00 0A 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="10"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MAvgAveOpen" DataType="CONTROL" ExternalAccess="None">
+<Description>
+<![CDATA[Control for AVE instruction: Open Stroke Time MAvg.]]>
+</Description>
+<DefaultData>00 00 00 00 0A 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="10"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>0C 00 00 00 50 5F 56 61 6C 76 65 53 74 61 74 73 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="12">
+<![CDATA['P_ValveStats']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>10 00 00 00 56 61 6C 76 65 20 53 74 61 74 69 73 
+74 69 63 73 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="16">
+<![CDATA['Valve Statistics']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>0C 00 00 00 50 5F 56 61 6C 76 65 53 74 61 74 73 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="12">
+<![CDATA['P_ValveStats']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>27 00 00 00 56 61 6C 76 65 20 53 74 61 74 69 73 
+74 69 63 73 20 28 73 74 72 6F 6B 65 20 74 69 6D 
+65 73 2C 20 63 6F 75 6E 74 73 29 00</DefaultData>
+<DefaultData Format="String" Length="39">
+<![CDATA['Valve Statistics (stroke times, counts)']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowCloseSts" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Buffered Slow Close Status bit]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SlowOpenSts" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Buffered Slow Open Status bit]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[Stop timers; exit current valve state and treat valve state as "disabled"; clear any "lurking" commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE HANDLING
+============================================================
+If thsi instruction is on a false rung, or if EnableIn is false in FBD,
+Total times, stroke counts and slow counts are maintained, but Current times are cleared.
+The internal state is set to "Unknown".
+
+Clear any "lurking" Commands.]]>
+</Comment>
+<Text>
+<![CDATA[[OTU(PCmd_ClearTotTimes) OTU(PCmd_ClearMaxTimes) OTU(PCmd_ClearStrokeCounts) OTU(PCmd_ClearSlowCounts) ,OTU(MCmd_ClearTotTimes) OTU(MCmd_ClearMaxTimes) OTU(MCmd_ClearStrokeCounts) OTU(MCmd_ClearSlowCounts) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[The next five rungs cause the current state (whichever it is) to be exited.
+This copies the previous state's "current" time to its "last" time
+and resets the "current" time (and accumulated 10ths of hours, if applicable).]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,1)[RES(Wrk_ClosedT) ,MOV(Val_CurrClosedT,Wrk_LastClosedT) ,CLR(Wrk_CurrClosedTenths) ,CLR(Val_CurrClosedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Text>
+<![CDATA[EQU(Wrk_State,2)[RES(Wrk_OpeningT) ,MOV(Val_CurrOpeningT,Wrk_LastOpeningT) ,CLR(Val_CurrOpeningT) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Text>
+<![CDATA[EQU(Wrk_State,3)[RES(Wrk_OpenedT) ,MOV(Val_CurrOpenedT,Wrk_LastOpenedT) ,CLR(Wrk_CurrOpenedTenths) ,CLR(Val_CurrOpenedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Text>
+<![CDATA[EQU(Wrk_State,4)[RES(Wrk_ClosingT) ,MOV(Val_CurrClosingT,Wrk_LastClosingT) ,CLR(Val_CurrClosingT) ];]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Text>
+<![CDATA[EQU(Wrk_State,5)[RES(Wrk_StopOtherT) ,MOV(Val_CurrStopOtherT,Wrk_LastStopotherT) ,CLR(Wrk_CurrStopOtherTenths) ,CLR(Val_CurrStopOtherT) ];]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[The internal state is set to "unknown" (disabled).
+When normal execution (Logic routine) is resumed, when an input shows the valve
+in a known condition, a transition to the corresponding state will occur.]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_State);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[This rung scans all the retentive timers FALSE to stop them.
+
+NOTE the NEQ of Wrk_State, which was cleared on the rung above.
+THIS RUNG IS ALWAYS FALSE AND MUST BE SCANNED THAT WAY FOR PROPER OPERATION.]]>
+</Comment>
+<Text>
+<![CDATA[NEQ(Wrk_State,0)[RTO(Wrk_ClosedT,?,?) RTO(Wrk_TotClosedT,?,?) ,RTO(Wrk_OpeningT,?,?) RTO(Wrk_TotOpeningT,?,?) ,RTO(Wrk_OpenedT,?,?) RTO(Wrk_TotOpenedT,?,?) ,RTO(Wrk_ClosingT,?,?) RTO(Wrk_TotClosingT,?,?) ,RTO(Wrk_StopOtherT,?,?) RTO(Wrk_TotStopOtherT,?,?) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Accumulate Valve open/close stroke count and time statistics]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_ValveStats:  PROCESS -- 2-STATE VALVE STATISTICS
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Inf_Lib.
+V3.1-00  2014-06-30:  Unmodified for Library of Process Objects 3.1, up-rev only.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction monitors the "Closed" and "Opened" Status of a 2-state valve
+device (and, optionally, a "Stopped" or other status), and provides:
+TIMES:
+* Current time traveling Open (current opening)
+* Stroke time for last successful Open stroke (last opening)
+* Total time traveling Open (total opening)
+* Maximum time travelling Open (maximum opening)
+* Moving average Open Stroke time (last 10 successful strokes)
+* Current time traveling Closed (current closing)
+* Stroke time for last successful Close stroke (last closing)
+* Total time traveling Closed (total closing)
+* Maximum time travelling Closed (maximum closing)
+* Moving average Close Stroke time (last 10 successful strokes)
+* Current time in Open position (current opened)
+* Previous time in Open position (last opened)
+* Total time in Open position (total opened)
+* Maximum time in Open position (maximum opened)
+* Current time in Closed position (current closed)
+* Previous time in Closed position (last closed)
+* Total time in Closed position (total closed)
+* Maximum time in Closed position (maximum closed)
+and, if option enabled
+* Current time in Stopped / Other position (current stopped)
+* Previous time in Stopped / Other position (last stopped)
+* Total time in Stopped / Other position (total stopped)
+* Maximum time in Stopped / Other position (maximum stopped)
+COUNTS:
+* Count of complete Open strokes (from Closed to Opened)
+* Count of complete Close strokes (from Opened to Closed)
+* Count of incomplete Open strokes (from Closed to Moving back to Closed)
+* Count of incomplete Close strokes (from Opened to Moving back to Opened)
+* Count of Slow Opens (time to open greater than configured threshold)
+* Count of Slow Closes (time to close greater than configured threshold)
+and, if option enabled
+* Count of times in Stopped / Other position
+RESETS:
+* Commands to allow clearing of the Total Times, clearing of the Maximum Times,
+clearing of the Stroke Counts and clearing of the Slow Counts
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag)CONCAT(Cfg_StopOtherDesc,Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND PROCESSING
+============================================================
+These rungs handle received Commands.  This object has no Modes and
+Commands are accepted regardless of Mode.  Commands should be
+restriceted to authorized personnel (typically at a maintenance level).
+
+PCmd_ClearTotTimes: Program Command to Clear various Total Time statistics
+MCmd_ClearTotTimes: Maintenance Command to Clear various Total Time statistics]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)[XIC(PCmd_ClearTotTimes) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearTotTimes) ,NOP() ] ,XIC(MCmd_ClearTotTimes) OTU(MCmd_ClearTotTimes) ][RES(Wrk_TotClosedT) CLR(Wrk_TotClosedTenths) RES(Wrk_TotClosingT) CLR(Wrk_TotClosingTenths) ,RES(Wrk_TotOpenedT) CLR(Wrk_TotOpenedTenths) RES(Wrk_TotOpeningT) CLR(Wrk_TotOpeningTenths) ,RES(Wrk_TotStopOtherT) CLR(Wrk_TotStopOtherTenths) ];]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearMaxTimes: Program Command to Clear various Maximum Time statistics
+MCmd_ClearMaxTimes: Maintenance Command to Clear various Maximum Time statistics]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearMaxTimes) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearMaxTimes) ,NOP() ] ,XIC(MCmd_ClearMaxTimes) OTU(MCmd_ClearMaxTimes) ][CLR(Wrk_MaxClosedT) CLR(Wrk_MaxOpeningT) ,CLR(Wrk_MaxOpenedT) CLR(Wrk_MaxClosingT) ,CLR(Wrk_MaxStopOtherT) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearMAvgs: Program Command to Clear the Moving Averages for Open and Close stroke times
+MCmd_ClearMAvgs: Maintenance Command to Clear the Moving Averages for Open and Close stroke times]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearMAvgs) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearMAvgs) ,NOP() ] ,XIC(MCmd_ClearMAvgs) OTU(MCmd_ClearMAvgs) ]CLR(Wrk_MAvgOpenC)CLR(Wrk_MAvgCloseC);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearStrokeCounts: Program Command to Clear Count of Open and Close Strokes (complete and incomplete)
+MCmd_ClearStrokeCounts: Maintenance Command to Clear Count Open and Close Strokes]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearStrokeCounts) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearStrokeCounts) ,NOP() ] ,XIC(MCmd_ClearStrokeCounts) OTU(MCmd_ClearStrokeCounts) ][CLR(Wrk_CpltCloseC) ,CLR(Wrk_CpltOpenC) ,CLR(Wrk_IncpltCloseC) ,CLR(Wrk_IncpltOpenC) ];]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearSlowCounts: Program Command to Clear Valve Slow Open and Slow Close Counts
+MCmd_ClearStrokeCounts: Maintenance Command to Clear Valve Slow Open and Slow Close Counts]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearSlowCounts) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearSlowCounts) ,NOP() ] ,XIC(MCmd_ClearSlowCounts) OTU(MCmd_ClearSlowCounts) ][CLR(Wrk_SlowOpenC) ,CLR(Wrk_SlowCloseC) ];]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[============================================================
+CONFIGURATION
+============================================================
+This rung checks the Slow Open Time and Slow Close Time Configuration values.
+If either is negative or larger than (max time accumulator time minus one second),
+show that there is an Invalid Configuration (faceplate breadcrumb: magenta "X").]]>
+</Comment>
+<Text>
+<![CDATA[[LIM(2147482.0,Cfg_SlowOpenT,-1.40129846E-45) ,LIM(2147482.0,Cfg_SlowCloseT,-1.40129846E-45) ]OTE(Sts_Err);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[============================================================
+ACCUMULATE TIMES BASED ON VALVE STATE
+============================================================
+The rungs that follow accumulate Time Currently In State and Total Time in State
+for each of the valve's various states and check if the current time is larger
+than the recorded maximum (recording a new maximum if so).
+
+The Total times and the sustained state (Closed, Opened, Stopped) 
+Current times use a "10ths of hours" accumulator to allow a total
+time larger than a timer accumulator will allow (about 24 days).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CLOSED State Timers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Record the Current and Total time the valve is Closed,
+and the maximum time ever spent in the Closed state.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,1)[RTO(Wrk_ClosedT,?,?) RTO(Wrk_TotClosedT,?,?) ,GRT(Wrk_ClosedT.ACC,360000) ADD(Wrk_CurrClosedTenths,1,Wrk_CurrClosedTenths) SUB(Wrk_ClosedT.ACC,360000,Wrk_ClosedT.ACC) ,CPT(Val_CurrClosedT,Wrk_CurrClosedTenths*360.0+Wrk_ClosedT.ACC/1000.0) ,GRT(Val_CurrClosedT,Wrk_MaxClosedT) MOV(Val_CurrClosedT,Wrk_MaxClosedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[The total time must be calculated independent of state, in cas a ClearTotTimes command is received.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_TotClosedT.ACC,360000) ADD(Wrk_TotClosedTenths,1,Wrk_TotClosedTenths) SUB(Wrk_TotClosedT.ACC,360000,Wrk_TotClosedT.ACC) ,CPT(Val_TotClosedT,Wrk_TotClosedTenths/10.0+Wrk_TotClosedT.ACC/3600000.0) ];]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OPENING (travelling open) State Timers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Record the Current and Total time the valve is Opening,
+and the maximum time ever spent in the Opening state.
+
+Note: the 10ths accumulator is not used for the Current
+Opening Time.  The valve should take less than 24 days to open!]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,2)[RTO(Wrk_OpeningT,?,?) RTO(Wrk_TotOpeningT,?,?) ,OTU(Wrk_SlowOpenSts) ,DIV(Wrk_OpeningT.ACC,1000.0,Val_CurrOpeningT) ,GRT(Val_CurrOpeningT,Wrk_MaxOpeningT) MOV(Val_CurrOpeningT,Wrk_MaxOpeningT) ,GRT(Val_CurrOpeningT,Cfg_SlowOpenT) [OTL(Wrk_SlowOpenSts) ,ONS(Wrk_SlowOpenONS) ADD(Wrk_SlowOpenC,1,Wrk_SlowOpenC) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[The total time must be calculated independent of state, in cas a ClearTotTimes command is received.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_TotOpeningT.ACC,360000) ADD(Wrk_TotOpeningTenths,1,Wrk_TotOpeningTenths) SUB(Wrk_TotOpeningT.ACC,360000,Wrk_TotOpeningT.ACC) ,CPT(Val_TotOpeningT,Wrk_TotOpeningTenths/10.0+Wrk_TotOpeningT.ACC/3600000.0) ];]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OPENED State Timers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Record the Current and Total time the valve is Opened,
+and the maximum time ever spent in the Opened state.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,3)[RTO(Wrk_OpenedT,?,?) RTO(Wrk_TotOpenedT,?,?) ,GRT(Wrk_OpenedT.ACC,360000) ADD(Wrk_CurrOpenedTenths,1,Wrk_CurrOpenedTenths) SUB(Wrk_OpenedT.ACC,360000,Wrk_OpenedT.ACC) ,CPT(Val_CurrOpenedT,Wrk_CurrOpenedTenths*360.0+Wrk_OpenedT.ACC/1000.0) ,GRT(Val_CurrOpenedT,Wrk_MaxOpenedT) MOV(Val_CurrOpenedT,Wrk_MaxOpenedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[The total time must be calculated independent of state, in cas a ClearTotTimes command is received.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_TotOpenedT.ACC,360000) ADD(Wrk_TotOpenedTenths,1,Wrk_TotOpenedTenths) SUB(Wrk_TotOpenedT.ACC,360000,Wrk_TotOpenedT.ACC) ,CPT(Val_TotOpenedT,Wrk_TotOpenedTenths/10.0+Wrk_TotOpenedT.ACC/3600000.0) ];]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CLOSING (travelling closed) State Timers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Record the Current and Total time the valve is Closing,
+and the maximum time ever spent in the Closing state.
+
+Note: the 10ths accumulator is not used for the Current
+Closing Time.  The valve should take less than 24 days to close!]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,4)[RTO(Wrk_ClosingT,?,?) RTO(Wrk_TotClosingT,?,?) ,OTU(Wrk_SlowCloseSts) ,DIV(Wrk_ClosingT.ACC,1000.0,Val_CurrClosingT) ,GRT(Val_CurrClosingT,Wrk_MaxClosingT) MOV(Val_CurrClosingT,Wrk_MaxClosingT) ,GRT(Val_CurrClosingT,Cfg_SlowCloseT) [OTL(Wrk_SlowCloseSts) ,ONS(Wrk_SlowCloseONS) ADD(Wrk_SlowCloseC,1,Wrk_SlowCloseC) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[The total time must be calculated independent of state, in cas a ClearTotTimes command is received.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_TotClosingT.ACC,360000) ADD(Wrk_TotClosingTenths,1,Wrk_TotClosingTenths) SUB(Wrk_TotClosingT.ACC,360000,Wrk_TotClosingT.ACC) ,CPT(Val_TotClosingT,Wrk_TotClosingTenths/10.0+Wrk_TotClosingT.ACC/3600000.0) ];]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+STOPPED / OTHER State Timers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Record the Current and Total time the valve is Stopped (or in Other position),
+and the maximum time ever spent in the Stopped / Other state.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,5)[RTO(Wrk_StopOtherT,?,?) RTO(Wrk_TotStopOtherT,?,?) ,OTU(Wrk_SlowCloseSts) OTU(Wrk_SlowOpenSts) ,GRT(Wrk_StopOtherT.ACC,360000) ADD(Wrk_CurrStopOtherTenths,1,Wrk_CurrStopOtherTenths) SUB(Wrk_StopOtherT.ACC,360000,Wrk_StopOtherT.ACC) ,CPT(Val_CurrStopOtherT,Wrk_CurrStopOtherTenths*360.0+Wrk_StopOtherT.ACC/1000.0) ,GRT(Val_CurrStopOtherT,Wrk_MaxStopOtherT) MOV(Val_CurrStopOtherT,Wrk_MaxStopOtherT) ];]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Comment>
+<![CDATA[The total time must be calculated independent of state, in cas a ClearTotTimes command is received.]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Wrk_TotStopOtherT.ACC,360000) ADD(Wrk_TotStopOtherTenths,1,Wrk_TotStopOtherTenths) SUB(Wrk_TotStopOtherT.ACC,360000,Wrk_TotStopOtherT.ACC) ,CPT(Val_TotStopOtherT,Wrk_TotStopOtherTenths/10.0+Wrk_TotStopOtherT.ACC/3600000.0) ];]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Comment>
+<![CDATA[============================================================
+VALVE STATE TRANSITIONS
+============================================================
+The rungs that follow check for input changes to transition out of the current state
+into a new state.
+Valid transitions are shown in the State Diagram in the SMDS and Reference Manual.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+UNKNOWN / POWERUP STATE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Powerup (State 0) or Unknown (invalid, outside
+the range 1 to 5), transition to:
+* Closed, if the Closed position is confirmed
+* Opened, if the Opened position is confirmed
+* Stopped / Other, if that position is confirmed. ]]>
+</Comment>
+<Text>
+<![CDATA[LIM(6,Wrk_State,0)[XIC(Inp_Closed) MOV(1,Wrk_State) ,XIC(Inp_Opened) MOV(3,Wrk_State) ,XIC(Inp_StopOther) MOV(5,Wrk_State) ];]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CLOSED State
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Closed (1), transition to:
+* Opening, if the Closed position is no longer confirmed
+* Stopped / Other, if that position is confirmed. 
+
+Upon exiting the Closed state, copy the Current Closed time to the
+Last Closed time and reset the Current Closed time.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,1)[XIO(Inp_Closed) MOV(2,Wrk_State) ,XIC(Cfg_HasStopOther) XIC(Inp_StopOther) ADD(Wrk_StopOtherC,1,Wrk_StopOtherC) MOV(5,Wrk_State) ][RES(Wrk_ClosedT) ,MOV(Val_CurrClosedT,Wrk_LastClosedT) ,CLR(Wrk_CurrClosedTenths) ,CLR(Val_CurrClosedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OPENING State
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Opening (2), transition to:
+* Opened, if the Opened position is confirmed (and count a Complete Open Stroke)
+* Closed, if the Closed position is  confirmed (and count an Incomplete Open Stroke)
+* Stopped / Other, if that position is confirmed (and count a Stopped/Other occurrence
+AND an Incomplete Open Stroke!)
+
+Upon exiting the Opening state, copy the Current Opening time to the
+Last Opening time and reset the Current Opening time.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,2)[XIC(Inp_Opened) OTE(Wrk_MAvgOpenONS) ADD(Wrk_CpltOpenC,1,Wrk_CpltOpenC) MOV(3,Wrk_State) ,XIC(Inp_Closed) ADD(Wrk_IncpltOpenC,1,Wrk_IncpltOpenC) MOV(1,Wrk_State) ,XIC(Cfg_HasStopOther) XIC(Inp_StopOther) ADD(Wrk_StopOtherC,1,Wrk_StopOtherC) ADD(Wrk_IncpltOpenC,1,Wrk_IncpltOpenC) MOV(5,Wrk_State) ][RES(Wrk_OpeningT) ,MOV(Val_CurrOpeningT,Wrk_LastOpeningT) ,CLR(Val_CurrOpeningT) ];]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OEPNED State
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Opened (3), transition to:
+* Closing, if the Opened position is no longer confirmed
+* Stopped / Other, if that position is confirmed. 
+
+Upon exiting the Opened state, copy the Current Opened time to the
+Last Opened time and reset the Current Opened time.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,3)[XIO(Inp_Opened) MOV(4,Wrk_State) ,XIC(Cfg_HasStopOther) XIC(Inp_StopOther) ADD(Wrk_StopOtherC,1,Wrk_StopOtherC) MOV(5,Wrk_State) ][RES(Wrk_OpenedT) ,MOV(Val_CurrOpenedT,Wrk_LastOpenedT) ,CLR(Wrk_CurrOpenedTenths) ,CLR(Val_CurrOpenedT) ];]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CLOSING State
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Closing (4), transition to:
+* Closed, if the Closed position is  confirmed (and count a Complete Close Stroke)
+* Opened, if the Opened position is confirmed (and count an Incomplete Close Stroke)
+* Stopped / Other, if that position is confirmed (and count a Stopped/Other occurrence
+AND an Incomplete Close Stroke!)
+
+Upon exiting the Opening state, copy the Current Opening time to the
+Last Opening time and reset the Current Opening time.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,4)[XIC(Inp_Closed) OTE(Wrk_MAvgCloseONS) ADD(Wrk_CpltCloseC,1,Wrk_CpltCloseC) MOV(1,Wrk_State) ,XIC(Inp_Opened) ADD(Wrk_IncpltCloseC,1,Wrk_IncpltCloseC) MOV(3,Wrk_State) ,XIC(Cfg_HasStopOther) XIC(Inp_StopOther) ADD(Wrk_StopOtherC,1,Wrk_StopOtherC) ADD(Wrk_IncpltCloseC,1,Wrk_IncpltCloseC) MOV(5,Wrk_State) ][RES(Wrk_ClosingT) ,MOV(Val_CurrClosingT,Wrk_LastClosingT) ,CLR(Val_CurrClosingT) ];]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+STOPPED State
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If the valve state is Stopped (5), transition to:
+* Closed, if the Stopped position is no longer confirmed AND the Closed position IS confirmed
+* Opened, if the Stopped position is no longer confirmed AND the Opened position IS confirmed
+
+Upon exiting the Stopped state, copy the Current Stopped time to the
+Last Stopped time and reset the Current Stopped time.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_State,5)[[XIO(Inp_StopOther) ,XIO(Cfg_HasStopOther) ] XIC(Inp_Closed) MOV(1,Wrk_State) ,[XIO(Inp_StopOther) ,XIO(Cfg_HasStopOther) ] XIC(Inp_Opened) MOV(3,Wrk_State) ][RES(Wrk_StopOtherT) ,MOV(Val_CurrStopOtherT,Wrk_LastStopotherT) ,CLR(Wrk_CurrStopOtherTenths) ,CLR(Val_CurrStopOtherT) ];]]>
+</Text>
+</Rung>
+<Rung Number="23" Type="N">
+<Comment>
+<![CDATA[============================================================
+CALCULATE MOVING AVERAGES OF STROKE TIMES
+============================================================
+The rungs that follow accumulate the stroke times for the last 10 successful strokes
+(each way, 10 open strokes, 10 clese strokes) and return the Moving Average
+Stroke Time for each direction.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Open Stroke Time Moving Average
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First, let's make sure we don't fault the processor with a bad array index.
+If the stroke time sample count is invalid, force it to be in range (valid = 0 to 10).]]>
+</Comment>
+<Text>
+<![CDATA[[LES(Wrk_MAvgOpenC,0) CLR(Wrk_MAvgOpenC) ,GRT(Wrk_MAvgOpenC,10) MOV(10,Wrk_MAvgOpenC) ];]]>
+</Text>
+</Rung>
+<Rung Number="24" Type="N">
+<Comment>
+<![CDATA[If the count of items in the sample array is zero, the moving average
+was cleared (by command).
+Return a ZERO to the moving average Value.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_MAvgOpenC,0)CLR(Val_MAvgOpeningT);]]>
+</Text>
+</Rung>
+<Rung Number="25" Type="N">
+<Comment>
+<![CDATA[If a successful Open stroke occured, record the data in the
+ moving average sample array.
+If there are already 10 items in the array, shift the data up and
+ add this new time at the end.
+If there are NOT already 10 items in the array, put this stroke time
+in the next available array position.
+Now the count of items in the sample array is 1 to 10 (usually 10), so return the average of that number
+of samples in the reported moving average stroke time Value.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_MAvgOpenONS)[EQU(Wrk_MAvgOpenC,10) COP(Wrk_MAvgOpenSamp[1],Wrk_MAvgOpenSamp[0],9) MOV(Wrk_LastOpeningT,Wrk_MAvgOpenSamp[9]) ,LIM(0,Wrk_MAvgOpenC,9) MOV(Wrk_LastOpeningT,Wrk_MAvgOpenSamp[Wrk_MAvgOpenC]) ADD(Wrk_MAvgOpenC,1,Wrk_MAvgOpenC) ,RES(Wrk_MAvgAveOpen) MOV(Wrk_MAvgOpenC,Wrk_MAvgAveOpen.LEN) AVE(Wrk_MAvgOpenSamp,0,Val_MAvgOpeningT,Wrk_MAvgAveOpen,?,?) ];]]>
+</Text>
+</Rung>
+<Rung Number="26" Type="N">
+<Comment>
+<![CDATA[~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Close Stroke Time Moving Average
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First, let's make sure we don't fault the processor with a bad array index.
+If the stroke time sample count is invalid, force it to be in range (valid = 0 to 10).]]>
+</Comment>
+<Text>
+<![CDATA[[LES(Wrk_MAvgCloseC,0) CLR(Wrk_MAvgCloseC) ,GRT(Wrk_MAvgCloseC,10) MOV(10,Wrk_MAvgCloseC) ];]]>
+</Text>
+</Rung>
+<Rung Number="27" Type="N">
+<Comment>
+<![CDATA[If the count of items in the sample array is zero, the moving average
+was cleared (by command).
+Return a ZERO to the moving average Value.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_MAvgCloseC,0)CLR(Val_MAvgClosingT);]]>
+</Text>
+</Rung>
+<Rung Number="28" Type="N">
+<Comment>
+<![CDATA[If a successful Close stroke occured, record the data in the
+ moving average sample array.
+If there are already 10 items in the array, shift the data up and
+ add this new time at the end.
+If there are NOT already 10 items in the array, put this stroke time
+in the next available array position.
+Now the count of items in the sample array is 1 to 10 (usually 10), so return the average of that number
+of samples in the reported moving average stroke time Value.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_MAvgCloseONS)[EQU(Wrk_MAvgCloseC,10) COP(Wrk_MAvgCloseSamp[1],Wrk_MAvgCloseSamp[0],9) MOV(Wrk_LastClosingT,Wrk_MAvgCloseSamp[9]) ,LIM(0,Wrk_MAvgCloseC,9) MOV(Wrk_LastClosingT,Wrk_MAvgCloseSamp[Wrk_MAvgCloseC]) ADD(Wrk_MAvgCloseC,1,Wrk_MAvgCloseC) ,RES(Wrk_MAvgAveClose) MOV(Wrk_MAvgCloseC,Wrk_MAvgAveClose.LEN) AVE(Wrk_MAvgCloseSamp[0],0,Val_MAvgClosingT,Wrk_MAvgAveClose,?,?) ];]]>
+</Text>
+</Rung>
+<Rung Number="29" Type="N">
+<Comment>
+<![CDATA[============================================================
+PUBLISH VALUES AND STATUS
+============================================================
+The rungs that follow move internal working values and status (which use
+Work registers to make them "not visible", avoiding unintentional overwrites)
+to public Values and Status.
+(Some Values are calculated directly, in logic above.)
+
+This rung publishes the Stroke Counts. ]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_CpltOpenC,Val_CpltOpenC)MOV(Wrk_CpltCloseC,Val_CpltCloseC)MOV(Wrk_IncpltOpenC,Val_IncpltOpenC)MOV(Wrk_IncpltCloseC,Val_IncpltCloseC)MOV(Wrk_StopOtherC,Val_StopOtherC);]]>
+</Text>
+</Rung>
+<Rung Number="30" Type="N">
+<Comment>
+<![CDATA[This rung publishes the Slow Valve Counts.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_SlowOpenC,Val_SlowOpenC)MOV(Wrk_SlowCloseC,Val_SlowCloseC);]]>
+</Text>
+</Rung>
+<Rung Number="31" Type="N">
+<Comment>
+<![CDATA[This rung publishes the "Last" position time statistics.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_LastClosedT,Val_LastClosedT)MOV(Wrk_LastClosingT,Val_LastClosingT)MOV(Wrk_LastOpenedT,Val_LastOpenedT)MOV(Wrk_LastOpeningT,Val_LastOpeningT)MOV(Wrk_LastStopotherT,Val_LastStopOtherT);]]>
+</Text>
+</Rung>
+<Rung Number="32" Type="N">
+<Comment>
+<![CDATA[This rung publishes the "Maximum" position time statistics.]]>
+</Comment>
+<Text>
+<![CDATA[DIV(Wrk_MaxClosedT,3600.0,Val_MaxClosedT)MOV(Wrk_MaxOpeningT,Val_MaxOpeningT)DIV(Wrk_MaxOpenedT,3600.0,Val_MaxOpenedT)MOV(Wrk_MaxClosingT,Val_MaxClosingT)DIV(Wrk_MaxStopOtherT,3600.0,Val_MaxStopOtherT);]]>
+</Text>
+</Rung>
+<Rung Number="33" Type="N">
+<Comment>
+<![CDATA[This rung copies the internal status bits to public Status.
+
+(NOTE:  These are copeid rather than aliased because the Wrk bits are
+only written as needed.  Buffering keeps writes to
+Sts_SlowCloseSts and Sts_SlowCloseSts from
+affecting the internal state of the instruction instance.)]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_SlowCloseSts) OTE(Sts_SlowClose) ,XIC(Wrk_SlowOpenSts) OTE(Sts_SlowOpen) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Clear current times, treat valve state as "unknown" and clear any "lurking" commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+POWERUP / PRESCAN HANDLING
+============================================================
+Total times, stroke counts and slow counts are maintained
+through a power cycle.  Current times are cleared.]]>
+</Comment>
+<Text>
+<![CDATA[[RES(Wrk_ClosedT) RES(Wrk_OpeningT) RES(Wrk_OpenedT) RES(Wrk_ClosingT) RES(Wrk_StopOtherT) ,CLR(Wrk_CurrClosedTenths) CLR(Wrk_CurrOpenedTenths) CLR(Wrk_CurrStopOtherTenths) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[The internal state is set to "unknown".  When an input shows the valve
+in a known condition, the main logic will transition to the corresponding state]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_State);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[On Prescan, clear any "lurking" Commands.]]>
+</Comment>
+<Text>
+<![CDATA[[OTU(PCmd_ClearTotTimes) OTU(PCmd_ClearMaxTimes) OTU(PCmd_ClearStrokeCounts) OTU(PCmd_ClearSlowCounts) ,OTU(MCmd_ClearTotTimes) OTU(MCmd_ClearMaxTimes) OTU(MCmd_ClearStrokeCounts) OTU(MCmd_ClearSlowCounts) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

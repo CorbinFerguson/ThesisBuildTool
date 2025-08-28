@@ -1,0 +1,894 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Interlocks-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_Intlk" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:33:58.600Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:34:05 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_Intlk" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2008-04-02T16:58:50.551Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:33:58.600Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Interlocks]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction monitors up to 16 Interlock conditions.  It provides these features:
+
+*  The "OK" state of each Interlock Input is configurable.  By default,
+    each Input is 1 to trip, 0 when OK to run.
+*  Interlocks may be configured as Latched.  Latched Interlocks
+    require a Reset Command to clear.  The latching function can be
+    inhibited via a Latch Defeat input, for example, to avoid latching
+    Interlocks for a stopped motor.
+*  Interlocks may be configured as Bypassable; Non-Bypassable
+    Interlocks are reported separately so the destination object can
+    decide whether to bypass (ignore) bypassable interlocks, such
+    as in Maintenance Mode.
+*  First-Out reporting indicates the first condition that caused the
+    running equipment to be tripped.
+*  For each Interlock condition, a Tag may be defined for navigation.
+    Clicking the Interlock description will call up the associated Tag's
+    Faceplate.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk00" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.0" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 00, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk01" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.1" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 01, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk02" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.2" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 02, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk03" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.3" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 03, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk04" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.4" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 04, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk05" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.5" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 05, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk06" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.6" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 06, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk07" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.7" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 07, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk08" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.8" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 08, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk09" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.9" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 09, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk10" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.10" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 10, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk11" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.11" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 11, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk12" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.12" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 12, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk13" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.13" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 13, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk14" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.14" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 14, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Intlk15" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_Inp.15" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Interlock Cond. 15, Stop if not in configured OK state]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_BypActive" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Interlock Bypassing is currently active]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_LatchDefeat" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Latch Defeat 1=Do
+not latch inputs even if configured for latching]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Reset Latched Interlocks and First-Out]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OKState" TagType="Base" DataType="INT" Usage="Input" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits indicate which state (0 or 1) of each input is OK to run]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Latched" TagType="Base" DataType="INT" Usage="Input" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Set bits indicate which conditions are latched (sealed in)]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Bypassable" TagType="Base" DataType="INT" Usage="Input" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Set bits indicate which conditions can be bypassed]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_HasNav" TagType="Base" DataType="INT" Usage="Input" Radix="Binary" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Set bits indicate which Navigation buttons are enabled]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_PCmdClear" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Clear Program Commands on receipt
+0=Leave Set]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MSet_Bypass00" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.0" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 00: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass01" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.1" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 0`: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass02" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.2" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 02: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass03" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.3" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 03: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass04" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.4" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 04: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass05" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.5" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 05: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass06" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.6" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 06: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass07" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.7" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 07: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass08" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.8" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 08: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass09" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.9" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 09: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass10" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.10" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 10: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass11" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.11" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 11: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass12" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.12" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 12: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass13" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.13" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 13: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass14" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.14" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 14: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="MSet_Bypass15" TagType="Alias" Usage="Input" Radix="Decimal" AliasFor="Wrk_MSet.15" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maint. Bypass Toggle for Interlock Cond. 15: 1=Bypass]]>
+</Description>
+</Parameter>
+<Parameter Name="PCmd_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Reset Latched Interlocks]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="OCmd_Reset" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Command to Reset Latched Interlocks]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_IntlkOK" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Overall Interlock Status (1=OK to run, 0=Stop)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_NBIntlkOK" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Non-Bypassable Interlock Status (1=All NB Interlocks OK to run)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_BypActive" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Interlock Bypassing is Active (ignore bypassable interlocks)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Intlk" TagType="Base" DataType="INT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Individual Interlock Status (1=Stop, 0=OK)]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_FirstOut" TagType="Base" DataType="INT" Usage="Output" Radix="Binary" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Interlock First Out Status (bit 1 is First Not-OK condition)]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Reset" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready to receive OCmd_Reset (reset required)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_Intlk" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Cfg_CondTxt" DataType="STRING_20" Dimensions="16" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Short HMI description of Interlock Conditions]]>
+</Description>
+<DefaultData>14 00 00 00 45 6E 74 65 72 20 44 65 73 63 72 69 
+70 74 69 6F 6E 20 23 30 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="20">
+<![CDATA['Enter Description #0']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Inp" DataType="INT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Collection copy of Inp_IntlkXXs]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_NB" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Working register for Non-Bypassable Interlock ogic]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Intlk" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Working register for Interlock logic]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_FirstOut" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Working register for First Out logic]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Sts" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Working register for generating Interlock status]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_PrevSts" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Interlock Status previous scan]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LatchEnable" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[1=Latch interlock if configured to latch, 0=don't latch]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpInv" DataType="INT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Input states after inversion based on Cfg_OKState]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Type identifier for HMI navigation]]>
+</Description>
+<DefaultData>07 00 00 00 50 5F 49 6E 74 6C 6B 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="7">
+<![CDATA['P_Intlk']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>0A 00 00 00 49 6E 74 65 72 6C 6F 63 6B 73 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="10">
+<![CDATA['Interlocks']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>07 00 00 00 50 5F 49 6E 74 6C 6B 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="7">
+<![CDATA['P_Intlk']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>19 00 00 00 49 6E 74 65 72 6C 6F 63 6B 73 20 77 
+69 74 68 20 46 69 72 73 74 20 4F 75 74 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="25">
+<![CDATA['Interlocks with First Out']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_NavTag" DataType="STRING_20" Dimensions="16" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagnames for destinations of Navigation buttons]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MSet" DataType="INT" Radix="Binary" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Internal copy of individual condition Maint. Bypass toggles]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Binary" Value="2#0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[Set summary "OK" Status bits to FALSE (0)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+OFF-SCAN (EnableIn is False) STATUS
+============================================================
+ Clear "Lurking" Commands (received while on false rung).]]>
+</Comment>
+<Text>
+<![CDATA[OTU(OCmd_Reset)OTU(PCmd_Reset);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[ 
+Since we're not processing Operator Commands, we're not READY for them either!]]>
+</Comment>
+<Text>
+<![CDATA[OTU(Rdy_Reset);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[If this Interlocks instruction is OFF-SCAN (rung is false or EnableIn is false in FBD),
+then set the summary Interlock OK Status bits to FALSE (0).]]>
+</Comment>
+<Text>
+<![CDATA[OTU(Sts_IntlkOK)OTU(Sts_NBIntlkOK);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[#####  V3.1-00  2014-06-30:  Added Rung for INDIVIDUAL bypassing  #####
+
+Individual Interlock Bypasses can only be set for conditions that are
+configured as Bypassable.  This AND clears all the MSets for inputs
+that are NOT Bypassable.]]>
+</Comment>
+<Text>
+<![CDATA[AND(Wrk_MSet,Cfg_Bypassable,Wrk_MSet);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Check Interlock Conditions]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_Intlk:  PROCESS -- INTERLOCKS
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V1.x and V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Cfg_HasNav bits and Cfg_NavTag strings
+for navigation.
+V3.1-00  2014-06-30:  Modified to allow Maintenance to set up bypassing
+of individual interlock conditions.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction monitors up to 16 Interlock conditions.  It provides these features:
+
+*  The "OK" state of each Interlock Input is configurable.
+By default, each Input is 1 to trip, 0 when OK to run.
+*  Interlocks may be configured as Latched.  Latched Interlocks
+require a Reset Command to clear.  The latching function can be inhibited
+via a Latch Defeat input, for example, to avoid latching Interlocks for a stopped motor.
+*  Interlocks may be configured as Bypassable.  Bypassable Interlocks are reported
+separately; the destination object can use this information to bypass these
+Interlocks in Maintenance Mode or upon command.
+*  First-Out reporting indicates the first condition that
+caused the running equipment to be tripped.
+* For each Interlock condition, a Tag may be defined for navigation. Clicking
+the Interlock description will call up the associated Tag's Faceplate.
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.
+
+#####  V3.0-00  2013-06-30:  Added Cfg_NavTag strings on this rung  #####]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)[CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag) LOWER(Cfg_CondTxt[0],Cfg_CondTxt[1]) LOWER(Cfg_CondTxt[2],Cfg_CondTxt[3]) LOWER(Cfg_CondTxt[4],Cfg_CondTxt[5]) LOWER(Cfg_CondTxt[6],Cfg_CondTxt[7]) ,LOWER(Cfg_CondTxt[8],Cfg_CondTxt[9]) LOWER(Cfg_CondTxt[10],Cfg_CondTxt[11]) LOWER(Cfg_CondTxt[12],Cfg_CondTxt[13]) LOWER(Cfg_CondTxt[14],Cfg_CondTxt[15]) ,LOWER(Cfg_NavTag[0],Cfg_NavTag[1]) LOWER(Cfg_NavTag[2],Cfg_NavTag[3]) LOWER(Cfg_NavTag[4],Cfg_NavTag[5]) LOWER(Cfg_NavTag[6],Cfg_NavTag[7]) ,LOWER(Cfg_NavTag[8],Cfg_NavTag[9]) LOWER(Cfg_NavTag[10],Cfg_NavTag[11]) LOWER(Cfg_NavTag[12],Cfg_NavTag[13]) LOWER(Cfg_NavTag[14],Cfg_NavTag[15]) LOWER(Inf_Lib,Inf_Type) ];]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+INPUT GATHERING   #####  V2.0 2011-09-30  #####
+============================================================
+This object uses word-wise logic.  The 16 interlock inputs are aliased
+to the Wrk_Inp word, so no logic is needed to collect the individual
+conditions.  We can immediately start processing the interlock logic.
+============================================================
+HANDLE "OK STATE" INVERSIONS
+============================================================
+This rung inverts the Input bits whose "OK State" is 1 (0 to Stop).
+The resulting Wrk_Inp word is ZERO if all interlock inputs are "OK".]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)XOR(Wrk_Inp,Cfg_OKState,Wrk_InpInv);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND PROCESSING
+============================================================
+On receipt of a Reset Command, the output
+Interlock Status (internal copy, actually) is cleared.
+(Later logic may fill this in again if some Interlock conditions are true...)
+
+NOTE:  This object is "Modeless" -- Operator and Program Commands
+are accepted at any time.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_Reset) [XIC(Cfg_PCmdClear) OTU(PCmd_Reset) ,NOP() ] ,XIC(OCmd_Reset) OTU(OCmd_Reset) ,XIC(Inp_Reset) ]CLR(Wrk_Sts);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[If the Latch Defeat Input is ON (say, motor not running) and the stored interlock
+status is clear (typically, after we get a reset in the rung above),
+switch to "not latching" for all interlock inputs (regardless of Cfg_Latched).
+
+This has the effect of keeping the Latch Enable work bit ON until a Reset is received.
+Hence this is part of the "reset command processing" logic....]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Sts,0)XIC(Inp_LatchDefeat)OTU(Wrk_LatchEnable);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[============================================================
+INTERLOCK PROCESSING
+============================================================
+This rung clears any bits in the stored Interlock status for which the
+Input bit is OFF and the bit is NOT configured as Latched.
+
+If the LatchDefeat input in OFF, set the internal Latch Enable work bit.
+If this bit is ON, don't clear any latched bits with this rung (keep them latched).
+If this bit is OFF, clear any bits that are NOT on in the input, whether
+configured for latching or not!]]>
+</Comment>
+<Text>
+<![CDATA[[XIO(Inp_LatchDefeat) OTL(Wrk_LatchEnable) ,XIC(Wrk_LatchEnable) OR(Cfg_Latched,Wrk_InpInv,Wrk_Intlk) ,XIO(Wrk_LatchEnable) MOV(Wrk_InpInv,Wrk_Intlk) ]AND(Wrk_Sts,Wrk_Intlk,Wrk_Sts);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[This rung SETS Interlock status bits for any Interlock condition Input that is true.]]>
+</Comment>
+<Text>
+<![CDATA[OR(Wrk_Sts,Wrk_InpInv,Wrk_Sts);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[#####  V3.1-00  2014-06-30:  Added Rung for INDIVIDUAL bypassing  #####
+
+Individual Interlock Bypasses can only be set for conditions that are
+configured as Bypassable.  This AND clears all the MSets for inputs
+that are NOT Bypassable.
+
+The internal Non-Bypassable Interlocks word has bits set only if the Input is TRUE
+AND the bit is configured as a NON-bypassable Interlock OR NOT bypassed..]]>
+</Comment>
+<Text>
+<![CDATA[AND(Wrk_MSet,Cfg_Bypassable,Wrk_MSet)NOT(Wrk_MSet,Wrk_NB)AND(Wrk_Sts,Wrk_NB,Wrk_NB);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[If the stored Interlock status is now clear (all bits 0), then the
+First Out storage is cleared.
+
+Which stored Interlock status we check depends on whether
+bypassable interlocks are bypassed or not.]]>
+</Comment>
+<Text>
+<![CDATA[[XIO(Inp_BypActive) EQU(Wrk_Sts,0) ,XIC(Inp_BypActive) EQU(Wrk_NB,0) ]CLR(Wrk_FirstOut);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[Now that we have the final Interlock Status bits, if the First Out status is clear,
+this rung will SET the First Out status for any Interlock conditions that
+made it this far.  (Ideally there would only be ONE: the "first" condition!)
+
+Which condition we check for First Out" depends on whether
+bypassable interlocks are bypassed or not.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_FirstOut,0)[XIO(Inp_BypActive) CPT(Wrk_FirstOut,(Wrk_Sts)AND(NOT(Wrk_PrevSts))) ,XIC(Inp_BypActive) CPT(Wrk_FirstOut,(Wrk_NB)AND(NOT(Wrk_PrevSts))) ];]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[The value used for "First Out" generation this scan is stored
+as the "previous" value for use in the above logic next scan.]]>
+</Comment>
+<Text>
+<![CDATA[[XIO(Inp_BypActive) MOV(Wrk_Sts,Wrk_PrevSts) ,XIC(Inp_BypActive) MOV(Wrk_NB,Wrk_PrevSts) ];]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[============================================================
+STATUS GENERATION
+============================================================
+This rung generates the public Status for this object.
+If all the Interlock Status bits are zero, there is no condition to
+shut down the affected equipment.  In that case, show the Interlock Status as "OK"
+
+Similar logic applies for the Non-Bypassable Interlocks OK Status.
+
+Also show the individual Interlock Status bits and the First Out Status bits.
+
+NOTE:  Working registers are used to prevent outside writes to the Sts_xxx
+parameters from affecting the state of this object!]]>
+</Comment>
+<Text>
+<![CDATA[[[EQU(Wrk_Sts,0) OTE(Sts_IntlkOK) ,EQU(Wrk_NB,0) OTE(Sts_NBIntlkOK) ] ,XIC(Inp_BypActive) OTE(Sts_BypActive) ,MOV(Wrk_Sts,Sts_Intlk) ,MOV(Wrk_FirstOut,Sts_FirstOut) ];]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND READIES
+============================================================
+This Interlock ojbect is ready for (needs) a RESET Command
+if any Latched Interlocks are SET.]]>
+</Comment>
+<Text>
+<![CDATA[CMP((NOT(Wrk_InpInv))AND(Wrk_Sts)AND(Cfg_Latched))OTE(Rdy_Reset);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Clear "lurking" Commands]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+PRESCAN (POWERUP) HANDLING
+============================================================
+On Prescan, clear any "lurking" Commands.]]>
+</Comment>
+<Text>
+<![CDATA[OTU(OCmd_Reset)OTU(PCmd_Reset);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[#####  V3.1-00  2014-06-30:  Added Rung for INDIVIDUAL bypassing  #####
+
+Individual Interlock Bypasses can only be set for conditions that are
+configured as Bypassable.  This AND clears all the MSets for inputs
+that are NOT Bypassable.]]>
+</Comment>
+<Text>
+<![CDATA[AND(Wrk_MSet,Cfg_Bypassable,Wrk_MSet);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

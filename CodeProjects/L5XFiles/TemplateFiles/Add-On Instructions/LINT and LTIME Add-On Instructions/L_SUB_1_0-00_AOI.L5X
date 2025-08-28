@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Fri Jul 31 11:00:04 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_SUB" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2008-12-10T21:30:18.915Z" CreatedBy="Not Available" EditedDate="2009-07-31T14:59:51.822Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Subtract (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Subtracts two LINT (signed 64-bit) values and returns a LINT (signed 64-bit) difference.
+Also provides math status bits for Carry (borrow), Negative, Overflow and Zero result
+(equivalent to built-in S:C, S:N, S:V, S:Z).]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp_A" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[First Input, 64-bit Integer]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_B" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Second Input, 64-bit Integer]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Difference, 64-bit Integer]]>
+</Description>
+</Parameter>
+<Parameter Name="Sts_C" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Carry (borrow!) result]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_N" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Negative result]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_V" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Overflow result]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Z" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Zero result]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Diff" DataType="DINT" Dimensions="3" Radix="Decimal">
+<Description>
+<![CDATA[20- and 24-bit fields of Out (difference)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_B" DataType="DINT" Dimensions="3" Radix="Decimal">
+<Description>
+<![CDATA[20- and 24-bit fields of Inp_B]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_A" DataType="DINT" Dimensions="3" Radix="Decimal">
+<Description>
+<![CDATA[20- and 24-bit fields of Inp_A]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Out" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Output as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpB" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Input B as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpA" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Input A as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Do 64-bit subtraction]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_SUB : Subtract (64-bit)
+============================================================
+Revision 1.0-00 Release:  2009-Jun-31
+Initial Release
+============================================================
+Subtracts two LINT (signed 64-bit) values and returns a LINT (signed 64-bit) difference.
+Also provides math status bits for Carry (borrow), Negative, Overflow and Zero result
+(equivalent to built-in S:C, S:N, S:V, S:Z).
+
+This instruction breaks the LINT addends into three DINTs
+(24 bits, 20 bits and 20 bits) to do the math in order to
+avoid generating a Controller MINOR FAULT on overflow.
+(Sample code provided in RSLogix 5000 Online Help is much
+smaller and faster, but causes numerous Minor Faults on
+Overflows -- S:V -- on the low-order difference!  The controller must
+take time to log the minor faults, and many users do not want to see
+Minor Faults on normal math operations.  See the RSLogix 5000
+Help Topic "Arithmetic Status Flags" for more information.)
+===================================================
+CONVERT LINTs TO DINTs
+===================================================
+These COPies take the input LINTs and break them into pairs of DINTs so we can do math on them.
+Logix V17 has a LINT data type, but math instructions (and AOI Input and Output Parameters) don't support LINT.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_A,Wrk_InpA[0],2)COP(Inp_B,Wrk_InpB[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+SPREAD 64 BITS ACROSS THREE DINTs
+===================================================
+If we do the math on 32-bit DINTs, the math on the low-order DINT (bits .0 to .31 of the 64-bit value)
+will cause Overflows, setting the S:V status bit and THROWING A MINOR FAULT.
+
+To avoid the Minor Fault, we take the two DINTs and break them up into THREE:
+a 24 bit low-order DINT,
+a 20-bit middle DINT, and
+a 20-bit high-order DINT.
+
+Doing the math on less than 30 bits per ADD ensures we never have an Overflow that throws a Minor Fault.
+The BTDs split the 64 bits of Input A among the three DINTs used in the math.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_A[0],3)BTD(Wrk_InpA[0],0,Wrk_A[0],0,24)BTD(Wrk_InpA[0],24,Wrk_A[1],0,8)BTD(Wrk_InpA[1],0,Wrk_A[1],8,12)BTD(Wrk_InpA[1],12,Wrk_A[2],0,20);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[This rung does the same for Input B:  two 32-bit DINTs are split into a 24-bit and two 20-bit DINTs.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_B[0],3)BTD(Wrk_InpB[0],0,Wrk_B[0],0,24)BTD(Wrk_InpB[0],24,Wrk_B[1],0,8)BTD(Wrk_InpB[1],0,Wrk_B[1],8,12)BTD(Wrk_InpB[1],12,Wrk_B[2],0,20);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[===================================================
+DIFFERENCE, WITH BORROW
+===================================================
+Now do the actual subtraction.  Any Carry (really, BORROW) bits will be in bit 24
+of the low-order difference, or bit 20 of the middle or high-order difference.]]>
+</Comment>
+<Text>
+<![CDATA[SUB(Wrk_A[0],Wrk_B[0],Wrk_Diff[0])SUB(Wrk_A[1],Wrk_B[1],Wrk_Diff[1])SUB(Wrk_A[2],Wrk_B[2],Wrk_Diff[2]);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[If the low-order sum had a borrow, subtract 1 from the middle difference.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Diff[0].24)SUB(Wrk_Diff[1],1,Wrk_Diff[1]);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[If the middle difference had a borrow, subtract 1 from the high-order difference.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Diff[1].20)SUB(Wrk_Diff[2],1,Wrk_Diff[2]);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[===================================================
+GATHER 64-BIT RESULT FROM THREE DINTs
+===================================================
+Finally, take the 20-, 20- and 24-bit results and put them into 2 32-bit DINT output words.]]>
+</Comment>
+<Text>
+<![CDATA[BTD(Wrk_Diff[0],0,Wrk_Out[0],0,24)BTD(Wrk_Diff[1],0,Wrk_Out[0],24,8)BTD(Wrk_Diff[1],8,Wrk_Out[1],0,12)BTD(Wrk_Diff[2],0,Wrk_Out[1],12,20);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[===================================================
+INSTRUCTION STATUS BITS
+===================================================
+
+These four rungs generate the result STATUS bits, just like S:C, S:N, S:V and S:Z
+are generated by built-in math instructions.
+
+The difference is that our Sts_V doesn't throw a Minor Fault.  So you'll need to
+deal with Sts_V in the code that uses this AOI....
+
+If the high-order difference generated a Carry, set Sts_C.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Diff[2].20)OTE(Sts_C);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[If the highest bit (.19) of the high-order difference is set, the result is NEGATIVE.
+After all, we're doing a LINT (signed 64-bit integer) , not a ULINT (unsigned 64-bit integer)!]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Out[1].31)OTE(Sts_N);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[If both inputs are positive and the result is negative, or if both inputs are
+negative and the result is positive, we had an OVERFLOW: set Sts_V.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_InpA[1].31) XIO(Wrk_InpB[1].31) XIO(Wrk_Out[1].31) ,XIO(Wrk_InpA[1].31) XIC(Wrk_InpB[1].31) XIC(Wrk_Out[1].31) ]OTE(Sts_V);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[If both resulting DINTs are zero, the LINT is zero.  Set Sts_Z if the result is ZERO.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Out[1],0)EQU(Wrk_Out[0],0)OTE(Sts_Z);]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[===================================================
+CONVERT DINTs TO LINT
+===================================================
+The two 32-bit DINT outputs are converted back to a LINT, the actual output of the instruction.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Wrk_Out[0],Out,1);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

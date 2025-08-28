@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Container for PIDE only-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_PIDE_only" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:37:33.128Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:37:40 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_PIDE_only" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2014-02-24T19:09:37.720Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:37:33.128Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Container for PIDE only]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright (C) Rockwell Automation, Inc.
+
+This Add-On Instruction is used as a container for the PIDE function block
+to allow use of the Autotune tag within the P_PIDE (outer) AOI.
+
+     #####               ATTENTION!               #####
+
+User may edit this block to add an Autotune tag
+(Ref_Autotune).  However, user assumes
+responsibility for all users of the resulting AOI
+following terms of the RSLogix 5000 / Studio 5000
+Software License, namely, users must have the
+Function Block / Structured Text add-on license,
+or have the Professional edition of RSLogix 5000 /
+Studio 5000 Logix Designer software.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_PIDE" TagType="Base" DataType="PID_ENHANCED" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Contained PIDE block]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Autotune" TagType="Base" DataType="PIDE_AUTOTUNE" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Autotune tag for contained PIDE block]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags/>
+<Routines>
+<Routine Name="Logic" Type="FBD">
+<Description>
+<![CDATA[Function Block Diagram routine with bare PIDE block. No Autotune tag, but user can add.]]>
+</Description>
+<FBDContent SheetSize="Letter - 8.5 x 11 in" SheetOrientation="Landscape">
+<Sheet Number="1">
+<Block Type="PIDE" ID="0" X="100" Y="60" Operand="Ref_PIDE" VisiblePins="PV SPProg SPCascade RatioProg CVProg FF HandFB ProgProgReq ProgOperReq ProgCasRatReq ProgAutoReq ProgManualReq ProgOverrideReq ProgHandReq CVEU SP PVHHAlarm PVHAlarm PVLAlarm PVLLAlarm PVROCPosAlarm PVROCNegAlarm DevHHAlarm DevHAlarm DevLAlarm DevLLAlarm ProgOper CasRat Auto Manual Override Hand" HideDesc="false"/>
+<TextBox ID="1" X="420" Y="260" Width="0">
+<Text>
+<![CDATA[Copyright (C) Rockwell Automation, Inc.
+V3.1-01  2014-09-03
+
+ATTENTION!!!
+
+User may edit this block to add an Autotune tag
+(Ref_Autotune).  However, user assumes
+responsibility for all users of the resulting AOI
+following terms of the RSLogix 5000 / Studio 5000
+Software License, namely, users must have the
+Function Block / Structured Text add-on license,
+or have the Professional edition of RSLogix 5000 /
+Studio 5000 Logix Designer software.]]>
+</Text>
+</TextBox>
+<Attachment FromID="1" ToID="0"/>
+</Sheet>
+</FBDContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

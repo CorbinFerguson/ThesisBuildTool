@@ -1,0 +1,337 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Thu May 20 17:19:59 2010" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjects">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_FtoH" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2010-03-23T19:38:53.143Z" CreatedBy="Not Available" EditedDate="2010-03-24T21:03:03.891Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Float to Half-Precision]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial formal release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction converts a 32-bit single-precision
+floating point number (REAL) to the best equivalent
+16-bit "half-precision" floating point number (stored in
+an INT, because Logix doesn't have an SREAL type!).
+
+It accounts for positive and negative zero, subnormal
+(very small) numbers, Infinty (+/- 1.$), Indeterminate
+(-1.#IND) and Not a Number (+/- 1.#QNaN).]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true">
+<Description>
+<![CDATA[Input in 32-bit floating point (REAL) format]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Out" DataType="INT" Usage="Output" Radix="Binary" Required="false" Visible="true">
+<Description>
+<![CDATA[Output in 16-bit half-precision floating point format]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Zero" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Input and Output are zero (positive or negative)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_InfNaN" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Input is Infinity or Not a Number, Output set to same]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Subnorm" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Small | Input |, Output is subnormal (some output precision was lost)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Overflow" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[| Input | > 65504, output set to Infinity (overflow)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Underflow" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[| Input | < 6E-8, output set to zero (underflow)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Out" DataType="INT" Radix="Binary">
+<Description>
+<![CDATA[Working register for building 16-bit float output]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Inp" DataType="DINT" Radix="Binary">
+<Description>
+<![CDATA[Working register for examining 32-bit float input]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Exp" DataType="DINT" Radix="Binary">
+<Description>
+<![CDATA[Working register for math/compares on exponent]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Convert 32-bit float to 16-bit float]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_FtoH : 32-bit (Single Prescision) Float to 16-bit (Half Precision) Float
+============================================================
+Revision 1.0-00 Release:  2010-03-24
+Initial formal release
+============================================================
+This instruction converts a 32-bit single-precision
+floating point number (REAL) to the best equivalent
+16-bit "half-precision" floating point number (stored in
+an INT, because Logix doesn't have an SREAL type!).
+
+It accounts for positive and negative zero, subnormal
+(very small) numbers, Infinty (+/- 1.$), Indeterminate
+(-1.#IND) and Not a Number (+/- 1.#QNaN).
+============================================================
+
+Copy the input REAL to a DINT so we can manipulate individual bits and bit ranges.
+Then clear a working INT, which we will use for building the 16-bit pattern of the result.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp,Wrk_Inp,1)CLR(Wrk_Out);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[Copy the SIGN bit over directly, regardless.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Inp.31)OTL(Wrk_Out.15);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[There are SIX cases for the EXPONENT:
+1.  The exponent is zero and the mantissa is zero.  The value of the output is zero.
+2.  The exponent is 16#66 or less.  The number is too small to be represented in
+16-bit float, so the result is an underflow to zero.
+3.  The exponent is 16#67 to 16#70.  The number is in the range of subnormal
+numbers in 16-bit flow (reduced precision!).
+4.  The exponent is 16#71 to 16#8E.  The number is a normal floating point number.
+5.  The exponent is 16#8F to 16#FE.  The number is too large to be represented
+in a 16-bit float, so the result is set to Infinity.
+6.  The exponent is 16#FF.  The number is an exception (Infinity, NaN, Indefinite),
+and the result is a similar exception (copying the appropriate mantissa bits).
+
+This rung copies the Exponent from the 32-bit input to a DINT for use in compares that follow.]]>
+</Comment>
+<Text>
+<![CDATA[BTD(Wrk_Inp,23,Wrk_Exp,0,8);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[This rung checks the FIRST case: equal to positive zero (16#0000_0000) or
+negative zero (16#8000_0000).]]>
+</Comment>
+<Text>
+<![CDATA[MEQ(Wrk_Inp,2#0111_1111_1111_1111_1111_1111_1111_1111,2#0000_0000_0000_0000_0000_0000_0000_0000)OTE(Sts_Zero);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[This rung check the SECOND case: number to small to be represented, underflow to zero.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_Zero)LEQ(Wrk_Exp,16#66)OTE(Sts_Underflow);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[This rung checks for the THIRD case: subnormal result (6.E-8 to 6.1E-5), which is
+represented with less than 11 binary digits of precision..]]>
+</Comment>
+<Text>
+<![CDATA[LIM(16#67,Wrk_Exp,16#70)OTE(Sts_Subnorm);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[This rung checks for the FIFTH case: a number too large (abs val > 65504) to be held
+in a 16-bit float.  The result is set to Infinity.]]>
+</Comment>
+<Text>
+<![CDATA[LIM(16#8F,Wrk_Exp,16#FE)OTE(Sts_Overflow);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[This rung checks for the SIXTH case, an exponent of all ones (16#FF).
+This indicates the input number is Infinite or Not a Number (incl. Indeterminate).]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#FF)OTE(Sts_InfNaN);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[If the value is Positive or Negative ZERO, or an UNDERFLOW to zero, DO NOTHING.
+Leave the result Positive or Negative ZERO  (We cleared all the bits in the first rung of
+this routine and copied the sign bit in the second rung!)  Just copy the final pattern out!]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Sts_Zero) ,XIC(Sts_Underflow) ]JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[For an OVERFLOW, the entire bit pattern except the SIGN bit is OVERWRITTEN with
+the bit pattern for "Infinity".]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Sts_Overflow)MVM(2#0111_1100_0000_0000,2#0111_1111_1111_1111,Wrk_Out)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[The MANTISSA for a normalized number has an implied "1" before it, so it has to be "left justified".
+Copy the left-most bits of the REAL mantissat (bits 13 to 22, total 10 bits) to mantissa of the result (bits 0 to 9).
+
+Note that the mantissa for Infinite/NaN numbers is copied this same way.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_Subnorm)BTD(Wrk_Inp,13,Wrk_Out,0,10);]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[For a non-zero, non-infinite, normalized REAL number,
+copy the exponent so it is in the range 16#01 to 16#1E to bits 14..10.
+
+For an input of Infinite or NaN (including -1#IND), set the exponent to 16#1F.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_Subnorm)[XIO(Sts_InfNaN) [XIC(Wrk_Inp.30) OTL(Wrk_Out.14) ,BTD(Wrk_Inp,23,Wrk_Out,10,4) ] ,XIC(Sts_InfNaN) MVM(2#0111_1100_0000_0000,2#0111_1100_0000_0000,Wrk_Out) ]JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[If we fell through to here, we must handle the special cases for SUBNORMAL NUIMBERS
+(very small).   The implied "1." before the exponent is NOT there for subnormal numbers,
+so we have to set the appropriate first ONE bit and copy the remaining bit of the mantissa,
+maintaining a zero exponent (by doing nothing to it).
+
+If the exponent is 0x70, set bit 9 of the mantissa and copy to bits 0 to 8.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#70)OTL(Wrk_Out.9)BTD(Wrk_Inp,14,Wrk_Out,0,9)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6F, set bit 8 of the mantissa and copy to bits 0 to 7.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6F)OTL(Wrk_Out.8)BTD(Wrk_Inp,15,Wrk_Out,0,8)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6E, set bit 7 of the mantissa and copy to bits 0 to 6.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6E)OTL(Wrk_Out.7)BTD(Wrk_Inp,16,Wrk_Out,0,7)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6D, set bit 6 of the mantissa and copy to bits 0 to 5.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6D)OTL(Wrk_Out.6)BTD(Wrk_Inp,17,Wrk_Out,0,6)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6C, set bit 5 of the mantissa and copy to bits 0 to 4.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6C)OTL(Wrk_Out.5)BTD(Wrk_Inp,18,Wrk_Out,0,5)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6B, set bit 4 of the mantissa and copy to bits 0 to 3.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6B)OTL(Wrk_Out.4)BTD(Wrk_Inp,19,Wrk_Out,0,4)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x6A, set bit 3 of the mantissa and copy to bits 0 to 2.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#6A)OTL(Wrk_Out.3)BTD(Wrk_Inp,20,Wrk_Out,0,3)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x69, set bit 2 of the mantissa and copy to bits 0 to 1.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#69)OTL(Wrk_Out.2)BTD(Wrk_Inp,21,Wrk_Out,0,2)JMP(CopyOut);]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Comment>
+<![CDATA[If the exponent is 0x68, set bit 1 of the mantissa and copy to bit 0.]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Wrk_Exp,16#68)OTL(Wrk_Out.1)[XIC(Wrk_Inp.22) OTL(Wrk_Out.0) ,JMP(CopyOut) ];]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[If we fell through to here, the exponent must be 16#67 (else the number would be underflow).
+There's only one significant bit left: bit zero of the mantissa.]]>
+</Comment>
+<Text>
+<![CDATA[OTL(Wrk_Out.0);]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[All done building the 16-bit float bit pattern.
+Copy the working INT to the Output.
+
+(MOV is OK here -- it's just a 16-bit INT, even though the
+bit pattern is 16-bit floating-point...)]]>
+</Comment>
+<Text>
+<![CDATA[LBL(CopyOut)MOV(Wrk_Out,Out);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

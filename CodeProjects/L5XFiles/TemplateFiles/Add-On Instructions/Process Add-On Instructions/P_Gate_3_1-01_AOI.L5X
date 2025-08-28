@@ -1,0 +1,412 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Condition Gate/Delay-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_Gate" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:25:47.795Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:26:00 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_Gate" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2012-10-01T18:56:53.162Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:25:47.795Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Condition Gate/Delay]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Exposed Gate, On-Delay and Off-Delay timers ACC/PRE (read-only).]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction provides a "gate" for a discrete Input signal and
+provides on-delay and off-delay timing for the gated signal.
+
+When the Gate input is true, the instruction Input is passed through
+to the Output, with on-delay and off-delay timing applied.
+
+When the Gate input is false, the Output is kept off
+(note: off-delay still applies!)
+
+This instruction is usually used between a comparison
+(analog threshold with deadband or discrete logic)
+and a P_Alarm instance, but may be used as a
+gated on-delay/off-delay timer generally.
+
+When EnableIn  is FALSE (e.g., on a false LD rung),
+the Input "Inp" is inverted.  Note that the Gate
+input (Inp_Gate) is NOT inverted!!!]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Input Condition: e.g., result of comparison]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Gate" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate Input: 1=enable On Delay / Off Delay after Gate Delay, 0=disable]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_GateDly" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gate Delay (s): time after Gate Input true to enable On/Off Delay]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OnDly" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[On Delay (s): If Gate Delay done, time Inp must be true to set Out true]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_OffDly" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Off Delay (s): Time after Inp  or Gate goes to 0 for Out to go to 0]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Output after On Delay, Off Delay, enabled by Gate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Gate" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Gate Delay done, Output is enabled]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Config (see detail Err_ bits for reason), display icon]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_Timer" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Config: On Delay, Off Delay, Gate Delay Time Invalid (use 0 to 2147483 s)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_Gate" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_OffDlyT" DataType="TIMER" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Off Delay Timer]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OnDlyT" DataType="TIMER" ExternalAccess="Read Only">
+<Description>
+<![CDATA[On Delay Timer]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_GateT" DataType="TIMER" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Gate Delay Timer]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_InpCond" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Displayed text of P_Gate's Input (Inp) Condition]]>
+</Description>
+<DefaultData>0F 00 00 00 49 6E 70 75 74 20 43 6F 6E 64 69 74 
+69 6F 6E 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="15">
+<![CDATA['Input Condition']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>06 00 00 00 50 5F 47 61 74 65 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['P_Gate']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_GateCond" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Displayed text of P_Gate's Gating (Inp_Gate) Condition]]>
+</Description>
+<DefaultData>10 00 00 00 47 61 74 69 6E 67 20 43 6F 6E 64 69 
+74 69 6F 6E 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="16">
+<![CDATA['Gating Condition']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[Same as main Logic routine, except Inp is inverted (for use in LD logic)  (Inp_Gate is NOT inverted!!!)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+EnableIn FALSE :  CONFIGURATION PROCESSING
+============================================================
+Flag a Configuration Error if the Gate Delay, On Delay
+or Off Delay timer preset is invalid
+(and set timer to default zero preset, non-faulting value).]]>
+</Comment>
+<Text>
+<![CDATA[[MUL(Cfg_GateDly,1000,Wrk_GateT.PRE) XIC(Wrk_GateT.PRE.31) CLR(Wrk_GateT.PRE) ,MUL(Cfg_OnDly,1000,Wrk_OnDlyT.PRE) XIC(Wrk_OnDlyT.PRE.31) CLR(Wrk_OnDlyT.PRE) ,MUL(Cfg_OffDly,1000,Wrk_OffDlyT.PRE) XIC(Wrk_OffDlyT.PRE.31) CLR(Wrk_OffDlyT.PRE) ]OTE(Err_Timer)OTE(Sts_Err);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+GATE DELAY, ON DELAY, OFF DELAY PROCESSING
+============================================================
+FOR THE ENABLE_IN_FALSE ROUTINE, the Gate Input is
+INVERTED, to support the   XIC (condition)  P_Gate (P_Gate backing tag)
+construct for instantiation and gate input mapping.  This will use Inp_Gate = 1,
+making the gating follow the rung condition.
+
+If the Gate Input is FALSE, run the Gate Delay timer.
+Once the Gate Delay is complete, enable the
+On Delay and Off Delay that follow the input.
+
+Report the Gate Delay status and the final Output status (after all delays).
+
+@@@@@  NOTE: Doubled TON/TOF is used to ensure that  @@@@@
+@@@@@  .DN bit transitions on same scan if Preset = 0 !  @@@@@]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Inp_Gate) TON(Wrk_GateT,?,?) TON(Wrk_GateT,?,?) ,XIC(Wrk_GateT.DN) OTE(Sts_Gate) XIO(Inp) TON(Wrk_OnDlyT,?,?) TON(Wrk_OnDlyT,?,?) ,XIC(Wrk_OnDlyT.DN) TOF(Wrk_OffDlyT,?,?) TOF(Wrk_OffDlyT,?,?) ,XIC(Wrk_OffDlyT.DN) OTE(Out) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Gate the input and apply on-delay and off-delay timing]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_Gate:  PROCESS -- CONDITION GATE / DELAY
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V3.0-00  2013-06-30:  Initial Release (Part of Library of Process Objects V3.0, so Major = 3).
+V3.1-00  2014-07-08:  Modified first rung of Logic to show all Strings.
+V3.1-01  2014-09-03:  Exposed Gate, On-Delay and Off-Delay timers ACC/PRE (read-only).
+============================================================
+This Instruction provides a "gate" for a discrete Input signal and
+provides on-delay and off-delay timing for the gated signal.
+
+When the Gate input is true, the instruction Input is passed through
+to the Output, with on-delay and off-delay timing applied.
+
+When the Gate input is false, the Output is kept off
+(note: off-delay still applies!)
+
+This instruction is usually used between a comparison
+(analog threshold with deadband or discrete logic)
+and a P_Alarm instance, but may be used as a
+gated on-delay/off-delay timer generally.
+
+When EnableIn  is FALSE (e.g., on a false LD rung),
+the Input "Inp" is inverted.  Note that the Gate
+input (Inp_Gate) is NOT inverted!!!
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.
+
+#####  V3.1-00  2014-07-08: Added Inf_Type to displayed Strings  #####]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)LOWER(Cfg_InpCond,Cfg_GateCond)LOWER(Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+CONFIGURATION PROCESSING
+============================================================
+Flag a Configuration Error if the Gate Delay, On Delay
+or Off Delay timer preset is invalid
+(and set timer to default zero preset, non-faulting value).]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)[MUL(Cfg_GateDly,1000,Wrk_GateT.PRE) XIC(Wrk_GateT.PRE.31) CLR(Wrk_GateT.PRE) ,MUL(Cfg_OnDly,1000,Wrk_OnDlyT.PRE) XIC(Wrk_OnDlyT.PRE.31) CLR(Wrk_OnDlyT.PRE) ,MUL(Cfg_OffDly,1000,Wrk_OffDlyT.PRE) XIC(Wrk_OffDlyT.PRE.31) CLR(Wrk_OffDlyT.PRE) ]OTE(Err_Timer)OTE(Sts_Err);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[============================================================
+GATE DELAY, ON DELAY, OFF DELAY PROCESSING
+============================================================
+If the Gate Input is true, run the Gate Delay timer.
+Once the Gate Delay is complete, enable the
+On Delay and Off Delay that follow the input.
+
+Report the Gate Delay status and the final Output status (after all delays).
+
+@@@@@  NOTE: Doubled TON/TOF is used to ensure that  @@@@@
+@@@@@  .DN bit transitions on same scan if Preset = 0 !  @@@@@]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Inp_Gate) TON(Wrk_GateT,?,?) TON(Wrk_GateT,?,?) ,XIC(Wrk_GateT.DN) OTE(Sts_Gate) XIC(Inp) TON(Wrk_OnDlyT,?,?) TON(Wrk_OnDlyT,?,?) ,XIC(Wrk_OnDlyT.DN) TOF(Wrk_OffDlyT,?,?) TOF(Wrk_OffDlyT,?,?) ,XIC(Wrk_OffDlyT.DN) OTE(Out) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Set the Gate Input to 1 (default value) on prescan]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+PRESCAN PROCESSING
+============================================================
+Set the Gate Input to 1 (default value) on Prescan to enable
+statuses / alarms that have Gate input unconnected.]]>
+</Comment>
+<Text>
+<![CDATA[OTL(Inp_Gate);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

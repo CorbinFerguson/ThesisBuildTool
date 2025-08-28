@@ -32,4 +32,4 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 CodeProjects/L5XFiles/*
-!CodeProjects/L5XFiles/TemplateFiles/*
+!CodeProjects/L5XFiles/TemplateFiles/

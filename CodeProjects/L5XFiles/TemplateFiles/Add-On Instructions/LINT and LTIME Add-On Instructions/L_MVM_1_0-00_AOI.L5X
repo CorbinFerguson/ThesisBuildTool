@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Fri Jul 31 10:42:26 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_MVM" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-06-22T13:44:13.375Z" CreatedBy="Not Available" EditedDate="2009-07-31T14:42:09.411Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Move with Mask (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Performs a 64-bit bitwise Move with Mask of a Source Value to an Output.
+If a bit in the Mask is TRUE, the corresponding Source bit is copied to the
+Output.  If a bit in the Mask is FALSE, the corresponding Output bit is left
+unchanged.
+
+In other words,  Output = (Output AND NOT Mask) OR (Source AND Mask).]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp_Source" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Source, copied through Mask to Out]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Mask" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Mask, only bits TRUE in Mask are copied from Source to Out]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Output = (Output AND NOT Mask) OR (Source AND Mask)]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Out" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Output as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Mask" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Mask as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Source" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Source as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Perform 64-bit Move with Mask]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_MVM : Move with Mask (64-bit)
+============================================================
+Revision 1.0-00 Release:  2009-Jun-31
+Initial Release
+============================================================
+Performs a 64-bit bitwise Move with Mask of a Source Value to an Output.
+If a bit in the Mask is TRUE, the corresponding Source bit is copied to the Output.
+If a bit in the Mask is FALSE, the corresponding Output bit is left unchanged.
+
+In other words,  Output = (Output AND NOT Mask) OR (Source AND Mask).
+
+This rung breaks each LINT input into two DINTs
+(32-bit signed each) to do the logical AND function.
+===================================================
+CONVERT LINTs TO DINTs
+===================================================
+These COPies take the input LINT values and break them into a pair of DINTs each.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_Source,Wrk_Source[0],2)COP(Inp_Mask,Wrk_Mask[0],2)COP(Out,Wrk_Out[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+DO A MOVE WITH MASK OF THE INDIVIDUAL DINT VALUES
+===================================================
+Simply do the MVM 32 bits at a time.]]>
+</Comment>
+<Text>
+<![CDATA[MVM(Wrk_Source[0],Wrk_Mask[0],Wrk_Out[0])MVM(Wrk_Source[1],Wrk_Mask[1],Wrk_Out[1]);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[===================================================
+CONVERT RESULTING DINTs TO LINT
+===================================================
+This COPy takes the output pair of DINTs (internal) and combines them
+into a single output LINT (64-bit signed integer)]]>
+</Comment>
+<Text>
+<![CDATA[COP(Wrk_Out[0],Out,1);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>
