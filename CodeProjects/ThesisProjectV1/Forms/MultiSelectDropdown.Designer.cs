@@ -35,10 +35,10 @@
             // 
             // ExitSelect
             // 
-            this.ExitSelect.Location = new System.Drawing.Point(48, 126);
-            this.ExitSelect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.ExitSelect.Location = new System.Drawing.Point(43, 101);
+            this.ExitSelect.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ExitSelect.Name = "ExitSelect";
-            this.ExitSelect.Size = new System.Drawing.Size(120, 42);
+            this.ExitSelect.Size = new System.Drawing.Size(107, 34);
             this.ExitSelect.TabIndex = 5;
             this.ExitSelect.Text = "Confirm";
             this.ExitSelect.UseVisualStyleBackColor = true;
@@ -46,34 +46,35 @@
             // 
             // TextBox
             // 
-            this.TextBox.Location = new System.Drawing.Point(48, 37);
-            this.TextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.TextBox.Location = new System.Drawing.Point(43, 30);
+            this.TextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.TextBox.Name = "TextBox";
             this.TextBox.ReadOnly = true;
-            this.TextBox.Size = new System.Drawing.Size(434, 26);
+            this.TextBox.Size = new System.Drawing.Size(386, 22);
             this.TextBox.TabIndex = 4;
             // 
             // DropdownElements
             // 
             this.DropdownElements.FormattingEnabled = true;
             this.DropdownElements.HorizontalScrollbar = true;
-            this.DropdownElements.ItemHeight = 20;
-            this.DropdownElements.Location = new System.Drawing.Point(177, 126);
-            this.DropdownElements.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.DropdownElements.ItemHeight = 16;
+            this.DropdownElements.Location = new System.Drawing.Point(157, 101);
+            this.DropdownElements.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.DropdownElements.Name = "DropdownElements";
             this.DropdownElements.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.DropdownElements.Size = new System.Drawing.Size(306, 224);
+            this.DropdownElements.Size = new System.Drawing.Size(272, 180);
+            this.DropdownElements.Sorted = true;
             this.DropdownElements.TabIndex = 3;
             // 
             // MultiSelectDropdown
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(554, 402);
+            this.ClientSize = new System.Drawing.Size(492, 322);
             this.Controls.Add(this.ExitSelect);
             this.Controls.Add(this.TextBox);
             this.Controls.Add(this.DropdownElements);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MultiSelectDropdown";
             this.Text = "MultiSelectDropdown";
             this.ResumeLayout(false);

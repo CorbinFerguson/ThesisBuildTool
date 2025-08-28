@@ -75,7 +75,10 @@ namespace ThesisProjectV1
                     revisionSelect.ShowDialog(out List<string> revisionsModify);
                     elements = elements.Where(i => revisionsModify.Contains(i.Attribute("Revision").Value));
                 }
-                IEnumerable<XElement> modified = elements.Select(i => xmlHandler.GetSetAttributes(i));
+                foreach(XElement element in elements)
+                {
+                    xmlHandler.GetSetAttributes(element);
+                }
             }
         }
 

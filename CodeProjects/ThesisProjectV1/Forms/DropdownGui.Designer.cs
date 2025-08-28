@@ -42,6 +42,7 @@
             this.Dropdownelements.Margin = new System.Windows.Forms.Padding(4);
             this.Dropdownelements.Name = "Dropdownelements";
             this.Dropdownelements.Size = new System.Drawing.Size(272, 180);
+            this.Dropdownelements.Sorted = true;
             this.Dropdownelements.TabIndex = 0;
             this.Dropdownelements.DoubleClick += new System.EventHandler(this.Dropdownelements_DoubleClick);
             // 

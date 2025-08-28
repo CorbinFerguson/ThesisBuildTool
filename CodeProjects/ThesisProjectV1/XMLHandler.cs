@@ -517,7 +517,7 @@ namespace ThesisProjectV1
             {
                 // Get tag type from document file
                 XElement grandparent = element.Parent.Parent;
-                elementAttr = GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString()));
+                elementAttr = GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Single(i => i.Attribute("name") != null && i.Attribute("name").Value.ToString().Equals(element.Name.ToString()));
 
                 // Search for complexType with name of type of element
             }
