@@ -14,11 +14,25 @@ namespace ThesisProjectV1.Forms
 
         private void ImportSelect_Click(object sender, EventArgs e)
         {
-            Execute.ImportElement();
+            try
+            {
+                Execute.ImportElement();
+            }
+            catch (EmptyListException)
+            {
+                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+            }
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
         {
-            Execute.GenerateElement();
+            try
+            {
+                Execute.GenerateElement();
+            }
+            catch (EmptyListException)
+            {
+                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+            }
         }
 
         private void ExitButton_Click(object sender, EventArgs e)
@@ -28,12 +42,26 @@ namespace ThesisProjectV1.Forms
 
         private void ModifySelect_Click(object sender, EventArgs e)
         {
-            Execute.ModifyElement();
+            try
+            {
+                Execute.ModifyElement();
+            }
+            catch (EmptyListException)
+            {
+                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+            }
         }
 
         private void DeleteSelect_Click(object sender, EventArgs e)
         {
-            Execute.DeleteElement();
+            try
+            {
+                Execute.DeleteElement();
+            }
+            catch (EmptyListException)
+            {
+                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+            }
         }
 
         private void SaveButton_Click(object sender, EventArgs e)

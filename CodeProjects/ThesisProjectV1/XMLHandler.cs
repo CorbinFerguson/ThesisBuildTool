@@ -22,6 +22,13 @@ namespace ThesisProjectV1
             "Program"
         };
 
+        private readonly List<string> typesToIgnore = new List<string>()
+        { 
+            "Controller",
+            "LocalTag",
+            "Parameter"
+        };
+
         public XDocument inputFile;
 
         public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
@@ -255,17 +262,14 @@ namespace ThesisProjectV1
                     parentNames = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name").Value.ToString()).ToList().Contains(i.Attribute(attributeFilter).Value)).Select(i => i.Attribute("name").Value).ToList();
 
                     // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type") != null && i.Attribute("type").Value.ToString().Equals(name)).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
 
                     // Create the path queue
                     Queue<string> rootPath = new Queue<string>();
-                    // If paths is empty, use element parent
-                    if (paths.Any() == false)
-                        rootPath.Enqueue(element.Parent.Name.ToString());
-                    // If it is not empty, use the parent of the last element in the queue
+                    // Use the parent of the last element in the queue
                     rootPath.Enqueue(nameOfElement);
                     Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
 
@@ -304,7 +308,7 @@ namespace ThesisProjectV1
                 IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
                 // Create a popup telling user what happened
                 List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
-                DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended parent type");
+                DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended grandparent type for element you are accessing");
                 selectElement.ShowDialog(out string nameOfElement);
                 try
                 {
@@ -331,8 +335,7 @@ namespace ThesisProjectV1
         public string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
-            List<string> elementTypes = inputFile.Descendants().Where(i => i.Attribute("Name") != null).Select(i => i.Name.ToString()).Distinct().ToList();
-            elementTypes.Remove("Controller");
+            List<string> elementTypes = inputFile.Descendants().Where(i => i.Attribute("Name") != null && !typesToIgnore.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
             selectType.ShowDialog(out string typeOfElement);
@@ -409,8 +412,7 @@ namespace ThesisProjectV1
             {
                 // Multiple elements of chosen type, prompt user to select which element should be the parent
                 List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
-                DropdownGui parentSelect = new DropdownGui(parentOptions, "Select the required parent to insert the element under");
-                parentSelect.ShowDialog(out string selectedName);
+                string selectedName = rootPath.Dequeue();
                 IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName));
                 if (parentNodes.Count() == 1)
                     parentNode = parentNodes.Single();
@@ -558,8 +560,7 @@ namespace ThesisProjectV1
         public string GetElementTypes(XDocument doc)
         {
             // Select Element Types
-            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null).Select(i => i.Name.ToString()).Distinct().ToList();
-            uniqueTypes.Remove("Controller");
+            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null && !typesToIgnore.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             if (uniqueTypes.Count == 0)
             {
