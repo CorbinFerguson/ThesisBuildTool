@@ -508,20 +508,10 @@ namespace ThesisProjectV1
         public XElement GetSetAttributes(XElement element)
         {
             XElement elementAttr;
-            try
-            {
-                XElement basicSchemaElement = GetValidator().GetSchema().Descendants().Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
-                elementAttr = GetValidator().GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "complexType")).Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()));
-            }
-            catch (InvalidOperationException)
-            {
-                // Get tag type from document file
-                XElement grandparent = element.Parent.Parent;
-                elementAttr = GetValidator().GetSchema().Descendants(grandparent.Name).Elements().Elements().Single(i => i.Attribute("name") != null && i.Attribute("name").Value.ToString().Equals(element.Name.ToString()));
-
-                // Search for complexType with name of type of element
-            }
-            IEnumerable<XElement> attributesEl = elementAttr.Elements().Where(i => i.Name.Equals(Ns + "attribute")); // TODO: this should be aquired from the schema
+            XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
+            elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()));
+            
+            IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute"); 
             List<XAttribute> attributesTochange = new List<XAttribute>();
             List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
 
