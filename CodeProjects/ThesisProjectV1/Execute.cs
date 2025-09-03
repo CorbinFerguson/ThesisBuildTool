@@ -67,7 +67,7 @@ namespace ThesisProjectV1
 
             foreach (string elementName in namesSelected)
             {
-                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value == elementName);
+                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value == elementName);
                 if (elements.Count() > 1)
                 {
                     // Multiple revisions
@@ -75,7 +75,7 @@ namespace ThesisProjectV1
                     revisionSelect.ShowDialog(out List<string> revisionsModify);
                     elements = elements.Where(i => revisionsModify.Contains(i.Attribute("Revision").Value));
                 }
-                foreach(XElement element in elements)
+                foreach (XElement element in elements)
                 {
                     xmlHandler.GetSetAttributes(element);
                 }
@@ -121,9 +121,13 @@ namespace ThesisProjectV1
             while (insertElement)
             {
                 string typeOfElement = xmlHandler.GetTypeAndSelect();
+                string attributeFilter = "Name";
+
+                if (typeOfElement.Equals("Module"))
+                    attributeFilter = "CatalogNumber";
 
                 // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter).Value.ToString()).ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                 selectElement.ShowDialog(out List<string> nameOfElement);
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
@@ -149,7 +153,13 @@ namespace ThesisProjectV1
                 // Prompt user to select the element to insert
                 string typeOfElement = xmlHandler.GetTypeAndSelect();
                 // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                string attributeSearch = "Name";
+                // IO Modules do not require a name. Must search by catalog number instead
+                if (typeOfElement.Equals("Module"))
+                    attributeSearch = "CatalogNumber";
+
+                // Find and display available elements of that type
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                 selectElement.ShowDialog(out List<string> nameOfElement);
 

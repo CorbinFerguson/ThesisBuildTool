@@ -15,18 +15,26 @@ namespace ThesisProjectV1
         private readonly string projectName = "GenProject";
         private readonly Validate validator = new Validate();
 
-        private readonly List<string> versionElements = new List<string>()
+        private readonly List<string> elementsWithRevision = new List<string>()
         {
             "AddOnInstructionDefinition",
             "DataType",
             "Program"
         };
 
-        private readonly List<string> typesToIgnore = new List<string>()
-        { 
-            "Controller",
+        private readonly List<string> acceptedTypes = new List<string>()
+        {
+            "AddOnInstructionDefinition",
+            "Program",
+            "Datatype",
+            "Dependency",
+            "Parameter",
+            "Structure",
+            "Routine",
+            "Tag",
             "LocalTag",
-            "Parameter"
+            "Module"
+
         };
 
         public XDocument inputFile;
@@ -201,13 +209,27 @@ namespace ThesisProjectV1
                 foreach (XElement dependency in dependencies)
                 {
                     // Check that element doesnt exist
-                    IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
+                    IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(dependency.Attribute("Name")?.Value) ?? false);
                     if (!clashingElements.Any())
                     {
                         // If it doesn't, insert dependency into file
                         XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
                         docToInsert = InsertElement(docToInsert, dependentElement);
                     }
+                }
+            }
+
+            // Check if there is a referenced Parent module(I/O objects) not already in the document and add it
+            if (!element.Attribute("ParentModule")?.Value.ToString().Equals("Local") ?? false)
+            {
+                string parentModule = element.Attribute("ParentModule").Value;
+                XElement moduleParentEl = inputFile.Descendants("Module").Single(i => i.Attribute("Name")?.Value.ToString().Equals(parentModule) ?? false);
+                IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("Name")?.Value) ?? false);
+                if (!clashingElements.Any())
+                {
+                    // If it doesn't, insert dependency into file
+                    XElement dependentElement = inputFile.Descendants(element.Name).Single(i => i.Attribute("Name")?.Value.Equals(element.Attribute("Name")?.Value) ?? false);
+                    docToInsert = InsertElement(docToInsert, dependentElement);
                 }
             }
             return docToInsert;
@@ -232,7 +254,7 @@ namespace ThesisProjectV1
             try
             {
                 attributeFilter = "name";
-                schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false).Single();
 
                 // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
@@ -243,7 +265,7 @@ namespace ThesisProjectV1
 
                     // search for something with that type
                     attributeFilter = "type";
-                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter).Value.Equals(name)).Single();
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false).Single();
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
@@ -256,15 +278,15 @@ namespace ThesisProjectV1
                 {
 
                     // Create a popup telling user what happened
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute(attributeFilter) != null).Where(i => i.Attribute(attributeFilter).Value.Equals(name));
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false);
 
                     List<string> parentNames = new List<string>();
-                    parentNames = validator.GetSchema().Descendants().Where(i => i.Attribute(attributeFilter) != null).Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name").Value.ToString()).ToList().Contains(i.Attribute(attributeFilter).Value)).Select(i => i.Attribute("name").Value).ToList();
+                    parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute(attributeFilter)?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
 
                     // Prompt user to select grandparent for the element
                     DropdownGui selectElement = new DropdownGui(parentNames, "Select grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
                     selectElement.ShowDialog(out string nameOfElement);
-                    string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type") != null && i.Attribute("type").Value.ToString().Equals(name)).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
+                    string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
 
                     // Create the path queue
@@ -297,15 +319,19 @@ namespace ThesisProjectV1
 
         public XElement GetElementFromFile(string elementType, string elementName)
         {
+            string attributeSearch = "Name";
+            // IO Modules do not require a name. Must search by catalog number instead
+            if (elementType.Equals("Module"))
+                attributeSearch = "CatalogNumber";
             XElement element = null;
             try
             {
-                element = inputFile.Descendants(elementType).Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value == elementName);
+                element = inputFile.Descendants(elementType).Single(i => i.Attribute(attributeSearch)?.Value == elementName);
             }
             catch (InvalidOperationException)
             {
                 // There exists more than one element of that name
-                IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.Equals(elementName));
+                IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch)?.Value.Equals(elementName) ?? false);
                 // Create a popup telling user what happened
                 List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
                 DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended grandparent type for element you are accessing");
@@ -316,11 +342,11 @@ namespace ThesisProjectV1
                 }
                 catch (InvalidOperationException)
                 {
-                    List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                    List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
                     DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
                     elementSelect.ShowDialog(out string selectedObject);
-                    XElement parentElement = inputFile.Descendants().Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value.ToString().Equals(selectedObject));
-                    element = parentElement.Descendants().Where(i => i.Attribute("Name") != null).Single(i => i.Attribute("Name").Value.ToString().Equals(elementName));
+                    XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
+                    element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
                 }
             }
             return element;
@@ -335,7 +361,7 @@ namespace ThesisProjectV1
         public string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
-            List<string> elementTypes = inputFile.Descendants().Where(i => i.Attribute("Name") != null && !typesToIgnore.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
+            List<string> elementTypes = inputFile.Descendants().Where(i => acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
             selectType.ShowDialog(out string typeOfElement);
@@ -365,9 +391,17 @@ namespace ThesisProjectV1
             Queue<string> rootPath = FindPathtoRootSchema(element);
             XName parentName = rootPath.Dequeue();
             XElement parentNode = null;
+            string searchFilter = "Name";
+
+            // If the element is a module, use CatalogNumber instead of Name
+            if (element.Name.ToString().Equals("Module"))
+            {
+                if (element.Attribute("Name") == null)
+                    searchFilter = "CatalogNumber";
+            }
 
             // Add Revision num 1.0 if it doesnt have a revision
-            if (element.Attribute("Revision") == null && element.Name.Equals("AddOnInstructionDefinition"))
+            if (element.Attribute("Revision") == null && elementsWithRevision.Contains(element.Name.ToString()))
                 element.SetAttributeValue("Revision", "1.0");
 
             // Check that parent node exists in document using the schema
@@ -378,9 +412,9 @@ namespace ThesisProjectV1
                 try
                 {
                     // Verify that the parent element has all required attributes
-                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name") != null && i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).Single().Attribute("type").Value;
-                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name") != null && i.Attribute("name").Value.Equals(complexType));
-                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use") != null && i.Attribute("use").Value.Equals("required"));
+                    string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).Single().Attribute("type").Value;
+                    XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.Equals(complexType) ?? false);
+                    IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use")?.Value.Equals("required") ?? false);
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
                         TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}", "");
@@ -411,9 +445,8 @@ namespace ThesisProjectV1
             catch (InvalidOperationException)
             {
                 // Multiple elements of chosen type, prompt user to select which element should be the parent
-                List<string> parentOptions = inDoc.Descendants(parentName).Select(i => i.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
                 string selectedName = rootPath.Dequeue();
-                IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute("Name") != null).Where(i => i.Attribute("Name").Value.ToString().Equals(selectedName));
+                IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute(searchFilter)?.Value.ToString().Equals(selectedName) ?? false);
                 if (parentNodes.Count() == 1)
                     parentNode = parentNodes.Single();
                 else if (parentNodes.Count() > 1)
@@ -426,16 +459,22 @@ namespace ThesisProjectV1
                     throw new EmptyListException("No Parent Nodes found");
             }
 
+            if(element.Name.ToString().Equals("Module"))
+            {
+                int portNum = inDoc.Descendants("Port").Count();
+                element.Descendants("Port").Single().Attribute("Address").SetValue(portNum);
+            }
+
             // Check that the element being added doesn't already exist
-            IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute("Name") != null && i.Attribute("Name").Value.Equals(element.Attribute("Name").Value));
+            IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
             XElement revisionClashes = clashingElements.SingleOrDefault(i => i.Attribute("Revision") == null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value));
 
             if (clashingElements.Count() > 0 && revisionClashes != null && !revisionClashes.IsEmpty)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-                if (versionElements.Contains(element.Name.ToString()))
+                if (elementsWithRevision.Contains(element.Name.ToString()))
                     actionOps.Add("Revision");
-                DropdownGui elementExists = new DropdownGui(actionOps, $"Element by that name already exists. What would you like to change for {element.Attribute("Name").Value}?");
+                DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
                 elementExists.ShowDialog(out string selected);
                 switch (selected)
                 {
@@ -449,17 +488,17 @@ namespace ThesisProjectV1
                         // Rename the element being inserted to not clash with existing element
                         if (selected == "Name")
                         {
-                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString());
+                            renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "");
                         }
                         else
                         {
-                            renameElement = new TextInput($"Element named {element.Attribute("Name").Value} already exists. Input a new {selected}.", element.Attribute(selected).Value.ToString(), @"^\d+\.\d$");
+                            renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$");
                         }
-                        string newAtrVal = element.Attribute(selected).Value.ToString();
-                        /// TODO: Add handling for if element by THAT name exists
-                        while (newAtrVal.Equals(element.Attribute(selected).Value.ToString()))
+                        // Prompt user for new value, insert
+                        string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
+                        while (newAtrVal.Equals(element.Attribute(selected)?.Value.ToString() ?? ""))
                             renameElement.ShowDialog(out newAtrVal);
-                        element.Attribute(selected).SetValue(newAtrVal);
+                        element.SetAttributeValue(selected, newAtrVal);
                         inDoc = InsertElement(inDoc, element);
                         return inDoc;
                     default:
@@ -510,10 +549,10 @@ namespace ThesisProjectV1
         public XElement GetSetAttributes(XElement element)
         {
             XElement elementAttr;
-            XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name") != null).Where(i => i.Attribute("name").Value.ToString().Equals(element.Name.ToString())).DescendantsAndSelf().Single();
-            elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Where(i => i.Attribute("name") != null).Single(i => i.Attribute("name").Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()));
-            
-            IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute"); 
+            XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
+            elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()) ?? false);
+
+            IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
             List<XAttribute> attributesTochange = new List<XAttribute>();
             List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
 
@@ -560,7 +599,7 @@ namespace ThesisProjectV1
         public string GetElementTypes(XDocument doc)
         {
             // Select Element Types
-            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null && !typesToIgnore.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
+            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null && acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             if (uniqueTypes.Count == 0)
             {
