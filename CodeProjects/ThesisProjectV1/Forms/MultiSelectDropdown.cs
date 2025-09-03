@@ -19,6 +19,7 @@ namespace ThesisProjectV1.Forms
             this.emptyReturn = allowEmptyReturn;
             this.DropdownElements.Items.AddRange(names.ToArray());
             this.TextBox.Text = text;
+            this.TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
         }
 
         public void ShowDialog(out List<string> selected)
@@ -31,6 +32,15 @@ namespace ThesisProjectV1.Forms
         {
             if (this.DropdownElements.SelectedItems.Count > 0 || emptyReturn)
                 this.Close();
+        }
+
+        private void MultiSelectDropdown_Resize(object sender, EventArgs e)
+        {
+            // Calculate available height below the ComboBox
+            int availableHeight = this.ClientSize.Height - (DropdownElements.Location.Y + DropdownElements.Height);
+
+            // Set MaxDropDownHeight, ensuring it's not negative
+            DropdownElements.Height = Math.Max(0, availableHeight);
         }
     }
 }
