@@ -18,9 +18,9 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.ImportElement();
             }
-            catch (EmptyListException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+                MessageBox.Show(ex.Message,"Error creating element. Aborting action.");
             }
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
@@ -29,9 +29,9 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.GenerateElement();
             }
-            catch (EmptyListException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
         }
 
@@ -46,9 +46,9 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.ModifyElement();
             }
-            catch (EmptyListException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
         }
 
@@ -58,9 +58,9 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.DeleteElement();
             }
-            catch (EmptyListException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Attempted to initialize empty list. Aborting action.");
+                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
         }
 

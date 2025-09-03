@@ -16,28 +16,28 @@ namespace ThesisProjectV1.Forms
                 throw new EmptyListException("Attempted to initialize dropdown gui with no elements");
             }
             InitializeComponent();
-            this.emptyReturn = allowEmptyReturn;
-            this.DropdownElements.Items.AddRange(names.ToArray());
-            this.TextBox.Text = text;
-            this.TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
+            emptyReturn = allowEmptyReturn;
+            DropdownElements.Items.AddRange(names.ToArray());
+            TextBox.Text = text;
+            TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
         }
 
         public void ShowDialog(out List<string> selected)
         {
             base.ShowDialog();
-            selected = this.DropdownElements.SelectedItems.Cast<string>().ToList();
+            selected = DropdownElements.SelectedItems.Cast<string>().ToList();
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if (this.DropdownElements.SelectedItems.Count > 0 || emptyReturn)
-                this.Close();
+            if (DropdownElements.SelectedItems.Count > 0 || emptyReturn)
+                Close();
         }
 
         private void MultiSelectDropdown_Resize(object sender, EventArgs e)
         {
             // Calculate available height below the ComboBox
-            int availableHeight = this.ClientSize.Height - (DropdownElements.Location.Y + DropdownElements.Height);
+            int availableHeight = ClientSize.Height - (DropdownElements.Location.Y + DropdownElements.Height);
 
             // Set MaxDropDownHeight, ensuring it's not negative
             DropdownElements.Height = Math.Max(0, availableHeight);

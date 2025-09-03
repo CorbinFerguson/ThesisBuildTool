@@ -13,34 +13,34 @@ namespace ThesisProjectV1.Forms
             InitializeComponent();
         }
 
-        public TextInput(string header, string defaultText, string reg= @"")
+        public TextInput(string header, string defaultText = "", string reg = @"")
         {
             InitializeComponent();
-            this.UserInstructionTextBox.Text = header;
-            this.InputValueName.Text = defaultText;
-            this.regex = reg;
+            UserInstructionTextBox.Text = header;
+            InputValueName.Text = defaultText;
+            regex = reg;
         }
 
         public void ShowDialog(out string textValue)
         {
             base.ShowDialog();
-            textValue = this.InputValueName.Text;
+            textValue = InputValueName.Text;
         }
 
         private void SubmitButton_Click(object sender, EventArgs e)
         {
-            if (Regex.IsMatch(this.InputValueName.Text, this.regex))
-                this.Close();
+            if (Regex.IsMatch(InputValueName.Text, regex))
+                Close();
             else
-                this.UserInstructionTextBox.Text = "Invalid Input";
+                UserInstructionTextBox.Text = "Invalid Input";
         }
 
         private void InputValueName_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && Regex.IsMatch(this.InputValueName.Text, this.regex))
-                this.Close();
-            else if(e.KeyCode == Keys.Enter)
-                this.UserInstructionTextBox.Text = "Invalid Input";
+            if (e.KeyCode == Keys.Enter && Regex.IsMatch(InputValueName.Text, regex))
+                Close();
+            else if (e.KeyCode == Keys.Enter)
+                UserInstructionTextBox.Text = "Invalid Input";
         }
     }
 }

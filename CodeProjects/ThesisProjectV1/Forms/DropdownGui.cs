@@ -25,7 +25,7 @@ namespace ThesisProjectV1.Forms
         public void ShowDialog(out string selected)
         {
             base.ShowDialog();
-            selected = this.Dropdownelements.SelectedItem.ToString();
+            selected = this.Dropdownelements.SelectedItem?.ToString() ?? throw new EmptyListException("Closed GUI without selecting item");
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
