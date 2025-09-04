@@ -66,6 +66,7 @@
             this.textBox1.Location = new System.Drawing.Point(44, 20);
             this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(385, 22);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Select the action you wish to take:";

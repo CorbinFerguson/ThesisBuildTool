@@ -459,9 +459,9 @@ namespace ThesisProjectV1
                     throw new EmptyListException("No Parent Nodes found");
             }
 
-            if(element.Name.ToString().Equals("Module"))
+            if (element.Name.ToString().Equals("Module"))
             {
-                int portNum = inDoc.Descendants("Port").Count();
+                int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
                 element.Descendants("Port").Single().Attribute("Address").SetValue(portNum);
             }
 
@@ -494,11 +494,14 @@ namespace ThesisProjectV1
                         {
                             renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$");
                         }
-                        // Prompt user for new value, insert
+
+                        // Prompt user for new value, then set it
                         string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
                         while (newAtrVal.Equals(element.Attribute(selected)?.Value.ToString() ?? ""))
                             renameElement.ShowDialog(out newAtrVal);
                         element.SetAttributeValue(selected, newAtrVal);
+
+                        // Insert the changed element and return the updated document
                         inDoc = InsertElement(inDoc, element);
                         return inDoc;
                     default:
@@ -511,12 +514,12 @@ namespace ThesisProjectV1
             IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
             parentAttributes = parentAttributes.Except(elementAttributes);
 
-            // If attributes are the same:
+            // If attributes are the same just add it
             if (elementAttributes.Equals(parentAttributes))
             {
                 parentNode.Add(element.Elements());
             }
-            // if Attributes are different
+            // if Attributes are different, add the missing attributes to the parent
             else
             {
                 foreach (XAttribute attribute in parentAttributes)

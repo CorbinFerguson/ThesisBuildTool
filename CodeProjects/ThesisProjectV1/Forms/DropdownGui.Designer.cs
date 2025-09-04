@@ -79,6 +79,7 @@
             this.Name = "DropdownGui";
             this.Text = "DropdownGui";
             this.TopMost = true;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DropdownGui_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

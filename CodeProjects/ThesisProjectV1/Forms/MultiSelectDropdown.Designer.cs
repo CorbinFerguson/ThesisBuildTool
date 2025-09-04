@@ -55,10 +55,10 @@
             this.tableLayoutPanel1.SetColumnSpan(this.TextBox, 2);
             this.TextBox.Location = new System.Drawing.Point(4, 4);
             this.TextBox.Margin = new System.Windows.Forms.Padding(4);
-            this.TextBox.MaximumSize = new System.Drawing.Size(0, 25);
+            this.TextBox.MaximumSize = new System.Drawing.Size(4, 25);
             this.TextBox.Name = "TextBox";
             this.TextBox.ReadOnly = true;
-            this.TextBox.Size = new System.Drawing.Size(541, 22);
+            this.TextBox.Size = new System.Drawing.Size(4, 22);
             this.TextBox.TabIndex = 4;
             // 
             // DropdownElements
@@ -104,6 +104,7 @@
             this.Name = "MultiSelectDropdown";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MultiSelectDropdown";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MultiSelectDropdown_FormClosed);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

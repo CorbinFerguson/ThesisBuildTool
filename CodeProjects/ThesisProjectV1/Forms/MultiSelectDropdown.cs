@@ -25,7 +25,7 @@ namespace ThesisProjectV1.Forms
         public void ShowDialog(out List<string> selected)
         {
             base.ShowDialog();
-            selected = DropdownElements.SelectedItems.Cast<string>().ToList();
+            selected = DropdownElements.SelectedItems?.Cast<string>().ToList() ?? throw new EmptyListException("Closed GUI without selecting item");
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
@@ -41,6 +41,12 @@ namespace ThesisProjectV1.Forms
 
             // Set MaxDropDownHeight, ensuring it's not negative
             DropdownElements.Height = Math.Max(0, availableHeight);
+        }
+
+        private void MultiSelectDropdown_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.MdiFormClosing)
+                throw new EmptyListException("Closed GUI without selecting item");
         }
     }
 }
