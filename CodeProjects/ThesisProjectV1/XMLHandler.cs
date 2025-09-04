@@ -224,12 +224,11 @@ namespace ThesisProjectV1
             {
                 string parentModule = element.Attribute("ParentModule").Value;
                 XElement moduleParentEl = inputFile.Descendants("Module").Single(i => i.Attribute("Name")?.Value.ToString().Equals(parentModule) ?? false);
-                IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("Name")?.Value) ?? false);
-                if (!clashingElements.Any())
+                IEnumerable<XElement> existingParents = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(moduleParentEl.Attribute("Name")?.Value) ?? false);
+                if (!existingParents.Any())
                 {
                     // If it doesn't, insert dependency into file
-                    XElement dependentElement = inputFile.Descendants(element.Name).Single(i => i.Attribute("Name")?.Value.Equals(element.Attribute("Name")?.Value) ?? false);
-                    docToInsert = InsertElement(docToInsert, dependentElement);
+                    docToInsert = InsertElement(docToInsert, moduleParentEl);
                 }
             }
             return docToInsert;
@@ -330,23 +329,57 @@ namespace ThesisProjectV1
             }
             catch (InvalidOperationException)
             {
+
                 // There exists more than one element of that name
                 IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch)?.Value.Equals(elementName) ?? false);
-                // Create a popup telling user what happened
-                List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
-                DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended grandparent type for element you are accessing");
-                selectElement.ShowDialog(out string nameOfElement);
-                try
+                if (!elementType.Equals("Module"))
                 {
-                    element = inputFile.Descendants(nameOfElement).Single();
+                    // Create a popup prompting user to select grandparent to disambiguate
+                    List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
+                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended grandparent type for element you are accessing");
+                    selectElement.ShowDialog(out string nameOfElement);
+
+                    // Insert
+                    try
+                    {
+                        element = inputFile.Descendants(nameOfElement).Single();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
+                        DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
+                        elementSelect.ShowDialog(out string selectedObject);
+                        XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
+                        element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                    }
                 }
-                catch (InvalidOperationException)
+                else
                 {
-                    List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                    DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                    elementSelect.ShowDialog(out string selectedObject);
-                    XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
-                    element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                    // Create a popup telling user what happened
+                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name").Distinct().ToList();
+                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select the name of the Module you are accessing");
+                    selectElement.ShowDialog(out string nameOfElement);
+
+                    // Insert the first element if there is no name
+                    if (nameOfElement.Contains("with no Name"))
+                    {
+                        // just take the first element of that type
+                        element = elementsToChoose.Where(i => i.Attribute("CatalogNumber").Value.Equals(elementName)).First();
+                    }
+
+                    try
+                    {
+
+                        element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
+                        DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
+                        elementSelect.ShowDialog(out string selectedObject);
+                        XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
+                        element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                    }
                 }
             }
             return element;
@@ -389,7 +422,7 @@ namespace ThesisProjectV1
         {
             inDoc = CheckForDependencies(inDoc, element);
             Queue<string> rootPath = FindPathtoRootSchema(element);
-            XName parentName = rootPath.Dequeue();
+            XName parentType = rootPath.Dequeue();
             XElement parentNode = null;
             string searchFilter = "Name";
 
@@ -405,9 +438,9 @@ namespace ThesisProjectV1
                 element.SetAttributeValue("Revision", "1.0");
 
             // Check that parent node exists in document using the schema
-            while (!inDoc.Descendants(parentName).Any())
+            while (!inDoc.Descendants(parentType).Any())
             {
-                element = new XElement(parentName, element);
+                element = new XElement(parentType, element);
 
                 try
                 {
@@ -417,7 +450,7 @@ namespace ThesisProjectV1
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use")?.Value.Equals("required") ?? false);
                     foreach (XElement requiredAttribute in requiredAttributes)
                     {
-                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentName}", "");
+                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentType}");
                         input.ShowDialog(out string attributeValue);
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
@@ -429,18 +462,18 @@ namespace ThesisProjectV1
                         element.SetAttributeValue(editedDate.Name, editedDate.Value);
                     }
 
-                    parentName = rootPath.Dequeue();
+                    parentType = rootPath.Dequeue();
                 }
                 catch (InvalidOperationException)
                 {
                     // Multiple options for parent element, already handled in findRoot
-                    parentName = rootPath.Dequeue();
+                    parentType = rootPath.Dequeue();
                 }
             }
 
             try
             {
-                parentNode = inDoc.Descendants(parentName).Single();
+                parentNode = inDoc.Descendants(parentType).Single();
             }
             catch (InvalidOperationException)
             {
@@ -461,8 +494,23 @@ namespace ThesisProjectV1
 
             if (element.Name.ToString().Equals("Module"))
             {
-                int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
-                element.Descendants("Port").Single().Attribute("Address").SetValue(portNum);
+                try
+                {
+                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count();
+                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Where(i => i.Attribute("Address")?.Value.ToString().Equals(portNum.ToString()) ?? false).Any())
+                        portNum++;
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Prompt user for ethernet address or hostname value
+                    string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
+                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName'", "192.168.1.1", ipRegex);
+                    ipPrompt.ShowDialog(out string chosenIP);
+
+                    // Set the value of IP
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
+                }
             }
 
             // Check that the element being added doesn't already exist
@@ -557,7 +605,6 @@ namespace ThesisProjectV1
 
             IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
             List<XAttribute> attributesTochange = new List<XAttribute>();
-            List<XAttribute> nonDefaultAttributes = new List<XAttribute>();
 
             // Foreach subelement/value
             foreach (XElement attribute in attributesEl)
@@ -575,16 +622,10 @@ namespace ThesisProjectV1
             selectAttributes.ShowDialog(out List<string> selectedAttributenames);
             foreach (string attributeName in selectedAttributenames)
             {
-                nonDefaultAttributes.Add(element.Attribute(attributeName));
                 attributesTochange.RemoveAll(i => i.Name == attributeName);
-            }
-
-            // Get user values for attributes
-            foreach (XAttribute changeAttribute in nonDefaultAttributes)
-            {
-                TextInput input = new TextInput($"Input a value for {changeAttribute.Name} attribute of {element.Name}", changeAttribute.Value);
+                TextInput input = new TextInput($"Input a value for {attributeName} attribute of {element?.Name}" ?? "Input a value.", "");
                 input.ShowDialog(out string attributeValue);
-                element.Attribute(changeAttribute.Name).SetValue(attributeValue);
+                element.SetAttributeValue(attributeName, attributeValue);
             }
 
             foreach (XAttribute setDefaultAttribute in attributesTochange)

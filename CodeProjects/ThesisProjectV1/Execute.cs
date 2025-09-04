@@ -127,7 +127,7 @@ namespace ThesisProjectV1
                     attributeFilter = "CatalogNumber";
 
                 // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter).Value.ToString()).ToList();
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter).Value.ToString()).Distinct().ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                 selectElement.ShowDialog(out List<string> nameOfElement);
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
