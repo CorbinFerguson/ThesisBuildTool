@@ -203,29 +203,37 @@ namespace ThesisProjectV1
                 else
                 {
                     // Create a popup telling user what happened
-                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name").Distinct().ToList();
+                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address")?.Value ?? elementName + "With no Name or Port Address to distinguish").Distinct().ToList();
                     DropdownGui selectElement = new DropdownGui(parentOptions, "Select the name of the Module you are accessing");
                     selectElement.ShowDialog(out string nameOfElement);
 
-                    // Insert the first element if there is no name
-                    if (nameOfElement.Contains("with no Name"))
+                    // Insert the first element if there is no name or port address to use.
+                    if (nameOfElement.Contains("or Port"))
                     {
                         // just take the first element of that type
                         element = elementsToChoose.Where(i => i.Attribute("CatalogNumber").Value.Equals(elementName)).First();
                     }
-
-                    try
+                    // If there is just no name but there is a port, use that to differentiate.
+                    else if (nameOfElement.Contains("no Name"))
                     {
-
-                        element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
+                        throw new NotImplementedException();
                     }
-                    catch (InvalidOperationException)
+                    // There is a name. Use that to differentiate.
+                    else
                     {
-                        List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                        DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                        elementSelect.ShowDialog(out string selectedObject);
-                        XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
-                        element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                        try
+                        {
+
+                            element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
+                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
+                            elementSelect.ShowDialog(out string selectedObject);
+                            XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
+                            element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                        }
                     }
                 }
             }
