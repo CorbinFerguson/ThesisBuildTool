@@ -39,11 +39,5 @@ namespace ThesisProjectV1.Forms
             if (this.Dropdownelements.SelectedItem != null)
                 this.Close();
         }
-
-        private void DropdownGui_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.MdiFormClosing)
-                throw new EmptyListException("Closed GUI without selecting item");
-        }
     }
 }

@@ -283,7 +283,7 @@ namespace ThesisProjectV1
                     parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute(attributeFilter)?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
 
                     // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select grandparent for " + element.Name + ": " + element.Attribute("Name").Value);
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select grandparent for " + element.Name);
                     selectElement.ShowDialog(out string nameOfElement);
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
@@ -418,10 +418,11 @@ namespace ThesisProjectV1
 
         internal Validate GetValidator() { return validator; }
 
-        public XDocument InsertElement(XDocument inDoc, XElement element)
+        public XDocument InsertElement(XDocument inDoc, XElement element, Queue<string> rootPath = null)
         {
             inDoc = CheckForDependencies(inDoc, element);
-            Queue<string> rootPath = FindPathtoRootSchema(element);
+            if (rootPath == null)
+                rootPath = FindPathtoRootSchema(element);
             XName parentType = rootPath.Dequeue();
             XElement parentNode = null;
             string searchFilter = "Name";
@@ -476,17 +477,17 @@ namespace ThesisProjectV1
                 parentNode = inDoc.Descendants(parentType).Single();
             }
             catch (InvalidOperationException)
-            {
+            {////TODO: this needs to be updated to handle when there is multiple parents of the same type, it should offer the user a selection
                 // Multiple elements of chosen type, prompt user to select which element should be the parent
-                string selectedName = rootPath.Dequeue();
-                IEnumerable<XElement> parentNodes = inDoc.Descendants().Where(i => i.Attribute(searchFilter)?.Value.ToString().Equals(selectedName) ?? false);
+                string grandparentName = rootPath.Dequeue();
+                IEnumerable<XElement> parentNodes = inDoc.Descendants(grandparentName);
                 if (parentNodes.Count() == 1)
                     parentNode = parentNodes.Single();
                 else if (parentNodes.Count() > 1)
                 {
-                    DropdownGui revisionSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revision");
-                    revisionSelect.ShowDialog(out string Revision);
-                    parentNode = parentNodes.Single(i => i.Attribute("Revision").Value.ToString() == Revision);
+                    DropdownGui nameSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
+                    nameSelect.ShowDialog(out string name);
+                    parentNode = parentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
                 }
                 else
                     throw new EmptyListException("No Parent Nodes found");
@@ -585,8 +586,12 @@ namespace ThesisProjectV1
 
         public XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
+            Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
-                InsertElement(doc, element);
+            {
+                Queue<string> usedpath = new Queue<string>(unchangedPath);
+                InsertElement(doc, element, usedpath);
+            }
             return doc;
         }
 
