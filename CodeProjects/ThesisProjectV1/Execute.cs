@@ -68,10 +68,6 @@ namespace ThesisProjectV1
             foreach (string elementName in namesSelected)
             {
                 IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value == elementName);
-                if (elements.Count() > 1)
-                {
-                    throw new NotImplementedException();
-                }
                 foreach (XElement element in elements)
                 {
                     xmlHandler.GetSetAttributes(element);
@@ -82,20 +78,15 @@ namespace ThesisProjectV1
         public static void DeleteElement()
         {
             string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
             MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
             nameSelect.ShowDialog(out List<string> namesSelected);
 
             // For all selected element names, remove the associated element
             foreach (string name in namesSelected)
             {
-                List<XElement> removeElements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value.Equals(name)).ToList();
-                // Multiple elements by that name.(assumes it is working with a valid document)
-                if (removeElements.Count() > 1)
-                {
-                    throw new NotImplementedException();
-                }
-                removeElements.Remove();
+                XElement removeElement = doc.Descendants(typeSelected).Single(i => i.Attribute("Name")?.Value.Equals(name) ?? i.Attribute("CatalogNumber").Value.Equals(name));
+                removeElement.Remove();
             }
 
         }

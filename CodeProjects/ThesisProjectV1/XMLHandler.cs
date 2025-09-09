@@ -54,6 +54,8 @@ namespace ThesisProjectV1
                     {
                         // If it doesn't, insert dependency into file
                         XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
+
+                        Console.WriteLine("Dependency element found: " + dependentElement.Attribute("Name").Value);
                         docToInsert = InsertElement(docToInsert, dependentElement);
                     }
                 }
@@ -196,8 +198,8 @@ namespace ThesisProjectV1
                 else
                 {
                     // Get all valid options. 
-                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value ).Distinct().ToList();
-                    
+                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value).Distinct().ToList();
+
                     // Create a popup prompting user to select the 
                     DropdownGui selectElement = new DropdownGui(parentOptions, "Select the name of the Module you are accessing");
                     selectElement.ShowDialog(out string nameOfElement);
@@ -205,7 +207,7 @@ namespace ThesisProjectV1
                     // Insert the first element if there is no name or port address to use.
                     if (nameOfElement.Contains("at port"))
                     {
-                        int portIndex = nameOfElement.IndexOf("port ")+5;
+                        int portIndex = nameOfElement.IndexOf("port ") + 5;
                         string selectedPort = nameOfElement.Substring(portIndex);
                         element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
                     }
