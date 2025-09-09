@@ -195,21 +195,19 @@ namespace ThesisProjectV1
                 }
                 else
                 {
-                    // Create a popup telling user what happened
-                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address")?.Value ?? elementName + "With no Name or Port Address to distinguish").Distinct().ToList();
+                    // Get all valid options. 
+                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value ).Distinct().ToList();
+                    
+                    // Create a popup prompting user to select the 
                     DropdownGui selectElement = new DropdownGui(parentOptions, "Select the name of the Module you are accessing");
                     selectElement.ShowDialog(out string nameOfElement);
 
                     // Insert the first element if there is no name or port address to use.
-                    if (nameOfElement.Contains("or Port"))
+                    if (nameOfElement.Contains("at port"))
                     {
-                        // just take the first element of that type
-                        element = elementsToChoose.Where(i => i.Attribute("CatalogNumber").Value.Equals(elementName)).First();
-                    }
-                    // If there is just no name but there is a port, use that to differentiate.
-                    else if (nameOfElement.Contains("no Name"))
-                    {
-                        throw new NotImplementedException();
+                        int portIndex = nameOfElement.IndexOf("port ")+5;
+                        string selectedPort = nameOfElement.Substring(portIndex);
+                        element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
                     }
                     // There is a name. Use that to differentiate.
                     else
@@ -419,7 +417,7 @@ namespace ThesisProjectV1
                 parentNode.Add(element);
             }
 
-            Console.WriteLine("Inserted: " + element.Name);
+            Console.WriteLine("Inserted: " + element.Name + " " + element.Attribute("Name")?.Value ?? "");
 
             return inDoc;
         }
