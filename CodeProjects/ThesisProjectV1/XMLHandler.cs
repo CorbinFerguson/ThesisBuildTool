@@ -10,9 +10,6 @@ namespace ThesisProjectV1
     public class XMLHandler
     {
         #region Variables
-        private readonly string processorType = "1756-L81E";
-
-        private readonly string projectName = "GenProject";
         private readonly Validate validator = new Validate();
 
         private readonly List<string> acceptedTypes = new List<string>()
@@ -158,16 +155,18 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        public XElement GetElementFromFile(string elementType, string elementName)
+        public List<XElement> GetElementFromFile(string elementType, string elementName)
         {
             string attributeSearch = "Name";
             // IO Modules do not require a name. Must search by catalog number instead
             if (elementType.Equals("Module"))
                 attributeSearch = "CatalogNumber";
             XElement element = null;
+            List<XElement> elements = new List<XElement>();
             try
             {
                 element = inputFile.Descendants(elementType).Single(i => i.Attribute(attributeSearch)?.Value == elementName);
+                elements.Add(element);
             }
             catch (InvalidOperationException)
             {
@@ -194,6 +193,7 @@ namespace ThesisProjectV1
                         XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
                         element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
                     }
+                    elements.Add(element);
                 }
                 else
                 {
@@ -201,41 +201,44 @@ namespace ThesisProjectV1
                     List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value).Distinct().ToList();
 
                     // Create a popup prompting user to select the 
-                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select the name of the Module you are accessing");
-                    selectElement.ShowDialog(out string nameOfElement);
+                    MultiSelectDropdown selectElement = new MultiSelectDropdown(parentOptions, "Select the name of the Module you are accessing");
+                    selectElement.ShowDialog(out List<string> nameOfElements);
 
-                    // Insert the first element if there is no name or port address to use.
-                    if (nameOfElement.Contains("at port"))
+                    foreach (string nameOfElement in nameOfElements)
                     {
-                        int portIndex = nameOfElement.IndexOf("port ") + 5;
-                        string selectedPort = nameOfElement.Substring(portIndex);
-                        element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
-                    }
-                    // There is a name. Use that to differentiate.
-                    else
-                    {
-                        try
+                        // Insert the first element if there is no name or port address to use.
+                        if (nameOfElement.Contains("at port"))
                         {
-
-                            element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
+                            int portIndex = nameOfElement.IndexOf("port ") + 5;
+                            string selectedPort = nameOfElement.Substring(portIndex);
+                            element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
                         }
-                        catch (InvalidOperationException)
+                        // There is a name. Use that to differentiate.
+                        else
                         {
-                            List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                            DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                            elementSelect.ShowDialog(out string selectedObject);
-                            XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
-                            element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                            try
+                            {
+                                element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
+                                DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
+                                elementSelect.ShowDialog(out string selectedObject);
+                                XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
+                                element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
+                            }
                         }
+                        elements.Add(element);
                     }
                 }
             }
-            return element;
+            return elements;
         }
 
         public List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
         {
-            List<XElement> elementList = elementNames.Select(elementName => GetElementFromFile(elementType, elementName)).ToList();
+            List<XElement> elementList = elementNames.SelectMany(elementName => GetElementFromFile(elementType, elementName)).ToList();
             return elementList;
         }
 
@@ -321,7 +324,7 @@ namespace ThesisProjectV1
                 parentNode = inDoc.Descendants(parentType).Single();
             }
             catch (InvalidOperationException)
-            {////TODO: this needs to be updated to handle when there is multiple parents of the same type, it should offer the user a selection
+            {
                 // Multiple elements of chosen type, prompt user to select which element should be the parent
                 string grandparentName = rootPath.Dequeue();
                 IEnumerable<XElement> parentNodes = inDoc.Descendants(grandparentName);
