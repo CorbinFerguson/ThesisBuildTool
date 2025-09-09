@@ -33,9 +33,6 @@ namespace ThesisProjectV1
 
         #endregion
 
-        #region Constructors
-        #endregion
-
         #region functions
         public XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
@@ -63,7 +60,7 @@ namespace ThesisProjectV1
             {
                 string parentModule = element.Attribute("ParentModule").Value;
                 XElement moduleParentEl = inputFile.Descendants("Module").Single(i => i.Attribute("Name")?.Value.ToString().Equals(parentModule) ?? false);
-                IEnumerable<XElement> existingParents = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(moduleParentEl.Attribute("Name")?.Value) ?? false);
+                IEnumerable<XElement> existingParents = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(moduleParentEl?.Attribute("Name")?.Value) ?? false);
                 if (!existingParents.Any())
                 {
                     // If it doesn't, insert dependency into file
@@ -170,7 +167,6 @@ namespace ThesisProjectV1
             }
             catch (InvalidOperationException)
             {
-
                 // There exists more than one element of that name
                 IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch)?.Value.Equals(elementName) ?? false);
                 if (!elementType.Equals("Module"))
@@ -201,7 +197,7 @@ namespace ThesisProjectV1
                     List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value).Distinct().ToList();
 
                     // Create a popup prompting user to select the 
-                    MultiSelectDropdown selectElement = new MultiSelectDropdown(parentOptions, "Select the name of the Module you are accessing");
+                    MultiSelectDropdown selectElement = new MultiSelectDropdown(parentOptions, "Select the name of the Module " + elementName + " you are accessing");
                     selectElement.ShowDialog(out List<string> nameOfElements);
 
                     foreach (string nameOfElement in nameOfElements)
@@ -340,27 +336,6 @@ namespace ThesisProjectV1
                     throw new EmptyListException("No Parent Nodes found");
             }
 
-            if (element.Name.ToString().Equals("Module"))
-            {
-                try
-                {
-                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count();
-                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Where(i => i.Attribute("Address")?.Value.ToString().Equals(portNum.ToString()) ?? false).Any())
-                        portNum++;
-                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
-                }
-                catch (InvalidOperationException)
-                {
-                    // Prompt user for ethernet address or hostname value
-                    string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
-                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName'", "192.168.1.1", ipRegex);
-                    ipPrompt.ShowDialog(out string chosenIP);
-
-                    // Set the value of IP
-                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
-                }
-            }
-
             // Check that the element being added doesn't already exist
             IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
 
@@ -399,6 +374,28 @@ namespace ThesisProjectV1
                     default:
                         // Cancel insertion
                         return inDoc;
+                }
+            }
+
+            // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
+            if (element.Name.ToString().Equals("Module"))
+            {
+                try
+                {
+                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count();
+                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Where(i => i.Attribute("Address")?.Value.ToString().Equals(portNum.ToString()) ?? false).Any())
+                        portNum++;
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Prompt user for ethernet address or hostname value
+                    string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
+                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName'", "192.168.1.1", ipRegex);
+                    ipPrompt.ShowDialog(out string chosenIP);
+
+                    // Set the value of IP
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
                 }
             }
 
