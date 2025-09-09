@@ -84,7 +84,6 @@
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "TextInput";
             this.Text = "TextInput";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TextInput_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

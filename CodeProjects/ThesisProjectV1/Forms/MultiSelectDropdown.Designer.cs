@@ -104,7 +104,6 @@
             this.Name = "MultiSelectDropdown";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MultiSelectDropdown";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MultiSelectDropdown_FormClosed);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

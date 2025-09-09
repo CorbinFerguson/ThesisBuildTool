@@ -42,11 +42,5 @@ namespace ThesisProjectV1.Forms
             else if (e.KeyCode == Keys.Enter)
                 UserInstructionTextBox.Text = "Invalid Input";
         }
-
-        private void TextInput_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if(e.CloseReason == CloseReason.MdiFormClosing)
-                throw new EmptyListException("Closed GUI without selecting item");
-        }
     }
 }
