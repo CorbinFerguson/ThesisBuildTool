@@ -15,13 +15,6 @@ namespace ThesisProjectV1
         private readonly string projectName = "GenProject";
         private readonly Validate validator = new Validate();
 
-        private readonly List<string> elementsWithRevision = new List<string>()
-        {
-            "AddOnInstructionDefinition",
-            "DataType",
-            "Program"
-        };
-
         private readonly List<string> acceptedTypes = new List<string>()
         {
             "AddOnInstructionDefinition",
@@ -289,10 +282,6 @@ namespace ThesisProjectV1
                     searchFilter = "CatalogNumber";
             }
 
-            // Add Revision num 1.0 if it doesnt have a revision
-            if (element.Attribute("Revision") == null && elementsWithRevision.Contains(element.Name.ToString()))
-                element.SetAttributeValue("Revision", "1.0");
-
             // Check that parent node exists in document using the schema
             while (!inDoc.Descendants(parentType).Any())
             {
@@ -371,23 +360,19 @@ namespace ThesisProjectV1
 
             // Check that the element being added doesn't already exist
             IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
-            XElement revisionClashes = clashingElements.SingleOrDefault(i => i.Attribute("Revision") == null || i.Attribute("Revision").Value.Equals(element.Attribute("Revision").Value));
 
-            if (clashingElements.Count() > 0 && revisionClashes != null && !revisionClashes.IsEmpty)
+            if (clashingElements.Count() > 0)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-                if (elementsWithRevision.Contains(element.Name.ToString()))
-                    actionOps.Add("Revision");
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
                 elementExists.ShowDialog(out string selected);
                 switch (selected)
                 {
                     case "Replace":
                         // Replace the already existing element
-                        revisionClashes.Remove();
+                        clashingElements.Single();
                         break;
                     case "Name":
-                    case "Revision":
                         TextInput renameElement;
                         // Rename the element being inserted to not clash with existing element
                         if (selected == "Name")

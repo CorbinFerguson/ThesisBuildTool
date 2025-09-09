@@ -70,10 +70,7 @@ namespace ThesisProjectV1
                 IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value == elementName);
                 if (elements.Count() > 1)
                 {
-                    // Multiple revisions
-                    MultiSelectDropdown revisionSelect = new MultiSelectDropdown(elements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revisions to modify");
-                    revisionSelect.ShowDialog(out List<string> revisionsModify);
-                    elements = elements.Where(i => revisionsModify.Contains(i.Attribute("Revision").Value));
+                    throw new NotImplementedException();
                 }
                 foreach (XElement element in elements)
                 {
@@ -93,12 +90,10 @@ namespace ThesisProjectV1
             foreach (string name in namesSelected)
             {
                 List<XElement> removeElements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value.Equals(name)).ToList();
-                // Multiple elements by that name. Must have multiple revisions.(assumes it is working with a valid document)
+                // Multiple elements by that name.(assumes it is working with a valid document)
                 if (removeElements.Count() > 1)
                 {
-                    MultiSelectDropdown revisionSelect = new MultiSelectDropdown(removeElements.Select(i => i.Attribute("Revision").Value.ToString()).ToList(), "Select Revisions to remove");
-                    revisionSelect.ShowDialog(out List<string> revisionsRemove);
-                    removeElements = removeElements.Where(i => revisionsRemove.Contains(i.Attribute("Revision").Value.ToString())).ToList();
+                    throw new NotImplementedException();
                 }
                 removeElements.Remove();
             }
