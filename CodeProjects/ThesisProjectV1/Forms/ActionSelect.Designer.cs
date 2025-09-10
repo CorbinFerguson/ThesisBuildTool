@@ -41,10 +41,11 @@
             // 
             // ImportSelect
             // 
-            this.ImportSelect.Location = new System.Drawing.Point(12, 46);
+            this.ImportSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ImportSelect.Location = new System.Drawing.Point(32, 82);
             this.ImportSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ImportSelect.Name = "ImportSelect";
-            this.ImportSelect.Size = new System.Drawing.Size(107, 80);
+            this.ImportSelect.Size = new System.Drawing.Size(136, 115);
             this.ImportSelect.TabIndex = 0;
             this.ImportSelect.Text = "Import Element";
             this.ImportSelect.UseVisualStyleBackColor = true;
@@ -52,10 +53,11 @@
             // 
             // GenerateSelect
             // 
-            this.GenerateSelect.Location = new System.Drawing.Point(126, 46);
+            this.GenerateSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.GenerateSelect.Location = new System.Drawing.Point(174, 82);
             this.GenerateSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GenerateSelect.Name = "GenerateSelect";
-            this.GenerateSelect.Size = new System.Drawing.Size(107, 80);
+            this.GenerateSelect.Size = new System.Drawing.Size(136, 115);
             this.GenerateSelect.TabIndex = 1;
             this.GenerateSelect.Text = "Create from Template";
             this.GenerateSelect.UseVisualStyleBackColor = true;
@@ -63,20 +65,22 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(44, 20);
+            this.textBox1.Font = new System.Drawing.Font("Arial", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(32, 11);
             this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(385, 22);
+            this.textBox1.Size = new System.Drawing.Size(562, 42);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Select the action you wish to take:";
             // 
             // ExitButton
             // 
-            this.ExitButton.Location = new System.Drawing.Point(312, 143);
+            this.ExitButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ExitButton.Location = new System.Drawing.Point(305, 219);
             this.ExitButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ExitButton.Name = "ExitButton";
-            this.ExitButton.Size = new System.Drawing.Size(67, 33);
+            this.ExitButton.Size = new System.Drawing.Size(96, 55);
             this.ExitButton.TabIndex = 3;
             this.ExitButton.Text = "Exit";
             this.ExitButton.UseVisualStyleBackColor = true;
@@ -84,10 +88,11 @@
             // 
             // ModifySelect
             // 
-            this.ModifySelect.Location = new System.Drawing.Point(237, 46);
+            this.ModifySelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ModifySelect.Location = new System.Drawing.Point(316, 82);
             this.ModifySelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ModifySelect.Name = "ModifySelect";
-            this.ModifySelect.Size = new System.Drawing.Size(107, 80);
+            this.ModifySelect.Size = new System.Drawing.Size(136, 115);
             this.ModifySelect.TabIndex = 4;
             this.ModifySelect.Text = "Modify Element";
             this.ModifySelect.UseVisualStyleBackColor = true;
@@ -95,10 +100,11 @@
             // 
             // DeleteSelect
             // 
-            this.DeleteSelect.Location = new System.Drawing.Point(349, 46);
+            this.DeleteSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DeleteSelect.Location = new System.Drawing.Point(458, 82);
             this.DeleteSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DeleteSelect.Name = "DeleteSelect";
-            this.DeleteSelect.Size = new System.Drawing.Size(107, 80);
+            this.DeleteSelect.Size = new System.Drawing.Size(136, 115);
             this.DeleteSelect.TabIndex = 5;
             this.DeleteSelect.Text = "Delete Element";
             this.DeleteSelect.UseVisualStyleBackColor = true;
@@ -106,10 +112,11 @@
             // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(166, 143);
+            this.SaveButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SaveButton.Location = new System.Drawing.Point(101, 219);
             this.SaveButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SaveButton.Name = "SaveButton";
-            this.SaveButton.Size = new System.Drawing.Size(67, 33);
+            this.SaveButton.Size = new System.Drawing.Size(96, 55);
             this.SaveButton.TabIndex = 6;
             this.SaveButton.Text = "Save";
             this.SaveButton.UseVisualStyleBackColor = true;
@@ -117,10 +124,11 @@
             // 
             // LoadButton
             // 
-            this.LoadButton.Location = new System.Drawing.Point(239, 143);
+            this.LoadButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LoadButton.Location = new System.Drawing.Point(203, 219);
             this.LoadButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LoadButton.Name = "LoadButton";
-            this.LoadButton.Size = new System.Drawing.Size(67, 33);
+            this.LoadButton.Size = new System.Drawing.Size(96, 55);
             this.LoadButton.TabIndex = 7;
             this.LoadButton.Text = "Load";
             this.LoadButton.UseVisualStyleBackColor = true;
@@ -128,10 +136,11 @@
             // 
             // NewFile
             // 
-            this.NewFile.Location = new System.Drawing.Point(93, 143);
+            this.NewFile.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewFile.Location = new System.Drawing.Point(407, 219);
             this.NewFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.NewFile.Name = "NewFile";
-            this.NewFile.Size = new System.Drawing.Size(67, 33);
+            this.NewFile.Size = new System.Drawing.Size(96, 55);
             this.NewFile.TabIndex = 8;
             this.NewFile.Text = "New";
             this.NewFile.UseVisualStyleBackColor = true;
@@ -141,7 +150,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(469, 187);
+            this.ClientSize = new System.Drawing.Size(633, 343);
             this.Controls.Add(this.NewFile);
             this.Controls.Add(this.LoadButton);
             this.Controls.Add(this.SaveButton);
@@ -151,7 +160,9 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.GenerateSelect);
             this.Controls.Add(this.ImportSelect);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
             this.Name = "ActionSelect";
             this.Text = "ActionSelect";
             this.ResumeLayout(false);
