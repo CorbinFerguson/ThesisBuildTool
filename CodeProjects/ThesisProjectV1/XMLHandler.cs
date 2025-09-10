@@ -339,7 +339,7 @@ namespace ThesisProjectV1
             }
 
             // Check that the element being added doesn't already exist
-            if(element.Name.ToString() != "Module" || element.Attribute("Name") != null)
+            if (element.Name.ToString() != "Module" || element.Attribute("Name") != null)
                 clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
 
             if (clashingElements?.Count() > 0)

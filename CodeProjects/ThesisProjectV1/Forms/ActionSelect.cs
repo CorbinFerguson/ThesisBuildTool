@@ -20,7 +20,7 @@ namespace ThesisProjectV1.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message,"Error creating element. Aborting action.");
+                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
         }
         private void GenerateSelect_Click(object sender, EventArgs e)

@@ -18,26 +18,26 @@ namespace ThesisProjectV1.Forms
                 throw new EmptyListException("Attempted to initialize dropdown gui with no elements");
             }
             InitializeComponent();
-            this.Dropdownelements.Items.AddRange(names.ToArray());
-            this.textBox.Text = text;
+            Dropdownelements.Items.AddRange(names.ToArray());
+            textBox.Text = text;
         }
 
         public void ShowDialog(out string selected)
         {
             base.ShowDialog();
-            selected = this.Dropdownelements.SelectedItem?.ToString() ?? throw new EmptyListException("Closed GUI without selecting item");
+            selected = Dropdownelements.SelectedItem?.ToString() ?? throw new EmptyListException("Closed GUI without selecting item");
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if (this.Dropdownelements.SelectedItem != null)
-                this.Close();
+            if (Dropdownelements.SelectedItem != null)
+                Close();
         }
 
         private void Dropdownelements_DoubleClick(object sender, EventArgs e)
         {
-            if (this.Dropdownelements.SelectedItem != null)
-                this.Close();
+            if (Dropdownelements.SelectedItem != null)
+                Close();
         }
     }
 }
