@@ -20,6 +20,5 @@
     <TimeSynchronize Priority1="128" Priority2="128" PTPEnable="false" />
 	<InternetProtocol />
     <EthernetPorts />
-	<EthernetNetwork />
   </Controller>
 </RSLogix5000Content>

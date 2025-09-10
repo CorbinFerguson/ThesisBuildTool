@@ -34,7 +34,7 @@ namespace ThesisProjectV1
         #endregion
 
         #region functions
-        public XDocument CheckForDependencies(XDocument docToInsert, XElement element)
+        internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
             // Check if there are any dependencies in the inserted element
             if (element.Attributes("Dependencies") != null)
@@ -70,7 +70,7 @@ namespace ThesisProjectV1
             return docToInsert;
         }
 
-        public XDocument CheckForDependencies(XDocument docToInsert, List<XElement> elements)
+        internal XDocument CheckForDependencies(XDocument docToInsert, List<XElement> elements)
         {
             foreach (XElement element in elements)
                 docToInsert = CheckForDependencies(docToInsert, element);
@@ -78,7 +78,7 @@ namespace ThesisProjectV1
         }
 
         // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
-        public Queue<string> FindPathtoRootSchema(XElement element)
+        internal Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
             string attributeFilter = null;
@@ -152,7 +152,7 @@ namespace ThesisProjectV1
             return paths;
         }
 
-        public List<XElement> GetElementFromFile(string elementType, string elementName)
+        internal List<XElement> GetElementFromFile(string elementType, string elementName)
         {
             string attributeSearch = "Name";
             // IO Modules do not require a name. Must search by catalog number instead
@@ -232,13 +232,13 @@ namespace ThesisProjectV1
             return elements;
         }
 
-        public List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
+        internal List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
         {
             List<XElement> elementList = elementNames.SelectMany(elementName => GetElementFromFile(elementType, elementName)).ToList();
             return elementList;
         }
 
-        public string GetTypeAndSelect()
+        internal string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
             List<string> elementTypes = inputFile.Descendants().Where(i => acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
@@ -249,7 +249,7 @@ namespace ThesisProjectV1
         }
 
         // Gets all the simple elements in the XML Schema
-        public List<String> GetSimpleElements()
+        internal List<String> GetSimpleElements()
         {
             IEnumerable<XElement> elements = validator.GetSchema().Descendants(Ns + "element");
 
@@ -265,7 +265,7 @@ namespace ThesisProjectV1
 
         internal Validate GetValidator() { return validator; }
 
-        public XDocument InsertElement(XDocument inDoc, XElement insertEl, Queue<string> rootPath = null)
+        internal XDocument InsertElement(XDocument inDoc, XElement insertEl, Queue<string> rootPath = null)
         {
             XElement element = new XElement(insertEl);
             inDoc = CheckForDependencies(inDoc, element);
@@ -301,7 +301,7 @@ namespace ThesisProjectV1
                         element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
                     }
 
-                    if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("EditedDate") != null).Any())
+                    if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute") && i.Attribute("EditedDate") != null).Any())
                     {
                         //Ensure edit information is up to date
                         XAttribute editedDate = new XAttribute("EditedDate", DateTime.Now);
@@ -367,13 +367,10 @@ namespace ThesisProjectV1
 
                         // Prompt user for new value, then set it
                         string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
-                        while (newAtrVal.Equals(element.Attribute(selected)?.Value.ToString() ?? ""))
+                        while (parentNode.Descendants(element.Name).Where(i => newAtrVal.Equals(i.Attribute(selected)?.Value.ToString())).Any())
                             renameElement.ShowDialog(out newAtrVal);
                         element.SetAttributeValue(selected, newAtrVal);
-
-                        // Insert the changed element and return the updated document
-                        inDoc = InsertElement(inDoc, element);
-                        return inDoc;
+                        break;
                     default:
                         // Cancel insertion
                         return inDoc;
@@ -433,7 +430,7 @@ namespace ThesisProjectV1
             return inDoc;
         }
 
-        public XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
+        internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
@@ -445,13 +442,13 @@ namespace ThesisProjectV1
         }
 
         // Loads a premade blank file containig basic structure for the program to build off
-        public XDocument LoadBasicFile()
+        internal XDocument LoadBasicFile()
         {
             XDocument doc = XDocument.Load("../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
         }
 
-        public XElement GetSetAttributes(XElement element)
+        internal XElement GetSetAttributes(XElement element)
         {
             XElement elementAttr;
             XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
@@ -494,7 +491,7 @@ namespace ThesisProjectV1
             return element;
         }
 
-        public string GetElementTypes(XDocument doc)
+        internal string GetElementTypes(XDocument doc)
         {
             // Select Element Types
             List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null && acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
