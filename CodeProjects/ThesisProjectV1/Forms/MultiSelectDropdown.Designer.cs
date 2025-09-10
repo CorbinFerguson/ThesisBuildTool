@@ -39,7 +39,7 @@
             // 
             this.ExitSelect.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExitSelect.Location = new System.Drawing.Point(418, 32);
+            this.ExitSelect.Location = new System.Drawing.Point(418, 29);
             this.ExitSelect.Margin = new System.Windows.Forms.Padding(4);
             this.ExitSelect.Name = "ExitSelect";
             this.ExitSelect.Size = new System.Drawing.Size(127, 34);
@@ -67,11 +67,11 @@
             this.DropdownElements.FormattingEnabled = true;
             this.DropdownElements.HorizontalScrollbar = true;
             this.DropdownElements.ItemHeight = 16;
-            this.DropdownElements.Location = new System.Drawing.Point(4, 32);
+            this.DropdownElements.Location = new System.Drawing.Point(4, 29);
             this.DropdownElements.Margin = new System.Windows.Forms.Padding(4);
             this.DropdownElements.Name = "DropdownElements";
             this.DropdownElements.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.DropdownElements.Size = new System.Drawing.Size(406, 293);
+            this.DropdownElements.Size = new System.Drawing.Size(406, 296);
             this.DropdownElements.Sorted = true;
             this.DropdownElements.TabIndex = 3;
             // 
@@ -88,8 +88,8 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 8.805032F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 91.19497F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(549, 329);
             this.tableLayoutPanel1.TabIndex = 6;
             // 
