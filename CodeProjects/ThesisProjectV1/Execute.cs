@@ -61,13 +61,13 @@ namespace ThesisProjectV1
         public static void ModifyElement()
         {
             string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name").Value.ToString()).Distinct().ToList();
+            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value.ToString()).Distinct().ToList();
             MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
             nameSelect.ShowDialog(out List<string> namesSelected);
 
             foreach (string elementName in namesSelected)
             {
-                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => i.Attribute("Name").Value == elementName);
+                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => (i.Attribute("Name")?.Value ?? i.Attribute("CatalogNumber").Value) == elementName);
                 foreach (XElement element in elements)
                 {
                     xmlHandler.GetSetAttributes(element);

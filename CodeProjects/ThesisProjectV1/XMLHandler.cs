@@ -265,14 +265,16 @@ namespace ThesisProjectV1
 
         internal Validate GetValidator() { return validator; }
 
-        public XDocument InsertElement(XDocument inDoc, XElement element, Queue<string> rootPath = null)
+        public XDocument InsertElement(XDocument inDoc, XElement insertEl, Queue<string> rootPath = null)
         {
+            XElement element = new XElement(insertEl);
             inDoc = CheckForDependencies(inDoc, element);
             if (rootPath == null)
                 rootPath = FindPathtoRootSchema(element);
             XName parentType = rootPath.Dequeue();
             XElement parentNode = null;
             string searchFilter = "Name";
+            IEnumerable<XElement> clashingElements = null;
 
             // If the element is a module, use CatalogNumber instead of Name
             if (element.Name.ToString().Equals("Module"))
@@ -337,9 +339,10 @@ namespace ThesisProjectV1
             }
 
             // Check that the element being added doesn't already exist
-            IEnumerable<XElement> clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
+            if(element.Name.ToString() != "Module" || element.Attribute("Name") != null)
+                clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
 
-            if (clashingElements.Count() > 0)
+            if (clashingElements?.Count() > 0)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
@@ -380,20 +383,26 @@ namespace ThesisProjectV1
             // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
             if (element.Name.ToString().Equals("Module"))
             {
-                try
+                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
                 {
                     int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count();
-                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Where(i => i.Attribute("Address")?.Value.ToString().Equals(portNum.ToString()) ?? false).Any())
+                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
                         portNum++;
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
                 }
-                catch (InvalidOperationException)
+                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("Ethernet") && i.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
                 {
+                    // Get all already used IP addresses
+                    List<string> takenIPs = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(i => i.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(i => i.Attribute("Address").Value.ToString()).ToList();
+
                     // Prompt user for ethernet address or hostname value
                     string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
-                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName'", "192.168.1.1", ipRegex);
-                    ipPrompt.ShowDialog(out string chosenIP);
-
+                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
+                    string chosenIP = element.Descendants("Port").Single(i => i.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
+                    while (takenIPs.Contains(chosenIP))
+                    {
+                        ipPrompt.ShowDialog(out chosenIP);
+                    }
                     // Set the value of IP
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
                 }
@@ -463,12 +472,12 @@ namespace ThesisProjectV1
                 attributesTochange.Add(wantedAttribute);
             }
             // Prompt user for other attributes to not take default value for
-            MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value", true);
+            MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", true);
             selectAttributes.ShowDialog(out List<string> selectedAttributenames);
             foreach (string attributeName in selectedAttributenames)
             {
                 attributesTochange.RemoveAll(i => i.Name == attributeName);
-                TextInput input = new TextInput($"Input a value for {attributeName} attribute of {element?.Name}" ?? "Input a value.", "");
+                TextInput input = new TextInput($"Input a value for {attributeName} attribute of {element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value}", element.Attribute(attributeName)?.Value ?? "");
                 input.ShowDialog(out string attributeValue);
                 element.SetAttributeValue(attributeName, attributeValue);
             }
