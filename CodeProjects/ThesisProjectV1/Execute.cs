@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Transactions;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -106,21 +107,39 @@ namespace ThesisProjectV1
             // While loop to contain importing elements from chosen file
             while (insertElement)
             {
-                string typeOfElement = xmlHandler.GetTypeAndSelect();
-                string attributeFilter = "Name";
+                using (TransactionScope tran = new TransactionScope())
+                {
+                    string typeOfElement = xmlHandler.GetTypeAndSelect();
+                    string attributeFilter = "Name";
 
-                if (typeOfElement.Equals("Module"))
-                    attributeFilter = "CatalogNumber";
+                    if (typeOfElement.Equals("Module"))
+                        attributeFilter = "CatalogNumber";
 
-                // Get all elements in file of the type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter).Value.ToString()).Distinct().ToList();
-                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement);
-                List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
-                doc = xmlHandler.InsertElement(doc, returnedElement);
-                DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
-                if (newElementFile == DialogResult.No)
-                    break;
+                    // Get all elements in file of the type
+                    List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
+                    MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
+                    selectElement.ShowDialog(out List<string> nameOfElement);
+                    List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+                    doc = xmlHandler.InsertElement(doc, returnedElement);
+
+                    // Validate, if successful, complete transaction
+                    // Validate the document against the xml Schema
+                    List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                    string errors = string.Join(Environment.NewLine, errorList);
+
+                    if (errors.Length > 0)
+                    {
+                        MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    }
+                    else
+                    {
+                        tran.Complete();
+                    }
+
+                        DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+                    if (newElementFile == DialogResult.No)
+                        break;
+                }
             }
         }
 
