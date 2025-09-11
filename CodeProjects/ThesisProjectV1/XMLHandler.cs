@@ -317,25 +317,21 @@ namespace ThesisProjectV1
                 }
             }
 
-            try
+            // Multiple elements of chosen type, prompt user to select which element should be the parent
+            string grandparentName = rootPath.Dequeue();
+            IEnumerable<XElement> parentNodes = inDoc.Descendants(grandparentName);
+            if (parentNodes.Count() == 1)
+                parentNode = parentNodes.Single();
+            else if (parentNodes.Count() > 1)
             {
-                parentNode = inDoc.Descendants(parentType).Single();
+                DropdownGui nameSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
+                nameSelect.ShowDialog(out string name);
+                parentNode = parentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
             }
-            catch (InvalidOperationException)
+            else
             {
-                // Multiple elements of chosen type, prompt user to select which element should be the parent
-                string grandparentName = rootPath.Dequeue();
-                IEnumerable<XElement> parentNodes = inDoc.Descendants(grandparentName);
-                if (parentNodes.Count() == 1)
-                    parentNode = parentNodes.Single();
-                else if (parentNodes.Count() > 1)
-                {
-                    DropdownGui nameSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
-                    nameSelect.ShowDialog(out string name);
-                    parentNode = parentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
-                }
-                else
-                    throw new EmptyListException("No Parent Nodes found");
+                parentNode = new XElement(parentType, element);
+                return InsertElement(inDoc, parentNode);
             }
 
             // Check that the element being added doesn't already exist
