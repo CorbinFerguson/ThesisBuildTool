@@ -107,7 +107,7 @@ namespace ThesisProjectV1
             // While loop to contain importing elements from chosen file
             while (insertElement)
             {
-                using (TransactionScope tran = new TransactionScope())
+                using (TransactionScope transaction = new TransactionScope())
                 {
                     string typeOfElement = xmlHandler.GetTypeAndSelect();
                     string attributeFilter = "Name";
@@ -122,21 +122,21 @@ namespace ThesisProjectV1
                     List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
                     doc = xmlHandler.InsertElement(doc, returnedElement);
 
-                    // Validate, if successful, complete transaction
-                    // Validate the document against the xml Schema
+                    // Validate the document against the xml Schema, if successful, complete transaction
                     List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
                     string errors = string.Join(Environment.NewLine, errorList);
 
                     if (errors.Length > 0)
                     {
                         MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                        transaction.Dispose();
                     }
                     else
                     {
-                        tran.Complete();
+                        transaction.Complete();
                     }
 
-                        DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
+                    DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                     if (newElementFile == DialogResult.No)
                         break;
                 }

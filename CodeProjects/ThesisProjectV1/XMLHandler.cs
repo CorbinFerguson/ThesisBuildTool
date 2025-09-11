@@ -318,15 +318,15 @@ namespace ThesisProjectV1
             }
 
             // Multiple elements of chosen type, prompt user to select which element should be the parent
-            string grandparentName = rootPath.Dequeue();
-            IEnumerable<XElement> parentNodes = inDoc.Descendants(grandparentName);
-            if (parentNodes.Count() == 1)
-                parentNode = parentNodes.Single();
-            else if (parentNodes.Count() > 1)
+            string grandparentType = rootPath.Dequeue();
+            IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
+            if (grandParentNodes.Count() == 1)
+                parentNode = grandParentNodes.Descendants(parentType).Single();
+            else if (grandParentNodes.Count() > 1)
             {
-                DropdownGui nameSelect = new DropdownGui(parentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
+                DropdownGui nameSelect = new DropdownGui(grandParentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
                 nameSelect.ShowDialog(out string name);
-                parentNode = parentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
+                parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
             }
             else
             {
