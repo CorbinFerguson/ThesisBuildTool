@@ -89,7 +89,7 @@ namespace ThesisProjectV1
             try
             {
                 attributeFilter = "name";
-                schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false).Single();
+                schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute(attributeFilter)?.Value.Equals(name) ?? false));
 
                 // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
@@ -318,7 +318,7 @@ namespace ThesisProjectV1
             }
 
             // Multiple elements of chosen type, prompt user to select which element should be the parent
-            string grandparentType = rootPath.Dequeue();
+            string grandparentType = rootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
                 parentNode = grandParentNodes.Descendants(parentType).Single();
@@ -331,7 +331,7 @@ namespace ThesisProjectV1
             else
             {
                 parentNode = new XElement(parentType, element);
-                return InsertElement(inDoc, parentNode);
+                return InsertElement(inDoc, parentNode, rootPath);
             }
 
             // Check that the element being added doesn't already exist

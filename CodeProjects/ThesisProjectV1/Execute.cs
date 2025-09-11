@@ -84,7 +84,7 @@ namespace ThesisProjectV1
 
                 if (errors.Length > 0)
                 {
-                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    MessageBox.Show(errors, "Validation error: undoing action", MessageBoxButtons.OK);
                     transaction.Dispose();
                 }
                 else

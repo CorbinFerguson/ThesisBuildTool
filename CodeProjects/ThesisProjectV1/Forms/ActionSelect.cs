@@ -77,6 +77,7 @@ namespace ThesisProjectV1.Forms
         private void NewFile_Click(object sender, EventArgs e)
         {
             Execute.NewFile();
+            MessageBox.Show("New Empty File Created.");
         }
     }
 }
