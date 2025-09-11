@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -61,35 +62,67 @@ namespace ThesisProjectV1
 
         public static void ModifyElement()
         {
-            string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value.ToString()).Distinct().ToList();
-            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
-            nameSelect.ShowDialog(out List<string> namesSelected);
-
-            foreach (string elementName in namesSelected)
+            using (TransactionScope transaction = new TransactionScope())
             {
-                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => (i.Attribute("Name")?.Value ?? i.Attribute("CatalogNumber").Value) == elementName);
-                foreach (XElement element in elements)
+                string typeSelected = xmlHandler.GetElementTypes(doc);
+                List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value.ToString()).Distinct().ToList();
+                MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
+                nameSelect.ShowDialog(out List<string> namesSelected);
+
+                foreach (string elementName in namesSelected)
                 {
-                    xmlHandler.GetSetAttributes(element);
+                    IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => (i.Attribute("Name")?.Value ?? i.Attribute("CatalogNumber").Value) == elementName);
+                    foreach (XElement element in elements)
+                    {
+                        xmlHandler.GetSetAttributes(element);
+                    }
+                }
+
+                // Validate the document against the xml Schema, if successful, complete transaction
+                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                string errors = string.Join(Environment.NewLine, errorList);
+
+                if (errors.Length > 0)
+                {
+                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    transaction.Dispose();
+                }
+                else
+                {
+                    transaction.Complete();
                 }
             }
         }
 
         public static void DeleteElement()
         {
-            string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
-            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
-            nameSelect.ShowDialog(out List<string> namesSelected);
-
-            // For all selected element names, remove the associated element
-            foreach (string name in namesSelected)
+            using(TransactionScope transaction = new TransactionScope()) 
             {
-                XElement removeElement = doc.Descendants(typeSelected).Single(i => i.Attribute("Name")?.Value.Equals(name) ?? i.Attribute("CatalogNumber").Value.Equals(name));
-                removeElement.Remove();
-            }
+                string typeSelected = xmlHandler.GetElementTypes(doc);
+                List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
+                MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
+                nameSelect.ShowDialog(out List<string> namesSelected);
 
+                // For all selected element names, remove the associated element
+                foreach (string name in namesSelected)
+                {
+                    XElement removeElement = doc.Descendants(typeSelected).Single(i => i.Attribute("Name")?.Value.Equals(name) ?? i.Attribute("CatalogNumber").Value.Equals(name));
+                    removeElement.Remove();
+                }
+                // Validate the document against the xml Schema, if successful, complete transaction
+                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                string errors = string.Join(Environment.NewLine, errorList);
+
+                if (errors.Length > 0)
+                {
+                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    transaction.Dispose();
+                }
+                else
+                {
+                    transaction.Complete();
+                }
+            }
         }
 
         // Function for taking in an element from a file
@@ -145,10 +178,10 @@ namespace ThesisProjectV1
 
         public static void GenerateElement()
         {
-            // Prompt user for what template file they would like to pull from
-            openFileSearch.InitialDirectory = "../TemplateFiles/";
-            try
+            using (TransactionScope transaction = new TransactionScope())
             {
+                // Prompt user for what template file they would like to pull from
+                openFileSearch.InitialDirectory = "../TemplateFiles/";
                 // Select File being imported from
                 if (openFileSearch.ShowDialog() == DialogResult.OK)
                     xmlHandler.inputFile = XDocument.Load(openFileSearch.FileName);
@@ -177,11 +210,19 @@ namespace ThesisProjectV1
 
                     xmlHandler.InsertElement(doc, setElement);
                 }
-            }
-            catch (EmptyListException ex)
-            {
-                // Create a popup telling user what happened
-                MessageBox.Show(ex.Message, "Exception Creating List", MessageBoxButtons.OK);
+                // Validate the document against the xml Schema, if successful, complete transaction
+                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+                string errors = string.Join(Environment.NewLine, errorList);
+
+                if (errors.Length > 0)
+                {
+                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    transaction.Dispose();
+                }
+                else
+                {
+                    transaction.Complete();
+                }
             }
         }
     }
