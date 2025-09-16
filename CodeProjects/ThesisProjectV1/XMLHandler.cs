@@ -23,7 +23,8 @@ namespace ThesisProjectV1
             "Routine",
             "Tag",
             "LocalTag",
-            "Module"
+            "Module",
+            "Task"
 
         };
 
@@ -67,6 +68,14 @@ namespace ThesisProjectV1
                     docToInsert = InsertElement(docToInsert, moduleParentEl);
                 }
             }
+
+            if(element.Name.ToString().Equals("Task"))
+            {
+                IEnumerable<string> programNames = element.Descendants("ScheduledProgram").Select(i => i.Attribute("Name").Value);
+                List<XElement> programs = inputFile.Descendants("Program").Where(i => programNames.Contains(i.Attribute("Name").Value.ToString())).ToList();
+                InsertElement(docToInsert, programs);
+            }
+
             return docToInsert;
         }
 
@@ -489,7 +498,7 @@ namespace ThesisProjectV1
 
             // Prompt user to select any children to modify
             IEnumerable<XElement> childElements = element.Elements();
-            MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).ToList(), "Select Children elements to modify", true);
+            MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify", true);
             selectChildren.ShowDialog(out List<string> selectedChildren);
 
             // Access the elements selected and modify them recursively
