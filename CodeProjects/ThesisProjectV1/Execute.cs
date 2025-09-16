@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -115,7 +116,7 @@ namespace ThesisProjectV1
 
                 if (errors.Length > 0)
                 {
-                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
+                    MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK);
                     transaction.Dispose();
                 }
                 else
@@ -161,8 +162,8 @@ namespace ThesisProjectV1
 
                     if (errors.Length > 0)
                     {
-                        MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
-                        transaction.Dispose();
+                        var t = Task.Run(() => { MessageBox.Show(errors, "Error: opening modify wizard to fix", MessageBoxButtons.OK); });
+                        Execute.ModifyElement();
                     }
                     else
                     {
@@ -206,9 +207,8 @@ namespace ThesisProjectV1
                 // Prompt user to select the subelements/values to change(required elements are not selectable)
                 foreach (XElement element in elementList)
                 {
-                    XElement setElement = xmlHandler.GetSetAttributes(element);
-
-                    xmlHandler.InsertElement(doc, setElement);
+                    xmlHandler.GetSetAttributes(element);
+                    xmlHandler.InsertElement(doc, element);
                 }
                 // Validate the document against the xml Schema, if successful, complete transaction
                 List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
@@ -216,8 +216,8 @@ namespace ThesisProjectV1
 
                 if (errors.Length > 0)
                 {
-                    MessageBox.Show(errors, "Error: undoing action", MessageBoxButtons.OK);
-                    transaction.Dispose();
+                    MessageBox.Show(errors, "Error: opening modify wizard to fix", MessageBoxButtons.OK);
+                    Execute.ModifyElement();
                 }
                 else
                 {

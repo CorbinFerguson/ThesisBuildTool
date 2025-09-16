@@ -37,7 +37,7 @@ namespace ThesisProjectV1
         {
             List<string> invalidElements = new List<string>();
             Console.WriteLine("Validating document");
-            doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add(error.Message); }, true);
+            doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add("Parent: " + (((XElement)sender).Parent.Attribute("Name")?.Value ?? ((XElement)sender).Parent.Name )+ ". " + error.Message); }, true);
             return invalidElements;
         }
         #endregion

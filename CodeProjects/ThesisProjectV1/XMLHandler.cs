@@ -321,14 +321,16 @@ namespace ThesisProjectV1
             string grandparentType = rootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
-                parentNode = grandParentNodes.Descendants(parentType).Single();
+            {
+                parentNode = grandParentNodes.Elements(parentType).SingleOrDefault();
+            }
             else if (grandParentNodes.Count() > 1)
             {
                 DropdownGui nameSelect = new DropdownGui(grandParentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
                 nameSelect.ShowDialog(out string name);
                 parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
             }
-            else
+            if (parentNode == null)
             {
                 parentNode = new XElement(parentType, element);
                 return InsertElement(inDoc, parentNode, rootPath);
@@ -444,7 +446,7 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        internal XElement GetSetAttributes(XElement element)
+        internal void GetSetAttributes(XElement element)
         {
             XElement elementAttr;
             XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
@@ -484,7 +486,23 @@ namespace ThesisProjectV1
                 if (setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) != null)
                     element.Attribute(setDefaultAttribute.Name).Remove();
             }
-            return element;
+
+            // Prompt user to select any children to modify
+            IEnumerable<XElement> childElements = element.Elements();
+            MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).ToList(), "Select Children elements to modify", true);
+            selectChildren.ShowDialog(out List<string> selectedChildren);
+
+            // Access the elements selected and modify them recursively
+            childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()));
+            GetSetAttributes(childElements);
+        }
+
+        internal void GetSetAttributes(IEnumerable<XElement> elements)
+        {
+            foreach (XElement element in elements)
+            {
+                GetSetAttributes(element);
+            }
         }
 
         internal string GetElementTypes(XDocument doc)
