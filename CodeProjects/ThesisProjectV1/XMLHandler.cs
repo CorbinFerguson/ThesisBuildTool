@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Navigation;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
 
@@ -69,10 +70,10 @@ namespace ThesisProjectV1
                 }
             }
 
-            if(element.Name.ToString().Equals("Task"))
+            if(element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
             {
                 IEnumerable<string> programNames = element.Descendants("ScheduledProgram").Select(i => i.Attribute("Name").Value);
-                List<XElement> programs = inputFile.Descendants("Program").Where(i => programNames.Contains(i.Attribute("Name").Value.ToString())).ToList();
+                List<XElement> programs = inputFile.Descendants("Program").Where(i => programNames.Contains(i.Attribute("Name").Value.ToString())).Where(i => !docToInsert.Descendants("Program").Select(j => j.Attribute("Name").Value).Contains(i.Attribute("Name").Value)).ToList();
                 InsertElement(docToInsert, programs);
             }
 
@@ -349,7 +350,8 @@ namespace ThesisProjectV1
             if (element.Name.ToString() != "Module" || element.Attribute("Name") != null)
                 clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
 
-            if (clashingElements?.Count() > 0)
+            // Handle already existing elements, either replace the existing element, rename the inserted element, or cancel the operation
+            if (clashingElements?.Any() ?? false)
             {
                 List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
                 DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
@@ -409,6 +411,34 @@ namespace ThesisProjectV1
                     }
                     // Set the value of IP
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
+                }
+            }
+
+            // Programs parent Task have a reference line in the task
+            if(element.Name.ToString().Equals("Program"))
+            {
+                List<string> tasks = inDoc.Descendants("Task").Select(i => i.Attribute("Name").Value).ToList();
+                tasks.Add("Unscheduled Program");
+
+                // Prompt user for parent task of program or unscheduled
+                DropdownGui progParent = new DropdownGui(tasks, "Select the parent task for " + element.Attribute("Name").Value);
+                progParent.ShowDialog(out string selectedTask);
+
+                // If unscheduled, continue without any special action.
+                if (selectedTask != "Unscheduled Program")
+                {
+                    // Otherwise insert program name as a scheduledProgram in the task
+                    XElement taskElement = inDoc.Descendants("Task").Single(i => i.Attribute("Name").Value.Equals(selectedTask));
+                    XElement scheduledProgram = new XElement("ScheduledProgram", new XAttribute("Name", element.Attribute("Name").Value));
+                    if (taskElement.Elements("ScheduledPrograms").Any())
+                    {
+                        scheduledProgram = new XElement("ScheduledPrograms", scheduledProgram);
+                        taskElement.Add(scheduledProgram);
+                    }
+                    else
+                    {
+                        taskElement.Element("ScheduledPrograms").Add(scheduledProgram);
+                    }
                 }
             }
 
@@ -498,12 +528,15 @@ namespace ThesisProjectV1
 
             // Prompt user to select any children to modify
             IEnumerable<XElement> childElements = element.Elements();
-            MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify", true);
-            selectChildren.ShowDialog(out List<string> selectedChildren);
+            if (childElements.Any())
+            {
+                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify", true);
+                selectChildren.ShowDialog(out List<string> selectedChildren);
 
-            // Access the elements selected and modify them recursively
-            childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()));
-            GetSetAttributes(childElements);
+                // Access the elements selected and modify them recursively
+                childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()));
+                GetSetAttributes(childElements);
+            }
         }
 
         internal void GetSetAttributes(IEnumerable<XElement> elements)

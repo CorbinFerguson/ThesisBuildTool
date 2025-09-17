@@ -181,13 +181,8 @@ namespace ThesisProjectV1
         {
             using (TransactionScope transaction = new TransactionScope())
             {
-                // Prompt user for what template file they would like to pull from
-                openFileSearch.InitialDirectory = "../TemplateFiles/";
                 // Select File being imported from
-                if (openFileSearch.ShowDialog() == DialogResult.OK)
-                    xmlHandler.inputFile = XDocument.Load(openFileSearch.FileName);
-                else
-                    return;
+                xmlHandler.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
 
                 // Prompt user to select the element to insert
                 string typeOfElement = xmlHandler.GetTypeAndSelect();
@@ -207,9 +202,21 @@ namespace ThesisProjectV1
                 // Prompt user to select the subelements/values to change(required elements are not selectable)
                 foreach (XElement element in elementList)
                 {
-                    xmlHandler.GetSetAttributes(element);
-                    xmlHandler.InsertElement(doc, element);
+                    TextInput insertQuantity = new TextInput("How many " + element.Name + " would you like to create?", "1", @"^[1-9]\d*$");
+                    insertQuantity.ShowDialog(out string itemQuantity);
+                    int quantity = int.Parse(itemQuantity);
+
+                    for (int i = 0; i < quantity; i++)
+                    {
+                        // Prompt user for name of item
+                        TextInput nameSelect = new TextInput("Create Element");
+                        nameSelect.ShowDialog(out string itemName);
+
+                        element.SetAttributeValue("Name", itemName);
+                        xmlHandler.InsertElement(doc, element);
+                    }
                 }
+
                 // Validate the document against the xml Schema, if successful, complete transaction
                 List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
                 string errors = string.Join(Environment.NewLine, errorList);
@@ -221,6 +228,7 @@ namespace ThesisProjectV1
                 }
                 else
                 {
+                    MessageBox.Show("Insert More Items?","Completed insertion.", MessageBoxButtons.YesNo);
                     transaction.Complete();
                 }
             }
