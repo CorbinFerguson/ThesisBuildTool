@@ -13,7 +13,7 @@ namespace ThesisProjectV1.Forms
             InitializeComponent();
         }
 
-        public TextInput(string header, string defaultText = "", string reg = @"\w")
+        public TextInput(string header, string defaultText = "", string reg = @"^\w+$")
         {
             InitializeComponent();
             UserInstructionTextBox.Text = header;

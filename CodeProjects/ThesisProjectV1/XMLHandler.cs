@@ -33,6 +33,8 @@ namespace ThesisProjectV1
 
         public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
 
+        public ElementHelper ElementInfo = new ElementHelper();
+
         #endregion
 
         #region functions
@@ -72,9 +74,19 @@ namespace ThesisProjectV1
 
             if(element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
             {
+                // Save elementInfo state for task
+                ElementInfo.BulkProgramParentGen = element.Attribute("Name").Value;
+                ElementHelper unmodified = new ElementHelper(ElementInfo);
+
+                // Insert the programs in the task
                 IEnumerable<string> programNames = element.Descendants("ScheduledProgram").Select(i => i.Attribute("Name").Value);
                 List<XElement> programs = inputFile.Descendants("Program").Where(i => programNames.Contains(i.Attribute("Name").Value.ToString())).Where(i => !docToInsert.Descendants("Program").Select(j => j.Attribute("Name").Value).Contains(i.Attribute("Name").Value)).ToList();
-                InsertElement(docToInsert, programs);
+                if(programs.Any())
+                    InsertElement(docToInsert, programs);
+
+                // Return to ElementInfo state for task
+                ElementInfo.ResetElements();
+                ElementInfo = unmodified;
             }
 
             return docToInsert;
@@ -129,7 +141,7 @@ namespace ThesisProjectV1
                     parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute(attributeFilter)?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
 
                     // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select grandparent for " + element.Name);
+                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent type for " + element.Name);
                     selectElement.ShowDialog(out string nameOfElement);
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
@@ -182,23 +194,12 @@ namespace ThesisProjectV1
                 if (!elementType.Equals("Module"))
                 {
                     // Create a popup prompting user to select grandparent to disambiguate
-                    List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Name.ToString()).Distinct().ToList();
-                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select intended grandparent type for element you are accessing");
+                    List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
+                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select grandparent element you are accessing");
                     selectElement.ShowDialog(out string nameOfElement);
 
-                    // Insert
-                    try
-                    {
-                        element = inputFile.Descendants(nameOfElement).Single();
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                        DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                        elementSelect.ShowDialog(out string selectedObject);
-                        XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
-                        element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
-                    }
+                    // Access disambiguated element
+                    element = inputFile.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(nameOfElement) ?? false).Descendants(elementType).Single(i => i.Attribute("Name")?.Value.Equals(elementName) ?? false);
                     elements.Add(element);
                 }
                 else
@@ -275,13 +276,13 @@ namespace ThesisProjectV1
 
         internal Validate GetValidator() { return validator; }
 
-        internal XDocument InsertElement(XDocument inDoc, XElement insertEl, Queue<string> rootPath = null)
+        internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
         {
             XElement element = new XElement(insertEl);
             inDoc = CheckForDependencies(inDoc, element);
-            if (rootPath == null)
-                rootPath = FindPathtoRootSchema(element);
-            XName parentType = rootPath.Dequeue();
+            if ((ElementInfo.RootPath?.Count() ?? 0) <= 1)
+                ElementInfo.RootPath = FindPathtoRootSchema(element);
+            XName parentType = ElementInfo.RootPath.Dequeue();
             XElement parentNode = null;
             string searchFilter = "Name";
             IEnumerable<XElement> clashingElements = null;
@@ -318,17 +319,17 @@ namespace ThesisProjectV1
                         element.SetAttributeValue(editedDate.Name, editedDate.Value);
                     }
 
-                    parentType = rootPath.Dequeue();
+                    parentType = ElementInfo.RootPath.Dequeue();
                 }
                 catch (InvalidOperationException)
                 {
                     // Multiple options for parent element, already handled in findRoot
-                    parentType = rootPath.Dequeue();
+                    parentType = ElementInfo.RootPath.Dequeue();
                 }
             }
 
             // Multiple elements of chosen type, prompt user to select which element should be the parent
-            string grandparentType = rootPath.Peek();
+            string grandparentType = ElementInfo.RootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
             {
@@ -338,12 +339,12 @@ namespace ThesisProjectV1
             {
                 DropdownGui nameSelect = new DropdownGui(grandParentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
                 nameSelect.ShowDialog(out string name);
-                parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name);
+                parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name).Elements(parentType).Single();
             }
             if (parentNode == null)
             {
                 parentNode = new XElement(parentType, element);
-                return InsertElement(inDoc, parentNode, rootPath);
+                return InsertElement(inDoc, parentNode);
             }
 
             // Check that the element being added doesn't already exist
@@ -414,34 +415,6 @@ namespace ThesisProjectV1
                 }
             }
 
-            // Programs parent Task have a reference line in the task
-            if(element.Name.ToString().Equals("Program"))
-            {
-                List<string> tasks = inDoc.Descendants("Task").Select(i => i.Attribute("Name").Value).ToList();
-                tasks.Add("Unscheduled Program");
-
-                // Prompt user for parent task of program or unscheduled
-                DropdownGui progParent = new DropdownGui(tasks, "Select the parent task for " + element.Attribute("Name").Value);
-                progParent.ShowDialog(out string selectedTask);
-
-                // If unscheduled, continue without any special action.
-                if (selectedTask != "Unscheduled Program")
-                {
-                    // Otherwise insert program name as a scheduledProgram in the task
-                    XElement taskElement = inDoc.Descendants("Task").Single(i => i.Attribute("Name").Value.Equals(selectedTask));
-                    XElement scheduledProgram = new XElement("ScheduledProgram", new XAttribute("Name", element.Attribute("Name").Value));
-                    if (taskElement.Elements("ScheduledPrograms").Any())
-                    {
-                        scheduledProgram = new XElement("ScheduledPrograms", scheduledProgram);
-                        taskElement.Add(scheduledProgram);
-                    }
-                    else
-                    {
-                        taskElement.Element("ScheduledPrograms").Add(scheduledProgram);
-                    }
-                }
-            }
-
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
             IEnumerable<XAttribute> parentAttributes = parentNode.Attributes();
             parentAttributes = parentAttributes.Except(elementAttributes);
@@ -472,8 +445,8 @@ namespace ThesisProjectV1
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
             {
-                Queue<string> usedpath = new Queue<string>(unchangedPath);
-                InsertElement(doc, element, usedpath);
+                ElementInfo.RootPath = new Queue<string>(unchangedPath);
+                InsertElement(doc, element);
             }
             return doc;
         }

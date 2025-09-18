@@ -155,6 +155,7 @@ namespace ThesisProjectV1
                     selectElement.ShowDialog(out List<string> nameOfElement);
                     List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
                     doc = xmlHandler.InsertElement(doc, returnedElement);
+                    xmlHandler.ElementInfo.ResetElements();
 
                     // Validate the document against the xml Schema, if successful, complete transaction
                     List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
@@ -162,8 +163,7 @@ namespace ThesisProjectV1
 
                     if (errors.Length > 0)
                     {
-                        var t = Task.Run(() => { MessageBox.Show(errors, "Error: opening modify wizard to fix", MessageBoxButtons.OK); });
-                        Execute.ModifyElement();
+                        var t = Task.Run(() => { MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK); });
                     }
                     else
                     {
@@ -194,8 +194,8 @@ namespace ThesisProjectV1
 
                 // Find and display available elements of that type
                 List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement);
+                DropdownGui selectElement = new DropdownGui(availableElements, "Select element template");
+                selectElement.ShowDialog(out string nameOfElement);
 
                 IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
 
@@ -215,6 +215,7 @@ namespace ThesisProjectV1
                         element.SetAttributeValue("Name", itemName);
                         xmlHandler.InsertElement(doc, element);
                     }
+                    xmlHandler.ElementInfo.ResetElements();
                 }
 
                 // Validate the document against the xml Schema, if successful, complete transaction
