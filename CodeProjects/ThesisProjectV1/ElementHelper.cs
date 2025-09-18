@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace ThesisProjectV1
 {
@@ -11,6 +12,9 @@ namespace ThesisProjectV1
         // Used for when generating a collection of programs with the same parent task
         public string BulkProgramParentGen = null;
 
+        // Parent Elemtn for bulk generation
+        public XElement ParentElementBulk = null;
+
         public ElementHelper()
         {
         }
@@ -20,13 +24,15 @@ namespace ThesisProjectV1
             RootPath = elementInfo.RootPath;
             ElementType = elementInfo.ElementType;
             BulkProgramParentGen= elementInfo.BulkProgramParentGen;
+            ParentElementBulk = elementInfo.ParentElementBulk;
         }
 
-        public ElementHelper(Queue<string> rootPath, string elementType, string collectionParent)
+        public ElementHelper(Queue<string> rootPath, string elementType, string collectionParent, XElement parentEl)
         {
             RootPath = rootPath;
             ElementType = elementType;
             BulkProgramParentGen = collectionParent;
+            ParentElementBulk = parentEl;
         }
 
         public void ResetElements()
@@ -34,6 +40,7 @@ namespace ThesisProjectV1
             RootPath.Clear();
             ElementType = null;
             BulkProgramParentGen = null;
+            ParentElementBulk = null;
         }
     }
 }

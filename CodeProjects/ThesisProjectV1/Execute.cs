@@ -193,11 +193,19 @@ namespace ThesisProjectV1
                     attributeSearch = "CatalogNumber";
 
                 // Find and display available elements of that type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                DropdownGui selectElement = new DropdownGui(availableElements, "Select element template");
+                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).Distinct().ToList();
+                DropdownGui selectElement = new DropdownGui(availableElements, "Select template " + typeOfElement + " to use");
                 selectElement.ShowDialog(out string nameOfElement);
 
                 IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+
+                // Prompt the user for the parent
+                string parentType = "Program"; // TODO
+                List<XElement> parents = doc.Descendants(parentType).ToList();
+                DropdownGui selectBulkParent = new DropdownGui(parents.Select(i => i.Attribute("Name").Value).ToList(), "Select parent for the elements being created");
+                selectBulkParent.ShowDialog(out string parentName);
+
+                xmlHandler.ElementInfo.ParentElementBulk = doc.Descendants(parentType).Single(i => i.Attribute("Name").Value.Equals(parentName));
 
                 // Prompt user to select the subelements/values to change(required elements are not selectable)
                 foreach (XElement element in elementList)
@@ -209,7 +217,7 @@ namespace ThesisProjectV1
                     for (int i = 0; i < quantity; i++)
                     {
                         // Prompt user for name of item
-                        TextInput nameSelect = new TextInput("Create Element");
+                        TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i+1).ToString());
                         nameSelect.ShowDialog(out string itemName);
 
                         element.SetAttributeValue("Name", itemName);
@@ -229,7 +237,6 @@ namespace ThesisProjectV1
                 }
                 else
                 {
-                    MessageBox.Show("Insert More Items?","Completed insertion.", MessageBoxButtons.YesNo);
                     transaction.Complete();
                 }
             }

@@ -38,7 +38,7 @@ namespace ThesisProjectV1
         internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
             // Check if there are any dependencies in the inserted element
-            if (element.Attributes("Dependencies") != null)
+            if (element.Attribute("Dependencies") != null)
             {
                 List<XElement> dependencies = element.Descendants("Dependencies").Elements().ToList();
                 foreach (XElement dependency in dependencies)
@@ -137,9 +137,20 @@ namespace ThesisProjectV1
                     List<string> parentNames = new List<string>();
                     parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute(attributeFilter)?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
 
-                    // Prompt user to select grandparent for the element
-                    DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent type for " + element.Name);
-                    selectElement.ShowDialog(out string nameOfElement);
+                    string nameOfElement;
+
+                    if (ElementInfo.ParentElementBulk == null)
+                    {
+                        // Prompt user to select grandparent for the element
+                        DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent type for " + element.Name);
+                        selectElement.ShowDialog(out nameOfElement);
+                        ElementInfo.ParentElementBulk = new XElement(nameOfElement);
+                    }
+                    else
+                    {
+                        nameOfElement = ElementInfo.ParentElementBulk.Name.ToString();
+                    }
+
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
 
@@ -332,13 +343,17 @@ namespace ThesisProjectV1
             {
                 parentNode = grandParentNodes.Elements(parentType).SingleOrDefault();
             }
+            else if (ElementInfo.ParentElementBulk != null)
+            {
+                parentNode = ElementInfo.ParentElementBulk.Elements(parentType).SingleOrDefault();
+            }
             else if (grandParentNodes.Count() > 1)
             {
                 DropdownGui nameSelect = new DropdownGui(grandParentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
                 nameSelect.ShowDialog(out string name);
                 parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name).Elements(parentType).Single();
             }
-            if (parentNode == null)
+            else
             {
                 parentNode = new XElement(parentType, element);
                 return InsertElement(inDoc, parentNode);
