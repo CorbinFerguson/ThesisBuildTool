@@ -214,6 +214,7 @@ namespace ThesisProjectV1
 
                         element.SetAttributeValue("Name", itemName);
                         xmlHandler.InsertElement(doc, element);
+                        xmlHandler.ElementInfo.RootPath.Clear();
                     }
                     xmlHandler.ElementInfo.ResetElements();
                 }
@@ -224,8 +225,7 @@ namespace ThesisProjectV1
 
                 if (errors.Length > 0)
                 {
-                    MessageBox.Show(errors, "Error: opening modify wizard to fix", MessageBoxButtons.OK);
-                    Execute.ModifyElement();
+                    var t = Task.Run(() => { MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK); });
                 }
                 else
                 {
