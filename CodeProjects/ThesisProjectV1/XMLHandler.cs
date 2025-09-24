@@ -100,26 +100,22 @@ namespace ThesisProjectV1
         internal Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
-            string attributeFilter = null;
 
             string name = element.Name.ToString();
             XElement schemaElement = null;
 
             try
             {
-                attributeFilter = "name";
-                schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute(attributeFilter)?.Value.Equals(name) ?? false));
+                schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute("name")?.Value.Equals(name) ?? false));
 
                 // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
                 {
                     // Go to parent complex type, find name of that
-                    attributeFilter = "name";
-                    name = schemaElement.Parent.Parent.Attribute(attributeFilter).Value;
+                    name = schemaElement.Parent.Parent.Attribute("name").Value;
 
                     // search for something with that type
-                    attributeFilter = "type";
-                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false).Single();
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("type")?.Value.Equals(name) ?? false).Single();
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
@@ -132,10 +128,10 @@ namespace ThesisProjectV1
                 {
 
                     // Create a popup telling user what happened
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute(attributeFilter)?.Value.Equals(name) ?? false);
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(name) ?? false);
 
                     List<string> parentNames = new List<string>();
-                    parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute(attributeFilter)?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+                    parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
 
                     string nameOfElement;
 

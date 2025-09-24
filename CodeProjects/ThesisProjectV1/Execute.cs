@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -197,34 +196,93 @@ namespace ThesisProjectV1
                 DropdownGui selectElement = new DropdownGui(availableElements, "Select template " + typeOfElement + " to use");
                 selectElement.ShowDialog(out string nameOfElement);
 
-                IEnumerable<XElement> elementList = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
+                // Get the template element
+                XElement element = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement).Single();
 
-                // Prompt the user for the parent
-                string parentType = "Program"; // TODO
-                List<XElement> parents = doc.Descendants(parentType).ToList();
-                DropdownGui selectBulkParent = new DropdownGui(parents.Select(i => i.Attribute("Name").Value).ToList(), "Select parent for the elements being created");
-                selectBulkParent.ShowDialog(out string parentName);
+                // Get the names of all valid parents for the element
+                IEnumerable<XElement> ambiguousElements = xmlHandler.GetValidator().GetSchema().Descendants(xmlHandler.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeOfElement + "s") ?? false);
+                List<string> parentSchemaType = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+                List<string> parentType = xmlHandler.GetValidator().GetSchema().Descendants(xmlHandler.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
-                xmlHandler.ElementInfo.ParentElementBulk = doc.Descendants(parentType).Single(i => i.Attribute("Name").Value.Equals(parentName));
+                if (parentType.Count() > 1)
+                {
+                    // Get all valid parents of available types
+                    List<string> parents = doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString())).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+
+                    // Prompt the user for the parent
+                    DropdownGui selectBulkParent = new DropdownGui(parents, "Select parent for the elements being created");
+                    selectBulkParent.ShowDialog(out string parentName);
+
+                    xmlHandler.ElementInfo.ParentElementBulk = doc.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
+                }
+                else if(parentType.Count() != 1)
+                {
+                    throw new EmptyListException("Attempted to Create an item with no valid parents");
+                }
 
                 // Prompt user to select the subelements/values to change(required elements are not selectable)
-                foreach (XElement element in elementList)
+                TextInput insertQuantity = new TextInput("How many " + element.Name + " would you like to create?", "1", @"^[1-9]\d*$");
+                insertQuantity.ShowDialog(out string itemQuantity);
+                int quantity = int.Parse(itemQuantity);
+
+                List<string> bulkNames = new List<string>();
+                for (int i = 0; i < quantity; i++)
                 {
-                    TextInput insertQuantity = new TextInput("How many " + element.Name + " would you like to create?", "1", @"^[1-9]\d*$");
-                    insertQuantity.ShowDialog(out string itemQuantity);
-                    int quantity = int.Parse(itemQuantity);
+                    // Prompt user for name of item and assign it
+                    TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i+1).ToString());
+                    nameSelect.ShowDialog(out string itemName);
+                    element.SetAttributeValue("Name", itemName);
+                    bulkNames.Add(itemName);
 
-                    for (int i = 0; i < quantity; i++)
+                    // Insert the element and reset the path for the next one
+                    xmlHandler.InsertElement(doc, element);
+                    xmlHandler.ElementInfo.RootPath.Clear();
+                }
+                xmlHandler.ElementInfo.ResetElements();
+
+                // Programs have special case for having a parent task or being unassigned
+                if (typeOfElement.Equals("Program"))
+                {
+                    // Get a list of all tasks in the document currently
+                    IEnumerable<XElement> tasks = doc.Descendants("Task");
+
+                    if (tasks.Any())
                     {
-                        // Prompt user for name of item
-                        TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i+1).ToString());
-                        nameSelect.ShowDialog(out string itemName);
+                        // Get list of names
+                        List<string> taskNames = tasks.Select(i => i.Attribute("Name").Value).ToList();
+                        taskNames.Add("Keep programs unscheduled");
 
-                        element.SetAttributeValue("Name", itemName);
-                        xmlHandler.InsertElement(doc, element);
-                        xmlHandler.ElementInfo.RootPath.Clear();
+                        // Prompt user for which task to assign the programs to
+                        DropdownGui parentTask = new DropdownGui(taskNames, "Select the parent task for inserted programs");
+                        parentTask.ShowDialog(out string taskName);
+
+                        if(taskName != "Keep programs unscheduled")
+                        {
+                            // Get parent task
+                            XElement taskElement = tasks.Single(i => i.Attribute("Name").Value.Equals(taskName));
+                            XElement scheduledParent = null;
+                            if (taskElement.Elements("ScheduledPrograms").Any())
+                            {
+                                scheduledParent = taskElement.Elements("ScheduledPrograms").Single();
+                            }
+                            else
+                            {
+                                scheduledParent = new XElement("ScheduledPrograms");
+                            }
+
+                            // Add the program names to the chosen tasks scheduled programs
+                            foreach (string programName in bulkNames)
+                            {
+                                XElement scheduledProgram = new XElement("ScheduledProgram", new XAttribute("Name", programName));
+                                scheduledParent.Add(scheduledProgram);
+                            }
+                            
+                            if(!taskElement.Elements("ScheduledPrograms").Any())
+                            {
+                                taskElement.Add(scheduledParent);
+                            }
+                        }
                     }
-                    xmlHandler.ElementInfo.ResetElements();
                 }
 
                 // Validate the document against the xml Schema, if successful, complete transaction

@@ -108,11 +108,7 @@
 </Program>
 </Programs>
 <Tasks>
-<Task Name="MainTask" Type="CONTINUOUS" Priority="10" Watchdog="500" DisableUpdateOutputs="false" InhibitTask="false">
-<ScheduledPrograms>
-<ScheduledProgram Name="MainProgram"/>
-</ScheduledPrograms>
-</Task>
+<Task Name="TemplateContinuous" Type="CONTINUOUS" Priority="10" Watchdog="500" DisableUpdateOutputs="false" InhibitTask="false"/>
 <Task Name="TemplateEvent" Type="EVENT" Rate="10" Priority="10" Watchdog="500" DisableUpdateOutputs="true" InhibitTask="false">
 <EventInfo EventTrigger="EVENT Instruction Only" EnableTimeout="false"/>
 </Task>
