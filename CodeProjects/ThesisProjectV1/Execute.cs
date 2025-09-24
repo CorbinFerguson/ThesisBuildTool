@@ -181,14 +181,16 @@ namespace ThesisProjectV1
 
             if (parentType.Count() > 1)
             {
+                IEnumerable<XElement> parentElems = doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString()));
+
                 // Get all valid parents of available types
-                List<string> parents = doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString())).Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                List<string> parents = parentElems.Select(i => i.Attribute("Name").Value.ToString()).ToList();
 
                 // Prompt the user for the parent
                 DropdownGui selectBulkParent = new DropdownGui(parents, "Select parent for the elements being created");
                 selectBulkParent.ShowDialog(out string parentName);
 
-                xmlHandler.ElementInfo.ParentElementBulk = doc.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
+                xmlHandler.ElementInfo.ParentElementBulk = parentElems.Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
             }
             else if(parentType.Count() != 1)
             {

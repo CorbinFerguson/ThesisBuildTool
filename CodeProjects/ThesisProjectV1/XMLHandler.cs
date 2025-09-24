@@ -357,7 +357,7 @@ namespace ThesisProjectV1
 
             // Check that the element being added doesn't already exist
             if (element.Name.ToString() != "Module" || element.Attribute("Name") != null)
-                clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.Equals(element.Attribute(searchFilter).Value) ?? false);
+                clashingElements = parentNode.Descendants(element.Name).Where(i => i.Attribute(searchFilter)?.Value.ToLower().Equals(element.Attribute(searchFilter).Value.ToLower()) ?? false);
 
             // Handle already existing elements, either replace the existing element, rename the inserted element, or cancel the operation
             if (clashingElements?.Any() ?? false)
@@ -385,12 +385,13 @@ namespace ThesisProjectV1
 
                         // Prompt user for new value, then set it
                         string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
-                        while (parentNode.Descendants(element.Name).Where(i => newAtrVal.Equals(i.Attribute(selected)?.Value.ToString())).Any())
+                        while (parentNode.Descendants(element.Name).Where(i => newAtrVal.ToLower().Equals(i.Attribute(selected)?.Value.ToLower().ToString())).Any())
                             renameElement.ShowDialog(out newAtrVal);
                         element.SetAttributeValue(selected, newAtrVal);
                         break;
                     default:
                         // Cancel insertion
+                        Console.WriteLine("Canceling Insertion");
                         return inDoc;
                 }
             }

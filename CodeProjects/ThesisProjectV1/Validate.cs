@@ -40,15 +40,34 @@ namespace ThesisProjectV1
             Console.WriteLine("Validating document");
 
             // Validate using XML schema, misses some things however
-            doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add("Parent: " + (((XElement)sender).Parent.Attribute("Name")?.Value ?? ((XElement)sender).Parent.Name )+ ". " + error.Message); }, true);
+            doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add("SCHEMA ERROR: Parent: " + (((XElement)sender).Parent.Attribute("Name")?.Value ?? ((XElement)sender).Parent.Name )+ ". " + error.Message); }, true);
             
-            // Validate that task types are correct
             if(doc.Descendants("Task").Any())
             {
+                // Validate that only one continuous task exists
                 IEnumerable<XElement> continuous = doc.Descendants("Task").Where(i => i.Attribute("Type").Value.Equals("CONTINUOUS"));
                 if(continuous.Count() > 1 )
                 {
-                    invalidElements.Add("Multiple tasks of type 'Continuous'. Please delete one of the following " + string.Join(" ", continuous.Select(i => i.Attribute("Name").Value.ToString()).ToList()));
+                    invalidElements.Add("ERROR: Multiple tasks of type 'Continuous'. Please delete one of the following " + string.Join(" ", continuous.Select(i => i.Attribute("Name").Value.ToString()).ToList()));
+                }
+
+                // Validate that each task contains a program
+                foreach(XElement task in doc.Descendants("Task"))
+                {
+                    if (!task.Descendants("ScheduledProgram").Any())
+                        invalidElements.Add("WARNING: Task " + task.Attribute("Name").Value + " has no scheduled program");
+                }
+
+            }
+
+            if(doc.Descendants("Program").Any())
+            {
+                foreach(XElement program in doc.Descendants("Program"))
+                {
+                    if(program.Attribute("MainRoutineName")?.Value == null)
+                    {
+                        invalidElements.Add("WARNING: Program " + program.Attribute("Name").Value + " has no associated main Routine. Set value of MainRoutineName");
+                    }
                 }
             }
 
