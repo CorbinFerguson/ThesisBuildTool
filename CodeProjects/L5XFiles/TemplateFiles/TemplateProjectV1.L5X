@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="32.01" TargetName="TemplateProjectV1" TargetType="Controller" ContainsContext="false" ExportDate="Tue Sep 16 16:00:36 2025" ExportOptions="NoRawData L5KData DecoratedData ForceProtectedEncoding AllProjDocTrans">
-<Controller Use="Target" Name="TemplateProjectV1" ProcessorType="1756-L81E" MajorRev="32" MinorRev="11" ProjectCreationDate="Tue Sep 16 15:46:25 2025" LastModifiedDate="Tue Sep 16 16:00:18 2025" SFCExecutionControl="CurrentActive" SFCRestartPosition="MostRecent" SFCLastScan="DontScan" ProjectSN="16#0000_0000"
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="32.01" TargetName="TemplateProjectV1" TargetType="Controller" ContainsContext="false" ExportDate="Wed Sep 24 13:56:59 2025" ExportOptions="NoRawData L5KData DecoratedData ForceProtectedEncoding AllProjDocTrans">
+<Controller Use="Target" Name="TemplateProjectV1" ProcessorType="1756-L81E" MajorRev="32" MinorRev="11" ProjectCreationDate="Wed Sep 24 13:55:39 2025" LastModifiedDate="Wed Sep 24 13:56:27 2025" SFCExecutionControl="CurrentActive" SFCRestartPosition="MostRecent" SFCLastScan="DontScan" ProjectSN="16#0000_0000"
  MatchProjectToController="false" CanUseRPIFromProducer="false" InhibitAutomaticFirmwareUpdate="0" PassThroughConfiguration="EnabledWithAppend" DownloadProjectDocumentationAndExtendedProperties="true" DownloadProjectCustomProperties="true" ReportMinorOverflow="false">
 <RedundancyInfo Enabled="false" KeepTestEditsOnSwitchOver="false"/>
 <Security Code="0" ChangesToDetect="16#ffff_ffff_ffff_ffff"/>
@@ -21,6 +21,28 @@
 </Module>
 </Modules>
 <AddOnInstructionDefinitions>
+<AddOnInstructionDefinition Name="TemplateFBAOI" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:57.413Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:57.457Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags/>
+<Routines>
+<Routine Name="Logic" Type="FBD">
+<FBDContent SheetSize="B - 11 x 17 in" SheetOrientation="Landscape">
+<Sheet Number="1"/>
+</FBDContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
 <AddOnInstructionDefinition Name="TemplateLadderAOI" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:27.266Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:31.205Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
 <Parameters>
 <Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
@@ -44,28 +66,6 @@
 </Text>
 </Rung>
 </RLLContent>
-</Routine>
-</Routines>
-</AddOnInstructionDefinition>
-<AddOnInstructionDefinition Name="TemplateFBAOI" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:57.413Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:57.457Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
-<Parameters>
-<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
-<Description>
-<![CDATA[Enable Input - System Defined Parameter]]>
-</Description>
-</Parameter>
-<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
-<Description>
-<![CDATA[Enable Output - System Defined Parameter]]>
-</Description>
-</Parameter>
-</Parameters>
-<LocalTags/>
-<Routines>
-<Routine Name="Logic" Type="FBD">
-<FBDContent SheetSize="B - 11 x 17 in" SheetOrientation="Landscape">
-<Sheet Number="1"/>
-</FBDContent>
 </Routine>
 </Routines>
 </AddOnInstructionDefinition>
@@ -94,15 +94,77 @@
 </Routines>
 </AddOnInstructionDefinition>
 </AddOnInstructionDefinitions>
-<Tags/>
+<Tags>
+<Tag Name="TemplateEquipmentPhase" TagType="Base" DataType="PHASE" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[[0,0,0,0,0,0,0,0]]]>
+</Data>
+<Data Format="Decorated">
+<Structure DataType="PHASE">
+<DataValueMember Name="State" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Running" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Holding" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Restarting" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Stopping" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Aborting" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Resetting" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Idle" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Held" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Complete" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Stopped" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Aborted" DataType="BOOL" Value="0"/>
+<DataValueMember Name="PauseControl" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="PauseEnabled" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Paused" DataType="BOOL" Value="0"/>
+<DataValueMember Name="AutoPauseEnabled" DataType="BOOL" Value="0"/>
+<DataValueMember Name="StepIndex" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Failure" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="UnitID" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Owner" DataType="DINT" Radix="Hex" Value="16#0000_0000"/>
+<DataValueMember Name="PendingRequest" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DownloadInputParameters" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadInputParametersSubset" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UploadOutputParameters" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UploadOutputParametersSubset" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadOutputParameterLimits" DataType="BOOL" Value="0"/>
+<DataValueMember Name="AcquireResources" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ReleaseResources" DataType="BOOL" Value="0"/>
+<DataValueMember Name="SendMessageToLinkedPhase" DataType="BOOL" Value="0"/>
+<DataValueMember Name="SendMessageToLinkedPhaseAndWait" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ReceiveMessageFromLinkedPhase" DataType="BOOL" Value="0"/>
+<DataValueMember Name="CancelMessageToLinkedPhase" DataType="BOOL" Value="0"/>
+<DataValueMember Name="SendMessageToOperator" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ClearMessageToOperator" DataType="BOOL" Value="0"/>
+<DataValueMember Name="GenerateESignature" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadBatchData" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadMaterialTrackDataContainerInUse" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadContainerBindingPriority" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadSufficientMaterial" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DownloadMaterialTrackDatabaseData" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UploadMaterialTrackDataContainerInUse" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UploadContainerBindingPriority" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UploadMaterialTrackDatabaseData" DataType="BOOL" Value="0"/>
+<DataValueMember Name="AbortingRequest" DataType="BOOL" Value="0"/>
+<DataValueMember Name="NewInputParameters" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Producing" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Standby" DataType="BOOL" Value="0"/>
+</Structure>
+</Data>
+</Tag>
+</Tags>
 <Programs>
-<Program Name="MainProgram" TestEdits="false" MainRoutineName="MainRoutine" Disabled="false" UseAsFolder="false">
+<Program Name="ProgramWithRoutine" TestEdits="false" MainRoutineName="MainRoutine" Disabled="false" UseAsFolder="false">
 <Tags/>
 <Routines>
 <Routine Name="MainRoutine" Type="RLL"/>
 </Routines>
 </Program>
 <Program Name="TemplateEmptyProgram" TestEdits="false" Disabled="false" UseAsFolder="false">
+<Tags/>
+<Routines/>
+</Program>
+<Program Name="TemplateEquipmentPhase" Type="EquipmentPhase" TestEdits="false" Disabled="false" InitialStepIndex="0" InitialState="Idle" CompleteStateIfNotImpl="StateComplete" LossOfCommCmd="None" ExternalRequestAction="None" UseAsFolder="false" AutoValueAssignStepToPhase="true"
+ AutoValueAssignPhaseToStepOnComplete="true" AutoValueAssignPhaseToStepOnStopped="true" AutoValueAssignPhaseToStepOnAborted="true">
 <Tags/>
 <Routines/>
 </Program>
