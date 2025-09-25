@@ -96,7 +96,7 @@ namespace ThesisProjectV1.Forms
             MessageBox.Show("New Empty File Created.");
         }
 
-        private void Validate_Click(object sender, EventArgs e)
+        private void Validator_Click(object sender, EventArgs e)
         {
             Execute.ValidateFile();
         }

@@ -225,7 +225,7 @@ namespace ThesisProjectV1
             List<string> bulkNames = new List<string>();
             for (int i = 0; i < quantity; i++)
             {
-                if (typeOfElement != "Module")
+                if (typeOfElement != "Module" || element.Attribute("Use") == null )
                 {
                     // Prompt user for name of item and assign it
                     TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$");

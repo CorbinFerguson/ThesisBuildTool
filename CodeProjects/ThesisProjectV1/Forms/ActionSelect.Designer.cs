@@ -37,7 +37,7 @@
             this.SaveButton = new System.Windows.Forms.Button();
             this.LoadButton = new System.Windows.Forms.Button();
             this.NewFile = new System.Windows.Forms.Button();
-            this.Validate = new System.Windows.Forms.Button();
+            this.ValidatorButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ImportSelect
@@ -147,24 +147,24 @@
             this.NewFile.UseVisualStyleBackColor = true;
             this.NewFile.Click += new System.EventHandler(this.NewFile_Click);
             // 
-            // Validate
+            // ValidatorButton
             // 
-            this.Validate.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Validate.Location = new System.Drawing.Point(458, 219);
-            this.Validate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Validate.Name = "Validate";
-            this.Validate.Size = new System.Drawing.Size(136, 55);
-            this.Validate.TabIndex = 9;
-            this.Validate.Text = "Validate";
-            this.Validate.UseVisualStyleBackColor = true;
-            this.Validate.Click += new System.EventHandler(this.Validate_Click);
+            this.ValidatorButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ValidatorButton.Location = new System.Drawing.Point(458, 219);
+            this.ValidatorButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ValidatorButton.Name = "ValidatorButton";
+            this.ValidatorButton.Size = new System.Drawing.Size(136, 55);
+            this.ValidatorButton.TabIndex = 9;
+            this.ValidatorButton.Text = "Validate";
+            this.ValidatorButton.UseVisualStyleBackColor = true;
+            this.ValidatorButton.Click += new System.EventHandler(this.Validator_Click);
             // 
             // ActionSelect
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(633, 343);
-            this.Controls.Add(this.Validate);
+            this.Controls.Add(this.ValidatorButton);
             this.Controls.Add(this.NewFile);
             this.Controls.Add(this.LoadButton);
             this.Controls.Add(this.SaveButton);
@@ -195,6 +195,6 @@
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Button LoadButton;
         private System.Windows.Forms.Button NewFile;
-        private System.Windows.Forms.Button Validate;
+        private System.Windows.Forms.Button ValidatorButton;
     }
 }

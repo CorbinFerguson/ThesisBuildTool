@@ -405,7 +405,7 @@ namespace ThesisProjectV1
             {
                 if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
                 {
-                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count();
+                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count()+1;
                     if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
                         portNum++;
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
@@ -455,8 +455,6 @@ namespace ThesisProjectV1
 
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
-
-
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
             {
