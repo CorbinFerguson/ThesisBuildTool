@@ -7,11 +7,54 @@
 <SafetyInfo/>
 <DataTypes/>
 <Modules>
-<Module CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false">
+<Module Name="Controller" CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false">
 <EKey State="Disabled"/>
 <Ports>
 <Port Id="1" Address="1" Type="ICP" Upstream="true"/>
 </Ports>
+</Module>
+<Module Use="Target" CatalogNumber="1756-IA16" Vendor="1" ProductType="7" ProductCode="9" Major="3" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false"
+>
+<EKey State="CompatibleModule"/>
+<Ports>
+<Port Id="1" Address="0" Type="ICP" Upstream="true"/>
+</Ports>
+<Communications CommMethod="536870913">
+<ConfigTag ConfigSize="24" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[[28,16,0,0,0,0,1,9,1,9,1,9,1,9,-1,-1]]]>
+</Data>
+<Data Format="Decorated">
+<Structure DataType="AB:1756_DI:C:1">
+<DataValueMember Name="FilterOffOn_0_7" DataType="SINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="FilterOnOff_0_7" DataType="SINT" Radix="Decimal" Value="9"/>
+<DataValueMember Name="FilterOffOn_8_15" DataType="SINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="FilterOnOff_8_15" DataType="SINT" Radix="Decimal" Value="9"/>
+<DataValueMember Name="FilterOffOn_16_23" DataType="SINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="FilterOnOff_16_23" DataType="SINT" Radix="Decimal" Value="9"/>
+<DataValueMember Name="FilterOffOn_24_31" DataType="SINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="FilterOnOff_24_31" DataType="SINT" Radix="Decimal" Value="9"/>
+<DataValueMember Name="COSOnOffEn" DataType="DINT" Radix="Binary" Value="2#1111_1111_1111_1111_1111_1111_1111_1111"/>
+<DataValueMember Name="COSOffOnEn" DataType="DINT" Radix="Binary" Value="2#1111_1111_1111_1111_1111_1111_1111_1111"/>
+</Structure>
+</Data>
+</ConfigTag>
+<Connections>
+<Connection Name="StandardInput" RPI="20000" Type="Input" EventID="0" ProgrammaticallySendEventTrigger="false">
+<InputTag ExternalAccess="Read/Write">
+<Data Format="Decorated">
+<Structure DataType="AB:1756_DI:I:0">
+<DataValueMember Name="Fault" DataType="DINT" Radix="Binary" Value="2#0000_0000_0000_0000_0000_0000_0000_0000"/>
+<DataValueMember Name="Data" DataType="DINT" Radix="Binary" Value="2#0000_0000_0000_0000_0000_0000_0000_0000"/>
+</Structure>
+</Data>
+</InputTag>
+</Connection>
+</Connections>
+</Communications>
+<ExtendedProperties>
+<public><ConfigID>115</ConfigID><CatNum>1756-IA16</CatNum></public>
+</ExtendedProperties>
 </Module>
 </Modules>
 <AddOnInstructionDefinitions>
