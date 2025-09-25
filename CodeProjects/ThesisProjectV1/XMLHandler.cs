@@ -199,7 +199,7 @@ namespace ThesisProjectV1
                 if (!elementType.Equals("Module"))
                 {
                     // Create a popup prompting user to select grandparent to disambiguate
-                    List<string> parentOptions = inputFile.Descendants(elementType).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
+                    List<string> parentOptions = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch).Value.Equals(elementName)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
                     DropdownGui selectElement = new DropdownGui(parentOptions, "Select grandparent element you are accessing");
                     selectElement.ShowDialog(out string nameOfElement);
 
@@ -207,6 +207,9 @@ namespace ThesisProjectV1
                     XElement parentElement = inputFile.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(nameOfElement) ?? false);
                     element = parentElement.Descendants(elementType).Single(i => i.Attribute("Name")?.Value.Equals(elementName) ?? false);
                     elements.Add(element);
+
+                    // Set parent info, so that it doesn't prompt user again
+                    ElementInfo.ParentElementBulk = parentElement;
                 }
                 else
                 {
