@@ -64,7 +64,7 @@ namespace ThesisProjectV1
             {
                 foreach(XElement program in doc.Descendants("Program"))
                 {
-                    if(program.Attribute("MainRoutineName")?.Value == null)
+                    if((!program.Attribute("Type")?.Value.Equals("EquipmentPhase") ?? true ) && program.Attribute("MainRoutineName")?.Value == null)
                     {
                         invalidElements.Add("WARNING: Program " + program.Attribute("Name").Value + " has no associated main Routine. Set value of MainRoutineName");
                     }

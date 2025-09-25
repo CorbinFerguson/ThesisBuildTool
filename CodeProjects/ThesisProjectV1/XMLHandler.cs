@@ -128,10 +128,11 @@ namespace ThesisProjectV1
                 {
 
                     // Create a popup telling user what happened
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(name) ?? false);
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
 
-                    List<string> parentNames = new List<string>();
-                    parentNames = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+                    List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+
+                    List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
                     string nameOfElement;
 
@@ -168,7 +169,7 @@ namespace ThesisProjectV1
                     return paths;
                 }
                 else
-                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "how did you hit this", MessageBoxButtons.OK); }
+                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "Unexpected Error Occurred", MessageBoxButtons.OK); }
             }
             catch (EmptyListException ex)
             {
@@ -203,7 +204,8 @@ namespace ThesisProjectV1
                     selectElement.ShowDialog(out string nameOfElement);
 
                     // Access disambiguated element
-                    element = inputFile.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(nameOfElement) ?? false).Descendants(elementType).Single(i => i.Attribute("Name")?.Value.Equals(elementName) ?? false);
+                    XElement parentElement = inputFile.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(nameOfElement) ?? false);
+                    element = parentElement.Descendants(elementType).Single(i => i.Attribute("Name")?.Value.Equals(elementName) ?? false);
                     elements.Add(element);
                 }
                 else
@@ -451,6 +453,8 @@ namespace ThesisProjectV1
 
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
+            
+
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
             {

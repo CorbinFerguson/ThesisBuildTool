@@ -82,7 +82,7 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                MessageBox.Show(errors, "Validation error: undoing action", MessageBoxButtons.OK);
+                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
             }
         }
 
@@ -105,7 +105,7 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK);
+                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
             }
         }
 
@@ -130,12 +130,16 @@ namespace ThesisProjectV1
                 if (typeOfElement.Equals("Module"))
                     attributeFilter = "CatalogNumber";
 
-                // Get all elements in file of the type
+                // Find and display available elements of that type
                 List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
                 selectElement.ShowDialog(out List<string> nameOfElement);
+
+                // Get the selected element, then insert it
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
                 doc = xmlHandler.InsertElement(doc, returnedElement);
+
+                // Reset the helper
                 xmlHandler.ElementInfo.ResetElements();
 
                 // Validate the document against the xml Schema, if successful, complete transaction
@@ -144,7 +148,7 @@ namespace ThesisProjectV1
 
                 if (errors.Length > 0)
                 {
-                    var t = Task.Run(() => { MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK); });
+                    var t = Task.Run(() => { MessageBox.Show(errors, "Errors detected:", MessageBoxButtons.OK); });
                 }
 
                 DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
@@ -268,7 +272,7 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                var t = Task.Run(() => { MessageBox.Show(errors, "Error: aborting action", MessageBoxButtons.OK); });
+                var t = Task.Run(() => { MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK); });
             }
         }
     }
