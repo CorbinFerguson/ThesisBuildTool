@@ -7,7 +7,7 @@ namespace ThesisProjectV1.Forms
     public partial class TextInput : Form
     {
         private readonly string regex;
-
+        private bool ClosedBySelect = false;
         public TextInput()
         {
             InitializeComponent();
@@ -24,13 +24,20 @@ namespace ThesisProjectV1.Forms
         public void ShowDialog(out string textValue)
         {
             base.ShowDialog();
+            if (!ClosedBySelect)
+            {
+                throw new AbortedElementException();
+            }
             textValue = InputValueName.Text;
         }
 
         private void SubmitButton_Click(object sender, EventArgs e)
         {
             if (Regex.IsMatch(InputValueName.Text, regex))
+            {
+                ClosedBySelect = true;
                 Close();
+            }
             else
                 UserInstructionTextBox.Text = "Invalid Input";
         }
@@ -38,7 +45,10 @@ namespace ThesisProjectV1.Forms
         private void InputValueName_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter && Regex.IsMatch(InputValueName.Text, regex))
+            {
+                ClosedBySelect = true;
                 Close();
+            }
             else if (e.KeyCode == Keys.Enter)
                 UserInstructionTextBox.Text = "Invalid Input";
         }

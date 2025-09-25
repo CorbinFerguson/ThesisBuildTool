@@ -18,6 +18,10 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.ImportElement();
             }
+            catch (AbortedElementException)
+            {
+                // do nothing
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
@@ -29,15 +33,14 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.GenerateElement();
             }
+            catch (AbortedElementException)
+            {
+                // do nothing
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
-        }
-
-        private void ExitButton_Click(object sender, EventArgs e)
-        {
-            Close();
         }
 
         private void ModifySelect_Click(object sender, EventArgs e)
@@ -45,6 +48,10 @@ namespace ThesisProjectV1.Forms
             try
             {
                 Execute.ModifyElement();
+            }
+            catch (AbortedElementException)
+            {
+                // do nothing
             }
             catch (Exception ex)
             {
@@ -58,10 +65,19 @@ namespace ThesisProjectV1.Forms
             {
                 Execute.DeleteElement();
             }
+            catch (AbortedElementException)
+            {
+                // do nothing
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
+        }
+
+        private void ExitButton_Click(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
@@ -78,6 +94,11 @@ namespace ThesisProjectV1.Forms
         {
             Execute.NewFile();
             MessageBox.Show("New Empty File Created.");
+        }
+
+        private void Validate_Click(object sender, EventArgs e)
+        {
+            Execute.ValidateFile();
         }
     }
 }

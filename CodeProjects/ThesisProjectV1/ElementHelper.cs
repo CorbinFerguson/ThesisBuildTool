@@ -23,7 +23,7 @@ namespace ThesisProjectV1
         {
             RootPath = elementInfo.RootPath;
             ElementType = elementInfo.ElementType;
-            BulkProgramParentGen= elementInfo.BulkProgramParentGen;
+            BulkProgramParentGen = elementInfo.BulkProgramParentGen;
             ParentElementBulk = elementInfo.ParentElementBulk;
         }
 

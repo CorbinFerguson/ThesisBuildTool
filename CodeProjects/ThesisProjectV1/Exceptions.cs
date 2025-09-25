@@ -8,4 +8,9 @@ namespace ThesisProjectV1
         public EmptyListException(string message) : base(message) { }
 
     }
+
+    public class AbortedElementException : Exception
+    {
+        public AbortedElementException() { }
+    }
 }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Transactions;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -33,6 +32,22 @@ namespace ThesisProjectV1
             // Take in user input
             ActionSelect actionSelect = new ActionSelect();
             actionSelect.ShowDialog();
+        }
+
+        public static void ValidateFile()
+        {
+            // Validate the document against the xml Schema, if successful, complete transaction
+            List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+            string errors = string.Join(Environment.NewLine, errorList);
+
+            if (errors.Length > 0)
+            {
+                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
+            }
+            else
+            {
+                MessageBox.Show("No errors detected!");
+            }
         }
 
         public static void NewFile()
@@ -99,6 +114,7 @@ namespace ThesisProjectV1
                 XElement removeElement = doc.Descendants(typeSelected).Single(i => i.Attribute("Name")?.Value.Equals(name) ?? i.Attribute("CatalogNumber").Value.Equals(name));
                 removeElement.Remove();
             }
+
             // Validate the document against the xml Schema, if successful, complete transaction
             List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
             string errors = string.Join(Environment.NewLine, errorList);
@@ -196,7 +212,7 @@ namespace ThesisProjectV1
 
                 xmlHandler.ElementInfo.ParentElementBulk = parentElems.Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
             }
-            else if(parentType.Count() != 1)
+            else if (parentType.Count() != 1)
             {
                 throw new EmptyListException("Attempted to Create an item with no valid parents");
             }
@@ -210,7 +226,7 @@ namespace ThesisProjectV1
             for (int i = 0; i < quantity; i++)
             {
                 // Prompt user for name of item and assign it
-                TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i+1).ToString());
+                TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$");
                 nameSelect.ShowDialog(out string itemName);
                 element.SetAttributeValue("Name", itemName);
                 bulkNames.Add(itemName);
@@ -237,7 +253,7 @@ namespace ThesisProjectV1
                     DropdownGui parentTask = new DropdownGui(taskNames, "Select the parent task for inserted programs");
                     parentTask.ShowDialog(out string taskName);
 
-                    if(taskName != "Keep programs unscheduled")
+                    if (taskName != "Keep programs unscheduled")
                     {
                         // Get parent task
                         XElement taskElement = tasks.Single(i => i.Attribute("Name").Value.Equals(taskName));
@@ -257,8 +273,8 @@ namespace ThesisProjectV1
                             XElement scheduledProgram = new XElement("ScheduledProgram", new XAttribute("Name", programName));
                             scheduledParent.Add(scheduledProgram);
                         }
-                            
-                        if(!taskElement.Elements("ScheduledPrograms").Any())
+
+                        if (!taskElement.Elements("ScheduledPrograms").Any())
                         {
                             taskElement.Add(scheduledParent);
                         }

@@ -7,6 +7,7 @@ namespace ThesisProjectV1.Forms
 {
     public partial class DropdownGui : Form
     {
+        private bool ClosedBySelect = false;
         public DropdownGui()
         {
             InitializeComponent();
@@ -25,19 +26,29 @@ namespace ThesisProjectV1.Forms
         public void ShowDialog(out string selected)
         {
             base.ShowDialog();
+            if (!ClosedBySelect)
+            {
+                throw new AbortedElementException();
+            }
             selected = Dropdownelements.SelectedItem?.ToString() ?? throw new EmptyListException("Closed GUI without selecting item");
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
             if (Dropdownelements.SelectedItem != null)
+            {
+                ClosedBySelect = true;
                 Close();
+            }
         }
 
         private void Dropdownelements_DoubleClick(object sender, EventArgs e)
         {
             if (Dropdownelements.SelectedItem != null)
+            {
+                ClosedBySelect = true;
                 Close();
+            }
         }
     }
 }

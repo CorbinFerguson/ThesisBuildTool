@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Navigation;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
 
@@ -11,7 +10,7 @@ namespace ThesisProjectV1
     public class XMLHandler
     {
         #region Variables
-        private readonly Validate validator = new Validate();
+        private readonly ValidationHandler validator = new ValidationHandler();
 
         private readonly List<string> acceptedTypes = new List<string>()
         {
@@ -69,7 +68,7 @@ namespace ThesisProjectV1
                 }
             }
 
-            if(element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
+            if (element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
             {
                 // Save elementInfo state for task
                 ElementInfo.BulkProgramParentGen = element.Attribute("Name").Value;
@@ -78,7 +77,7 @@ namespace ThesisProjectV1
                 // Insert the programs in the task
                 IEnumerable<string> programNames = element.Descendants("ScheduledProgram").Select(i => i.Attribute("Name").Value);
                 List<XElement> programs = inputFile.Descendants("Program").Where(i => programNames.Contains(i.Attribute("Name").Value.ToString())).Where(i => !docToInsert.Descendants("Program").Select(j => j.Attribute("Name").Value).Contains(i.Attribute("Name").Value)).ToList();
-                if(programs.Any())
+                if (programs.Any())
                     InsertElement(docToInsert, programs);
 
                 // Return to ElementInfo state for task
@@ -283,7 +282,7 @@ namespace ThesisProjectV1
             return elementsInList;
         }
 
-        internal Validate GetValidator() { return validator; }
+        internal ValidationHandler GetValidator() { return validator; }
 
         internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
         {
@@ -456,7 +455,7 @@ namespace ThesisProjectV1
 
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
-            
+
 
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
