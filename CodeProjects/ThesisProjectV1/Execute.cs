@@ -225,11 +225,14 @@ namespace ThesisProjectV1
             List<string> bulkNames = new List<string>();
             for (int i = 0; i < quantity; i++)
             {
-                // Prompt user for name of item and assign it
-                TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$");
-                nameSelect.ShowDialog(out string itemName);
-                element.SetAttributeValue("Name", itemName);
-                bulkNames.Add(itemName);
+                if (typeOfElement != "Module")
+                {
+                    // Prompt user for name of item and assign it
+                    TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$");
+                    nameSelect.ShowDialog(out string itemName);
+                    element.SetAttributeValue("Name", itemName);
+                    bulkNames.Add(itemName);
+                }
 
                 // Insert the element and reset the path for the next one
                 xmlHandler.InsertElement(doc, element);

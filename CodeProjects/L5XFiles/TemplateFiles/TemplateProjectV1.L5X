@@ -7,16 +7,10 @@
 <SafetyInfo/>
 <DataTypes/>
 <Modules>
-<Module Name="Local" CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="11" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="true"
->
+<Module CatalogNumber="1756-L81E" Vendor="1" ProductType="14" ProductCode="164" Major="32" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false">
 <EKey State="Disabled"/>
 <Ports>
-<Port Id="1" Address="3" Type="ICP" Upstream="false">
-<Bus Size="10"/>
-</Port>
-<Port Id="2" Type="Ethernet" Upstream="false">
-<Bus/>
-</Port>
+<Port Id="1" Address="1" Type="ICP" Upstream="true"/>
 </Ports>
 </Module>
 </Modules>
