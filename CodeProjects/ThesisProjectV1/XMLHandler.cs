@@ -63,8 +63,10 @@ namespace ThesisProjectV1
                 IEnumerable<XElement> existingParents = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(moduleParentEl?.Attribute("Name")?.Value) ?? false);
                 if (!existingParents.Any())
                 {
+                    ElementHelper temp = new ElementHelper(ElementInfo);
                     // If it doesn't, insert dependency into file
                     docToInsert = InsertElement(docToInsert, moduleParentEl);
+                    ElementInfo = temp;
                 }
             }
 
