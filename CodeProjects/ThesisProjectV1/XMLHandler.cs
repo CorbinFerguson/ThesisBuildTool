@@ -233,12 +233,14 @@ namespace ThesisProjectV1
             return elements;
         }
 
+        // Function to get many elements from inputfile by name and type
         internal List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
         {
             List<XElement> elementList = elementNames.SelectMany(elementName => GetElementFromFile(elementType, elementName)).ToList();
             return elementList;
         }
 
+        // Function to get all valid types from input file and prompt user to select one
         internal string GetTypeAndSelect()
         {
             // Prompt user to select type of element to insert
@@ -266,6 +268,7 @@ namespace ThesisProjectV1
 
         internal ValidationHandler GetValidator() { return validator; }
 
+        // Function to insert element into a document. Inserts the element's dependent elements as well
         internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
         {
             XElement element = new XElement(insertEl);
@@ -435,6 +438,7 @@ namespace ThesisProjectV1
             return inDoc;
         }
 
+        // Function to insert a list of elements
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
             Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
@@ -446,13 +450,14 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        // Loads a premade blank file containig basic structure for the program to build off
+        // Loads a premade blank file containing basic structure for the program to build off of
         internal XDocument LoadBasicFile()
         {
             XDocument doc = XDocument.Load("../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
         }
 
+        // User can select attributes of element to modify from list of all valid attributes the schema holds
         internal void GetSetAttributes(XElement element)
         {
             XElement elementAttr;
@@ -484,21 +489,20 @@ namespace ThesisProjectV1
                 element.SetAttributeValue(attributeName, attributeValue);
             }
 
+            // Set Default Values
             foreach (XAttribute setDefaultAttribute in attributesTochange)
             {
                 if (element.Attribute(setDefaultAttribute.Name) != null)
                     element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
-                else
+                else if (!setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) == null)
                     element.Add(setDefaultAttribute);
-                if (setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) != null)
-                    element.Attribute(setDefaultAttribute.Name).Remove();
             }
 
             // Prompt user to select any children to modify
             IEnumerable<XElement> childElements = element.Elements();
             if (childElements.Any())
             {
-                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify", true);
+                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify or X out to end", true);
                 selectChildren.ShowDialog(out List<string> selectedChildren);
 
                 // Access the elements selected and modify them recursively
@@ -515,6 +519,7 @@ namespace ThesisProjectV1
             }
         }
 
+        // Function to get all valid interactable types contained in the document
         internal string GetElementTypes(XDocument doc)
         {
             // Select Element Types
