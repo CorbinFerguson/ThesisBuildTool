@@ -121,7 +121,7 @@ namespace ThesisProjectV1
                     name = schemaElement.Parent.Parent.Attribute("name").Value;
 
                     // search for something with that type
-                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("type")?.Value.Equals(name) ?? false).Single();
+                    schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Single(i => i.Attribute("type")?.Value.Equals(name) ?? false);
 
                     paths.Enqueue(schemaElement.Attribute("name").Value);
                 }
@@ -167,11 +167,6 @@ namespace ThesisProjectV1
                 else
                 { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "Unexpected Error Occurred", MessageBoxButtons.OK); }
             }
-            catch (EmptyListException ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-            }
             return paths;
         }
 
@@ -207,39 +202,29 @@ namespace ThesisProjectV1
                     // Set parent info, so that it doesn't prompt user again
                     ElementInfo.ParentElementBulk = parentElement;
                 }
+                // Modules have special handling due to them being valid without a name
                 else
                 {
-                    // Get all valid options. 
+                    // Get all valid options. If there is no name, use port number instead
                     List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value).Distinct().ToList();
 
-                    // Create a popup prompting user to select the 
+                    // Create a popup prompting user to select the name of the module
                     MultiSelectDropdown selectElement = new MultiSelectDropdown(parentOptions, "Select the name of the Module " + elementName + " you are accessing");
                     selectElement.ShowDialog(out List<string> nameOfElements);
 
                     foreach (string nameOfElement in nameOfElements)
                     {
-                        // Insert the first element if there is no name or port address to use.
+                        // Using port to differentiate
                         if (nameOfElement.Contains("at port"))
                         {
                             int portIndex = nameOfElement.IndexOf("port ") + 5;
                             string selectedPort = nameOfElement.Substring(portIndex);
                             element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
                         }
-                        // There is a name. Use that to differentiate.
+                        // Using name to differentiate
                         else
                         {
-                            try
-                            {
-                                element = elementsToChoose.Where(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false).Single();
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                List<string> typeObjects = inputFile.Descendants(nameOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).ToList();
-                                DropdownGui elementSelect = new DropdownGui(typeObjects, "Select specific object parent");
-                                elementSelect.ShowDialog(out string selectedObject);
-                                XElement parentElement = inputFile.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(selectedObject) ?? false);
-                                element = parentElement.Descendants().Single(i => i.Attribute(attributeSearch)?.Value.ToString().Equals(elementName) ?? false);
-                            }
+                            element = elementsToChoose.Single(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false);
                         }
                         elements.Add(element);
                     }
@@ -402,7 +387,7 @@ namespace ThesisProjectV1
             {
                 if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
                 {
-                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count()+1;
+                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
                     if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
                         portNum++;
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
