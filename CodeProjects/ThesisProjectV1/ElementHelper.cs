@@ -21,12 +21,12 @@ namespace ThesisProjectV1
 
         public ElementHelper(ElementHelper elementInfo)
         {
-            if(elementInfo.RootPath != null)
-                RootPath =new Queue<string>( elementInfo.RootPath);
+            if (elementInfo.RootPath != null)
+                RootPath = new Queue<string>(elementInfo.RootPath);
             ElementType = elementInfo.ElementType;
             BulkProgramParentGen = elementInfo.BulkProgramParentGen;
-            if(elementInfo.ParentElementBulk != null)
-                ParentElementBulk =new XElement(elementInfo.ParentElementBulk);
+            if (elementInfo.ParentElementBulk != null)
+                ParentElementBulk = new XElement(elementInfo.ParentElementBulk);
         }
 
         public ElementHelper(Queue<string> rootPath, string elementType, string collectionParent, XElement parentEl)
