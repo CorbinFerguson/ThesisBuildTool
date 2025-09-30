@@ -119,7 +119,7 @@
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(153, 69);
             this.SaveButton.TabIndex = 6;
-            this.SaveButton.Text = "Save";
+            this.SaveButton.Text = "Save File";
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
@@ -131,7 +131,7 @@
             this.LoadButton.Name = "LoadButton";
             this.LoadButton.Size = new System.Drawing.Size(153, 69);
             this.LoadButton.TabIndex = 7;
-            this.LoadButton.Text = "Load";
+            this.LoadButton.Text = "Load File";
             this.LoadButton.UseVisualStyleBackColor = true;
             this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
             // 
@@ -143,7 +143,7 @@
             this.NewFile.Name = "NewFile";
             this.NewFile.Size = new System.Drawing.Size(153, 69);
             this.NewFile.TabIndex = 8;
-            this.NewFile.Text = "New";
+            this.NewFile.Text = "New File";
             this.NewFile.UseVisualStyleBackColor = true;
             this.NewFile.Click += new System.EventHandler(this.NewFile_Click);
             // 
