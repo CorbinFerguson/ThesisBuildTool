@@ -71,7 +71,7 @@
             this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(632, 49);
+            this.textBox1.Size = new System.Drawing.Size(632, 42);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Select the action you wish to take:";
             // 
@@ -95,7 +95,7 @@
             this.ModifySelect.Name = "ModifySelect";
             this.ModifySelect.Size = new System.Drawing.Size(153, 144);
             this.ModifySelect.TabIndex = 4;
-            this.ModifySelect.Text = "Modify Element";
+            this.ModifySelect.Text = "Modify Element (WIP)";
             this.ModifySelect.UseVisualStyleBackColor = true;
             this.ModifySelect.Click += new System.EventHandler(this.ModifySelect_Click);
             // 
