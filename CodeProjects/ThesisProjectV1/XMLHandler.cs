@@ -34,6 +34,8 @@ namespace ThesisProjectV1
         #endregion
 
         #region functions
+
+        // Function to check the element for dependent elements contained in docToInsert, and insert them
         internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
             // Check if there are any dependencies in the inserted element
@@ -70,6 +72,7 @@ namespace ThesisProjectV1
                 }
             }
 
+            // If the element is a task, and it has any scheduled programs, insert them
             if (element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
             {
                 // Save elementInfo state for task
@@ -90,6 +93,7 @@ namespace ThesisProjectV1
             return docToInsert;
         }
 
+        // Function to check a list of elements for dependencies
         internal XDocument CheckForDependencies(XDocument docToInsert, List<XElement> elements)
         {
             foreach (XElement element in elements)
@@ -97,7 +101,7 @@ namespace ThesisProjectV1
             return docToInsert;
         }
 
-        // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
+        // Function to get a list of the names for the nodes leading from the root(RSLogix5000) to element using the XSD schema document
         internal Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
@@ -105,6 +109,7 @@ namespace ThesisProjectV1
             string name = element.Name.ToString();
             XElement schemaElement = null;
 
+            // Attempt to find the elements leading from the chosen elements to root
             try
             {
                 schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute("name")?.Value.Equals(name) ?? false));
@@ -123,22 +128,21 @@ namespace ThesisProjectV1
                 if (paths.Count == 0)
                     throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
             }
+            // Catch the error thrown when there is ambiguity in finding the path
             catch (InvalidOperationException ex)
             {
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
-
-                    // Create a popup telling user what happened
-                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
-
-                    List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-
-                    List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
-
                     string nameOfElement;
 
+                    // If it is a bulk insert operation, the parent has already been disambiguated
                     if (ElementInfo.ParentElementBulk == null)
                     {
+                        // Get the parent options from the schema
+                        IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
+                        List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+                        List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
+
                         // Prompt user to select grandparent for the element
                         DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent type for " + element.Name);
                         selectElement.ShowDialog(out nameOfElement);
@@ -152,21 +156,12 @@ namespace ThesisProjectV1
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
 
-                    // Create the path queue
-                    Queue<string> rootPath = new Queue<string>();
                     // Use the parent of the last element in the queue
-                    rootPath.Enqueue(nameOfElement);
+                    paths.Enqueue(nameOfElement);
                     Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
 
                     foreach (string node in grandparentToRoot)
-                        rootPath.Enqueue(node);
-
-                    if (rootPath.Count == 0)
-                        return rootPath;
-                    if (rootPath.Peek() == paths.Last())
-                        rootPath.Dequeue();
-                    foreach (string parent in rootPath)
-                        paths.Enqueue(parent);
+                        paths.Enqueue(node);
                     return paths;
                 }
                 else
