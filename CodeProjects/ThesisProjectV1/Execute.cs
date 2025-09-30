@@ -82,13 +82,12 @@ namespace ThesisProjectV1
             MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
             nameSelect.ShowDialog(out List<string> namesSelected);
 
-            foreach (string elementName in namesSelected)
+            xmlHandler.inputFile = doc;
+
+            IEnumerable<XElement> elements = xmlHandler.GetElementFromFile(typeSelected,namesSelected);
+            foreach (XElement element in elements)
             {
-                IEnumerable<XElement> elements = doc.Descendants(typeSelected).Where(i => (i.Attribute("Name")?.Value ?? i.Attribute("CatalogNumber").Value) == elementName);
-                foreach (XElement element in elements)
-                {
-                    xmlHandler.GetSetAttributes(element);
-                }
+                xmlHandler.GetSetAttributes(element);
             }
 
             // Validate the document against the xml Schema, if successful, complete transaction
@@ -108,12 +107,10 @@ namespace ThesisProjectV1
             MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
             nameSelect.ShowDialog(out List<string> namesSelected);
 
-            // For all selected element names, remove the associated element
-            foreach (string name in namesSelected)
-            {
-                XElement removeElement = doc.Descendants(typeSelected).Single(i => i.Attribute("Name")?.Value.Equals(name) ?? i.Attribute("CatalogNumber").Value.Equals(name));
-                removeElement.Remove();
-            }
+            xmlHandler.inputFile = doc;
+
+            IEnumerable<XElement> removeElement = xmlHandler.GetElementFromFile(typeSelected, namesSelected);
+            removeElement.Remove();
 
             // Validate the document against the xml Schema, if successful, complete transaction
             List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);

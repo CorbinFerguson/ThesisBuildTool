@@ -97,7 +97,7 @@ namespace ThesisProjectV1
             return docToInsert;
         }
 
-        // Returns a list of the names for the nodes leading from the            root(RSLogix5000) to element
+        // Returns a list of the names for the nodes leading from the root(RSLogix5000) to element
         internal Queue<string> FindPathtoRootSchema(XElement element)
         {
             Queue<string> paths = new Queue<string>();
@@ -407,7 +407,7 @@ namespace ThesisProjectV1
             {
                 if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
                 {
-                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
+                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count()+1;
                     if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
                         portNum++;
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);

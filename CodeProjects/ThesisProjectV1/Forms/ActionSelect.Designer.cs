@@ -43,10 +43,10 @@
             // ImportSelect
             // 
             this.ImportSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ImportSelect.Location = new System.Drawing.Point(32, 82);
+            this.ImportSelect.Location = new System.Drawing.Point(36, 102);
             this.ImportSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ImportSelect.Name = "ImportSelect";
-            this.ImportSelect.Size = new System.Drawing.Size(136, 115);
+            this.ImportSelect.Size = new System.Drawing.Size(153, 144);
             this.ImportSelect.TabIndex = 0;
             this.ImportSelect.Text = "Import Element";
             this.ImportSelect.UseVisualStyleBackColor = true;
@@ -55,33 +55,33 @@
             // GenerateSelect
             // 
             this.GenerateSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.GenerateSelect.Location = new System.Drawing.Point(174, 82);
+            this.GenerateSelect.Location = new System.Drawing.Point(196, 102);
             this.GenerateSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GenerateSelect.Name = "GenerateSelect";
-            this.GenerateSelect.Size = new System.Drawing.Size(136, 115);
+            this.GenerateSelect.Size = new System.Drawing.Size(153, 144);
             this.GenerateSelect.TabIndex = 1;
-            this.GenerateSelect.Text = "Create from Template";
+            this.GenerateSelect.Text = "Create Element";
             this.GenerateSelect.UseVisualStyleBackColor = true;
             this.GenerateSelect.Click += new System.EventHandler(this.GenerateSelect_Click);
             // 
             // textBox1
             // 
             this.textBox1.Font = new System.Drawing.Font("Arial", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(32, 11);
+            this.textBox1.Location = new System.Drawing.Point(36, 14);
             this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(562, 42);
+            this.textBox1.Size = new System.Drawing.Size(632, 49);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Select the action you wish to take:";
             // 
             // ExitButton
             // 
             this.ExitButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ExitButton.Location = new System.Drawing.Point(267, 278);
+            this.ExitButton.Location = new System.Drawing.Point(300, 348);
             this.ExitButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ExitButton.Name = "ExitButton";
-            this.ExitButton.Size = new System.Drawing.Size(96, 55);
+            this.ExitButton.Size = new System.Drawing.Size(108, 69);
             this.ExitButton.TabIndex = 3;
             this.ExitButton.Text = "Exit";
             this.ExitButton.UseVisualStyleBackColor = true;
@@ -90,10 +90,10 @@
             // ModifySelect
             // 
             this.ModifySelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ModifySelect.Location = new System.Drawing.Point(316, 82);
+            this.ModifySelect.Location = new System.Drawing.Point(356, 102);
             this.ModifySelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ModifySelect.Name = "ModifySelect";
-            this.ModifySelect.Size = new System.Drawing.Size(136, 115);
+            this.ModifySelect.Size = new System.Drawing.Size(153, 144);
             this.ModifySelect.TabIndex = 4;
             this.ModifySelect.Text = "Modify Element";
             this.ModifySelect.UseVisualStyleBackColor = true;
@@ -102,10 +102,10 @@
             // DeleteSelect
             // 
             this.DeleteSelect.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DeleteSelect.Location = new System.Drawing.Point(458, 82);
+            this.DeleteSelect.Location = new System.Drawing.Point(515, 102);
             this.DeleteSelect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.DeleteSelect.Name = "DeleteSelect";
-            this.DeleteSelect.Size = new System.Drawing.Size(136, 115);
+            this.DeleteSelect.Size = new System.Drawing.Size(153, 144);
             this.DeleteSelect.TabIndex = 5;
             this.DeleteSelect.Text = "Delete Element";
             this.DeleteSelect.UseVisualStyleBackColor = true;
@@ -114,10 +114,10 @@
             // SaveButton
             // 
             this.SaveButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SaveButton.Location = new System.Drawing.Point(174, 219);
+            this.SaveButton.Location = new System.Drawing.Point(196, 274);
             this.SaveButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SaveButton.Name = "SaveButton";
-            this.SaveButton.Size = new System.Drawing.Size(136, 55);
+            this.SaveButton.Size = new System.Drawing.Size(153, 69);
             this.SaveButton.TabIndex = 6;
             this.SaveButton.Text = "Save";
             this.SaveButton.UseVisualStyleBackColor = true;
@@ -126,10 +126,10 @@
             // LoadButton
             // 
             this.LoadButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LoadButton.Location = new System.Drawing.Point(316, 219);
+            this.LoadButton.Location = new System.Drawing.Point(356, 274);
             this.LoadButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LoadButton.Name = "LoadButton";
-            this.LoadButton.Size = new System.Drawing.Size(136, 55);
+            this.LoadButton.Size = new System.Drawing.Size(153, 69);
             this.LoadButton.TabIndex = 7;
             this.LoadButton.Text = "Load";
             this.LoadButton.UseVisualStyleBackColor = true;
@@ -138,10 +138,10 @@
             // NewFile
             // 
             this.NewFile.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewFile.Location = new System.Drawing.Point(32, 219);
+            this.NewFile.Location = new System.Drawing.Point(36, 274);
             this.NewFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.NewFile.Name = "NewFile";
-            this.NewFile.Size = new System.Drawing.Size(136, 55);
+            this.NewFile.Size = new System.Drawing.Size(153, 69);
             this.NewFile.TabIndex = 8;
             this.NewFile.Text = "New";
             this.NewFile.UseVisualStyleBackColor = true;
@@ -150,10 +150,10 @@
             // ValidatorButton
             // 
             this.ValidatorButton.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ValidatorButton.Location = new System.Drawing.Point(458, 219);
+            this.ValidatorButton.Location = new System.Drawing.Point(515, 274);
             this.ValidatorButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ValidatorButton.Name = "ValidatorButton";
-            this.ValidatorButton.Size = new System.Drawing.Size(136, 55);
+            this.ValidatorButton.Size = new System.Drawing.Size(153, 69);
             this.ValidatorButton.TabIndex = 9;
             this.ValidatorButton.Text = "Validate";
             this.ValidatorButton.UseVisualStyleBackColor = true;
@@ -161,9 +161,9 @@
             // 
             // ActionSelect
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(633, 343);
+            this.ClientSize = new System.Drawing.Size(712, 429);
             this.Controls.Add(this.ValidatorButton);
             this.Controls.Add(this.NewFile);
             this.Controls.Add(this.LoadButton);
