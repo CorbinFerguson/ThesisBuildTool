@@ -27,7 +27,7 @@ namespace ThesisProjectV1
         private static void Main()
         {
             // Default to generated basic file
-            NewFile();
+            doc = xmlHandler.LoadBasicFile();
 
             // Take in user input
             ActionSelect actionSelect = new ActionSelect();
@@ -42,17 +42,22 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
+                MessageBox.Show(errors, "Detected Errors ", MessageBoxButtons.OK);
             }
             else
             {
-                MessageBox.Show("No errors detected!");
+                MessageBox.Show("No errors detected!", "Detected Errors");
             }
         }
 
         public static void NewFile()
         {
-            doc = xmlHandler.LoadBasicFile();
+            DialogResult dialogResult = MessageBox.Show("Are you sure you want to overwrite your existing file?", "Verify File Creation", MessageBoxButtons.YesNo);
+            if (dialogResult.Equals(DialogResult.Yes))
+            {
+                doc = xmlHandler.LoadBasicFile();
+                MessageBox.Show("New Empty File Created.");
+            }
         }
 
         public static void SaveFile()
@@ -64,8 +69,14 @@ namespace ThesisProjectV1
             for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
 
-            doc.Save(outputPath + outputName + ".L5X");
-            Console.WriteLine($"XML file created at: {outputPath}");
+            SaveFileDialog save = new SaveFileDialog();
+            save.Filter = " L5X Files(*.L5X)|*.L5X|XML Files(*.XML)|*.xml|All Files(*.*)|*.*";
+            save.FileName = outputName;
+            save.DefaultExt = "L5X";
+            if (save.ShowDialog() == DialogResult.OK)
+            {
+                doc.Save(save.FileName);
+            }
         }
 
         public static void LoadFile()
@@ -146,7 +157,7 @@ namespace ThesisProjectV1
                 // Find and display available elements of that type
                 List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement);
+                selectElement.ShowDialog(out List<string> nameOfElement); 
 
                 // Get the selected element, then insert it
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);

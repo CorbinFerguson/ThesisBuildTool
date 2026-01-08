@@ -502,11 +502,12 @@ namespace ThesisProjectV1
             IEnumerable<XElement> childElements = element.Elements();
             if (childElements.Any())
             {
-                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify or X out to end", true);
+                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify(hit confirm with none selected to keep children as is)", true);
                 selectChildren.ShowDialog(out List<string> selectedChildren);
 
                 // Access the elements selected and modify them recursively
                 childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()));
+                childElements = childElements.Elements();
                 GetSetAttributes(childElements);
             }
         }
@@ -527,8 +528,7 @@ namespace ThesisProjectV1
 
             if (uniqueTypes.Count == 0)
             {
-                MessageBox.Show("No valid elements found");
-                return null;
+                throw new EmptyListException("No Valid Elements Found");
             }
 
             DropdownGui typesToRemove = new DropdownGui(uniqueTypes, "Select Element Types");
