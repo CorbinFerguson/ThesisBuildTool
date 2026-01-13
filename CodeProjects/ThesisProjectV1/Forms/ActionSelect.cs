@@ -24,7 +24,7 @@ namespace ThesisProjectV1.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
+                MessageBox.Show(ex.Message, "Error importing element. Aborting action.");
             }
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
@@ -55,7 +55,7 @@ namespace ThesisProjectV1.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
+                MessageBox.Show(ex.Message, "Error modifying element. Aborting action.");
             }
         }
 
@@ -71,7 +71,7 @@ namespace ThesisProjectV1.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
+                MessageBox.Show(ex.Message, "Error deleting element. Aborting action.");
             }
         }
 

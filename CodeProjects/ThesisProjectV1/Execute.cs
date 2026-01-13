@@ -62,9 +62,6 @@ namespace ThesisProjectV1
 
         public static void SaveFile()
         {
-            TextInput fileName = new TextInput("File name", outputName, @"^\w+$");
-            fileName.ShowDialog(out outputName);
-
             // Save the document to a file
             for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
