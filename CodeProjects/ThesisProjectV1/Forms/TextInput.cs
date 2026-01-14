@@ -6,8 +6,12 @@ namespace ThesisProjectV1.Forms
 {
     public partial class TextInput : Form
     {
+        #region Fields
         private readonly string regex;
         private bool ClosedBySelect = false;
+        #endregion
+
+        #region Constructors
         public TextInput()
         {
             InitializeComponent();
@@ -20,7 +24,9 @@ namespace ThesisProjectV1.Forms
             InputValueName.Text = defaultText;
             regex = reg;
         }
+        #endregion
 
+        #region Functions
         public void ShowDialog(out string textValue)
         {
             base.ShowDialog();
@@ -52,5 +58,6 @@ namespace ThesisProjectV1.Forms
             else if (e.KeyCode == Keys.Enter)
                 UserInstructionTextBox.Text = "Invalid Input";
         }
+        #endregion
     }
 }

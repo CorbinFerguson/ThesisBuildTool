@@ -7,7 +7,7 @@ using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
-    public class XMLHandler
+    internal class XMLHandler
     {
         #region Variables
         private readonly ValidationHandler validator = new ValidationHandler();
@@ -33,7 +33,7 @@ namespace ThesisProjectV1
 
         #endregion
 
-        #region functions
+        #region Functions
 
         // Function to check the element for dependent elements contained in docToInsert, and insert them
         internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)

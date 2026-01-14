@@ -5,6 +5,7 @@ namespace ThesisProjectV1
 {
     public class ElementHelper
     {
+        #region Fields
         public Queue<string> RootPath = null;
 
         public string ElementType = null;
@@ -13,8 +14,10 @@ namespace ThesisProjectV1
         public string BulkProgramParentGen = null;
 
         // Parent Elemtn for bulk generation
-        public XElement ParentElementBulk = null;
+        public XElement ParentElementBulk = null; 
+        #endregion
 
+        #region Constructors
         public ElementHelper()
         {
         }
@@ -37,12 +40,16 @@ namespace ThesisProjectV1
             ParentElementBulk = parentEl;
         }
 
+        #endregion
+
+        #region Functions
         public void ResetElements()
         {
             RootPath.Clear();
             ElementType = null;
             BulkProgramParentGen = null;
             ParentElementBulk = null;
-        }
+        } 
+        #endregion
     }
 }

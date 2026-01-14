@@ -23,6 +23,7 @@ namespace ThesisProjectV1.Forms
             textBox.Text = text;
         }
 
+        #region Functions
         public void ShowDialog(out string selected)
         {
             base.ShowDialog();
@@ -50,5 +51,6 @@ namespace ThesisProjectV1.Forms
                 Close();
             }
         }
+        #endregion
     }
 }

@@ -7,8 +7,10 @@ namespace ThesisProjectV1.Forms
 {
     public partial class MultiSelectDropdown : Form
     {
+        #region Fields
         private readonly bool EmptyReturn;
-        private bool ClosedBySelect = false;
+        private bool ClosedBySelect = false; 
+        #endregion
 
         public MultiSelectDropdown(List<string> names, string text, bool allowEmptyReturn = false)
         {
@@ -23,6 +25,7 @@ namespace ThesisProjectV1.Forms
             TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
         }
 
+        #region Functions
         public void ShowDialog(out List<string> selected)
         {
             base.ShowDialog();
@@ -49,6 +52,7 @@ namespace ThesisProjectV1.Forms
 
             // Set MaxDropDownHeight, ensuring it's not negative
             DropdownElements.Height = Math.Max(0, availableHeight);
-        }
+        } 
+        #endregion
     }
 }

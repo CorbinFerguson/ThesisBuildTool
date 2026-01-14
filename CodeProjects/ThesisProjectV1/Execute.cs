@@ -10,8 +10,9 @@ using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
-    internal class Execute
+    public class Execute
     {
+        #region Fields
         private static readonly XMLHandler xmlHandler = new XMLHandler();
         public static XDocument doc = new XDocument();
         private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
@@ -21,9 +22,11 @@ namespace ThesisProjectV1
             RestoreDirectory = true
         };
         private static readonly string outputPath = "../../../L5XFiles/GeneratedFiles/";
-        private static string outputName = "GenFile";
+        private static string outputName = "GenFile"; 
+        #endregion
 
         [STAThread]
+        #region Functions
         private static void Main()
         {
             // Default to generated basic file
@@ -92,7 +95,7 @@ namespace ThesisProjectV1
 
             xmlHandler.inputFile = doc;
 
-            IEnumerable<XElement> elements = xmlHandler.GetElementFromFile(typeSelected,namesSelected);
+            IEnumerable<XElement> elements = xmlHandler.GetElementFromFile(typeSelected, namesSelected);
             foreach (XElement element in elements)
             {
                 xmlHandler.GetSetAttributes(element);
@@ -154,7 +157,7 @@ namespace ThesisProjectV1
                 // Find and display available elements of that type
                 List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
                 MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement); 
+                selectElement.ShowDialog(out List<string> nameOfElement);
 
                 // Get the selected element, then insert it
                 List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
@@ -298,6 +301,8 @@ namespace ThesisProjectV1
             {
                 var t = Task.Run(() => { MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK); });
             }
-        }
+        } 
+        
+        #endregion
     }
 }
