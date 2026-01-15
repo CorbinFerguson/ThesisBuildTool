@@ -145,7 +145,7 @@
             this.NewFile.TabIndex = 8;
             this.NewFile.Text = "New File";
             this.NewFile.UseVisualStyleBackColor = true;
-            this.NewFile.Click += new System.EventHandler(this.NewFile_Click);
+            this.NewFile.Click += new System.EventHandler(this.NewButton_Click);
             // 
             // ValidatorButton
             // 
@@ -157,7 +157,7 @@
             this.ValidatorButton.TabIndex = 9;
             this.ValidatorButton.Text = "Validate";
             this.ValidatorButton.UseVisualStyleBackColor = true;
-            this.ValidatorButton.Click += new System.EventHandler(this.Validator_Click);
+            this.ValidatorButton.Click += new System.EventHandler(this.ValideButton_Click);
             // 
             // ActionSelect
             // 

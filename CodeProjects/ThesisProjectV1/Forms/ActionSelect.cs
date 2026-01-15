@@ -10,8 +10,6 @@ namespace ThesisProjectV1.Forms
             InitializeComponent();
         }
 
-        public enum Actions { Import, Generate, Error }
-
         private void ImportSelect_Click(object sender, EventArgs e)
         {
             try
@@ -90,12 +88,12 @@ namespace ThesisProjectV1.Forms
             Execute.LoadFile();
         }
 
-        private void NewFile_Click(object sender, EventArgs e)
+        private void NewButton_Click(object sender, EventArgs e)
         {
             Execute.NewFile();
         }
 
-        private void Validator_Click(object sender, EventArgs e)
+        private void ValideButton_Click(object sender, EventArgs e)
         {
             Execute.ValidateFile();
         }
