@@ -93,7 +93,7 @@ namespace ThesisProjectV1.Forms
             Execute.NewFile();
         }
 
-        private void ValideButton_Click(object sender, EventArgs e)
+        private void ValidateButton_Click(object sender, EventArgs e)
         {
             Execute.ValidateFile();
         }

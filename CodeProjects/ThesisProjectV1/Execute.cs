@@ -37,7 +37,7 @@ namespace ThesisProjectV1
             actionSelect.ShowDialog();
         }
 
-        public static void ValidateFile()
+        public static void ValidateFile(bool showNoError=true)
         {
             // Validate the document against the xml Schema, if successful, complete transaction
             List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
@@ -47,7 +47,7 @@ namespace ThesisProjectV1
             {
                 MessageBox.Show(errors, "Detected Errors ", MessageBoxButtons.OK);
             }
-            else
+            else if(showNoError)
             {
                 MessageBox.Show("No errors detected!", "Detected Errors");
             }
@@ -101,14 +101,7 @@ namespace ThesisProjectV1
                 xmlHandler.GetSetAttributes(element);
             }
 
-            // Validate the document against the xml Schema, if successful, complete transaction
-            List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-            string errors = string.Join(Environment.NewLine, errorList);
-
-            if (errors.Length > 0)
-            {
-                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
-            }
+            ValidateFile(false);
         }
 
         public static void DeleteElement()
@@ -123,14 +116,7 @@ namespace ThesisProjectV1
             IEnumerable<XElement> removeElement = xmlHandler.GetElementFromFile(typeSelected, namesSelected);
             removeElement.Remove();
 
-            // Validate the document against the xml Schema, if successful, complete transaction
-            List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-            string errors = string.Join(Environment.NewLine, errorList);
-
-            if (errors.Length > 0)
-            {
-                MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK);
-            }
+            ValidateFile(false);
         }
 
         // Function for taking in an element from a file
@@ -166,14 +152,7 @@ namespace ThesisProjectV1
                 // Reset the helper
                 xmlHandler.ElementInfo.ResetElements();
 
-                // Validate the document against the xml Schema, if successful, complete transaction
-                List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-                string errors = string.Join(Environment.NewLine, errorList);
-
-                if (errors.Length > 0)
-                {
-                    var t = Task.Run(() => { MessageBox.Show(errors, "Errors detected:", MessageBoxButtons.OK); });
-                }
+                ValidateFile(false);
 
                 DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
                 if (newElementFile == DialogResult.No)
@@ -293,15 +272,8 @@ namespace ThesisProjectV1
                 }
             }
 
-            // Validate the document against the xml Schema, if successful, complete transaction
-            List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
-            string errors = string.Join(Environment.NewLine, errorList);
-
-            if (errors.Length > 0)
-            {
-                var t = Task.Run(() => { MessageBox.Show(errors, "Errors detected: ", MessageBoxButtons.OK); });
-            }
-        } 
+            ValidateFile(false);
+        }
         
         #endregion
     }

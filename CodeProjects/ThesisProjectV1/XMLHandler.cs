@@ -480,8 +480,8 @@ namespace ThesisProjectV1
             }
             // Prompt user for other attributes to not take default value for
             MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", true);
-            selectAttributes.ShowDialog(out List<string> selectedAttributenames);
-            foreach (string attributeName in selectedAttributenames)
+            selectAttributes.ShowDialog(out List<string> selectedAttributeNames);
+            foreach (string attributeName in selectedAttributeNames)
             {
                 attributesTochange.RemoveAll(i => i.Name == attributeName);
                 TextInput input = new TextInput($"Input a value for {attributeName} attribute of {element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value}", element.Attribute(attributeName)?.Value ?? "");
