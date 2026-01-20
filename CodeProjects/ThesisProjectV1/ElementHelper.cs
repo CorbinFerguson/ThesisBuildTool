@@ -45,7 +45,7 @@ namespace ThesisProjectV1
         #region Functions
         public void ResetElements()
         {
-            RootPath.Clear();
+            RootPath?.Clear();
             ElementType = null;
             BulkProgramParentGen = null;
             ParentElementBulk = null;

@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using ThesisProjectV1.Abstractions;
 using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
-    internal class XMLHandler
+    public class XMLHandler
     {
-        #region Variables
-        private readonly ValidationHandler validator = new ValidationHandler();
+        #region Fields
 
-        private readonly List<string> acceptedTypes = new List<string>()
+        private readonly IValidationService validator; // injected
+        private readonly List<string> acceptedTypes = new List<string>
         {
             "AddOnInstructionDefinition",
             "Program",
@@ -22,14 +23,23 @@ namespace ThesisProjectV1
             "LocalTag",
             "Module",
             "Task"
-
         };
 
         public XDocument inputFile;
-
         public XNamespace Ns { get; } = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
-
         public ElementHelper ElementInfo = new ElementHelper();
+
+        public XMLHandler(IValidationService validation)
+        {
+            validator = validation;
+        }
+
+        // For legacy callers (optional) — allows gradual migration.
+        public XMLHandler() : this(new ThesisProjectV1.Infrastructure.ValidationService())
+        {
+        }
+
+        internal IValidationService GetValidator() { return validator; }
 
         #endregion
 
@@ -251,6 +261,21 @@ namespace ThesisProjectV1
             return typeOfElement;
         }
 
+        // Returns the unique set of interactable element types present in inputFile.
+        // Mirrors logic previously embedded in GetTypeAndSelect, but with no UI.
+        internal List<string> GetAvailableTypesFromInputFile()
+        {
+            List<string> elementTypes = inputFile
+                .Descendants()
+                .Where(i => acceptedTypes.Contains(i.Name.ToString()))
+                .Select(i => i.Name.ToString())
+                .Distinct()
+                .ToList();
+
+            return elementTypes;
+        }
+
+
         // Gets all the simple elements in the XML Schema
         internal List<String> GetSimpleElements()
         {
@@ -265,8 +290,6 @@ namespace ThesisProjectV1
             }
             return elementsInList;
         }
-
-        internal ValidationHandler GetValidator() { return validator; }
 
         // Function to insert element into a document. Inserts the element's dependent elements as well
         internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
@@ -535,6 +558,148 @@ namespace ThesisProjectV1
             typesToRemove.ShowDialog(out string typeSelected);
             return typeSelected;
         }
+        void GetSetAttributes(XElement element, IUserPromptService prompts, IMessageService messages)
+        {
+            // Discover the complex type for the element using the schema
+            XElement basicSchemaElement = GetValidator()
+                .GetSchema()
+                .Descendants(Ns + "element")
+                .Where(i => i.Attribute("name") != null && i.Attribute("name").Value == element.Name.ToString())
+                .DescendantsAndSelf()
+                .Single();
+
+            XElement elementAttr = GetValidator()
+                .GetSchema()
+                .Descendants(Ns + "complexType")
+                .Single(i => i.Attribute("name") != null && i.Attribute("name").Value == basicSchemaElement.Attribute("type").Value);
+
+            IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
+
+            // Precompute attributes with defaults/current values
+            List<XAttribute> attributesTochange = new List<XAttribute>();
+            foreach (XElement attribute in attributesEl)
+            {
+                string attrName = attribute.Attribute("name").Value;
+                string attributeValue = "";
+                if (element.Attribute(attrName) != null)
+                    attributeValue = element.Attribute(attrName).Value;
+
+                attributesTochange.Add(new XAttribute(attrName, attributeValue));
+            }
+
+            // Prompt user which attributes to manually set (NO input validation here, same as before)
+            List<string> allAttrNames = attributesTochange.Select(a => a.Name.ToString()).ToList();
+            IList<string> selectedAttributeNames = prompts.SelectMany(
+                "Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)",
+                allAttrNames,
+                true,
+                "Modify Element");
+
+            // Apply manual changes
+            if (selectedAttributeNames != null)
+            {
+                foreach (string attributeName in selectedAttributeNames)
+                {
+                    // so default setter below won't overwrite manual input
+                    for (int i = attributesTochange.Count - 1; i >= 0; i--)
+                    {
+                        if (attributesTochange[i].Name.ToString() == attributeName)
+                        {
+                            attributesTochange.RemoveAt(i);
+                        }
+                    }
+
+                    string displayName = (element.Attribute("Name") != null)
+                        ? element.Attribute("Name").Value
+                        : (element.Attribute("CatalogNumber") != null ? element.Attribute("CatalogNumber").Value : element.Name.ToString());
+
+                    string currentVal = element.Attribute(attributeName) != null ? element.Attribute(attributeName).Value : "";
+                    string newVal = prompts.Prompt(
+                        "Input a value for " + attributeName + " attribute of " + displayName,
+                        currentVal,
+                        null,
+                        "Modify Element");
+
+                    element.SetAttributeValue(attributeName, newVal);
+                }
+            }
+
+            // Apply defaults for remaining attributes (preserves prior behavior)
+            foreach (XAttribute setDefaultAttribute in attributesTochange)
+            {
+                if (element.Attribute(setDefaultAttribute.Name) != null)
+                {
+                    element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
+                }
+                else if (!string.IsNullOrEmpty(setDefaultAttribute.Value))
+                {
+                    element.Add(new XAttribute(setDefaultAttribute.Name, setDefaultAttribute.Value));
+                }
+            }
+
+            // Prompt to modify children (if any)
+            IEnumerable<XElement> childElements = element.Elements();
+            if (childElements.Any())
+            {
+                List<string> childNames = childElements
+                    .Select(i => i.Attribute("Name") != null ? i.Attribute("Name").Value : i.Name.ToString())
+                    .Distinct()
+                    .ToList();
+
+                IList<string> selectedChildren = prompts.SelectMany(
+                    "Select Children elements to modify (hit confirm with none selected to keep children as is)",
+                    childNames,
+                    true,
+                    "Modify Element");
+
+                if (selectedChildren != null && selectedChildren.Count > 0)
+                {
+                    IEnumerable<XElement> chosenChildren = element.Elements()
+                        .Where(i =>
+                        {
+                            string key = i.Attribute("Name") != null ? i.Attribute("Name").Value : i.Name.ToString();
+                            return selectedChildren.Contains(key);
+                        })
+                        .Elements();
+
+                    // Recurse
+                    GetSetAttributes(chosenChildren, prompts, messages);
+                }
+            }
+        }
+
+        internal void GetSetAttributes(IEnumerable<XElement> elements, IUserPromptService prompts, IMessageService messages)
+        {
+            foreach (XElement el in elements)
+                GetSetAttributes(el, prompts, messages);
+        }
+
+        // Returns the unique set of interactable element types present in a given XDocument.
+        // Mirrors old GetElementTypes(doc) logic but with NO UI and safe for unit tests.
+        internal List<string> GetInteractableTypesFromDocument(XDocument doc)
+        {
+            List<string> uniqueTypes = doc
+                .Descendants()
+                .Where(i => i.Attribute("Name") != null && acceptedTypes.Contains(i.Name.ToString()))
+                .Select(i => i.Name.ToString())
+                .Distinct()
+                .ToList();
+
+            return uniqueTypes;
+        }
+
+        internal List<string> GetElementTypesFromDoc(XDocument doc)
+        {
+            List<string> uniqueTypes = doc
+                .Descendants()
+                .Where(i => i.Attribute("Name") != null && acceptedTypes.Contains(i.Name.ToString()))
+                .Select(i => i.Name.ToString())
+                .Distinct()
+                .ToList();
+
+            return uniqueTypes;
+        }
+
 
         #endregion
     }
