@@ -160,7 +160,7 @@ namespace ThesisProjectV1
             }
         }
 
-        public static void GenerateElement()
+        public static void CreateElement()
         {
             // Select File being imported from
             xmlHandler.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
@@ -182,9 +182,10 @@ namespace ThesisProjectV1
             XElement element = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement).Single();
 
             // Get the names of all valid parents for the element
-            IEnumerable<XElement> ambiguousElements = xmlHandler.GetValidator().GetSchema().Descendants(xmlHandler.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeOfElement + "s") ?? false);
-            List<string> parentSchemaType = xmlHandler.GetValidator().GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-            List<string> parentType = xmlHandler.GetValidator().GetSchema().Descendants(xmlHandler.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
+            XDocument schema = xmlHandler.GetValidator().GetSchema();
+            IEnumerable<XElement> ambiguousElements = schema.Descendants(xmlHandler.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeOfElement + "s") ?? false);
+            List<string> parentSchemaType = schema.Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+            List<string> parentType = schema.Descendants(xmlHandler.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
             if (parentType.Count() > 1)
             {
