@@ -355,10 +355,10 @@ namespace ThesisProjectV1
         }
 
         // Function to get all valid types contained in the document
-        internal List<string> GetElementTypes()
+        internal List<string> GetElementTypes(XDocument doc)
         {
             // Select Element Types
-            List<string> uniqueTypes = inputFile.Descendants().Where(i => acceptedTypes.Contains(i.Name?.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
+            List<string> uniqueTypes = doc.Descendants().Where(i => acceptedTypes.Contains(i.Name?.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             if (uniqueTypes.Count == 0)
             {

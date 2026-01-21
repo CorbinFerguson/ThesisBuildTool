@@ -95,7 +95,7 @@ namespace ThesisProjectV1
         public void ModifyElement()
         {
             // Select Type from current document
-            List<string> types = _xml.GetElementTypes();
+            List<string> types = _xml.GetElementTypes(_xml.inputFile);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Modify Element");
 
             // Modules use a different attribute to search elements
@@ -121,7 +121,7 @@ namespace ThesisProjectV1
 
         public void DeleteElement()
         {
-            List<string> types = _xml.GetElementTypes();
+            List<string> types = _xml.GetElementTypes(_xml.inputFile);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Delete Element");
 
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
@@ -153,7 +153,7 @@ namespace ThesisProjectV1
             while (insertElement)
             {
                 // Pick element type to import
-                List<string> types = _xml.GetElementTypes();
+                List<string> types = _xml.GetElementTypes(_xml.inputFile);
                 string typeSelected = _prompts.SelectOne("Select Element Type", types, "Import Element");
 
                 string attributeFilter = "Name";
@@ -185,7 +185,7 @@ namespace ThesisProjectV1
             _xml.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
 
             // Pick element type to import
-            List<string> types = _xml.GetElementTypes();
+            List<string> types = _xml.GetElementTypes(_xml.inputFile);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Create Element");
 
             string attributeFilter = "Name";
