@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -13,34 +15,43 @@ namespace ThesisProjectV1
     public class Execute
     {
         #region Fields
-        private static readonly XMLHandler xmlHandler = new XMLHandler();
-        public static XDocument doc = new XDocument();
-        private static readonly OpenFileDialog openFileSearch = new OpenFileDialog
-        {
-            Filter = "L5X Files (*.L5X)|*.L5X",
-            FilterIndex = 0,
-            RestoreDirectory = true
-        };
+        private readonly XMLHandler _xml;
+        private readonly IMessageService _messages;
+        private readonly IUserPromptService _prompts;
+        private readonly IOpenFileService _openFile;
+        private readonly ISaveFileService _saveFile;
+        private readonly IValidationService _validation;
+        private readonly IFileSystem _fs;
+
+        public static XDocument Doc = new XDocument();
         private static readonly string outputPath = "../../../L5XFiles/GeneratedFiles/";
-        private static string outputName = "GenFile"; 
-        #endregion
+        private static string outputName = "GenFile";
 
-        [STAThread]
-        #region Functions
-        private static void Main()
+        public Execute(XMLHandler xml, IMessageService messages, IUserPromptService prompts, IOpenFileService openFile, ISaveFileService saveFile, IValidationService validation, IFileSystem fs)
         {
-            // Default to generated basic file
-            doc = xmlHandler.LoadBasicFile();
-
-            // Take in user input
-            ActionSelect actionSelect = new ActionSelect();
-            actionSelect.ShowDialog();
+            _xml = xml;
+            _messages = messages;
+            _prompts = prompts;
+            _openFile = openFile;
+            _saveFile = saveFile;
+            _validation = validation;
+            _fs = fs;
         }
 
-        public static void ValidateFile(bool showNoError=true)
+
+        #endregion
+
+        #region Functions
+
+        public void InitializeNew()
+        {
+            Doc = _xml.LoadBasicFile();
+        }
+
+        public void ValidateFile(bool showNoError=true)
         {
             // Validate the document against the xml Schema, if successful, complete transaction
-            List<string> errorList = xmlHandler.GetValidator().ValidateL5XFile(doc);
+            List<string> errorList = _validation.ValidateL5XFile(Doc);
             string errors = string.Join(Environment.NewLine, errorList);
 
             if (errors.Length > 0)
@@ -53,152 +64,189 @@ namespace ThesisProjectV1
             }
         }
 
-        public static void NewFile()
+        public void NewFile()
         {
-            DialogResult dialogResult = MessageBox.Show("Are you sure you want to overwrite your existing file?", "Verify File Creation", MessageBoxButtons.YesNo);
-            if (dialogResult.Equals(DialogResult.Yes))
+            bool ok = _messages.Confirm("Are you sure you want to overwrite your existing file?", "Verify File Creation");
+            if(ok)
             {
-                doc = xmlHandler.LoadBasicFile();
-                MessageBox.Show("New Empty File Created.");
+                Doc = _xml.LoadBasicFile();
+                _messages.Show("New Empty File Created.", "Info");
             }
         }
 
-        public static void SaveFile()
+        public void SaveFile()
         {
             // Save the document to a file
             for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
 
-            SaveFileDialog save = new SaveFileDialog();
-            save.Filter = " L5X Files(*.L5X)|*.L5X|XML Files(*.XML)|*.xml|All Files(*.*)|*.*";
-            save.FileName = outputName;
-            save.DefaultExt = "L5X";
-            if (save.ShowDialog() == DialogResult.OK)
-            {
-                doc.Save(save.FileName);
-            }
+            string filter = " L5X Files(*.L5X)|*.L5X|XML Files(*.XML)|*.xml|All Files(*.*)|*.*";
+            if (_saveFile.TrySave(outputName, filter, "L5X", out string filePath))
+                _fs.SaveXml(Doc, filePath);
         }
 
-        public static void LoadFile()
+        public void LoadFile()
         {
             // Select File being loaded to modifiy
-            if (openFileSearch.ShowDialog() == DialogResult.OK)
-                doc = XDocument.Load(openFileSearch.FileName);
+            if (_openFile.TryOpen("L5x Files(*.L5x)|*.L5X", null, out string filePath))
+                Doc = _fs.LoadXml(filePath);
         }
 
-        public static void ModifyElement()
+        public void ModifyElement()
         {
-            string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value.ToString()).Distinct().ToList();
-            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to modify");
-            nameSelect.ShowDialog(out List<string> namesSelected);
+            // Select Type from current document
+            List<string> types = _xml.GetElementTypes();
+            string typeSelected = _prompts.SelectOne("Select Element Type", types, "Modify Element");
 
-            xmlHandler.inputFile = doc;
+            // Modules use a different attribute to search elements
+            string attributeKey = (typeSelected == "Module") ? "CatalogNumber" : "Name";
 
-            IEnumerable<XElement> elements = xmlHandler.GetElementFromFile(typeSelected, namesSelected);
+            // Search for element
+            List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute(attributeKey)?.Value.ToString()).Distinct().ToList();
+
+            // Let user select elements to modify
+            IList<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable, "Modify Element");
+
+            _xml.inputFile = Doc;
+
+            IEnumerable<XElement> elements = ResolveElementFromFile(typeSelected, namesSelected);
             foreach (XElement element in elements)
             {
-                xmlHandler.GetSetAttributes(element);
+                List<XAttribute> attrToSet = _xml.GetAttributes(element);
+                SetAttributes(element, attrToSet);
             }
 
             ValidateFile(false);
         }
 
-        public static void DeleteElement()
+        public void DeleteElement()
         {
-            string typeSelected = xmlHandler.GetElementTypes(doc);
-            List<string> namesAvailable = doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
-            MultiSelectDropdown nameSelect = new MultiSelectDropdown(namesAvailable, "Select Names of elements to remove");
-            nameSelect.ShowDialog(out List<string> namesSelected);
+            List<string> types = _xml.GetElementTypes();
+            string typeSelected = _prompts.SelectOne("Select Element Type", types, "Delete Element");
 
-            xmlHandler.inputFile = doc;
+            List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
+            
+            IList<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Modify Element");
 
-            IEnumerable<XElement> removeElement = xmlHandler.GetElementFromFile(typeSelected, namesSelected);
+            _xml.inputFile = Doc;
+
+            IEnumerable<XElement> removeElement = ResolveElementFromFile(typeSelected, namesSelected);
             removeElement.Remove();
 
             ValidateFile(false);
         }
 
         // Function for taking in an element from a file
-        public static void ImportElement()
+        public void ImportElement()
         {
-            openFileSearch.InitialDirectory = "../";
-            bool insertElement = true;
+            // Prompt user to select file
+            bool picked = _openFile.TryOpen("L5X Files (*.L5X)|*.L5X", "../", out string filePath);
+            
+            if (!picked || String.IsNullOrWhiteSpace(filePath))
+                return; // canceled
 
-            // Select File being imported from
-            if (openFileSearch.ShowDialog() == DialogResult.OK)
-                xmlHandler.inputFile = XDocument.Load(openFileSearch.FileName);
-            else
-                insertElement = false;
-
+            // Load File being imported from
+            _xml.inputFile = _fs.LoadXml(filePath);
+            
             // While loop to contain importing elements from chosen file
+            bool insertElement = true;
             while (insertElement)
             {
-                string typeOfElement = xmlHandler.GetTypeAndSelect();
+                // Pick element type to import
+                List<string> types = _xml.GetElementTypes();
+                string typeSelected = _prompts.SelectOne("Select Element Type", types, "Import Element");
+
                 string attributeFilter = "Name";
 
-                if (typeOfElement.Equals("Module"))
+                if (typeSelected.Equals("Module"))
                     attributeFilter = "CatalogNumber";
 
                 // Find and display available elements of that type
-                List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
-                MultiSelectDropdown selectElement = new MultiSelectDropdown(availableElements, "Select elements to insert");
-                selectElement.ShowDialog(out List<string> nameOfElement);
+                List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
+                IList<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements, "Import Element");
 
                 // Get the selected element, then insert it
-                List<XElement> returnedElement = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement);
-                doc = xmlHandler.InsertElement(doc, returnedElement);
+                List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
+                Doc = _xml.InsertElement(Doc, returnedElement);
 
                 // Reset the helper
-                xmlHandler.ElementInfo.ResetElements();
+                _xml.ElementInfo.ResetElements();
 
                 ValidateFile(false);
 
-                DialogResult newElementFile = MessageBox.Show("Add another element from file?", "Element Select", MessageBoxButtons.YesNo);
-                if (newElementFile == DialogResult.No)
-                    break;
+                insertElement = _messages.Confirm("Add another element from this file?", "Import Element");
             }
         }
 
-        public static void CreateElement()
+
+        public void CreateElement()
         {
-            // Select File being imported from
-            xmlHandler.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            // Use template as input file
+            _xml.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
 
-            // Prompt user to select the element to insert
-            string typeOfElement = xmlHandler.GetTypeAndSelect();
-            // Get all elements in file of the type
-            string attributeSearch = "Name";
-            // IO Modules do not require a name. Must search by catalog number instead
-            if (typeOfElement.Equals("Module"))
-                attributeSearch = "CatalogNumber";
+            // Pick element type to import
+            List<string> types = _xml.GetElementTypes();
+            string typeSelected = _prompts.SelectOne("Select Element Type", types, "Create Element");
 
-            // Find and display available elements of that type
-            List<string> availableElements = xmlHandler.inputFile.Descendants(typeOfElement).Select(i => i.Attribute(attributeSearch).Value.ToString()).Distinct().ToList();
-            DropdownGui selectElement = new DropdownGui(availableElements, "Select template " + typeOfElement + " to use");
-            selectElement.ShowDialog(out string nameOfElement);
+            string attributeFilter = "Name";
 
-            // Get the template element
-            XElement element = xmlHandler.GetElementFromFile(typeOfElement, nameOfElement).Single();
+            if (typeSelected.Equals("Module"))
+                attributeFilter = "CatalogNumber";
+
+            // Find and display template elements of that type
+            List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
+            IList<string> chosenIds = _prompts.SelectMany("Select element template", availableElements, "Create Element");
+
+            // Get the selected element, then insert it
+            XElement element = ResolveElementFromFile(typeSelected, chosenIds).Single();
+            Doc = _xml.InsertElement(Doc, element);
+
+            // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
+            if (element.Name.ToString().Equals("Module"))
+            {
+                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
+                {
+                    int portNum = Doc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
+                    if (Doc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
+                        portNum++;
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
+                }
+                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("Ethernet") && i.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
+                {
+                    // Get all already used IP addresses
+                    List<string> takenIPs = Doc.Descendants("Module").Where(i => i.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(i => i.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(i => i.Attribute("Address").Value.ToString()).ToList();
+
+                    // Prompt user for ethernet address or hostname value
+                    string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
+                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
+                    string chosenIP = element.Descendants("Port").Single(i => i.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
+                    while (takenIPs.Contains(chosenIP))
+                    {
+                        ipPrompt.ShowDialog(out chosenIP);
+                    }
+                    // Set the value of IP
+                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
+                }
+            }
 
             // Get the names of all valid parents for the element
-            XDocument schema = xmlHandler.GetValidator().GetSchema();
-            IEnumerable<XElement> ambiguousElements = schema.Descendants(xmlHandler.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeOfElement + "s") ?? false);
+            XDocument schema = _validation.GetSchema();
+
+            IEnumerable<XElement> ambiguousElements = schema.Descendants(_xml.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeSelected + "s") ?? false);
             List<string> parentSchemaType = schema.Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-            List<string> parentType = schema.Descendants(xmlHandler.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
+            List<string> parentType = schema.Descendants(_xml.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
             if (parentType.Count() > 1)
             {
-                IEnumerable<XElement> parentElems = doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString()));
+                IEnumerable<XElement> parentElems = Doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString()));
 
                 // Get all valid parents of available types
                 List<string> parents = parentElems.Select(i => i.Attribute("Name").Value.ToString()).ToList();
 
                 // Prompt the user for the parent
-                DropdownGui selectBulkParent = new DropdownGui(parents, "Select parent for the elements being created");
-                selectBulkParent.ShowDialog(out string parentName);
+                string parentName = _prompts.SelectOne("Select parent for the elements being created", parents, "Create Element");
 
-                xmlHandler.ElementInfo.ParentElementBulk = parentElems.Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
+                _xml.ElementInfo.ParentElementBulk = parentElems.Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
             }
             else if (parentType.Count() != 1)
             {
@@ -206,33 +254,60 @@ namespace ThesisProjectV1
             }
 
             // Prompt user to select the subelements/values to change(required elements are not selectable)
-            TextInput insertQuantity = new TextInput("How many " + element.Name + " would you like to create?", "1", @"^[1-9]\d*$");
-            insertQuantity.ShowDialog(out string itemQuantity);
+            string itemQuantity = _prompts.Prompt("How many " + element.Name + " would you like to create?","1", @"^[1-9]\d*$", "Create Element");
+
             int quantity = int.Parse(itemQuantity);
 
+            // Create and insert elements
             List<string> bulkNames = new List<string>();
             for (int i = 0; i < quantity; i++)
             {
-                if (typeOfElement != "Module" || element.Attribute("Use") == null)
+                if (typeSelected != "Module" || element.Attribute("Use") == null)
                 {
                     // Prompt user for name of item and assign it
-                    TextInput nameSelect = new TextInput("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$");
-                    nameSelect.ShowDialog(out string itemName);
+                    string itemName = _prompts.Prompt("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$", "Create Element");
                     element.SetAttributeValue("Name", itemName);
                     bulkNames.Add(itemName);
                 }
 
+                // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
+                if (element.Name.ToString().Equals("Module"))
+                {
+                    if (element.Descendants("Port").Where(el => el.Attribute("Type").Value.Equals("ICP")).Any())
+                    {
+                        int portNum = Doc.Descendants("Module").Where(el => el.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
+                        if (Doc.Descendants("Module").Where(el => el.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
+                            portNum++;
+                        element.Descendants("Port").Single(el => el.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
+                    }
+                    if (element.Descendants("Port").Where(el => el.Attribute("Type").Value.Equals("Ethernet") && el.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
+                    {
+                        // Get all already used IP addresses
+                        List<string> takenIPs = Doc.Descendants("Module").Where(el => el.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(el => el.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(el => el.Attribute("Address").Value.ToString()).ToList();
+
+                        // Prompt user for ethernet address or hostname value
+                        string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
+                        TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
+                        string chosenIP = element.Descendants("Port").Single(el => el.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
+                        while (takenIPs.Contains(chosenIP))
+                        {
+                            ipPrompt.ShowDialog(out chosenIP);
+                        }
+                        // Set the value of IP
+                        element.Descendants("Port").Single(el => el.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
+                    }
+                }
                 // Insert the element and reset the path for the next one
-                xmlHandler.InsertElement(doc, element);
-                xmlHandler.ElementInfo.RootPath.Clear();
+                _xml.InsertElement(Doc, element);
+                _xml.ElementInfo.RootPath.Clear();
             }
-            xmlHandler.ElementInfo.ResetElements();
+            _xml.ElementInfo.ResetElements();
 
             // Programs have special case for having a parent task or being unassigned
-            if (typeOfElement.Equals("Program"))
+            if (typeSelected.Equals("Program"))
             {
                 // Get a list of all tasks in the document currently
-                IEnumerable<XElement> tasks = doc.Descendants("Task");
+                IEnumerable<XElement> tasks = Doc.Descendants("Task");
 
                 if (tasks.Any())
                 {
@@ -241,8 +316,7 @@ namespace ThesisProjectV1
                     taskNames.Add("Keep programs unscheduled");
 
                     // Prompt user for which task to assign the programs to
-                    DropdownGui parentTask = new DropdownGui(taskNames, "Select the parent task for inserted programs");
-                    parentTask.ShowDialog(out string taskName);
+                    string taskName = _prompts.SelectOne("Select the parent task for inserted program", taskNames, "Create Element");
 
                     if (taskName != "Keep programs unscheduled")
                     {
@@ -273,9 +347,136 @@ namespace ThesisProjectV1
                 }
             }
 
+            // Validate silently
             ValidateFile(false);
         }
-        
+
+        private List<XElement> ResolveElementFromFile(string typeOfElement, IList<string> identifiers)
+        {
+            string attributeFilter = "Name";
+            if(typeOfElement == "Module")
+                attributeFilter = "CatalogNumber";
+
+            List<XElement> elements = new List<XElement>();
+
+            foreach (string id in identifiers)
+            {
+                IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
+                if (candidates.Count() == 0)
+                {
+                    // No element with that ID, skip
+                    continue;
+                }
+                else if (candidates.Count() == 1)
+                {
+                    // Only one element found, no ambiguity
+                    elements.Add(candidates.Single());
+                    continue;
+                }
+
+                if (typeOfElement != "Module")
+                {
+                    
+                    // Multiple elements with same Name -> disambiguate by grandparent Name
+                    List<string> parentOptions = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
+
+
+                    string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select grandparent element you are accessing",parentOptions,"Import Element");
+                    XElement parentElement = _xml.inputFile.Descendants().Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == grandparentName);
+                    XElement resolved = parentElement.Descendants(typeOfElement).Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == id);
+
+                    elements.Add(resolved);
+                }
+                else
+                {
+
+                    // Get all valid options. If there is no name, use port number instead
+                    List<string> parentOptions = new List<string>();
+
+                    foreach (XElement elem in candidates)
+                    {
+                        XElement firstPort = elem.Descendants("Port").FirstOrDefault();
+                        string portAddr = (firstPort != null && firstPort.Attribute("Address") != null)? firstPort.Attribute("Address").Value: "?";
+                        parentOptions.Add(id + " with no Name at port " + portAddr);
+
+                        IList<string> chosen = _prompts.SelectMany("Select specific Module(s) to insert for " + id, parentOptions, "Import Element");
+
+                        foreach (string nameOfElement in chosen)
+                        {
+                            XElement element;
+                            // Using port to differentiate
+                            if (nameOfElement.Contains("at port"))
+                            {
+                                int portIndex = nameOfElement.IndexOf("port ") + 5;
+                                string selectedPort = nameOfElement.Substring(portIndex);
+                                element = candidates.Single(el => el.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
+                            }
+                            // Using name to differentiate
+                            else
+                            {
+                                element = candidates.Single(el => el.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false);
+                            }
+                            elements.Add(element);
+                        }
+                    }
+                }
+            }
+            return elements;
+        }
+
+        private void SetAttributes(XElement element, List<XAttribute> attributesToChange)
+        {
+            IList<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Value.ToString()).ToList(), "Modify Element");
+
+            foreach (string attributeName in selectedAttributeNames)
+            {
+
+                // so default setter below won't overwrite manual input
+                for (int i = attributesToChange.Count - 1; i >= 0; i--)
+                {
+                    if (attributesToChange[i].Name.ToString() == attributeName)
+                    {
+                        attributesToChange.RemoveAt(i);
+                    }
+                }
+
+                string displayName = (element.Attribute("Name") != null) ? element.Attribute("Name").Value : (element.Attribute("CatalogNumber") != null ? element.Attribute("CatalogNumber").Value : element.Name.ToString());
+
+                string currentVal = element.Attribute(attributeName) != null ? element.Attribute(attributeName).Value : "";
+                string newVal = _prompts.Prompt("Input a value for " + attributeName + " attribute of " + displayName, currentVal, null, "Modify Element");
+
+                element.SetAttributeValue(attributeName, newVal);
+            }
+
+            // Set Default Values
+            foreach (XAttribute setDefaultAttribute in attributesToChange)
+            {
+                if (element.Attribute(setDefaultAttribute.Name) != null)
+                    element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
+                else if (!setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) == null)
+                    element.Add(setDefaultAttribute);
+            }
+
+            // Prompt user to select any children to modify
+            IEnumerable<XElement> childElements = element.Elements();
+            if (childElements.Any())
+            {
+                List<string> childNames = childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList();
+                IList<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected to skip skip this step)", childNames, "Modify Element");
+
+                // Access the elements selected and modify them recursively
+                childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();
+                List<List<XAttribute>> attributes=_xml.GetAttributes(childElements);
+                SetAttributes(childElements, attributes);
+            }
+        }
+
+        internal void SetAttributes(IEnumerable<XElement> elements, List<List<XAttribute>> attrs)
+        {
+            foreach (var (element, attr) in elements.Zip(attrs, (n, p) => (n, p)))
+                SetAttributes(element, attr);
+        }
+
         #endregion
     }
 }
