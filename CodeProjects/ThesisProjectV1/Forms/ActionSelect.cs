@@ -5,8 +5,12 @@ namespace ThesisProjectV1.Forms
 {
     public partial class ActionSelect : Form
     {
-        public ActionSelect()
+        private readonly Execute _app;
+
+        public ActionSelect(Execute app)
         {
+            _app = app ?? throw new ArgumentNullException("app");
+
             InitializeComponent();
         }
 
@@ -14,7 +18,7 @@ namespace ThesisProjectV1.Forms
         {
             try
             {
-                Execute.ImportElement();
+                _app.ImportElement();
             }
             catch (AbortedElementException)
             {
@@ -29,7 +33,7 @@ namespace ThesisProjectV1.Forms
         {
             try
             {
-                Execute.CreateElement();
+                _app.CreateElement();
             }
             catch (AbortedElementException)
             {
@@ -45,7 +49,7 @@ namespace ThesisProjectV1.Forms
         {
             try
             {
-                Execute.ModifyElement();
+                _app.ModifyElement();
             }
             catch (AbortedElementException)
             {
@@ -61,7 +65,7 @@ namespace ThesisProjectV1.Forms
         {
             try
             {
-                Execute.DeleteElement();
+                _app.DeleteElement();
             }
             catch (AbortedElementException)
             {
@@ -80,22 +84,22 @@ namespace ThesisProjectV1.Forms
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            Execute.SaveFile();
+            _app.SaveFile();
         }
 
         private void LoadButton_Click(object sender, EventArgs e)
         {
-            Execute.LoadFile();
+            _app.LoadFile();
         }
 
         private void NewButton_Click(object sender, EventArgs e)
         {
-            Execute.NewFile();
+            _app.NewFile();
         }
 
         private void ValidateButton_Click(object sender, EventArgs e)
         {
-            Execute.ValidateFile();
+            _app.ValidateFile();
         }
     }
 }

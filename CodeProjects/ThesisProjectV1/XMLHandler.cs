@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
+using System.Threading;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
-    internal class XMLHandler
+    public class XMLHandler
     {
         #region Variables
-        private readonly ValidationHandler validator = new ValidationHandler();
+        private readonly IValidationService validator;
+        private readonly ISchemaDisambiguator disambiguator;
 
         private readonly List<string> acceptedTypes = new List<string>()
         {
@@ -31,6 +32,14 @@ namespace ThesisProjectV1
 
         public ElementHelper ElementInfo = new ElementHelper();
 
+        #endregion
+
+        #region Constructors
+        public XMLHandler(IValidationService validation, ISchemaDisambiguator disambiguator)
+        {
+            this.validator = validation;
+            this.disambiguator = disambiguator;
+        }
         #endregion
 
         #region Functions
@@ -133,122 +142,38 @@ namespace ThesisProjectV1
             {
                 if (ex.Message.Contains("Sequence contains more than one element"))
                 {
-                    string nameOfElement;
+                    // Get the parent options from the schema
+                    IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
+                    List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
+                    List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
-                    // If it is a bulk insert operation, the parent has already been disambiguated
-                    if (ElementInfo.ParentElementBulk == null)
+                    string chosenParentname = null;
+                    if (ElementInfo.ParentElementBulk != null)
+                        chosenParentname = ElementInfo.ParentElementBulk.Name.ToString();
+                    else if (disambiguator != null)
                     {
-                        // Get the parent options from the schema
-                        IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
-                        List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-                        List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
-
-                        // Prompt user to select grandparent for the element
-                        DropdownGui selectElement = new DropdownGui(parentNames, "Select intended parent type for " + element.Name);
-                        selectElement.ShowDialog(out nameOfElement);
-                        ElementInfo.ParentElementBulk = new XElement(nameOfElement);
+                        chosenParentname = disambiguator.ChooseParentFor(name,parentNames);
+                        if (string.IsNullOrEmpty(chosenParentname) || !parentNames.Contains(chosenParentname))
+                            throw new AmbiguousSchemaPathException(name, parentNames);
+                        ElementInfo.ParentElementBulk = new XElement(chosenParentname);
                     }
                     else
-                    {
-                        nameOfElement = ElementInfo.ParentElementBulk.Name.ToString();
-                    }
+                        throw new AmbiguousSchemaPathException(name, parentNames);
 
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
+                    paths.Enqueue(chosenParentname);
 
                     // Use the parent of the last element in the queue
-                    paths.Enqueue(nameOfElement);
-                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(nameOfElement));
+                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentname));
 
                     foreach (string node in grandparentToRoot)
                         paths.Enqueue(node);
+
                     return paths;
                 }
-                else
-                { MessageBox.Show(ex.Message + "\nStack Trace: " + ex.StackTrace, "Unexpected Error Occurred", MessageBoxButtons.OK); }
             }
             return paths;
-        }
-
-        internal List<XElement> GetElementFromFile(string elementType, string elementName)
-        {
-            string attributeSearch = "Name";
-            // IO Modules do not require a name. Must search by catalog number instead
-            if (elementType.Equals("Module"))
-                attributeSearch = "CatalogNumber";
-            XElement element = null;
-            List<XElement> elements = new List<XElement>();
-            try
-            {
-                element = inputFile.Descendants(elementType).Single(i => i.Attribute(attributeSearch)?.Value == elementName);
-                elements.Add(element);
-            }
-            catch (InvalidOperationException)
-            {
-                // There exists more than one element of that name
-                IEnumerable<XElement> elementsToChoose = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch)?.Value.Equals(elementName) ?? false);
-                if (!elementType.Equals("Module"))
-                {
-                    // Create a popup prompting user to select grandparent to disambiguate
-                    List<string> parentOptions = inputFile.Descendants(elementType).Where(i => i.Attribute(attributeSearch).Value.Equals(elementName)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
-                    DropdownGui selectElement = new DropdownGui(parentOptions, "Select grandparent element you are accessing");
-                    selectElement.ShowDialog(out string nameOfElement);
-
-                    // Access disambiguated element
-                    XElement parentElement = inputFile.Descendants().Single(i => i.Attribute("Name")?.Value.Equals(nameOfElement) ?? false);
-                    element = parentElement.Descendants(elementType).Single(i => i.Attribute("Name")?.Value.Equals(elementName) ?? false);
-                    elements.Add(element);
-
-                    // Set parent info, so that it doesn't prompt user again
-                    ElementInfo.ParentElementBulk = parentElement;
-                }
-                // Modules have special handling due to them being valid without a name
-                else
-                {
-                    // Get all valid options. If there is no name, use port number instead
-                    List<string> parentOptions = elementsToChoose.Select(i => i.Attribute("Name")?.Value ?? elementName + " with no Name at port " + i.Descendants("Port")?.First().Attribute("Address").Value).Distinct().ToList();
-
-                    // Create a popup prompting user to select the name of the module
-                    MultiSelectDropdown selectElement = new MultiSelectDropdown(parentOptions, "Select the name of the Module " + elementName + " you are accessing");
-                    selectElement.ShowDialog(out List<string> nameOfElements);
-
-                    foreach (string nameOfElement in nameOfElements)
-                    {
-                        // Using port to differentiate
-                        if (nameOfElement.Contains("at port"))
-                        {
-                            int portIndex = nameOfElement.IndexOf("port ") + 5;
-                            string selectedPort = nameOfElement.Substring(portIndex);
-                            element = elementsToChoose.Single(i => i.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
-                        }
-                        // Using name to differentiate
-                        else
-                        {
-                            element = elementsToChoose.Single(i => i.Attribute("Name")?.Value.ToString().Equals(nameOfElement) ?? false);
-                        }
-                        elements.Add(element);
-                    }
-                }
-            }
-            return elements;
-        }
-
-        // Function to get many elements from inputfile by name and type
-        internal List<XElement> GetElementFromFile(string elementType, List<string> elementNames)
-        {
-            List<XElement> elementList = elementNames.SelectMany(elementName => GetElementFromFile(elementType, elementName)).ToList();
-            return elementList;
-        }
-
-        // Function to get all valid types from input file and prompt user to select one
-        internal string GetTypeAndSelect()
-        {
-            // Prompt user to select type of element to insert
-            List<string> elementTypes = inputFile.Descendants().Where(i => acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
-
-            DropdownGui selectType = new DropdownGui(elementTypes, "Select type of the element to insert");
-            selectType.ShowDialog(out string typeOfElement);
-            return typeOfElement;
         }
 
         // Gets all the simple elements in the XML Schema
@@ -266,7 +191,7 @@ namespace ThesisProjectV1
             return elementsInList;
         }
 
-        internal ValidationHandler GetValidator() { return validator; }
+        internal IValidationService GetValidator() { return validator; }
 
         // Function to insert element into a document. Inserts the element's dependent elements as well
         internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
@@ -275,8 +200,10 @@ namespace ThesisProjectV1
             inDoc = CheckForDependencies(inDoc, element);
             if ((ElementInfo.RootPath?.Count() ?? 0) <= 1)
                 ElementInfo.RootPath = FindPathtoRootSchema(element);
+
             XName parentType = ElementInfo.RootPath.Dequeue();
             XElement parentNode = null;
+
             string searchFilter = "Name";
             IEnumerable<XElement> clashingElements = null;
 
@@ -298,11 +225,10 @@ namespace ThesisProjectV1
                     string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).Single().Attribute("type").Value;
                     XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.Equals(complexType) ?? false);
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use")?.Value.Equals("required") ?? false);
-                    foreach (XElement requiredAttribute in requiredAttributes)
+                    
+                    if(requiredAttributes.Any())
                     {
-                        TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value} of {parentType}");
-                        input.ShowDialog(out string attributeValue);
-                        element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
+                        throw new NotImplementedException();
                     }
 
                     if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute") && i.Attribute("EditedDate") != null).Any())
@@ -334,9 +260,7 @@ namespace ThesisProjectV1
             }
             else if (grandParentNodes.Count() > 1)
             {
-                DropdownGui nameSelect = new DropdownGui(grandParentNodes.Select(i => i.Attribute("Name").Value.ToString()).ToList(), "Select Parent Element");
-                nameSelect.ShowDialog(out string name);
-                parentNode = grandParentNodes.Single(i => i.Attribute("Name").Value.ToString() == name).Elements(parentType).Single();
+                throw new NotImplementedException();
             }
             else
             {
@@ -351,66 +275,7 @@ namespace ThesisProjectV1
             // Handle already existing elements, either replace the existing element, rename the inserted element, or cancel the operation
             if (clashingElements?.Any() ?? false)
             {
-                List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-                DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
-                elementExists.ShowDialog(out string selected);
-                switch (selected)
-                {
-                    case "Replace":
-                        // Replace the already existing element
-                        clashingElements.Single();
-                        break;
-                    case "Name":
-                        TextInput renameElement;
-                        // Rename the element being inserted to not clash with existing element
-                        if (selected == "Name")
-                        {
-                            renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "");
-                        }
-                        else
-                        {
-                            renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$");
-                        }
-
-                        // Prompt user for new value, then set it
-                        string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
-                        while (parentNode.Descendants(element.Name).Where(i => newAtrVal.ToLower().Equals(i.Attribute(selected)?.Value.ToLower().ToString())).Any())
-                            renameElement.ShowDialog(out newAtrVal);
-                        element.SetAttributeValue(selected, newAtrVal);
-                        break;
-                    default:
-                        // Cancel insertion
-                        Console.WriteLine("Canceling Insertion");
-                        return inDoc;
-                }
-            }
-
-            // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
-            if (element.Name.ToString().Equals("Module"))
-            {
-                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("ICP")).Any())
-                {
-                    int portNum = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule").Value.Equals(element.Attribute("ParentModule").Value)).Count() + 1;
-                    if (inDoc.Descendants("Module").Where(i => i.Attribute("Name")?.Value.Equals(element.Attribute("ParentModule").Value) ?? false).Descendants("Port").Any())
-                        portNum++;
-                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("ICP")).Attribute("Address").SetValue(portNum);
-                }
-                if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("Ethernet") && i.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
-                {
-                    // Get all already used IP addresses
-                    List<string> takenIPs = inDoc.Descendants("Module").Where(i => i.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(i => i.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(i => i.Attribute("Address").Value.ToString()).ToList();
-
-                    // Prompt user for ethernet address or hostname value
-                    string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
-                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
-                    string chosenIP = element.Descendants("Port").Single(i => i.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
-                    while (takenIPs.Contains(chosenIP))
-                    {
-                        ipPrompt.ShowDialog(out chosenIP);
-                    }
-                    // Set the value of IP
-                    element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
-                }
+                throw new ClashingElementException(clashingElements, parentNode);
             }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();
@@ -457,12 +322,11 @@ namespace ThesisProjectV1
             return doc;
         }
 
-        // User can select attributes of element to modify from list of all valid attributes the schema holds
-        internal void GetSetAttributes(XElement element)
+        // Non-UI Utilizing function for testing
+        internal List<XAttribute> GetAttributes(XElement element)
         {
-            XElement elementAttr;
             XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
-            elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()) ?? false);
+            XElement elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()) ?? false);
 
             IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
             List<XAttribute> attributesTochange = new List<XAttribute>();
@@ -471,69 +335,36 @@ namespace ThesisProjectV1
             foreach (XElement attribute in attributesEl)
             {
                 string attributeValue = "";
-                // Add the required elements to list of attributes to prompt user for
+                // Add the required elements to list of attributes
                 if (element.Attribute(attribute.Attribute("name").Value) != null)
                     attributeValue = element.Attribute(attribute.Attribute("name").Value).Value;
 
                 XAttribute wantedAttribute = new XAttribute(attribute.Attribute("name").Value.ToString(), attributeValue);
                 attributesTochange.Add(wantedAttribute);
             }
-            // Prompt user for other attributes to not take default value for
-            MultiSelectDropdown selectAttributes = new MultiSelectDropdown(attributesTochange.Select(i => i.Name.ToString()).ToList(), "Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", true);
-            selectAttributes.ShowDialog(out List<string> selectedAttributeNames);
-            foreach (string attributeName in selectedAttributeNames)
-            {
-                attributesTochange.RemoveAll(i => i.Name == attributeName);
-                TextInput input = new TextInput($"Input a value for {attributeName} attribute of {element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value}", element.Attribute(attributeName)?.Value ?? "");
-                input.ShowDialog(out string attributeValue);
-                element.SetAttributeValue(attributeName, attributeValue);
-            }
 
-            // Set Default Values
-            foreach (XAttribute setDefaultAttribute in attributesTochange)
-            {
-                if (element.Attribute(setDefaultAttribute.Name) != null)
-                    element.Attribute(setDefaultAttribute.Name).SetValue(setDefaultAttribute.Value);
-                else if (!setDefaultAttribute.Value.Equals("") && element.Attribute(setDefaultAttribute.Name) == null)
-                    element.Add(setDefaultAttribute);
-            }
-
-            // Prompt user to select any children to modify
-            IEnumerable<XElement> childElements = element.Elements();
-            if (childElements.Any())
-            {
-                MultiSelectDropdown selectChildren = new MultiSelectDropdown(childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList(), "Select Children elements to modify(hit confirm with none selected to keep children as is)", true);
-                selectChildren.ShowDialog(out List<string> selectedChildren);
-
-                // Access the elements selected and modify them recursively
-                childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()));
-                childElements = childElements.Elements();
-                GetSetAttributes(childElements);
-            }
+            return attributesTochange;
         }
 
-        internal void GetSetAttributes(IEnumerable<XElement> elements)
+        internal List<List<XAttribute>> GetAttributes(IEnumerable<XElement> elements)
         {
-            foreach (XElement element in elements)
-            {
-                GetSetAttributes(element);
-            }
+            List<List<XAttribute>> allAttr = null;
+            foreach (XElement el in elements)
+                allAttr.Add(GetAttributes(el));
+            return allAttr;
         }
 
-        // Function to get all valid interactable types contained in the document
-        internal string GetElementTypes(XDocument doc)
+        // Function to get all valid types contained in the document
+        internal List<string> GetElementTypes(XDocument doc)
         {
             // Select Element Types
-            List<string> uniqueTypes = doc.Descendants().Where(i => i.Attribute("Name") != null && acceptedTypes.Contains(i.Name.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
+            List<string> uniqueTypes = doc.Descendants().Where(i => acceptedTypes.Contains(i.Name?.ToString())).Select(i => i.Name.ToString()).Distinct().ToList();
 
             if (uniqueTypes.Count == 0)
             {
                 throw new EmptyListException("No Valid Elements Found");
             }
-
-            DropdownGui typesToRemove = new DropdownGui(uniqueTypes, "Select Element Types");
-            typesToRemove.ShowDialog(out string typeSelected);
-            return typeSelected;
+            return uniqueTypes;
         }
 
         #endregion

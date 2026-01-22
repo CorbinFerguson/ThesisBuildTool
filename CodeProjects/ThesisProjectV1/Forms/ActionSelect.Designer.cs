@@ -157,7 +157,7 @@
             this.ValidatorButton.TabIndex = 9;
             this.ValidatorButton.Text = "Validate";
             this.ValidatorButton.UseVisualStyleBackColor = true;
-            this.ValidatorButton.Click += new System.EventHandler(this.ValideButton_Click);
+            this.ValidatorButton.Click += new System.EventHandler(this.ValidateButton_Click);
             // 
             // ActionSelect
             // 
