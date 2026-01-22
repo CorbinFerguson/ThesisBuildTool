@@ -71,14 +71,14 @@ namespace ThesisProjectV1.GUIAccessors
 
     public sealed class UserPromptService : IUserPromptService
     {
-        public string SelectOne(string prompt, IList<string> options, string title)
+        public string SelectOne(string prompt, List<string> options, string title)
         {
             var dlg = new DropdownGui(options.ToList(), prompt);
             dlg.ShowDialog(out string selected);
             return selected;
         }
 
-        public IList<string> SelectMany(string prompt, IList<string> options,string title)
+        public List<string> SelectMany(string prompt, List<string> options,string title)
         {
             var dlg = new MultiSelectDropdown(options.ToList(), prompt);
             dlg.ShowDialog(out List<string> selected);
@@ -134,7 +134,7 @@ namespace ThesisProjectV1.GUIAccessors
             _prompts = prompts;
         }
 
-        public string ChooseParentFor(string elementType, IList<string> candidateParents)
+        public string ChooseParentFor(string elementType, List<string> candidateParents)
         {
             return _prompts.SelectOne("Select a parent type for " + elementType, candidateParents, "Resolve Parent");
         }

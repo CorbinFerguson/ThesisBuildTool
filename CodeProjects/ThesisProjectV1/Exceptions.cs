@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace ThesisProjectV1
 {
@@ -17,7 +18,13 @@ namespace ThesisProjectV1
 
     public class ClashingElementException : Exception
     {
-        public ClashingElementException() { }
+        public IEnumerable<XElement> clashingElements;
+        public XElement parentNode;
+        public ClashingElementException(IEnumerable<XElement> clashingElem, XElement parent)
+        {
+            clashingElements = clashingElem;
+            parentNode = parent;
+        }
     }
 
     public class AmbiguousSchemaPathException : Exception

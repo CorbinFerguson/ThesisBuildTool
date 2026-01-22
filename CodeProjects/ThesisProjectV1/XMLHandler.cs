@@ -275,7 +275,7 @@ namespace ThesisProjectV1
             // Handle already existing elements, either replace the existing element, rename the inserted element, or cancel the operation
             if (clashingElements?.Any() ?? false)
             {
-                throw new ClashingElementException();
+                throw new ClashingElementException(clashingElements, parentNode);
             }
 
             IEnumerable<XAttribute> elementAttributes = element.Attributes();

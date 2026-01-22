@@ -105,7 +105,7 @@ namespace ThesisProjectV1
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute(attributeKey)?.Value.ToString()).Distinct().ToList();
 
             // Let user select elements to modify
-            IList<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable, "Modify Element");
+            List<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable, "Modify Element");
 
             _xml.inputFile = Doc;
 
@@ -126,7 +126,7 @@ namespace ThesisProjectV1
 
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
             
-            IList<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Modify Element");
+            List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Modify Element");
 
             _xml.inputFile = Doc;
 
@@ -163,7 +163,7 @@ namespace ThesisProjectV1
 
                 // Find and display available elements of that type
                 List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
-                IList<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements, "Import Element");
+                List<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements, "Import Element");
 
                 // Get the selected element, then insert it
                 List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
@@ -195,11 +195,10 @@ namespace ThesisProjectV1
 
             // Find and display template elements of that type
             List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
-            IList<string> chosenIds = _prompts.SelectMany("Select element template", availableElements, "Create Element");
+            string chosenId = _prompts.SelectOne("Select element template", availableElements, "Create Element");
 
             // Get the selected element, then insert it
-            XElement element = ResolveElementFromFile(typeSelected, chosenIds).Single();
-            Doc = _xml.InsertElement(Doc, element);
+            XElement element = ResolveElementFromFile(typeSelected, chosenId);
 
             // I/O Modules need the Port address to exist but be different than any other I/O modules under the parent module
             if (element.Name.ToString().Equals("Module"))
@@ -297,8 +296,54 @@ namespace ThesisProjectV1
                         element.Descendants("Port").Single(el => el.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
                     }
                 }
+                
                 // Insert the element and reset the path for the next one
-                _xml.InsertElement(Doc, element);
+                bool retry = false;
+                do
+                {
+                    try
+                    {
+                        Doc = _xml.InsertElement(Doc, element);
+                        retry = false;
+                    }
+                    catch (ClashingElementException clashEx)
+                    {
+                        // Clash Resolution
+                        List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
+                        string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(attributeFilter).Value}?", actionOps, "Clashing Elements");
+                        switch (selected)
+                        {
+                            case "Replace":
+                                // Replace the already existing element
+                                clashEx.clashingElements.Single();
+                                break;
+                            case "Name":
+                                string renameElement;
+                                // Rename the element being inserted to not clash with existing element
+
+                                string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
+                                while (clashEx.parentNode.Descendants(element.Name).Where(el => newAtrVal.ToLower().Equals(el.Attribute(selected)?.Value.ToLower().ToString())).Any())
+                                {
+                                    if (selected == "Name")
+                                    {
+                                        renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", "", "New Name");
+                                    }
+                                    else
+                                    {
+                                        renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$", $"New {attributeFilter}");
+                                    }
+                                }
+
+                                element.SetAttributeValue(selected, newAtrVal);
+                                break;
+                            default:
+                                // Cancel insertion
+                                Console.WriteLine("Canceling Insertion");
+                                break;
+                        }
+                        retry = true;
+                    }
+                } while (retry);
                 _xml.ElementInfo.RootPath.Clear();
             }
             _xml.ElementInfo.ResetElements();
@@ -351,55 +396,59 @@ namespace ThesisProjectV1
             ValidateFile(false);
         }
 
-        private List<XElement> ResolveElementFromFile(string typeOfElement, IList<string> identifiers)
+        private XElement ResolveElementFromFile(string typeOfElement, string id)
         {
             string attributeFilter = "Name";
-            if(typeOfElement == "Module")
+            if (typeOfElement == "Module")
+                attributeFilter = "CatalogNumber";
+
+            IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
+            if (candidates.Count() == 0)
+            {
+                // No element with that ID, skip
+                return null;
+            }
+            else if (candidates.Count() == 1)
+            {
+                // Only one element found, no ambiguity
+                return candidates.Single();
+            }
+
+            // Multiple elements with same Name -> disambiguate by grandparent Name
+            List<string> parentOptions = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
+
+
+            string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select grandparent element you are accessing", parentOptions, "Import Element");
+            XElement parentElement = _xml.inputFile.Descendants().Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == grandparentName);
+            XElement resolved = parentElement.Descendants(typeOfElement).Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == id);
+
+            return resolved;
+        }
+
+        private List<XElement> ResolveElementFromFile(string typeOfElement, List<string> identifiers)
+        {
+            string attributeFilter = "Name";
+            if (typeOfElement == "Module")
                 attributeFilter = "CatalogNumber";
 
             List<XElement> elements = new List<XElement>();
 
             foreach (string id in identifiers)
             {
-                IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
-                if (candidates.Count() == 0)
+                if (typeOfElement == "Module")
                 {
-                    // No element with that ID, skip
-                    continue;
-                }
-                else if (candidates.Count() == 1)
-                {
-                    // Only one element found, no ambiguity
-                    elements.Add(candidates.Single());
-                    continue;
-                }
-
-                if (typeOfElement != "Module")
-                {
-                    
-                    // Multiple elements with same Name -> disambiguate by grandparent Name
-                    List<string> parentOptions = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
-
-
-                    string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select grandparent element you are accessing",parentOptions,"Import Element");
-                    XElement parentElement = _xml.inputFile.Descendants().Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == grandparentName);
-                    XElement resolved = parentElement.Descendants(typeOfElement).Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == id);
-
-                    elements.Add(resolved);
-                }
-                else
-                {
-
                     // Get all valid options. If there is no name, use port number instead
                     List<string> parentOptions = new List<string>();
+                    IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
 
                     foreach (XElement elem in candidates)
                     {
+
                         XElement firstPort = elem.Descendants("Port").FirstOrDefault();
-                        string portAddr = (firstPort != null && firstPort.Attribute("Address") != null)? firstPort.Attribute("Address").Value: "?";
+                        string portAddr = (firstPort != null && firstPort.Attribute("Address") != null) ? firstPort.Attribute("Address").Value : "?";
                         parentOptions.Add(id + " with no Name at port " + portAddr);
 
-                        IList<string> chosen = _prompts.SelectMany("Select specific Module(s) to insert for " + id, parentOptions, "Import Element");
+                        List<string> chosen = _prompts.SelectMany("Select specific Module(s) to insert for " + id, parentOptions, "Import Element");
 
                         foreach (string nameOfElement in chosen)
                         {
@@ -420,13 +469,17 @@ namespace ThesisProjectV1
                         }
                     }
                 }
+                else
+                {
+                    elements.Add(ResolveElementFromFile(typeOfElement, id));
+                }
             }
             return elements;
         }
 
         private void SetAttributes(XElement element, List<XAttribute> attributesToChange)
         {
-            IList<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Value.ToString()).ToList(), "Modify Element");
+            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Value.ToString()).ToList(), "Modify Element");
 
             foreach (string attributeName in selectedAttributeNames)
             {
@@ -462,7 +515,7 @@ namespace ThesisProjectV1
             if (childElements.Any())
             {
                 List<string> childNames = childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList();
-                IList<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected to skip skip this step)", childNames, "Modify Element");
+                List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected to skip skip this step)", childNames, "Modify Element");
 
                 // Access the elements selected and modify them recursively
                 childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();

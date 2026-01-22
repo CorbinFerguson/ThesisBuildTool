@@ -18,8 +18,8 @@ namespace ThesisProjectV1
 
     public interface IUserPromptService
     {
-        string SelectOne(string prompt, IList<string> options, string title);
-        IList<string> SelectMany(string prompt, IList<string> options, string title);
+        string SelectOne(string prompt, List<string> options, string title);
+        List<string> SelectMany(string prompt, List<string> options, string title);
         string Prompt(string prompt, string defaultValue, string regex, string title);
     }
 
@@ -48,7 +48,7 @@ namespace ThesisProjectV1
 
     public interface ISchemaDisambiguator
     {
-        String ChooseParentFor(string elementType, IList<string> candidateParents);
+        String ChooseParentFor(string elementType, List<string> candidateParents);
 
         void ClashResolution(IEnumerable<XElement> clashingElements, XElement element);
     }
