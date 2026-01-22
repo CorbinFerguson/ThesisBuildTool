@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Xml.Linq;
-using ThesisProjectV1.Forms;
 
 namespace ThesisProjectV1
 {
@@ -37,7 +35,7 @@ namespace ThesisProjectV1
         #region Constructors
         public XMLHandler(IValidationService validation, ISchemaDisambiguator disambiguator)
         {
-            this.validator = validation;
+            validator = validation;
             this.disambiguator = disambiguator;
         }
         #endregion
@@ -152,7 +150,7 @@ namespace ThesisProjectV1
                         chosenParentname = ElementInfo.ParentElementBulk.Name.ToString();
                     else if (disambiguator != null)
                     {
-                        chosenParentname = disambiguator.ChooseParentFor(name,parentNames);
+                        chosenParentname = disambiguator.ChooseParentFor(name, parentNames);
                         if (string.IsNullOrEmpty(chosenParentname) || !parentNames.Contains(chosenParentname))
                             throw new AmbiguousSchemaPathException(name, parentNames);
                         ElementInfo.ParentElementBulk = new XElement(chosenParentname);
@@ -225,8 +223,8 @@ namespace ThesisProjectV1
                     string complexType = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).Single().Attribute("type").Value;
                     XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.Equals(complexType) ?? false);
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use")?.Value.Equals("required") ?? false);
-                    
-                    if(requiredAttributes.Any())
+
+                    if (requiredAttributes.Any())
                     {
                         throw new NotImplementedException();
                     }

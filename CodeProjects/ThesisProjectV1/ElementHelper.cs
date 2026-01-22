@@ -14,7 +14,7 @@ namespace ThesisProjectV1
         public string BulkProgramParentGen = null;
 
         // Parent Elemtn for bulk generation
-        public XElement ParentElementBulk = null; 
+        public XElement ParentElementBulk = null;
         #endregion
 
         #region Constructors
@@ -49,7 +49,7 @@ namespace ThesisProjectV1
             ElementType = null;
             BulkProgramParentGen = null;
             ParentElementBulk = null;
-        } 
+        }
         #endregion
     }
 }

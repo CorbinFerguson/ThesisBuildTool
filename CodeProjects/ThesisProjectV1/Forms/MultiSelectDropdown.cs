@@ -8,7 +8,7 @@ namespace ThesisProjectV1.Forms
     public partial class MultiSelectDropdown : Form
     {
         #region Fields
-        private bool ClosedBySelect = false; 
+        private bool ClosedBySelect = false;
         #endregion
 
         public MultiSelectDropdown(List<string> names, string text)
@@ -50,7 +50,7 @@ namespace ThesisProjectV1.Forms
 
             // Set MaxDropDownHeight, ensuring it's not negative
             DropdownElements.Height = Math.Max(0, availableHeight);
-        } 
+        }
         #endregion
     }
 }

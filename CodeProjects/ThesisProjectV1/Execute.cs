@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ThesisProjectV1.Forms;
@@ -48,7 +45,7 @@ namespace ThesisProjectV1
             Doc = _xml.LoadBasicFile();
         }
 
-        public void ValidateFile(bool showNoError=true)
+        public void ValidateFile(bool showNoError = true)
         {
             // Validate the document against the xml Schema, if successful, complete transaction
             List<string> errorList = _validation.ValidateL5XFile(Doc);
@@ -58,7 +55,7 @@ namespace ThesisProjectV1
             {
                 MessageBox.Show(errors, "Detected Errors ", MessageBoxButtons.OK);
             }
-            else if(showNoError)
+            else if (showNoError)
             {
                 MessageBox.Show("No errors detected!", "Detected Errors");
             }
@@ -67,7 +64,7 @@ namespace ThesisProjectV1
         public void NewFile()
         {
             bool ok = _messages.Confirm("Are you sure you want to overwrite your existing file?", "Verify File Creation");
-            if(ok)
+            if (ok)
             {
                 Doc = _xml.LoadBasicFile();
                 _messages.Show("New Empty File Created.", "Info");
@@ -125,7 +122,7 @@ namespace ThesisProjectV1
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Delete Element");
 
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
-            
+
             List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Modify Element");
 
             _xml.inputFile = Doc;
@@ -141,13 +138,13 @@ namespace ThesisProjectV1
         {
             // Prompt user to select file
             bool picked = _openFile.TryOpen("L5X Files (*.L5X)|*.L5X", "../", out string filePath);
-            
+
             if (!picked || String.IsNullOrWhiteSpace(filePath))
                 return; // canceled
 
             // Load File being imported from
             _xml.inputFile = _fs.LoadXml(filePath);
-            
+
             // While loop to contain importing elements from chosen file
             bool insertElement = true;
             while (insertElement)
@@ -253,7 +250,7 @@ namespace ThesisProjectV1
             }
 
             // Prompt user to select the subelements/values to change(required elements are not selectable)
-            string itemQuantity = _prompts.Prompt("How many " + element.Name + " would you like to create?","1", @"^[1-9]\d*$", "Create Element");
+            string itemQuantity = _prompts.Prompt("How many " + element.Name + " would you like to create?", "1", @"^[1-9]\d*$", "Create Element");
 
             int quantity = int.Parse(itemQuantity);
 
@@ -296,7 +293,7 @@ namespace ThesisProjectV1
                         element.Descendants("Port").Single(el => el.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
                     }
                 }
-                
+
                 // Insert the element and reset the path for the next one
                 bool retry = false;
                 do
@@ -519,7 +516,7 @@ namespace ThesisProjectV1
 
                 // Access the elements selected and modify them recursively
                 childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();
-                List<List<XAttribute>> attributes=_xml.GetAttributes(childElements);
+                List<List<XAttribute>> attributes = _xml.GetAttributes(childElements);
                 SetAttributes(childElements, attributes);
             }
         }

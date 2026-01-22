@@ -3,12 +3,11 @@
 namespace ThesisUnitTests
 {
     [TestClass]
-    public class ModifyTesting
+    public class GUITesting
     {
         [TestMethod]
-        public void NoElement()
+        public void TestMethod1()
         {
-            Assert.IsTrue(true);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace ThesisProjectV1.GUIAccessors
 
         public bool Confirm(string message, string title)
         {
-            return MessageBox.Show(message, title ?? "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question)== DialogResult.Yes;
+            return MessageBox.Show(message, title ?? "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
         }
     }
 
@@ -78,7 +78,7 @@ namespace ThesisProjectV1.GUIAccessors
             return selected;
         }
 
-        public List<string> SelectMany(string prompt, List<string> options,string title)
+        public List<string> SelectMany(string prompt, List<string> options, string title)
         {
             var dlg = new MultiSelectDropdown(options.ToList(), prompt);
             dlg.ShowDialog(out List<string> selected);
@@ -182,9 +182,9 @@ namespace ThesisProjectV1.GUIAccessors
                         renameElement.ShowDialog(out newAtrVal);
                     element.SetAttributeValue(selected, newAtrVal);
                     break;
-                    default:
-                        // Cancel insertion
-                        Console.WriteLine("Canceling Insertion");
+                default:
+                    // Cancel insertion
+                    Console.WriteLine("Canceling Insertion");
                     break;
             }
         }

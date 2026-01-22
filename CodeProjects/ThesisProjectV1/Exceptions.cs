@@ -32,7 +32,7 @@ namespace ThesisProjectV1
         public readonly string ElementType;
         public readonly List<string> CandidateParentNames;
 
-        public AmbiguousSchemaPathException(string elementType, List<string> candidateParentNames): base("Ambiguous schema path for element type '" + elementType + "'. " + "Caller must choose one of the candidate parents.")
+        public AmbiguousSchemaPathException(string elementType, List<string> candidateParentNames) : base("Ambiguous schema path for element type '" + elementType + "'. " + "Caller must choose one of the candidate parents.")
         {
             ElementType = elementType;
             CandidateParentNames = candidateParentNames ?? new List<string>();
