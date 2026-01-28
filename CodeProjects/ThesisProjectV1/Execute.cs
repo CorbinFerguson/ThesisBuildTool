@@ -53,11 +53,11 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                MessageBox.Show(errors, "Detected Errors ", MessageBoxButtons.OK);
+                _messages.Show(errors, "Detected Errors ");
             }
             else if (showNoError)
             {
-                MessageBox.Show("No errors detected!", "Detected Errors");
+                _messages.Show("No errors detected!", "Detected Errors");
             }
         }
 
