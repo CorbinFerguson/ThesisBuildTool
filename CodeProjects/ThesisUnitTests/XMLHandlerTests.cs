@@ -15,90 +15,22 @@ namespace ThesisUnitTests
         private Mock<IValidationService> mockValidator;
         private Mock<ISchemaDisambiguator> mockDisambiguator;
         private XMLHandler xmlHandler;
-        private XNamespace ns;
         private XDocument testSchema;
+        private TestHelper helper;
 
         [TestInitialize]
         public void Setup()
         {
             mockValidator = new Mock<IValidationService>();
             mockDisambiguator = new Mock<ISchemaDisambiguator>();
-            ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
+
+            helper = new TestHelper();
 
             // Create a basic test schema
-            testSchema = CreateTestSchema();
+            testSchema = helper.CreateTestSchema();
             mockValidator.Setup(v => v.GetSchema()).Returns(testSchema);
 
             xmlHandler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
-        }
-
-        private XDocument CreateTestSchema()
-        {
-            return new XDocument(
-                new XElement(ns + "schema",
-                    new XElement(ns + "element",
-                        new XAttribute("name", "RSLogix5000Content"),
-                        new XAttribute("type", "RSLogix5000ContentType")),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "RSLogix5000ContentType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Controller"),
-                                new XAttribute("type", "ControllerType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ControllerType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Programs"),
-                                new XAttribute("type", "ProgramsType")),
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Tasks"),
-                                new XAttribute("type", "TasksType"))),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ProgramsType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Program"),
-                                new XAttribute("type", "ProgramType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ProgramType"),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "TasksType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Task"),
-                                new XAttribute("type", "TaskType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "TaskType"),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "element",
-                        new XAttribute("name", "Datatype"),
-                        new XAttribute("type", "DatatypeType")),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "DatatypeType"))
-                )
-            );
-        }
-
-        private XDocument CreateBasicTestDocument()
-        {
-            return new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XAttribute("Name", "TestController"),
-                        new XElement("Programs"),
-                        new XElement("Tasks")
-                    )
-                )
-            );
         }
 
         [TestMethod]
@@ -117,7 +49,7 @@ namespace ThesisUnitTests
         public void GetSimpleElements_ReturnsListOfElements_ExcludingCustomProperties()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
 
             // Act
             List<string> elements = xmlHandler.GetSimpleElements();
@@ -175,7 +107,7 @@ namespace ThesisUnitTests
                 )
             );
 
-            XDocument docToInsert = CreateBasicTestDocument();
+            XDocument docToInsert = helper.CreateBasicTestDocument();
             XElement element = new XElement("Program",
                 new XAttribute("Name", "MainProgram"),
                 new XElement("Dependencies",
@@ -238,7 +170,7 @@ namespace ThesisUnitTests
                 )
             );
 
-            XDocument docToInsert = CreateBasicTestDocument();
+            XDocument docToInsert = helper.CreateBasicTestDocument();
             XElement element = new XElement("LocalTag",
                 new XAttribute("Name", "TestTag"),
                 new XAttribute("ParentModule", "ParentModule")
@@ -255,8 +187,8 @@ namespace ThesisUnitTests
         public void CheckForDependencies_WithList_ProcessesAllElements()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
-            XDocument docToInsert = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument docToInsert = helper.CreateBasicTestDocument();
             List<XElement> elements = new List<XElement>
             {
                 new XElement("Program", new XAttribute("Name", "Program1")),
@@ -280,7 +212,7 @@ namespace ThesisUnitTests
                 )
             );
 
-            XDocument docToInsert = CreateBasicTestDocument();
+            XDocument docToInsert = helper.CreateBasicTestDocument();
             XElement taskElement = new XElement("Task",
                 new XAttribute("Name", "MainTask"),
                 new XElement("ScheduledProgram", new XAttribute("Name", "ScheduledProg"))
@@ -406,8 +338,8 @@ namespace ThesisUnitTests
         public void InsertElement_AddsElement_ToDocument()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
-            XDocument doc = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
             XElement program = new XElement("Program", new XAttribute("Name", "NewProgram"));
             xmlHandler.ElementInfo.RootPath = new Queue<string>(new[] { "Programs", "Controller" });
 
@@ -423,7 +355,7 @@ namespace ThesisUnitTests
         public void InsertElement_ThrowsException_WhenElementAlreadyExists()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
             XDocument doc = new XDocument(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
@@ -446,8 +378,8 @@ namespace ThesisUnitTests
         public void InsertElement_WithList_InsertsAllElements()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
-            XDocument doc = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
             List<XElement> elements = new List<XElement>
             {
                 new XElement("Program", new XAttribute("Name", "Program1")),
@@ -471,8 +403,8 @@ namespace ThesisUnitTests
         public void InsertElement_HandlesModules_WithCatalogNumber()
         {
             // Arrange
-            xmlHandler.inputFile = CreateBasicTestDocument();
-            XDocument doc = CreateBasicTestDocument();
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
             XElement module = new XElement("Module", new XAttribute("CatalogNumber", "1234-5678"));
             xmlHandler.ElementInfo.RootPath = new Queue<string>(new[] { "Controller" });
 

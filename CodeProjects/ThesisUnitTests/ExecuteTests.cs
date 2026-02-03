@@ -20,14 +20,13 @@ namespace ThesisUnitTests
         private Mock<IValidationService> mockValidation;
         private Mock<IFileSystem> mockFileSystem;
         private Mock<ISchemaDisambiguator> mockDisambiguator;
+
         private Execute execute;
-        private XNamespace ns;
+        private TestHelper helper;
 
         [TestInitialize]
         public void Setup()
         {
-            ns = XNamespace.Get(@"http://www.w3.org/2001/XMLSchema");
-            
             mockValidation = new Mock<IValidationService>();
             mockDisambiguator = new Mock<ISchemaDisambiguator>();
             mockXmlHandler = new Mock<XMLHandler>(mockValidation.Object, mockDisambiguator.Object);
@@ -37,9 +36,11 @@ namespace ThesisUnitTests
             mockSaveFile = new Mock<ISaveFileService>();
             mockFileSystem = new Mock<IFileSystem>();
 
+            helper = new TestHelper();
+
             // Setup default validation behavior
             mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>())).Returns(new List<string>());
-            mockValidation.Setup(v => v.GetSchema()).Returns(CreateTestSchema());
+            mockValidation.Setup(v => v.GetSchema()).Returns(helper.CreateTestSchema());
 
             execute = new Execute(
                 mockXmlHandler.Object,
@@ -52,67 +53,13 @@ namespace ThesisUnitTests
             );
         }
 
-        private XDocument CreateTestSchema()
-        {
-            return new XDocument(
-                new XElement(ns + "schema",
-                    new XElement(ns + "element",
-                        new XAttribute("name", "RSLogix5000Content"),
-                        new XAttribute("type", "RSLogix5000ContentType")),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "RSLogix5000ContentType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Controller"),
-                                new XAttribute("type", "ControllerType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ControllerType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Programs"),
-                                new XAttribute("type", "ProgramsType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ProgramsType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Program"),
-                                new XAttribute("type", "ProgramType")))),
-                    new XElement(ns + "element",
-                        new XAttribute("name", "Programs"),
-                        new XAttribute("type", "ProgramsType"))
-                )
-            );
-        }
-
-        private XDocument CreateBasicTestDocument()
-        {
-            return new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XAttribute("Name", "TestController"),
-                        new XElement("Programs",
-                            new XElement("Program", new XAttribute("Name", "MainProgram"))
-                        ),
-                        new XElement("Tasks",
-                            new XElement("Task", new XAttribute("Name", "MainTask"))
-                        ),
-                        new XElement("Modules",
-                            new XElement("Module", 
-                                new XAttribute("Name", "TestModule"),
-                                new XAttribute("CatalogNumber", "1234-5678"))
-                        )
-                    )
-                )
-            );
-        }
-
         #region InitializeNew Tests
 
         [TestMethod]
         public void InitializeNew_LoadsBasicFile()
         {
             // Arrange
-            XDocument expectedDoc = CreateBasicTestDocument();
+            XDocument expectedDoc = helper.CreateBasicTestDocument();
             mockXmlHandler.Setup(x => x.LoadBasicFile()).Returns(expectedDoc);
 
             // Act
@@ -131,7 +78,7 @@ namespace ThesisUnitTests
         public void ValidateFile_WithNoErrors_ShowsNoErrorMessage()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>()))
                 .Returns(new List<string>());
 
@@ -146,7 +93,7 @@ namespace ThesisUnitTests
         public void ValidateFile_WithErrors_DisplaysErrors()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             List<string> errors = new List<string> { "Error 1", "Error 2" };
             mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>())).Returns(errors);
 
@@ -161,7 +108,7 @@ namespace ThesisUnitTests
         public void ValidateFile_WithShowNoErrorFalse_DoesNotShowSuccessMessage()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>()))
                 .Returns(new List<string>());
 
@@ -181,7 +128,7 @@ namespace ThesisUnitTests
         {
             // Arrange
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
-            XDocument newDoc = CreateBasicTestDocument();
+            XDocument newDoc = helper.CreateBasicTestDocument();
             mockXmlHandler.Setup(x => x.LoadBasicFile()).Returns(newDoc);
 
             // Act
@@ -216,7 +163,7 @@ namespace ThesisUnitTests
         public void SaveFile_UserSelectsPath_SavesDocument()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             string expectedPath = "C:\\test\\output.L5X";
             mockSaveFile.Setup(s => s.TrySave(
                 It.IsAny<string>(),
@@ -236,7 +183,7 @@ namespace ThesisUnitTests
         public void SaveFile_UserCancels_DoesNotSave()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             string nullPath = null;
             mockSaveFile.Setup(s => s.TrySave(
                 It.IsAny<string>(),
@@ -261,7 +208,7 @@ namespace ThesisUnitTests
         {
             // Arrange
             string filePath = "C:\\test\\input.L5X";
-            XDocument loadedDoc = CreateBasicTestDocument();
+            XDocument loadedDoc = helper.CreateBasicTestDocument();
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(loadedDoc);
@@ -297,8 +244,8 @@ namespace ThesisUnitTests
         public void ModifyElement_SelectsProgramType_ModifiesElements()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
+            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
             
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program", "Task" });
@@ -321,8 +268,8 @@ namespace ThesisUnitTests
         public void ModifyElement_SelectsModuleType_UsesCatalogNumber()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
+            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
             
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Module" });
@@ -348,8 +295,8 @@ namespace ThesisUnitTests
         public void DeleteElement_SelectsElements_RemovesThem()
         {
             // Arrange
-            Execute.Doc = CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
+            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
             
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program" });
@@ -375,7 +322,7 @@ namespace ThesisUnitTests
         {
             // Arrange
             string filePath = "C:\\test\\import.L5X";
-            XDocument importDoc = CreateBasicTestDocument();
+            XDocument importDoc = helper.CreateBasicTestDocument();
             
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
@@ -391,7 +338,7 @@ namespace ThesisUnitTests
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<List<XElement>>()))
                 .Returns(Execute.Doc);
             
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
             execute.ImportElement();
@@ -422,7 +369,7 @@ namespace ThesisUnitTests
         {
             // Arrange
             string filePath = "C:\\test\\import.L5X";
-            XDocument importDoc = CreateBasicTestDocument();
+            XDocument importDoc = helper.CreateBasicTestDocument();
             int confirmCallCount = 0;
             
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
@@ -439,7 +386,7 @@ namespace ThesisUnitTests
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<List<XElement>>()))
                 .Returns(Execute.Doc);
             
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
             execute.ImportElement();
@@ -456,7 +403,7 @@ namespace ThesisUnitTests
         public void CreateElement_SingleProgram_CreatesElement()
         {
             // Arrange
-            XDocument templateDoc = CreateBasicTestDocument();
+            XDocument templateDoc = helper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
             
@@ -477,7 +424,7 @@ namespace ThesisUnitTests
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()))
                 .Returns(Execute.Doc);
             
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
             execute.CreateElement();
@@ -491,7 +438,7 @@ namespace ThesisUnitTests
         public void CreateElement_MultipleElements_CreatesAll()
         {
             // Arrange
-            XDocument templateDoc = CreateBasicTestDocument();
+            XDocument templateDoc = helper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
             
@@ -510,7 +457,7 @@ namespace ThesisUnitTests
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()))
                 .Returns(Execute.Doc);
             
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
             execute.CreateElement();
@@ -541,11 +488,11 @@ namespace ThesisUnitTests
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             
-            Execute.Doc = CreateBasicTestDocument();
+            Execute.Doc = helper.CreateBasicTestDocument();
             
             // Mock schema to return no valid parents
             mockValidation.Setup(v => v.GetSchema()).Returns(new XDocument(
-                new XElement(ns + "schema")
+                new XElement(helper.ns + "schema")
             ));
 
             // Act
@@ -619,7 +566,7 @@ namespace ThesisUnitTests
         public void StaticDoc_IsAccessible()
         {
             // Arrange
-            XDocument testDoc = CreateBasicTestDocument();
+            XDocument testDoc = helper.CreateBasicTestDocument();
 
             // Act
             Execute.Doc = testDoc;
