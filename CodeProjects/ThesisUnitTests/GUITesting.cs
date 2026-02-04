@@ -3,6 +3,7 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace ThesisUnitTests
 
         [TestMethod]
         [TestCategory("File Manipulation")]
+        [TestCategory("GUI Test")]
         [TestProperty("Description",
         "Test that the ActionSelect window launches with all necessary buttons, and that the exit button closes the window.")]
         public void ActionSelectLayout()
@@ -220,7 +222,7 @@ namespace ThesisUnitTests
         "Test that action select cannot be manipulated during operations.")]
         public void ActionSelectLoseControl()
         {
-
+            Assert.Inconclusive("Not Implemented");
         }
 
         [TestMethod]
@@ -229,7 +231,7 @@ namespace ThesisUnitTests
         "Test that modules can be deleted using the port as a filter instead of name.")]
         public void DeleteModuleByPort()
         {
-
+            Assert.Inconclusive("Not Implemented");
         }
 
         [TestMethod]
@@ -238,7 +240,7 @@ namespace ThesisUnitTests
         "Test that deleting an element that exists in the file and has no abnormal behavior works.")]
         public void DeleteElementFound()
         {
-
+            Assert.Inconclusive("Not Implemented");
         }
 
         [TestMethod]
@@ -247,7 +249,7 @@ namespace ThesisUnitTests
         "Testing that attempting to delete an element when no element exists causes a popup.")]
         public void DeleteNoElement()
         {
-
+            Assert.Inconclusive("Not Implemented");
         }
     }
 }
