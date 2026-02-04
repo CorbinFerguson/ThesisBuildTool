@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'windows' }
+    agent { label 'windows corbinThesis' }
 
     stages {
 		stage('Checkout') {
@@ -7,15 +7,11 @@ pipeline {
 				checkout scm
 			}
 		}
-		
-		
 		stage('Restore') {
             steps {
                 powershell 'dotnet restore'
             }
         }
-
-		
         stage('Build') {
             steps {
 				powershell 'dotnet build --configuration Release --no-restore'
@@ -27,7 +23,7 @@ pipeline {
             }
 			post {
                 always {
-                    junit 'test_results.trx'
+                    mstest 'test_results.trx'
                 }
             }
 
