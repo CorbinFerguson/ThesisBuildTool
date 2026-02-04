@@ -41,7 +41,7 @@ namespace ThesisUnitTests
         }
 
         [TestMethod]
-        [TestProperty("TestID", "15")]
+        [TestCategory("File Manipulation")]
         [TestProperty("Description",
         "Test that the ActionSelect window launches with all necessary buttons, and that the exit button closes the window.")]
         public void ActionSelectLayout()
@@ -78,7 +78,7 @@ namespace ThesisUnitTests
         }
 
         [TestMethod]
-        [TestProperty("TestID", "14")]
+        [TestCategory("File Manipulation")]
         [TestProperty("Description",
         "Test that the validate button creates popups upon button press.")]
         public void FileManagementTesting()
@@ -212,6 +212,41 @@ namespace ThesisUnitTests
 
             // Should return to homepage
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
+        }
+
+        [TestMethod]
+        [TestCategory("File Manipulation")]
+        [TestProperty("Description",
+        "Test that action select cannot be manipulated during operations.")]
+        public void ActionSelectLoseControl()
+        {
+
+        }
+
+        [TestMethod]
+        [TestCategory("Delete Element")]
+        [TestProperty("Description",
+        "Test that modules can be deleted using the port as a filter instead of name.")]
+        public void DeleteModuleByPort()
+        {
+
+        }
+
+        [TestMethod]
+        [TestCategory("Delete Element")]
+        [TestProperty("Description",
+        "Test that deleting an element that exists in the file and has no abnormal behavior works.")]
+        public void DeleteElementFound()
+        {
+
+        }
+
+        [TestMethod]
+        [TestCategory("Delete Element")]
+        [TestProperty("Description",
+        "Testing that attempting to delete an element when no element exists causes a popup.")]
+        public void DeleteNoElement()
+        {
 
         }
     }
