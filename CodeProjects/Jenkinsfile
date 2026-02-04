@@ -1,0 +1,43 @@
+
+# Build / Rebuild L5XAutomationTool
+
+# Launch Tests
+
+# Create some kind of report?
+
+pipeline {
+    agent { label 'windows' }
+
+    stages {
+		stage('Checkout') {
+			steps {
+				checkout scm
+			}
+		}
+		
+		
+		stage('Restore') {
+            steps {
+                powershell 'dotnet restore'
+            }
+        }
+
+		
+        stage('Build') {
+            steps {
+				powershell 'dotnet build --configuration Release --no-restore'
+            }
+        }
+        stage('Test') {
+            steps {
+                powershell 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
+            }
+			post {
+                always {
+                    junit 'test_results.trx'
+                }
+            }
+
+        }
+    }
+}
