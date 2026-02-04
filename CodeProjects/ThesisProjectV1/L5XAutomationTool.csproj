@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5E1E32B7-3099-48D0-A1EF-F6D3BD55B254}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ThesisProjectV1</RootNamespace>
-    <AssemblyName>ThesisProjectV1</AssemblyName>
+    <RootNamespace>L5XAutomationTool</RootNamespace>
+    <AssemblyName>L5XAutomationTool</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

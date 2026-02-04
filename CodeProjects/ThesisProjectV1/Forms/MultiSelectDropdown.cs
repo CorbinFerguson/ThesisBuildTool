@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ThesisProjectV1.Forms
+namespace L5XAutomationTool.Forms
 {
     public partial class MultiSelectDropdown : Form
     {

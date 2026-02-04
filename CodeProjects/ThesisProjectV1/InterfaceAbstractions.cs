@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace ThesisProjectV1
+namespace L5XAutomationTool
 {
     public interface IMessageService
     {

@@ -3,20 +3,19 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace ThesisUnitTests
+namespace L5XAutomationToolTests
 {
     [TestClass]
     public class GUITesting
     {
         public Application app;
-        private readonly string TestAppPath = typeof(ThesisProjectV1.Program).Assembly.Location;
+        private readonly string TestAppPath = typeof(L5XAutomationTool.Program).Assembly.Location;
         private readonly int timeoutMS = 5000;
         private UIA2Automation automation;
         private Window actionSelect;

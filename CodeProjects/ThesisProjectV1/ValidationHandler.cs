@@ -5,7 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 
-namespace ThesisProjectV1
+namespace L5XAutomationTool
 {
     internal class ValidationHandler
     {

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using ThesisProjectV1;
+using L5XAutomationTool;
 
-namespace ThesisUnitTests
+namespace L5XAutomationToolTests
 {
     [TestClass]
     public class ExecuteTests

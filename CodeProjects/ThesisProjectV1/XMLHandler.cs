@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace ThesisProjectV1
+namespace L5XAutomationTool
 {
     public class XMLHandler
     {

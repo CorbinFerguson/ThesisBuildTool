@@ -1,4 +1,4 @@
-﻿namespace ThesisProjectV1.Forms
+﻿namespace L5XAutomationTool.Forms
 {
     partial class DropdownGui
     {

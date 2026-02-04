@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace ThesisProjectV1.Forms
+namespace L5XAutomationTool.Forms
 {
     public partial class TextInput : Form
     {

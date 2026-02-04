@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using ThesisProjectV1.Forms;
+using L5XAutomationTool.Forms;
 
-namespace ThesisProjectV1.GUIAccessors
+namespace L5XAutomationTool.GUIAccessors
 {
     public sealed class MessageService : IMessageService
     {

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using ThesisProjectV1.Forms;
+using L5XAutomationTool.Forms;
 
-namespace ThesisProjectV1
+namespace L5XAutomationTool
 {
     public class Execute
     {

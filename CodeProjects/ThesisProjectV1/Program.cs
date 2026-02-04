@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using ThesisProjectV1.GUIAccessors;
+using L5XAutomationTool.GUIAccessors;
 
-namespace ThesisProjectV1
+namespace L5XAutomationTool
 {
     internal static class Program
     {
