@@ -53,7 +53,7 @@ namespace ThesisProjectV1
 
             if (errors.Length > 0)
             {
-                _messages.Show(errors, "Detected Errors ");
+                _messages.Show(errors, "Detected Errors");
             }
             else if (showNoError)
             {
