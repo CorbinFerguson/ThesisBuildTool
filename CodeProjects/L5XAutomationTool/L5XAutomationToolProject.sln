@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L5XAutomationTool", "L5XAutomationTool.csproj", "{5E1E32B7-3099-48D0-A1EF-F6D3BD55B254}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L5XAutomationToolTests", "..\ThesisUnitTests\L5XAutomationToolTests.csproj", "{531632ED-A943-47F7-84E4-56B9E4194C28}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L5XAutomationToolTests", "..\L5XAutomationToolTests\L5XAutomationToolTests.csproj", "{531632ED-A943-47F7-84E4-56B9E4194C28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
