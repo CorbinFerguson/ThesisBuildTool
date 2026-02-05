@@ -69,7 +69,7 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(buttonsCorrect, "Button names not as expected");
 
             // Press exit
-            AutomationElement exitButton = actionSelect.FindAllDescendants(but => but.ByName("ExitActionSelect")).Single();
+            AutomationElement exitButton = actionSelect.FindAllDescendants(but => but.ByName("ExitActionSelect")).SingleOrDefault();
             exitButton.AsButton().Invoke();
 
             // Application should close upon pressing exit button
@@ -85,21 +85,21 @@ namespace L5XAutomationToolTests
         public void FileManagementTesting()
         {
             // VALIDATE W/OUT ERROR
-            Button validateButton = actionSelect.FindAllDescendants(val => val.ByName("ValidateFileButton")).Single().AsButton();
+            Button validateButton = actionSelect.FindAllDescendants(val => val.ByName("ValidateFileButton")).SingleOrDefault()?.AsButton();
 
             // Validate blank doc to test errorless doc
             validateButton.Invoke();
 
             // Get the popup
-            AutomationElement popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).Single();
+            AutomationElement popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault();
             Assert.IsNotNull(popup, "Popup not found");
 
             // Read no errors
-            string noErrors = popup.FindAllDescendants(win => win.ByControlType(ControlType.Text)).Single().Name;
+            string noErrors = popup.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault()?.Name;
             Assert.IsTrue(noErrors.Equals("No errors detected!"), "Validation text box popup incorrect");
 
             // Press OK button to accept no errors
-            Button ok = popup.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).Single().AsButton();
+            Button ok = popup.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(ok, "Ok button not found");
             ok.Invoke();
 
@@ -107,15 +107,15 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
 
             // LOAD FILE
-            Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).Single().AsButton();
+            Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(loadButton, "Load button not found");
 
             loadButton.Invoke();
 
-            Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).Single().AsWindow();
+            Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(fileExplorer, "File explorer not found");
 
-            AutomationElement filePathPane = fileExplorer.FindAllDescendants(win => win.ByName("Address ", PropertyConditionFlags.MatchSubstring)).Single();
+            AutomationElement filePathPane = fileExplorer.FindAllDescendants(win => win.ByName("Address ", PropertyConditionFlags.MatchSubstring)).SingleOrDefault();
 
             // Input path
             filePathPane.Click();
@@ -124,7 +124,7 @@ namespace L5XAutomationToolTests
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem));
 
-            AutomationElement templateBroken = files.Single(fil => fil.Name.Equals("BrokenXML.L5X"));
+            AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("BrokenXML.L5X"));
             Assert.IsNotNull(templateBroken, "Template file with error(BrokenXML.L5X) not found");
 
             // Select the broken template file as the file to load
@@ -141,15 +141,15 @@ namespace L5XAutomationToolTests
             validateButton.Invoke();
 
             // Get the popup
-            AutomationElement errors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors")))?.Single();
+            AutomationElement errors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault();
             Assert.IsNotNull(errors, "Popup not found");
 
             // Read no errors
-            string errorsFound = errors.FindAllDescendants(win => win.ByControlType(ControlType.Text)).Single().Name;
+            string errorsFound = errors.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault()?.Name;
             Assert.IsTrue(errorsFound.Contains("SCHEMA ERROR: "), "Validation text box popup incorrect, instead found: " + errorsFound);
 
             // Press OK button to accept no errors
-            Button accept = errors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).Single().AsButton();
+            Button accept = errors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(accept, "Ok button not found");
             accept.Invoke();
 
@@ -157,15 +157,15 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
 
             // NEW FILE DENY CREATION
-            Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).Single().AsButton();
+            Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
             newButtonNo.Invoke();
 
             // Verify that confirmation window appears
-            Window verifyCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).Single().AsWindow();
+            Window verifyCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(verifyCreate, "New file overwrite window not found");
 
             // Select No on overwriting existing
-            Button selectNo = verifyCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("No"))).Single().AsButton();
+            Button selectNo = verifyCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("No"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(selectNo, "Cancel new file creation button not found");
             selectNo.Invoke();
 
@@ -173,20 +173,20 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
 
             // SAVE FILE
-            Button saveButton = actionSelect.FindAllDescendants(win => win.ByName("SaveFileButton")).Single().AsButton();
+            Button saveButton = actionSelect.FindAllDescendants(win => win.ByName("SaveFileButton")).SingleOrDefault()?.AsButton();
             saveButton.Invoke();
 
-            Window fileExp = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Save As"))).Single().AsWindow();
+            Window fileExp = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Save As"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(fileExp, "File explorer not found");
 
-            filePathPane = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).Single();
+            filePathPane = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
             // Input path
             filePathPane.Click();
             FlaUI.Core.Input.Keyboard.Type(TestXMLsPath + "\n");
 
             // Set file name
-            AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).Single().AsTextBox();
+            AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).SingleOrDefault()?.AsTextBox();
 
             string nameToSave = "TestSaveResult";
             for (int i = 0; File.Exists(Path.Combine(TestXMLsPath, nameToSave + ".L5X")); i++)
@@ -199,17 +199,95 @@ namespace L5XAutomationToolTests
             Thread.Sleep(100);
 
             // NEW FILE CONFIRM CREATION
-            Button newButtonYes = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).Single().AsButton();
+            Button newButtonYes = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
             newButtonYes.Invoke();
 
             // Verify that confirmation window appears
-            Window confirmCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).Single().AsWindow();
+            Window confirmCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(confirmCreate, "New file overwrite window not found");
 
             // Select No on overwriting existing
-            Button selectYes = confirmCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).Single().AsButton();
+            Button selectYes = confirmCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(selectYes, "Confirm new file creation button not found");
             selectYes.Invoke();
+
+            // Should return to homepage
+            Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
+        }
+
+        [TestMethod]
+        [TestCategory("GUI_Create")]
+        [TestProperty("Description",
+        "Test that the standard creation of multiple elements works.")]
+        public void ElementQuantityCreation()
+        {
+            // CREATE
+            Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
+
+            // Begin element creation
+            createElementButton.Invoke();
+
+            // Select element type to create
+            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByName("DropdownGui", PropertyConditionFlags.IgnoreCase)).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(elementTypeSelect, "Element type select window not found");
+
+            AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
+            Assert.IsNotNull(selectedItem, "Desired element type not found in dropdown.");
+
+            selectedItem.DoubleClick();
+
+            // Select element template to use
+            Window elementTemplate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(elementTemplate, "Element template select window not found");
+
+            AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault();
+            Assert.IsNotNull(selectedTemplate, "Desired element type not found in dropdown.");
+
+            selectedTemplate.Click();
+
+            Button confirm = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(confirm, "Confirm button not found in dropdown");
+
+            confirm.Invoke();
+
+            // Input quantity to create
+            Window textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
+
+            AutomationElement textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("INVALIDTHISDOESNTHAVEANAMEYET"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(textField, "Text input field for quantity select not found.");
+
+            int quantityToAdd = 2;
+            textField.Click();
+            FlaUI.Core.Input.Keyboard.Type(quantityToAdd.ToString() +"\n");
+
+            for(int i=0; i<quantityToAdd; i++)
+            {
+                Window nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
+                Assert.IsNotNull(nameInput, "Text input window for name not found.");
+
+                // find the text input field
+                AutomationElement nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("INVALIDTHISDOESNTHAVEANAMEYET"))).SingleOrDefault()?.AsWindow();
+                Assert.IsNotNull(nameField, "Text input field for name not found.");
+                nameField.Click();
+
+                // test both submit and enter
+                if(i%1==1)
+                {
+                    nameField.Click();
+                    FlaUI.Core.Input.Keyboard.Type("testElement"+quantityToAdd.ToString() + "\n");
+                }
+                else
+                {
+                    nameField.Click();
+                    FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString());
+
+                    Button submit = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+                    Assert.IsNotNull(submit, "Confirm button not found in text input for name select");
+                    submit.Invoke();
+                }
+
+            }
 
             // Should return to homepage
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
@@ -225,7 +303,7 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
-        [TestCategory("Delete Element")]
+        [TestCategory("GUI_Delete")]
         [TestProperty("Description",
         "Test that modules can be deleted using the port as a filter instead of name.")]
         public void DeleteModuleByPort()
@@ -234,7 +312,7 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
-        [TestCategory("Delete Element")]
+        [TestCategory("GUI_Delete")]
         [TestProperty("Description",
         "Test that deleting an element that exists in the file and has no abnormal behavior works.")]
         public void DeleteElementFound()
@@ -243,12 +321,13 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
-        [TestCategory("Delete Element")]
+        [TestCategory("GUI_Delete")]
         [TestProperty("Description",
         "Testing that attempting to delete an element when no element exists causes a popup.")]
         public void DeleteNoElement()
         {
             Assert.Inconclusive("Not Implemented");
         }
+
     }
 }
