@@ -48,7 +48,7 @@ namespace L5XAutomationToolTests
         public void ActionSelectLayout()
         {
             AutomationElement[] buttons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button));
-            foreach (Button button in buttons.Cast<Button>())
+            foreach (AutomationElement button in buttons)
             {
                 // Verify that all buttons are onscreen
                 Assert.IsFalse(button.IsOffscreen);
@@ -115,7 +115,7 @@ namespace L5XAutomationToolTests
             Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).Single().AsWindow();
             Assert.IsNotNull(fileExplorer, "File explorer not found");
 
-            AutomationElement filePathPane = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).Single();
+            AutomationElement filePathPane = fileExplorer.FindAllDescendants(win => win.ByName("Address ", PropertyConditionFlags.MatchSubstring)).Single();
 
             // Input path
             filePathPane.Click();
