@@ -56,6 +56,8 @@ namespace L5XAutomationToolTests
         #region InitializeNew Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that InitializeNew calls LoadBasicFile on the XMLHandler and sets the static Doc property with the loaded document.")]
         public void InitializeNew_LoadsBasicFile()
         {
             // Arrange
@@ -75,6 +77,8 @@ namespace L5XAutomationToolTests
         #region ValidateFile Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ValidateFile validates the document and does not show an error message when no validation errors are found.")]
         public void ValidateFile_WithNoErrors_ShowsNoErrorMessage()
         {
             // Arrange
@@ -90,6 +94,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ValidateFile displays validation errors to the user when the document contains validation errors.")]
         public void ValidateFile_WithErrors_DisplaysErrors()
         {
             // Arrange
@@ -105,6 +111,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ValidateFile performs validation without displaying a success message when the showNoError parameter is false.")]
         public void ValidateFile_WithShowNoErrorFalse_DoesNotShowSuccessMessage()
         {
             // Arrange
@@ -124,6 +132,8 @@ namespace L5XAutomationToolTests
         #region NewFile Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that NewFile creates a new document and displays a confirmation message when the user confirms the action.")]
         public void NewFile_UserConfirms_CreatesNewFile()
         {
             // Arrange
@@ -141,6 +151,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that NewFile does not create a new document when the user cancels the confirmation dialog.")]
         public void NewFile_UserCancels_DoesNotCreateNewFile()
         {
             // Arrange
@@ -160,6 +172,8 @@ namespace L5XAutomationToolTests
         #region SaveFile Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that SaveFile saves the current document to disk when the user selects a valid file path.")]
         public void SaveFile_UserSelectsPath_SavesDocument()
         {
             // Arrange
@@ -180,6 +194,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that SaveFile does not save the document when the user cancels the save file dialog.")]
         public void SaveFile_UserCancels_DoesNotSave()
         {
             // Arrange
@@ -204,6 +220,8 @@ namespace L5XAutomationToolTests
         #region LoadFile Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that LoadFile loads an XML document from disk when the user selects a valid file path.")]
         public void LoadFile_UserSelectsFile_LoadsDocument()
         {
             // Arrange
@@ -222,6 +240,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that LoadFile does not load a document when the user cancels the open file dialog.")]
         public void LoadFile_UserCancels_DoesNotLoad()
         {
             // Arrange
@@ -241,6 +261,8 @@ namespace L5XAutomationToolTests
         #region ModifyElement Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ModifyElement allows the user to select and modify elements of type Program from the document.")]
         public void ModifyElement_SelectsProgramType_ModifiesElements()
         {
             // Arrange
@@ -265,6 +287,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ModifyElement properly handles Module elements which use CatalogNumber instead of Name as their identifier.")]
         public void ModifyElement_SelectsModuleType_UsesCatalogNumber()
         {
             // Arrange
@@ -292,6 +316,8 @@ namespace L5XAutomationToolTests
         #region DeleteElement Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that DeleteElement removes selected elements from the document and validates the result.")]
         public void DeleteElement_SelectsElements_RemovesThem()
         {
             // Arrange
@@ -318,6 +344,8 @@ namespace L5XAutomationToolTests
         #region ImportElement Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ImportElement loads elements from an external file and imports them into the current document.")]
         public void ImportElement_UserSelectsFile_ImportsElements()
         {
             // Arrange
@@ -349,6 +377,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ImportElement returns early without importing when the user cancels the file selection dialog.")]
         public void ImportElement_UserCancelsFileSelection_ReturnsEarly()
         {
             // Arrange
@@ -365,6 +395,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that ImportElement loops and allows the user to import additional elements when they choose to add more.")]
         public void ImportElement_UserWantsToAddMore_Loops()
         {
             // Arrange
@@ -400,6 +432,8 @@ namespace L5XAutomationToolTests
         #region CreateElement Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that CreateElement creates a single new element based on a template and inserts it into the document.")]
         public void CreateElement_SingleProgram_CreatesElement()
         {
             // Arrange
@@ -435,6 +469,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that CreateElement creates multiple new elements when the user specifies a quantity greater than one.")]
         public void CreateElement_MultipleElements_CreatesAll()
         {
             // Arrange
@@ -467,6 +503,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that CreateElement throws an EmptyListException when no valid parent elements can be found in the schema.")]
         [ExpectedException(typeof(EmptyListException))]
         public void CreateElement_NoValidParents_ThrowsException()
         {
@@ -504,6 +542,8 @@ namespace L5XAutomationToolTests
         #region SetAttributes Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that SetAttributes allows the user to select and modify attribute values for a single element.")]
         public void SetAttributes_WithElementAndAttributes_SetsValues()
         {
             // Arrange
@@ -527,6 +567,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that SetAttributes processes and allows modification of attributes for multiple elements in a collection.")]
         public void SetAttributes_WithMultipleElements_ProcessesAll()
         {
             // Arrange
@@ -556,6 +598,8 @@ namespace L5XAutomationToolTests
         #region Integration-Style Tests
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that the Execute constructor properly initializes with all required service dependencies.")]
         public void Execute_Constructor_InitializesAllDependencies()
         {
             // Assert
@@ -563,6 +607,8 @@ namespace L5XAutomationToolTests
         }
 
         [TestMethod]
+        [TestProperty("Description",
+            "Test that the static Doc property can be set and retrieved correctly.")]
         public void StaticDoc_IsAccessible()
         {
             // Arrange
