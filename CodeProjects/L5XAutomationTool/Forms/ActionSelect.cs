@@ -10,7 +10,7 @@ namespace L5XAutomationTool.Forms
         public ActionSelect(Execute app)
         {
             _app = app ?? throw new ArgumentNullException("app");
-
+            app.SetOwner(this);
             InitializeComponent();
         }
 

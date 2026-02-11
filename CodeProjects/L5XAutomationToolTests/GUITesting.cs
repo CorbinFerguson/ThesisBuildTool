@@ -4,6 +4,7 @@ using FlaUI.Core.Definitions;
 using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -24,6 +25,13 @@ namespace L5XAutomationToolTests
         [TestInitialize]
         public void Startup()
         {
+            // Kill Existing applications
+            Process[] running = Process.GetProcessesByName("L5XAutomationTool");
+            foreach (Process proc in running)
+            {
+                proc.Kill();
+            }
+
             automation = new UIA2Automation();
             // Launch the application
             app = Application.Launch(TestAppPath);
@@ -256,8 +264,9 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(confirm, "Confirm button not found in dropdown");
 
             confirm.Invoke();
+
             // Wait for next window to appear
-            TestHelper.WaitMilliseconds(shortTimeoutMS);
+            TestHelper.WaitMilliseconds(longTimeoutMS);
 
             // Input quantity to create
             AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
@@ -279,37 +288,48 @@ namespace L5XAutomationToolTests
             textField.Click();
             FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
 
+
             for (int i = 0; i < quantityToAdd; i++)
             {
-                Window nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
-                Assert.IsNotNull(nameInput, "Text input window for name not found.");
+                TestHelper.WaitMilliseconds(shortTimeoutMS);
+                AutomationElement nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
+                Assert.IsNotNull(nameInput, "Text input window for name not found. Run: " + i);
 
                 // find the text input field
                 TextBox nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-                Assert.IsNotNull(nameField, "Text input field for name not found.");
+                Assert.IsNotNull(nameField, "Text input field for name not found. Run: " + i);
 
                 // test both submit and enter
                 if (i % 1 == 1)
                 {
+                    // Input file name to save
                     nameField.Click();
-                    FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString() + "\n");
-                    foundInput = textField.Text;
+                    nameField.Enter("");
+                    nameField.Enter("TestSaveFile" + i);
+
+                    // Verify text was input
+                    foundInput = nameField.Text;
                     errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
-                    Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
+                    Assert.IsTrue(foundInput.Equals("TestSaveFile" + i), errorMsg);
+
+                    // Submit
+                    textField.Click();
+                    FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
                 }
                 else
                 {
                     nameField.Click();
-                    FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString());
-                    foundInput = textField.Text;
-                    errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
-                    Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
+                    nameField.Enter("");
+                    nameField.Enter("TestSaveFile" + i);
 
-                    Button submit = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+                    foundInput = nameField.Text;
+                    errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
+                    Assert.IsTrue(foundInput.Equals("TestSaveFile" + i), errorMsg);
+
+                    Button submit = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
                     Assert.IsNotNull(submit, "Confirm button not found in text input for name select");
                     submit.Invoke();
                 }
-
             }
 
             // Should return to homepage

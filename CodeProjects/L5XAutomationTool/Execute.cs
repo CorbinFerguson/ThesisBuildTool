@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -39,6 +40,11 @@ namespace L5XAutomationTool
         #endregion
 
         #region Functions
+
+        public void SetOwner(Form owner)
+        {
+            this._prompts.OwnerForm = owner;
+        }
 
         public void InitializeNew()
         {
