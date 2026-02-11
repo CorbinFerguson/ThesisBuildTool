@@ -1,8 +1,10 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Tools;
 using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +18,8 @@ namespace L5XAutomationToolTests
     {
         public Application app;
         private readonly string TestAppPath = typeof(L5XAutomationTool.Program).Assembly.Location;
-        private readonly int timeoutMS = 5000;
+        private readonly int longTimeoutMS = 5000;
+        private readonly int shortTimeoutMS = 500;
         private UIA2Automation automation;
         private Window actionSelect;
         private TestHelper TestHelper;
@@ -29,7 +32,7 @@ namespace L5XAutomationToolTests
             TestHelper = new TestHelper();
             // Launch the application
             app = Application.Launch(TestAppPath);
-            Thread.Sleep(timeoutMS);
+            Thread.Sleep(longTimeoutMS);
             actionSelect = app.GetAllTopLevelWindows(automation).First();
             Assert.IsNotNull(actionSelect, "Find ActionSelect window");
         }
@@ -37,7 +40,7 @@ namespace L5XAutomationToolTests
         [TestCleanup]
         public void Teardown()
         {
-            app?.Close();
+            app?.Kill();
         }
 
         [TestMethod]
@@ -73,7 +76,7 @@ namespace L5XAutomationToolTests
             exitButton.AsButton().Invoke();
 
             // Application should close upon pressing exit button
-            Thread.Sleep(timeoutMS);
+            Thread.Sleep(longTimeoutMS);
             Assert.IsTrue(app.GetAllTopLevelWindows(automation).Length == 0, "Application failed to close");
 
         }
@@ -226,9 +229,10 @@ namespace L5XAutomationToolTests
 
             // Begin element creation
             createElementButton.Invoke();
+            Thread.Sleep(shortTimeoutMS);
 
             // Select element type to create
-            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByName("DropdownGui", PropertyConditionFlags.IgnoreCase)).SingleOrDefault()?.AsWindow();
+            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByAutomationId("DropdownGui", PropertyConditionFlags.IgnoreCase))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(elementTypeSelect, "Element type select window not found");
 
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
@@ -249,17 +253,24 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(confirm, "Confirm button not found in dropdown");
 
             confirm.Invoke();
+            // Wait for next window to appear
+            Thread.Sleep(shortTimeoutMS); 
 
             // Input quantity to create
-            Window textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
+            AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
             Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
 
-            AutomationElement textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("INVALIDTHISDOESNTHAVEANAMEYET"))).SingleOrDefault()?.AsWindow();
+            AutomationElement textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault();
             Assert.IsNotNull(textField, "Text input field for quantity select not found.");
 
             int quantityToAdd = 2;
             textField.Click();
-            FlaUI.Core.Input.Keyboard.Type(quantityToAdd.ToString() +"\n");
+            textField.AsTextBox().Enter("");
+            textField.AsTextBox().Enter(quantityToAdd.ToString());
+            string foundInput = textField.AsTextBox().Text;
+            string errorMsg = string.Concat("Input value not equal to expected, found: ", foundInput);
+
+            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()),  errorMsg);
 
             for(int i=0; i<quantityToAdd; i++)
             {
@@ -267,20 +278,21 @@ namespace L5XAutomationToolTests
                 Assert.IsNotNull(nameInput, "Text input window for name not found.");
 
                 // find the text input field
-                AutomationElement nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("INVALIDTHISDOESNTHAVEANAMEYET"))).SingleOrDefault()?.AsWindow();
+                TextBox nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
                 Assert.IsNotNull(nameField, "Text input field for name not found.");
-                nameField.Click();
 
                 // test both submit and enter
                 if(i%1==1)
                 {
                     nameField.Click();
                     FlaUI.Core.Input.Keyboard.Type("testElement"+quantityToAdd.ToString() + "\n");
+                    Assert.IsTrue(nameField.Text.Equals(quantityToAdd), "Input value not equal to expected");
                 }
                 else
                 {
                     nameField.Click();
                     FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString());
+                    Assert.IsTrue(nameField.Text.Equals(quantityToAdd), "Input value not equal to expected");
 
                     Button submit = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
                     Assert.IsNotNull(submit, "Confirm button not found in text input for name select");
