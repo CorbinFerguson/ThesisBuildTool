@@ -22,17 +22,15 @@ namespace L5XAutomationToolTests
         private readonly int shortTimeoutMS = 500;
         private UIA2Automation automation;
         private Window actionSelect;
-        private TestHelper TestHelper;
         private readonly string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
         [TestInitialize]
         public void Startup()
         {
             automation = new UIA2Automation();
-            TestHelper = new TestHelper();
             // Launch the application
             app = Application.Launch(TestAppPath);
-            Thread.Sleep(longTimeoutMS);
+            TestHelper.WaitMilliseconds(longTimeoutMS);
             actionSelect = app.GetAllTopLevelWindows(automation).First();
             Assert.IsNotNull(actionSelect, "Find ActionSelect window");
         }
@@ -40,7 +38,7 @@ namespace L5XAutomationToolTests
         [TestCleanup]
         public void Teardown()
         {
-            app?.Kill();
+            app?.Close();
         }
 
         [TestMethod]
@@ -76,7 +74,7 @@ namespace L5XAutomationToolTests
             exitButton.AsButton().Invoke();
 
             // Application should close upon pressing exit button
-            Thread.Sleep(longTimeoutMS);
+            TestHelper.WaitMilliseconds(longTimeoutMS);
             Assert.IsTrue(app.GetAllTopLevelWindows(automation).Length == 0, "Application failed to close");
 
         }
@@ -137,7 +135,7 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
 
             // Sleep for so the tool can catch up
-            Thread.Sleep(100);
+            TestHelper.WaitMilliseconds(100);
 
             // VALIDATE ERROR FILE
             // Validate blank doc to test errorless doc
@@ -199,7 +197,7 @@ namespace L5XAutomationToolTests
             FlaUI.Core.Input.Keyboard.Type(nameToSave + "\n");
 
             // Wait a so the tool can catch up
-            Thread.Sleep(100);
+            TestHelper.WaitMilliseconds(100);
 
             // NEW FILE CONFIRM CREATION
             Button newButtonYes = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
@@ -229,7 +227,7 @@ namespace L5XAutomationToolTests
 
             // Begin element creation
             createElementButton.Invoke();
-            Thread.Sleep(shortTimeoutMS);
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
             Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByAutomationId("DropdownGui", PropertyConditionFlags.IgnoreCase))).SingleOrDefault()?.AsWindow();
@@ -254,25 +252,29 @@ namespace L5XAutomationToolTests
 
             confirm.Invoke();
             // Wait for next window to appear
-            Thread.Sleep(shortTimeoutMS); 
+            TestHelper.WaitMilliseconds(shortTimeoutMS); 
 
             // Input quantity to create
             AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
             Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
 
-            AutomationElement textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault();
+            TextBox textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
             Assert.IsNotNull(textField, "Text input field for quantity select not found.");
 
             int quantityToAdd = 2;
-            textField.Click();
-            textField.AsTextBox().Enter("");
-            textField.AsTextBox().Enter(quantityToAdd.ToString());
-            string foundInput = textField.AsTextBox().Text;
-            string errorMsg = string.Concat("Input value not equal to expected, found: ", foundInput);
+            textField.Enter("");
+            textField.Enter(quantityToAdd.ToString());
 
+            // Check that expected quantity inserted
+            string foundInput = textField.Text;
+            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
             Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()),  errorMsg);
 
-            for(int i=0; i<quantityToAdd; i++)
+            // Submit
+            textField.Click();
+            FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
+
+            for (int i=0; i<quantityToAdd; i++)
             {
                 Window nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
                 Assert.IsNotNull(nameInput, "Text input window for name not found.");
@@ -286,13 +288,17 @@ namespace L5XAutomationToolTests
                 {
                     nameField.Click();
                     FlaUI.Core.Input.Keyboard.Type("testElement"+quantityToAdd.ToString() + "\n");
-                    Assert.IsTrue(nameField.Text.Equals(quantityToAdd), "Input value not equal to expected");
+                    foundInput = textField.Text;
+                    errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
+                    Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
                 }
                 else
                 {
                     nameField.Click();
                     FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString());
-                    Assert.IsTrue(nameField.Text.Equals(quantityToAdd), "Input value not equal to expected");
+                    foundInput = textField.Text;
+                    errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
+                    Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
 
                     Button submit = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
                     Assert.IsNotNull(submit, "Confirm button not found in text input for name select");

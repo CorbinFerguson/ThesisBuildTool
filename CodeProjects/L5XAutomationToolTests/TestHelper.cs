@@ -88,5 +88,14 @@ namespace L5XAutomationToolTests
                 )
             );
         }
+
+        public static void WaitMilliseconds(int ms)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            while (sw.ElapsedMilliseconds < ms)
+            {
+            }
+        }
     }
 }
