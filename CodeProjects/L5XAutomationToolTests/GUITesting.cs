@@ -1,15 +1,12 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using FlaUI.Core.Tools;
-using FlaUI.UIA3;
+using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace L5XAutomationToolTests
 {
@@ -20,14 +17,14 @@ namespace L5XAutomationToolTests
         private readonly string TestAppPath = typeof(L5XAutomationTool.Program).Assembly.Location;
         private readonly int longTimeoutMS = 5000;
         private readonly int shortTimeoutMS = 500;
-        private UIA3Automation automation;
+        private UIA2Automation automation;
         private Window actionSelect;
         private readonly string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
         [TestInitialize]
         public void Startup()
         {
-            automation = new UIA3Automation();
+            automation = new UIA2Automation();
             // Launch the application
             app = Application.Launch(TestAppPath);
             TestHelper.WaitMilliseconds(longTimeoutMS);
@@ -112,18 +109,22 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(loadButton, "Load button not found");
 
             loadButton.Invoke();
+            TestHelper.WaitMilliseconds(500);
 
             Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(fileExplorer, "File explorer not found");
 
-            AutomationElement filePathPane = fileExplorer.FindAllDescendants(win => win.ByName("Address ", PropertyConditionFlags.MatchSubstring)).SingleOrDefault();
+            AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
+            // Click button to get file path
+            filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
+            AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
             // Input path
-            filePathPane.Click();
-            FlaUI.Core.Input.Keyboard.Type(TestXMLsPath + "\n");
+            filePathEdit.AsTextBox().Enter(TestXMLsPath);
 
             // Select file to load
-            AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem));
+            AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
 
             AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("BrokenXML.L5X"));
             Assert.IsNotNull(templateBroken, "Template file with error(BrokenXML.L5X) not found");
@@ -182,9 +183,13 @@ namespace L5XAutomationToolTests
 
             filePathPane = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
+            // Click button to get file path
+            filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
+
+            filePathEdit = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
             // Input path
-            filePathPane.Click();
-            FlaUI.Core.Input.Keyboard.Type(TestXMLsPath + "\n");
+            filePathEdit.AsTextBox().Enter(TestXMLsPath);
 
             // Set file name
             AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).SingleOrDefault()?.AsTextBox();
@@ -252,7 +257,7 @@ namespace L5XAutomationToolTests
 
             confirm.Invoke();
             // Wait for next window to appear
-            TestHelper.WaitMilliseconds(shortTimeoutMS); 
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Input quantity to create
             AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
@@ -268,13 +273,13 @@ namespace L5XAutomationToolTests
             // Check that expected quantity inserted
             string foundInput = textField.Text;
             string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
-            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()),  errorMsg);
+            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
 
             // Submit
             textField.Click();
             FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
 
-            for (int i=0; i<quantityToAdd; i++)
+            for (int i = 0; i < quantityToAdd; i++)
             {
                 Window nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
                 Assert.IsNotNull(nameInput, "Text input window for name not found.");
@@ -284,10 +289,10 @@ namespace L5XAutomationToolTests
                 Assert.IsNotNull(nameField, "Text input field for name not found.");
 
                 // test both submit and enter
-                if(i%1==1)
+                if (i % 1 == 1)
                 {
                     nameField.Click();
-                    FlaUI.Core.Input.Keyboard.Type("testElement"+quantityToAdd.ToString() + "\n");
+                    FlaUI.Core.Input.Keyboard.Type("testElement" + quantityToAdd.ToString() + "\n");
                     foundInput = textField.Text;
                     errorMsg = string.Concat("Input name not equal to expected, found: ", foundInput);
                     Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
