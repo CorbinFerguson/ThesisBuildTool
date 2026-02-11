@@ -214,11 +214,10 @@ namespace L5XAutomationTool
 
                     // Prompt user for ethernet address or hostname value
                     string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
-                    TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
                     string chosenIP = element.Descendants("Port").Single(i => i.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
                     while (takenIPs.Contains(chosenIP))
                     {
-                        ipPrompt.ShowDialog(out chosenIP);
+                        _prompts.Prompt("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex, "IP Value");
                     }
                     // Set the value of IP
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
@@ -283,11 +282,10 @@ namespace L5XAutomationTool
 
                         // Prompt user for ethernet address or hostname value
                         string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
-                        TextInput ipPrompt = new TextInput("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex);
                         string chosenIP = element.Descendants("Port").Single(el => el.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
                         while (takenIPs.Contains(chosenIP))
                         {
-                            ipPrompt.ShowDialog(out chosenIP);
+                            _prompts.Prompt("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex, "IP Value");
                         }
                         // Set the value of IP
                         element.Descendants("Port").Single(el => el.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);

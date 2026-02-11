@@ -71,24 +71,25 @@ namespace L5XAutomationTool.GUIAccessors
 
     public sealed class UserPromptService : IUserPromptService
     {
+        public Form OwnerForm { get; set; }
         public string SelectOne(string prompt, List<string> options, string title)
         {
             var dlg = new DropdownGui(options.ToList(), prompt);
-            dlg.ShowDialog(out string selected);
+            dlg.ShowDialog(OwnerForm, out string selected);
             return selected;
         }
 
         public List<string> SelectMany(string prompt, List<string> options, string title)
         {
             var dlg = new MultiSelectDropdown(options.ToList(), prompt);
-            dlg.ShowDialog(out List<string> selected);
+            dlg.ShowDialog(OwnerForm, out List<string> selected);
             return selected;
         }
 
         public string Prompt(string prompt, string defaultValue, string regex, string title)
         {
             var dlg = new TextInput(prompt, defaultValue, regex);
-            dlg.ShowDialog(out string value);
+            dlg.ShowDialog(OwnerForm, out string value);
             return value;
         }
     }
@@ -143,8 +144,7 @@ namespace L5XAutomationTool.GUIAccessors
         {
             foreach (XElement requiredAttribute in requiredAttributes)
             {
-                TextInput input = new TextInput($"Input user value for {requiredAttribute.Attribute("name").Value}");
-                input.ShowDialog(out string attributeValue);
+                string attributeValue = _prompts.Prompt($"Input user value for {requiredAttribute.Attribute("name").Value}","","","Set Value");
                 element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
             }
         }
@@ -156,8 +156,8 @@ namespace L5XAutomationTool.GUIAccessors
                 searchFilter = "CatalogNumber";
 
             List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-            DropdownGui elementExists = new DropdownGui(actionOps, $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?");
-            elementExists.ShowDialog(out string selected);
+            string selected = _prompts.SelectOne( $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?",actionOps, "Conflict Resolution");
+            
             switch (selected)
             {
                 case "Replace":
@@ -165,21 +165,26 @@ namespace L5XAutomationTool.GUIAccessors
                     clashingElements.Single();
                     break;
                 case "Name":
-                    TextInput renameElement;
+                    string renameHeader;
+                    string renameDefault;
+                    string renameReg="";
                     // Rename the element being inserted to not clash with existing element
                     if (selected == "Name")
                     {
-                        renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "");
+                        renameHeader = $"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.";
+                        renameDefault = element.Attribute(selected)?.Value ?? "";
                     }
                     else
                     {
-                        renameElement = new TextInput($"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$");
+                        renameHeader = $"Element {element.Attribute(searchFilter).Value} already exists. Input a new {selected}.";
+                        renameDefault = element.Attribute(selected)?.Value ?? "";
+                        renameReg = @"^\d+\.\d$";
                     }
 
                     // Prompt user for new value, then set it
                     string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
                     while (element.Parent.Descendants(element.Name).Where(i => newAtrVal.ToLower().Equals(i.Attribute(selected)?.Value.ToLower().ToString())).Any())
-                        renameElement.ShowDialog(out newAtrVal);
+                        newAtrVal = _prompts.Prompt(renameHeader, renameDefault, renameReg, "Element Exists");
                     element.SetAttributeValue(selected, newAtrVal);
                     break;
                 default:

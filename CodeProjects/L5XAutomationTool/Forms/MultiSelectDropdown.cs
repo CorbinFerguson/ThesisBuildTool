@@ -24,9 +24,9 @@ namespace L5XAutomationTool.Forms
         }
 
         #region Functions
-        public void ShowDialog(out List<string> selected)
+        public void ShowDialog(Form owner, out List<string> selected)
         {
-            base.ShowDialog();
+            base.ShowDialog(owner);
             if (!ClosedBySelect)
             {
                 throw new AbortedElementException();

@@ -2,7 +2,7 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Tools;
-using FlaUI.UIA2;
+using FlaUI.UIA3;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -20,14 +20,14 @@ namespace L5XAutomationToolTests
         private readonly string TestAppPath = typeof(L5XAutomationTool.Program).Assembly.Location;
         private readonly int longTimeoutMS = 5000;
         private readonly int shortTimeoutMS = 500;
-        private UIA2Automation automation;
+        private UIA3Automation automation;
         private Window actionSelect;
         private readonly string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
         [TestInitialize]
         public void Startup()
         {
-            automation = new UIA2Automation();
+            automation = new UIA3Automation();
             // Launch the application
             app = Application.Launch(TestAppPath);
             TestHelper.WaitMilliseconds(longTimeoutMS);
