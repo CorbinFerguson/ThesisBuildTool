@@ -196,20 +196,21 @@ namespace L5XAutomationToolTests
 
             filePathEdit = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
+            string saveResultPath = Path.Combine(TestXMLsPath, "TestResults");
             // Input path
-            filePathEdit.AsTextBox().Enter(TestXMLsPath);
+            filePathEdit.AsTextBox().Enter(saveResultPath);
 
             // Set file name
             AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).SingleOrDefault()?.AsTextBox();
 
             string nameToSave = "TestSaveResult";
-            for (int i = 0; File.Exists(Path.Combine(TestXMLsPath, nameToSave + ".L5X")); i++)
+            for (int i = 0; File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")); i++)
                 nameToSave = Regex.Replace(nameToSave, @"\d", string.Empty) + i.ToString();
 
             fileName.Click();
             FlaUI.Core.Input.Keyboard.Type(nameToSave + "\n");
 
-            // Wait a so the tool can catch up
+            // Wait for the tool to catch up
             TestHelper.WaitMilliseconds(100);
 
             // NEW FILE CONFIRM CREATION
