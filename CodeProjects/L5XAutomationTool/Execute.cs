@@ -124,12 +124,12 @@ namespace L5XAutomationTool
 
         public void DeleteElement()
         {
-            List<string> types = _xml.GetElementTypes(_xml.inputFile);
+            List<string> types = _xml.GetElementTypes(Doc);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Delete Element");
 
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
 
-            List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Modify Element");
+            List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Delete Element");
 
             _xml.inputFile = Doc;
 
@@ -316,16 +316,17 @@ namespace L5XAutomationTool
                         {
                             case "Replace":
                                 // Replace the already existing element
-                                clashEx.clashingElements.Single();
+                                element = clashEx.clashingElements.Single();
+                                clashEx.clashingElements.Remove();
                                 break;
                             case "Name":
                                 string renameElement;
                                 // Rename the element being inserted to not clash with existing element
 
                                 string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
-                                while (clashEx.parentNode.Descendants(element.Name).Where(el => newAtrVal.ToLower().Equals(el.Attribute(selected)?.Value.ToLower().ToString())).Any())
+                                do
                                 {
-                                    if (selected == "Name")
+                                    if (attributeFilter == "Name")
                                     {
                                         renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", "", "New Name");
                                     }
@@ -334,8 +335,9 @@ namespace L5XAutomationTool
                                         renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$", $"New {attributeFilter}");
                                     }
                                 }
+                                while (clashEx.parentNode.Descendants(element.Name).Where(el => renameElement.ToLower().Equals(el.Attribute(attributeFilter)?.Value.ToLower().ToString())).Any());
 
-                                element.SetAttributeValue(selected, newAtrVal);
+                                element.SetAttributeValue(attributeFilter, newAtrVal);
                                 break;
                             default:
                                 // Cancel insertion
@@ -449,7 +451,7 @@ namespace L5XAutomationTool
                         string portAddr = (firstPort != null && firstPort.Attribute("Address") != null) ? firstPort.Attribute("Address").Value : "?";
                         parentOptions.Add(id + " with no Name at port " + portAddr);
 
-                        List<string> chosen = _prompts.SelectMany("Select specific Module(s) to insert for " + id, parentOptions, "Import Element");
+                        List<string> chosen = _prompts.SelectMany("Select specific Module(s) of type " + id, parentOptions, "Import Element");
 
                         foreach (string nameOfElement in chosen)
                         {

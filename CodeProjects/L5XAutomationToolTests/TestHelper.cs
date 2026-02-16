@@ -1,4 +1,10 @@
-﻿using System.Xml.Linq;
+﻿using FlaUI.Core;
+using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Definitions;
+using L5XAutomationTool.Forms;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace L5XAutomationToolTests
 {
@@ -96,6 +102,34 @@ namespace L5XAutomationToolTests
             while (sw.ElapsedMilliseconds < ms)
             {
             }
+        }
+
+        public static void LoadDefault(Window actionSelect)
+        {
+            string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
+
+            // LOAD FILE
+            Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
+
+            loadButton.Invoke();
+            TestHelper.WaitMilliseconds(500);
+
+            Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
+            AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
+            // Click button to get file path
+            filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
+            AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
+            // Input path
+            filePathEdit.AsTextBox().Enter(TestXMLsPath + "\n");
+
+            // Select file to load
+            AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
+            AutomationElement loadedFile = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"));
+
+            // Select the template file as the file to load
+            loadedFile.DoubleClick();
         }
     }
 }
