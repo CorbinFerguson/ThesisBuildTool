@@ -98,7 +98,7 @@ namespace L5XAutomationTool
         public void ModifyElement()
         {
             // Select Type from current document
-            List<string> types = _xml.GetElementTypes(_xml.inputFile);
+            List<string> types = _xml.GetElementTypes(Doc);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Modify Element");
 
             // Modules use a different attribute to search elements
@@ -482,7 +482,7 @@ namespace L5XAutomationTool
 
         private void SetAttributes(XElement element, List<XAttribute> attributesToChange)
         {
-            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Value.ToString()).ToList(), "Modify Element");
+            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Name.ToString()).ToList(), "Modify Element");
 
             foreach (string attributeName in selectedAttributeNames)
             {
@@ -518,7 +518,7 @@ namespace L5XAutomationTool
             if (childElements.Any())
             {
                 List<string> childNames = childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList();
-                List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected to skip skip this step)", childNames, "Modify Element");
+                List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, "Modify Element");
 
                 // Access the elements selected and modify them recursively
                 childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using L5XAutomationTool.Forms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using L5XAutomationTool.Forms;
 
 namespace L5XAutomationTool.GUIAccessors
 {
@@ -88,7 +88,7 @@ namespace L5XAutomationTool.GUIAccessors
 
         public string Prompt(string prompt, string defaultValue, string regex, string title)
         {
-            var dlg = new TextInput(prompt, defaultValue, regex);
+            var dlg = new TextInput(prompt, defaultValue, regex, title);
             dlg.ShowDialog(OwnerForm, out string value);
             return value;
         }
@@ -144,7 +144,7 @@ namespace L5XAutomationTool.GUIAccessors
         {
             foreach (XElement requiredAttribute in requiredAttributes)
             {
-                string attributeValue = _prompts.Prompt($"Input user value for {requiredAttribute.Attribute("name").Value}","","","Set Value");
+                string attributeValue = _prompts.Prompt($"Input user value for {requiredAttribute.Attribute("name").Value}", "", "", "Set Value");
                 element.SetAttributeValue(requiredAttribute.Attribute("name").Value, attributeValue);
             }
         }
@@ -156,8 +156,8 @@ namespace L5XAutomationTool.GUIAccessors
                 searchFilter = "CatalogNumber";
 
             List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
-            string selected = _prompts.SelectOne( $"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?",actionOps, "Conflict Resolution");
-            
+            string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?", actionOps, "Conflict Resolution");
+
             switch (selected)
             {
                 case "Replace":
@@ -167,7 +167,7 @@ namespace L5XAutomationTool.GUIAccessors
                 case "Name":
                     string renameHeader;
                     string renameDefault;
-                    string renameReg="";
+                    string renameReg = "";
                     // Rename the element being inserted to not clash with existing element
                     if (selected == "Name")
                     {

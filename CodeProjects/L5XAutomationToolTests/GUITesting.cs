@@ -706,5 +706,32 @@ namespace L5XAutomationToolTests
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
         }
 
+        [TestMethod]
+        [TestCategory("GUI_Modify")]
+        [TestProperty("Description",
+        "Test the modification of a normal behaving element.")]
+        public void StandardElementModify()
+        {
+            TestHelper.LoadDefault(actionSelect);
+
+            // Modify button
+            Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
+            modifyButton.Invoke();
+
+            // Select AddOnInstruction to delete
+            Window dropdown = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(dropdown, "Dropdown for select type to modify not found");
+
+            ListBoxItem typesListItem = dropdown.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(typesListItem, "Failed to find element in list");
+
+            typesListItem.DoubleClick();
+
+            // select TemplateFBAOI and TemplateLadderAOI to modify
+            Window deleteElems = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(deleteElems, "Dropdown for select element to modify not found");
+
+            // Modify TemplateFBAOI
+        }
     }
 }

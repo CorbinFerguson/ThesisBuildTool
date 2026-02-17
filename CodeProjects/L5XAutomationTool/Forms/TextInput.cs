@@ -17,12 +17,13 @@ namespace L5XAutomationTool.Forms
             InitializeComponent();
         }
 
-        public TextInput(string header, string defaultText = "", string reg = @"^\w+$")
+        public TextInput(string header, string defaultText = "", string reg = null, string title = null)
         {
             InitializeComponent();
             UserInstructionTextBox.Text = header;
             InputValueName.Text = defaultText;
-            regex = reg;
+            regex = reg ?? @"^\w+$";
+            this.Name = title ?? string.Empty;
         }
         #endregion
 

@@ -9,9 +9,10 @@ namespace L5XAutomationTool.Forms
     {
         #region Fields
         private bool ClosedBySelect = false;
+        private bool acceptEmptyList = false;
         #endregion
 
-        public MultiSelectDropdown(List<string> names, string text)
+        public MultiSelectDropdown(List<string> names, string text, bool acceptEmptyList = false)
         {
             if (names.Count() == 0)
             {
@@ -31,12 +32,17 @@ namespace L5XAutomationTool.Forms
             {
                 throw new AbortedElementException();
             }
-            selected = DropdownElements.SelectedItems?.Cast<string>().ToList() ?? throw new EmptyListException("Closed GUI without selecting item");
+            if(!acceptEmptyList && DropdownElements.SelectedItems.Count == 0)
+            {
+                throw new EmptyListException("Closed GUI without selecting item");
+            }
+            else
+                selected = DropdownElements.SelectedItems?.Cast<string>().ToList();
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if (DropdownElements.SelectedItems.Count > 0)
+            if (DropdownElements.SelectedItems.Count > 0 || acceptEmptyList)
             {
                 ClosedBySelect = true;
                 Close();
