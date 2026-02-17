@@ -17,11 +17,11 @@ namespace L5XAutomationToolTests
     public class GUITesting
     {
         public Application app;
+        public static Window actionSelect;
         private readonly string TestAppPath = typeof(L5XAutomationTool.Program).Assembly.Location;
         private readonly int longTimeoutMS = 2000;
         private readonly int shortTimeoutMS = 500;
         private UIA2Automation automation;
-        private Window actionSelect;
         private readonly string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
         [TestInitialize]
@@ -248,8 +248,7 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
-            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByAutomationId("DropdownGui", PropertyConditionFlags.IgnoreCase))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTypeSelect, "Element type select window not found");
+            Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
             Assert.IsNotNull(selectedItem, "Desired element type not found in dropdown.");
@@ -257,8 +256,7 @@ namespace L5XAutomationToolTests
             selectedItem.DoubleClick();
 
             // Select element template to use
-            Window elementTemplate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTemplate, "Element template select window not found");
+            Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault();
             Assert.IsNotNull(selectedTemplate, "Desired element type not found in dropdown.");
@@ -274,35 +272,20 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(longTimeoutMS);
 
             // Input quantity to create
-            AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-            Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
-
-            TextBox textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-            Assert.IsNotNull(textField, "Text input field for quantity select not found.");
-
             int quantityToAdd = 2;
-            textField.Enter("");
-            textField.Enter(quantityToAdd.ToString());
-
-            // Check that expected quantity inserted
-            string foundInput = textField.Text;
-            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
-            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
-
-            // Submit
-            textField.Click();
-            FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
-
+            TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
             for (int i = 0; i < quantityToAdd; i++)
             {
                 TestHelper.WaitMilliseconds(shortTimeoutMS);
-                AutomationElement nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-                Assert.IsNotNull(nameInput, "Text input window for name not found. Run: " + i);
+                AutomationElement nameInput = TestHelper.GetStandardInput(TestHelper.InputType.TextInput);
 
                 // find the text input field
                 TextBox nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
                 Assert.IsNotNull(nameField, "Text input field for name not found. Run: " + i);
+
+                string foundInput;
+                string errorMsg;
 
                 // test both submit and enter
                 if (i % 1 == 1)
@@ -318,7 +301,7 @@ namespace L5XAutomationToolTests
                     Assert.IsTrue(foundInput.Equals("TestSaveFile" + i), errorMsg);
 
                     // Submit
-                    textField.Click();
+                    nameField.Click();
                     FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
                 }
                 else
@@ -344,7 +327,7 @@ namespace L5XAutomationToolTests
         [TestMethod]
         [TestCategory("GUI_Create")]
         [TestProperty("Description",
-        "Test that the standard creation of multiple elements works.")]
+        "Test that the creation of modules with no name works.")]
         public void NamelessModuleCreation()
         {
             // CREATE
@@ -355,8 +338,7 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
-            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByAutomationId("DropdownGui", PropertyConditionFlags.IgnoreCase))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTypeSelect, "Element type select window not found");
+            Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Module"))).SingleOrDefault();
             Assert.IsNotNull(selectedItem, "Desired element type not found in dropdown.");
@@ -364,8 +346,7 @@ namespace L5XAutomationToolTests
             selectedItem.DoubleClick();
 
             // Select module template to use
-            Window elementTemplate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTemplate, "Element template select window not found");
+            Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("1756-IA16"))).SingleOrDefault();
             Assert.IsNotNull(selectedTemplate, "Desired element type not found in dropdown.");
@@ -376,25 +357,8 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(confirm, "Confirm button not found in dropdown");
 
             // Input quantity to create
-            AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-            Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
-
-            TextBox textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-            Assert.IsNotNull(textField, "Text input field for quantity select not found.");
-
             int quantityToAdd = 2;
-            textField.Enter("");
-            textField.Enter(quantityToAdd.ToString());
-
-            // Check that expected quantity inserted
-            string foundInput = textField.Text;
-            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
-            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
-
-            // Submit
-            Button submit = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
-            Assert.IsNotNull(submit, "Submit button not found in text input");
-            submit.Invoke();
+            TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
             // Should return to homepage
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
@@ -414,8 +378,7 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
-            Window elementTypeSelect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByAutomationId("DropdownGui", PropertyConditionFlags.IgnoreCase))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTypeSelect, "Element type select window not found");
+            Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
             Assert.IsNotNull(selectedItem, "Desired element type not found in dropdown.");
@@ -423,8 +386,7 @@ namespace L5XAutomationToolTests
             selectedItem.DoubleClick();
 
             // Select element template to use
-            Window elementTemplate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(elementTemplate, "Element template select window not found");
+            Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault();
             Assert.IsNotNull(selectedTemplate, "Desired element type not found in dropdown.");
@@ -440,50 +402,21 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(longTimeoutMS);
 
             // Input quantity to create
-            AutomationElement textInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-            Assert.IsNotNull(textInput, "Text input window for quantity select not found.");
-
-            TextBox textField = textInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-            Assert.IsNotNull(textField, "Text input field for quantity select not found.");
-
             int quantityToAdd = 4;
-            textField.Enter("");
-            textField.Enter(quantityToAdd.ToString());
-
-            // Check that expected quantity inserted
-            string foundInput = textField.Text;
-            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
-            Assert.IsTrue(foundInput.Equals(quantityToAdd.ToString()), errorMsg);
-
-            // Submit
-            textField.Click();
-            FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
+            TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
 
             for (int i = 0; i < quantityToAdd; i++)
             {
                 TestHelper.WaitMilliseconds(shortTimeoutMS);
-                AutomationElement nameInput = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-                Assert.IsNotNull(nameInput, "Text input window for name not found. Run: " + i);
 
-                // find the text input field
-                TextBox nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-                Assert.IsNotNull(nameField, "Text input field for name not found. Run: " + i);
-
-                nameField.Click();
-                nameField.Enter("");
-                nameField.Enter("TestSaveFile");
-
-                Button submit = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
-                Assert.IsNotNull(submit, "Confirm button not found in text input for name select");
-                submit.Invoke();
+                TestHelper.TextboxSetValue(actionSelect, "TestSaveFile");
 
                 if (i != 0)
                 {
                     TestHelper.WaitMilliseconds(shortTimeoutMS);
                     // Test each of the clashing element resolution methods
-                    Window resolutionStyle = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-                    Assert.IsNotNull(resolutionStyle, "Element clash window not found on round " + i );
+                    Window resolutionStyle = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
                     if (i == 1)
                     {
@@ -503,44 +436,10 @@ namespace L5XAutomationToolTests
                     else if (i == 3)
                     {
                         // Resolution style: Rename
-                        ListBoxItem rename = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Rename"))).SingleOrDefault()?.AsListBoxItem();
-                        Assert.IsNotNull(rename, "Rename item not found in clash resolution");
-                        rename.DoubleClick();
 
-                        AutomationElement newNameWin = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-                        Assert.IsNotNull(newNameWin, "Text input window for name not found. Run: " + i);
+                        TestHelper.TextboxSetValue(actionSelect, "TestSaveFile");
 
-                        // find the text input field
-                        TextBox newNameField = newNameWin.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-                        Assert.IsNotNull(newNameField, "Text input field for name not found. Run: " + i);
-
-                        // Submit a name that already exists
-                        newNameField.Click();
-                        newNameField.Enter("");
-                        newNameField.Enter("TestSaveFile");
-
-                        Button submitNew = newNameField.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
-                        Assert.IsNotNull(submitNew, "Confirm button not found in text input for name select");
-                        submitNew.Invoke();
-
-                        // Check that new prompt window appears
-                        Assert.IsFalse(newNameWin.IsAvailable, "Old text window did not disappear");
-
-                        AutomationElement renameCorrect = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
-                        Assert.IsNotNull(renameCorrect, "Text input window for name not found. Run: " + i);
-
-                        // find the text input field
-                        TextBox renameField = renameCorrect.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-                        Assert.IsNotNull(renameField, "Text input field for name not found. Run: " + i);
-
-                        // Submit a name that already exists
-                        renameField.Click();
-                        renameField.Enter("");
-                        renameField.Enter("TestSaveFile2");
-
-                        Button submitRename = renameField.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
-                        Assert.IsNotNull(submitRename, "Confirm button not found in text input for name select");
-                        submitRename.Invoke();
+                        TestHelper.TextboxSetValue(actionSelect, "TestSaveFile2");
                     }
                 }
             }
@@ -556,12 +455,12 @@ namespace L5XAutomationToolTests
         public void ActionSelectLoseControl()
         {
             List<string> prohibNames = new List<string>() { "ExitActionSelect", "Minimize", "Maximize", "Close" };
-            IEnumerable<Button> mainMenuButtons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button)).SkipWhile(but => prohibNames.Contains(but.Name)).Cast<Button>();
+            IEnumerable<AutomationElement> mainMenuButtons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button)).SkipWhile(but => prohibNames.Contains(but.Name));
 
-            foreach (Button button in mainMenuButtons)
+            foreach (AutomationElement button in mainMenuButtons)
             {
                 // Press button to open new window
-                button.Invoke();
+                button.AsButton().Invoke();
 
                 // New window should appear
                 Window popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window)).SingleOrDefault()?.AsWindow();
@@ -589,8 +488,7 @@ namespace L5XAutomationToolTests
             deleteButton.Invoke();
 
             // Select Module to delete
-            Window dropdown = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(dropdown, "Dropdown for select type to delete not found");
+            Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             ListBoxItem typesListItem = dropdown.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Module"))).SingleOrDefault()?.AsListBoxItem();
             Assert.IsNotNull(typesListItem, "Failed to find element in list");
@@ -599,16 +497,14 @@ namespace L5XAutomationToolTests
 
             // Select module '1756-IA16' to delete
             string moduleName = "1756-IA16";
-            Window deleteName = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(deleteName, "Dropdown for select element name to delete not found");
+            Window deleteName = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             ListBoxItem moduleType = deleteName.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName(moduleName))).SingleOrDefault()?.AsListBoxItem();
             Assert.IsNotNull(moduleType, "Module of type " + moduleName + " not found");
             moduleType.DoubleClick();
 
             // select element at port X to delete
-            Window modulePortDelWin = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(modulePortDelWin, "Dropdown for select element port to delete not found");
+            Window modulePortDelWin = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             AutomationElement module = modulePortDelWin.FindAllDescendants(win => win.ByControlType(ControlType.ListItem)).First();
             Assert.IsNotNull(module, "Module list item not found");
@@ -642,8 +538,7 @@ namespace L5XAutomationToolTests
             deleteButton.Invoke();
 
             // Select AddOnInstruction to delete
-            Window dropdown = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(dropdown, "Dropdown for select type to delete not found");
+            Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             ListBoxItem typesListItem = dropdown.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
             Assert.IsNotNull(typesListItem, "Failed to find element in list");
@@ -651,8 +546,7 @@ namespace L5XAutomationToolTests
             typesListItem.DoubleClick();
 
             // select TemplateFBAOI and TemplateLadderAOI to delete
-            Window deleteElems = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(deleteElems, "Dropdown for select element to delete not found");
+            Window deleteElems = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             ListBoxItem[] delElems = deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI")))).Cast<ListBoxItem>().ToArray();
             Assert.IsTrue(delElems.Length == 2, "Did not find two elements to delete");
@@ -718,9 +612,8 @@ namespace L5XAutomationToolTests
             Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
             modifyButton.Invoke();
 
-            // Select AddOnInstruction to delete
-            Window dropdown = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(dropdown, "Dropdown for select type to modify not found");
+            // Select AddOnInstruction to modify
+            Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
 
             ListBoxItem typesListItem = dropdown.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
             Assert.IsNotNull(typesListItem, "Failed to find element in list");
@@ -728,10 +621,118 @@ namespace L5XAutomationToolTests
             typesListItem.DoubleClick();
 
             // select TemplateFBAOI and TemplateLadderAOI to modify
-            Window deleteElems = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(deleteElems, "Dropdown for select element to modify not found");
+            Window modifyElems = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
 
-            // Modify TemplateFBAOI
+            AutomationElement[] templateElemes = modifyElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI"))));
+            Assert.IsTrue(templateElemes?.Length == 2, "Template elements in dropdown not found. Found: " + string.Join(", ", templateElemes.Select(a => a.Name)));
+            foreach (AutomationElement templateSelect in templateElemes)
+            {
+                templateSelect.Click();
+            }
+
+            Button submitTemplate = modifyElems.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(submitTemplate, "Confirm button not found in text input for name select");
+            submitTemplate.Invoke();
+
+            // Select attributes for TemplateFBAOI to modify
+            Window attrmod = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+
+            AutomationElement[] attrs = attrmod.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Name").Or(win.ByName("CreatedBy"))));
+            Assert.IsTrue(attrs?.Length == 2, "Attributes in dropdown not found. Found: " + string.Join(", ", attrs.Select(a => a.Name)));
+            foreach (AutomationElement templateAttribute in attrs)
+            {
+                templateAttribute.Click();
+            }
+
+            Button submit = attrmod.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(submit, "Confirm button not found in text input for name select");
+            submit.Invoke();
+
+            // Set CreatedBy of TemplateFBAOI
+            TestHelper.TextboxSetValue(actionSelect, "TestFBUser");
+
+            // Set Name of TemplateFBAOI
+            TestHelper.TextboxSetValue(actionSelect, "TestFBName");
+
+            // Select routine subelement of templateFBAOI to modify
+            Window subElem = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+
+            ListBoxItem subElement = subElem.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Routines"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(subElement, "Subelement Routines not found");
+            subElement.Click();
+
+            Button subelementSubmit = attrmod.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(subelementSubmit, "Confirm button not found in text input for name select");
+            subelementSubmit.Invoke();
+
+            // Select attributes of routine subelement to modify
+            Window subAttr = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+
+            ListBoxItem attribute = subAttr.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Name"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(attribute, "Attributes in dropdown not found");
+            attribute.Click();
+
+            Button submitSub = subAttr.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(submitSub, "Confirm button not found in text input for name select");
+            submitSub.Invoke();
+
+            // Set Name of routine subelement
+            TestHelper.TextboxSetValue(actionSelect, "BrokenLogic");
+
+            // Close subelement select of routine
+            Window subSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+            Button close = subSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Close"))).SingleOrDefault()?.AsButton();
+            close.Invoke();
+
+            // Select attributes of TemplateLadderAOI to modify
+            Window ladderAttrs = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+
+            ListBoxItem ladderAttribute = ladderAttrs.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Name"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(ladderAttribute, "Attributes in dropdown not found");
+            ladderAttribute.Click();
+
+            Button submitLadder = ladderAttrs.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(submitLadder, "Confirm button not found in text input for name select");
+            submitLadder.Invoke();
+
+            // Set CreatedBy of TemplateLadderAOI
+            TestHelper.TextboxSetValue(actionSelect, "BrokenLogic");
+
+            // Close subelement select of TemplateLadderAOI
+            Window ladderSubSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+            Button ladderClose = ladderSubSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Close"))).SingleOrDefault()?.AsButton();
+            ladderClose.Invoke();
+
+            // Schema errors
+            Window popupSchema = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("WARNING:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(popupSchema, "Schema Error popup failed to appear");
+
+            // Return to homepage
+            Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
+        }
+
+        [TestMethod]
+        [TestCategory("GUI_Modify")]
+        [TestProperty("Description",
+        "Test attempting to modify a file with no elements.")]
+        public void NoElementToModify()
+        {
+            // Modify button press
+            Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
+            modifyButton.Invoke();
+
+            Window popupNoElements = actionSelect.FindAllDescendants(win => win.ByName("Error", PropertyConditionFlags.MatchSubstring).And(win.ByControlType(ControlType.Window))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(popupNoElements, "Popup window not found");
+
+            AutomationElement popupText = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault();
+            Assert.IsNotNull(popupText, "Error message text not found");
+            Assert.IsTrue(popupText.Equals("No Valid Elements Found"), "Error Message for modify empty element not equal to expected");
+
+            Button ok = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Ok"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(ok, "Ok button not found in popup");
+
+            // Should return to homepage
+            Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
         }
     }
 }

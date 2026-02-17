@@ -2,6 +2,10 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using L5XAutomationTool.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -10,6 +14,10 @@ namespace L5XAutomationToolTests
 {
     internal class TestHelper
     {
+        public enum InputType{
+            Dropdown, MultiSelect, TextInput
+        }
+
         public XNamespace ns;
 
         public TestHelper()
@@ -104,6 +112,36 @@ namespace L5XAutomationToolTests
             }
         }
 
+        public static void TextboxSetValue(Window parent, string inputText)
+        {
+            // Wait 250 MS for window to appear
+            WaitMilliseconds(250);
+
+            AutomationElement textWindow = parent.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault();
+            Assert.IsNotNull(textWindow, "Text input window not found.");
+
+            // find the text input field
+            TextBox textField = textWindow.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
+            Assert.IsNotNull(textField, "Text input field not found.");
+
+            // Submit a name that already exists
+            textField.Click();
+            textField.Enter("");
+            textField.Enter(inputText);
+
+            string foundInput = textField.Text;
+            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
+            Assert.IsTrue(foundInput.Equals(inputText), errorMsg);
+
+            Button submitRename = textField.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(submitRename, "Confirm button not found in text input");
+            submitRename.Invoke();
+
+            // Check that expected quantity inserted
+
+            Assert.IsNull(textWindow, "Text window did not disappear");
+        }
+
         public static void LoadDefault(Window actionSelect)
         {
             string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
@@ -130,6 +168,30 @@ namespace L5XAutomationToolTests
 
             // Select the template file as the file to load
             loadedFile.DoubleClick();
+        }
+    
+        public static Window GetStandardInput(InputType input)
+        {
+            // Wait 250 MS for window to appear
+            WaitMilliseconds(250);
+
+            switch(input)
+            {
+                case InputType.Dropdown:
+                    Window dropdown = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
+                    Assert.IsNotNull(dropdown, "Dropdown Gui was not found");
+                    return dropdown;
+                case InputType.MultiSelect:
+                    Window multiSelect = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown"))).SingleOrDefault()?.AsWindow();
+                    Assert.IsNotNull(multiSelect, "MultiSelect dropdown was not found");
+                    return multiSelect;
+                case InputType.TextInput:
+                    Window textInput = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
+                    Assert.IsNotNull(textInput, "Text input was not found");
+                    return textInput;
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }
