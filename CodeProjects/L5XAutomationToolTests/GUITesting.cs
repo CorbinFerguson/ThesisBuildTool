@@ -734,5 +734,96 @@ namespace L5XAutomationToolTests
             // Should return to homepage
             Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
         }
+
+        [TestMethod]
+        [TestCategory("GUI_Import")]
+        [TestProperty("Description",
+        "Test the functionality of the Import Element block.")]
+        public void ImportElement()
+        {
+            // Press "Import Element" Button
+            Button importButton = actionSelect.FindAllDescendants(val => val.ByName("ImportElementButton")).SingleOrDefault()?.AsButton();
+            importButton.Invoke();
+
+            // Select file to import from
+            Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(fileExplorer, "File explorer not found");
+
+            AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
+            // Click button to get file path
+            filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
+            AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+
+            // Input path
+            filePathEdit.AsTextBox().Enter(TestXMLsPath + "\n");
+
+            // Select file to load
+            AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
+
+            AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"));
+            Assert.IsNotNull(templateBroken, "Template file with error(TemplateProjectV1.L5X) not found.");
+
+            // Select the broken template file as the file to load
+            templateBroken.DoubleClick();
+
+            // Select element type to import(AOI)
+            Window typeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem elemType = typeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(elemType, "Element type AddOnInstructionDefinition not found.");
+            elemType.DoubleClick();
+
+            // Select element of type to import
+            Window elementSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+            ListBoxItem element = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(element, "Element TemplateFBAOI not found.");
+            element.Click();
+
+            Button conf = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            conf.Invoke();
+
+            // Select Yes to add another from file
+            Window addAnotherYes = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Import Element"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(addAnotherYes, "Add another element window not found");
+
+            Button yesButton = addAnotherYes.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(yesButton, "Yes button not found in add another");
+            yesButton.Invoke();
+
+            // Select element type with ambiguous parent to import
+            Window ambigSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem ambigType = ambigSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Routine"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(ambigType, "Element type Routine not found.");
+            ambigType.DoubleClick();
+
+            // Select element of type to import
+            Window elementAmbig = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
+            ListBoxItem ambigRout = elementAmbig.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Logic"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(ambigRout, "Element not found.");
+            ambigRout.Click();
+
+            Button confirm = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            confirm.Invoke();
+
+            // Select parent element for disambiguation
+            Window disambig = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem parentElem = disambig.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
+            Assert.IsNotNull(parentElem, "Element type Routine not found.");
+            parentElem.DoubleClick();
+
+            // Input new name for the disambiguated element
+            TestHelper.TextboxSetValue(actionSelect, "DisambigElem");
+
+            // Select No to add another from file
+            Window addAnotherNo = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Import Element"))).SingleOrDefault()?.AsWindow();
+            Assert.IsNotNull(addAnotherNo, "Add another element window not found");
+
+            Button noButton = addAnotherNo.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("no"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(noButton, "Yes button not found in add another");
+            noButton.Invoke();
+
+            // Should return to action select window
+            Assert.IsTrue(actionSelect.IsAvailable, "Did not return to homepage");
+        }
     }
 }
