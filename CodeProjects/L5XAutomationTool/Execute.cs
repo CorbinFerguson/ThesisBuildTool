@@ -108,7 +108,7 @@ namespace L5XAutomationTool
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute(attributeKey)?.Value.ToString()).Distinct().ToList();
 
             // Let user select elements to modify
-            List<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable, "Modify Element");
+            List<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable);
 
             _xml.inputFile = Doc;
 
@@ -129,7 +129,7 @@ namespace L5XAutomationTool
 
             List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
 
-            List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable, "Delete Element");
+            List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable);
 
             _xml.inputFile = Doc;
 
@@ -166,7 +166,7 @@ namespace L5XAutomationTool
 
                 // Find and display available elements of that type
                 List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
-                List<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements, "Import Element");
+                List<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements);
 
                 // Get the selected element, then insert it
                 List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
@@ -451,7 +451,7 @@ namespace L5XAutomationTool
                         string portAddr = (firstPort != null && firstPort.Attribute("Address") != null) ? firstPort.Attribute("Address").Value : "?";
                         parentOptions.Add(id + " with no Name at port " + portAddr);
 
-                        List<string> chosen = _prompts.SelectMany("Select specific Module(s) of type " + id, parentOptions, "Import Element");
+                        List<string> chosen = _prompts.SelectMany("Select specific Module(s) of type " + id, parentOptions);
 
                         foreach (string nameOfElement in chosen)
                         {
@@ -482,7 +482,7 @@ namespace L5XAutomationTool
 
         private void SetAttributes(XElement element, List<XAttribute> attributesToChange)
         {
-            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Name.ToString()).ToList(), "Modify Element");
+            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Name.ToString()).ToList());
 
             foreach (string attributeName in selectedAttributeNames)
             {
@@ -518,7 +518,7 @@ namespace L5XAutomationTool
             if (childElements.Any())
             {
                 List<string> childNames = childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList();
-                List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, "Modify Element");
+                List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, true);
 
                 // Access the elements selected and modify them recursively
                 childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();

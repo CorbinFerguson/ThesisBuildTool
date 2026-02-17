@@ -9,7 +9,7 @@ namespace L5XAutomationTool.Forms
     {
         #region Fields
         private bool ClosedBySelect = false;
-        private bool acceptEmptyList = false;
+        private readonly bool AcceptEmptyList = false;
         #endregion
 
         public MultiSelectDropdown(List<string> names, string text, bool acceptEmptyList = false)
@@ -22,6 +22,7 @@ namespace L5XAutomationTool.Forms
             DropdownElements.Items.AddRange(names.ToArray());
             TextBox.Text = text;
             TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
+            this.AcceptEmptyList = acceptEmptyList;
         }
 
         #region Functions
@@ -32,7 +33,7 @@ namespace L5XAutomationTool.Forms
             {
                 throw new AbortedElementException();
             }
-            if(!acceptEmptyList && DropdownElements.SelectedItems.Count == 0)
+            if(!AcceptEmptyList && DropdownElements.SelectedItems.Count == 0)
             {
                 throw new EmptyListException("Closed GUI without selecting item");
             }
@@ -42,7 +43,7 @@ namespace L5XAutomationTool.Forms
 
         private void ExitSelect_Click(object sender, EventArgs e)
         {
-            if (DropdownElements.SelectedItems.Count > 0 || acceptEmptyList)
+            if (DropdownElements.SelectedItems.Count > 0)
             {
                 ClosedBySelect = true;
                 Close();
@@ -58,5 +59,15 @@ namespace L5XAutomationTool.Forms
             DropdownElements.Height = Math.Max(0, availableHeight);
         }
         #endregion
+
+        private void MultiSelectDropdown_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (AcceptEmptyList && !ClosedBySelect)
+            {
+                DropdownElements.SelectedItems.Clear();
+                ClosedBySelect = true;
+                Close();
+            }
+        }
     }
 }

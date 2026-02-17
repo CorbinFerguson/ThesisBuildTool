@@ -296,8 +296,6 @@ namespace L5XAutomationTool
                 parentNode.Add(element);
             }
 
-            Console.WriteLine("Inserted: " + element.Name + " " + element.Attribute("Name")?.Value ?? "");
-
             return inDoc;
         }
 
@@ -346,7 +344,7 @@ namespace L5XAutomationTool
 
         internal List<List<XAttribute>> GetAttributes(IEnumerable<XElement> elements)
         {
-            List<List<XAttribute>> allAttr = null;
+            List<List<XAttribute>> allAttr = new List<List<XAttribute>>();
             foreach (XElement el in elements)
                 allAttr.Add(GetAttributes(el));
             return allAttr;

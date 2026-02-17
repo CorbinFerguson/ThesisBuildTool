@@ -16,7 +16,8 @@ namespace L5XAutomationTool
     {
         Form OwnerForm { get; set; }
         string SelectOne(string prompt, List<string> options, string title);
-        List<string> SelectMany(string prompt, List<string> options, string title);
+        List<string> SelectMany(string prompt, List<string> options);
+        List<string> SelectMany(string prompt, List<string> options, bool acceptEmpty);
         string Prompt(string prompt, string defaultValue, string regex, string title);
     }
 

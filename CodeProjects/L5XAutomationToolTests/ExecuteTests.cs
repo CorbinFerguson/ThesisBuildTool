@@ -273,7 +273,7 @@ namespace L5XAutomationToolTests
                 .Returns(new List<string> { "Program", "Task" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "MainProgram" });
             mockXmlHandler.Setup(x => x.GetAttributes(It.IsAny<XElement>()))
                 .Returns(new List<XAttribute> { new XAttribute("Name", "MainProgram") });
@@ -299,7 +299,7 @@ namespace L5XAutomationToolTests
                 .Returns(new List<string> { "Module" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "1234-5678" });
             mockXmlHandler.Setup(x => x.GetAttributes(It.IsAny<XElement>()))
                 .Returns(new List<XAttribute>());
@@ -328,7 +328,7 @@ namespace L5XAutomationToolTests
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "MainProgram" });
 
             // Act
@@ -359,7 +359,7 @@ namespace L5XAutomationToolTests
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "MainProgram" });
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false); // Don't loop
@@ -411,7 +411,7 @@ namespace L5XAutomationToolTests
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "MainProgram" });
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => confirmCallCount++ == 0); // Return true first time, false second
@@ -554,7 +554,7 @@ namespace L5XAutomationToolTests
                 new XAttribute("Type", "Normal")
             };
             
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "Name" });
             mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("ModifiedProgram");
@@ -563,7 +563,7 @@ namespace L5XAutomationToolTests
             execute.SetAttributes(new[] { element }, new List<List<XAttribute>> { attrs });
 
             // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+            mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
         }
 
         [TestMethod]
@@ -583,14 +583,14 @@ namespace L5XAutomationToolTests
                 new List<XAttribute> { new XAttribute("Name", "Program2") }
             };
             
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string>());
 
             // Act
             execute.SetAttributes(elements, attrs);
 
             // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Exactly(2));
+            mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Exactly(2));
         }
 
         #endregion
