@@ -201,9 +201,11 @@ namespace L5XAutomationToolTests
             string saveResultPath = Path.Combine(TestXMLsPath, "TestResults");
             // Input path
             filePathEdit.AsTextBox().Enter(saveResultPath + "\n");
+            TestHelper.WaitMilliseconds(100); // Wait a bit for application to catch up to test
 
             // Set file name
             AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).SingleOrDefault()?.AsTextBox();
+            Assert.IsNotNull(fileName, "File name field not found in saveFile");
 
             string nameToSave = "TestSaveResult";
             for (int i = 0; File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")); i++)
@@ -213,7 +215,7 @@ namespace L5XAutomationToolTests
             Keyboard.Type(nameToSave + "\n");
 
             // Wait for the tool to catch up
-            TestHelper.WaitMilliseconds(250);
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             Assert.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "File not saved at location");
 
@@ -351,10 +353,7 @@ namespace L5XAutomationToolTests
             AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("1756-IA16"))).SingleOrDefault();
             Assert.IsNotNull(selectedTemplate, "Desired element type not found in dropdown.");
 
-            selectedTemplate.Click();
-
-            Button confirm = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
-            Assert.IsNotNull(confirm, "Confirm button not found in dropdown");
+            selectedTemplate.DoubleClick();
 
             // Input quantity to create
             int quantityToAdd = 2;
@@ -408,8 +407,6 @@ namespace L5XAutomationToolTests
 
             for (int i = 0; i < quantityToAdd; i++)
             {
-                TestHelper.WaitMilliseconds(shortTimeoutMS);
-
                 TestHelper.TextboxSetValue(actionSelect, "TestSaveFile");
 
                 if (i != 0)
@@ -497,18 +494,21 @@ namespace L5XAutomationToolTests
 
             // Select module '1756-IA16' to delete
             string moduleName = "1756-IA16";
-            Window deleteName = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            Window deleteName = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
 
             ListBoxItem moduleType = deleteName.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName(moduleName))).SingleOrDefault()?.AsListBoxItem();
             Assert.IsNotNull(moduleType, "Module of type " + moduleName + " not found");
             moduleType.DoubleClick();
 
             // select element at port X to delete
-            Window modulePortDelWin = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            Window modulePortDelWin = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
 
             AutomationElement module = modulePortDelWin.FindAllDescendants(win => win.ByControlType(ControlType.ListItem)).First();
             Assert.IsNotNull(module, "Module list item not found");
-            module.DoubleClick();
+            module.AsListBoxItem().Click();
+
+            Button conf = modulePortDelWin.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            conf.Invoke();
 
             // Detect errors from erroneously deleted element
             Window detectedErrors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault()?.AsWindow();
@@ -546,18 +546,22 @@ namespace L5XAutomationToolTests
             typesListItem.DoubleClick();
 
             // select TemplateFBAOI and TemplateLadderAOI to delete
-            Window deleteElems = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            Window deleteElems = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
 
-            ListBoxItem[] delElems = deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI")))).Cast<ListBoxItem>().ToArray();
+            AutomationElement[] delElems = deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI")))).ToArray();
             Assert.IsTrue(delElems.Length == 2, "Did not find two elements to delete");
 
-            foreach (ListBoxItem elem in delElems)
+            foreach (AutomationElement elem in delElems)
             {
                 using (Keyboard.Pressing(VirtualKeyShort.LSHIFT))
                 {
-                    elem.Click();
+                    elem.AsListBoxItem().Click();
                 }
             }
+            Button conf = deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            conf.Invoke();
+
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Detect errors from erroneously deleted element
             Window detectedErrors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault()?.AsWindow();
@@ -566,7 +570,7 @@ namespace L5XAutomationToolTests
             string errorMsg = detectedErrors.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault()?.AsTextBox().Name;
             Assert.IsTrue(errorMsg.Contains("WARNING:"), "No 'warning' found in text of popup");
 
-            Button oK = detectedErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button)).SingleOrDefault()?.AsButton();
+            Button oK = detectedErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(oK, "Ok button not found in error popup");
             oK.Invoke();
 
@@ -588,10 +592,10 @@ namespace L5XAutomationToolTests
             Window errorDialog = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Error", PropertyConditionFlags.MatchSubstring))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(errorDialog, "Error window failed to appear");
 
-            string errorMsg = errorDialog.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault()?.ToString();
-            Assert.IsTrue(errorMsg.Equals("No elements found"), "Error msg does not contain 'No elements found', instead: " + errorMsg);
+            string errorMsg = errorDialog.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault()?.Name?.ToString();
+            Assert.IsTrue(errorMsg.Equals("No Valid Elements Found"), "Error msg does not contain 'No elements found', instead: " + errorMsg);
 
-            Button oK = errorDialog.FindAllDescendants(win => win.ByControlType(ControlType.Button)).SingleOrDefault()?.AsButton();
+            Button oK = errorDialog.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(oK, "oK button not found");
 
             oK.Invoke();
@@ -726,9 +730,9 @@ namespace L5XAutomationToolTests
 
             AutomationElement popupText = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Text)).SingleOrDefault();
             Assert.IsNotNull(popupText, "Error message text not found");
-            Assert.IsTrue(popupText.Equals("No Valid Elements Found"), "Error Message for modify empty element not equal to expected");
+            Assert.IsTrue(popupText.Name.Equals("No Valid Elements Found"), "Error Message for modify empty element not equal to expected");
 
-            Button ok = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Ok"))).SingleOrDefault()?.AsButton();
+            Button ok = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(ok, "Ok button not found in popup");
 
             // Should return to homepage
@@ -782,6 +786,9 @@ namespace L5XAutomationToolTests
             Button conf = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
             conf.Invoke();
 
+            // Wait for the tool to catch up
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
+
             // Select Yes to add another from file
             Window addAnotherYes = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Import Element"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(addAnotherYes, "Add another element window not found");
@@ -802,7 +809,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(ambigRout, "Element not found.");
             ambigRout.Click();
 
-            Button confirm = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Button confirm = elementAmbig.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
             confirm.Invoke();
 
             // Select parent element for disambiguation

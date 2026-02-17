@@ -138,7 +138,7 @@ namespace L5XAutomationTool
             // Catch the error thrown when there is ambiguity in finding the path
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("Sequence contains more than one element"))
+                if (ex.Message.Contains("Sequence contains more than one"))
                 {
                     // Get the parent options from the schema
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
