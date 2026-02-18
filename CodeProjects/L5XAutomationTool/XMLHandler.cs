@@ -245,7 +245,6 @@ namespace L5XAutomationTool
                 }
             }
 
-            // Multiple elements of chosen type, prompt user to select which element should be the parent
             string grandparentType = ElementInfo.RootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)

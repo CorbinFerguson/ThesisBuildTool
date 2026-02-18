@@ -111,8 +111,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(ok, "Ok button not found");
             ok.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
 
             // LOAD FILE
             Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
@@ -142,8 +141,7 @@ namespace L5XAutomationToolTests
             // Select the broken template file as the file to load
             templateBroken.DoubleClick();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
 
             // Sleep for so the tool can catch up
             TestHelper.WaitMilliseconds(100);
@@ -165,8 +163,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(accept, "Ok button not found");
             accept.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
 
             // NEW FILE DENY CREATION
             Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
@@ -181,8 +178,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(selectNo, "Cancel new file creation button not found");
             selectNo.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
 
             // SAVE FILE
             Button saveButton = actionSelect.FindAllDescendants(win => win.ByName("SaveFileButton")).SingleOrDefault()?.AsButton();
@@ -227,13 +223,17 @@ namespace L5XAutomationToolTests
             Window confirmCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(confirmCreate, "New file overwrite window not found");
 
-            // Select No on overwriting existing
+            // Click Yes on overwriting existing
             Button selectYes = confirmCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(selectYes, "Confirm new file creation button not found");
             selectYes.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            // Click OK to close the file creation confirmation window
+            Button buttonOK = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(buttonOK, "Confirm new file creation button not found");
+            buttonOK.Invoke();
+
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -317,8 +317,7 @@ namespace L5XAutomationToolTests
                 }
             }
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -354,8 +353,7 @@ namespace L5XAutomationToolTests
             int quantityToAdd = 2;
             TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -426,8 +424,7 @@ namespace L5XAutomationToolTests
                 }
             }
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -436,13 +433,13 @@ namespace L5XAutomationToolTests
         "Test that action select cannot be manipulated during operations.")]
         public void ActionSelectLoseControl()
         {
-            Assert.IsTrue(actionSelect.IsEnabled, "Action select found");
-
             List<string> prohibNames = new List<string>() { "ExitActionSelect", "Minimize", "Maximize", "Close" };
             IEnumerable<AutomationElement> mainMenuButtons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button)).Where(but => !prohibNames.Contains(but.Name));
 
             foreach (AutomationElement button in mainMenuButtons)
             {
+                Assert.IsTrue(actionSelect.IsEnabled, "Action select found");
+
                 // Press button to open new window
                 button.AsButton().Invoke();
 
@@ -521,8 +518,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(oK, "Ok button not found in error popup");
             oK.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -573,8 +569,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(oK, "Ok button not found in error popup");
             oK.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -599,8 +594,7 @@ namespace L5XAutomationToolTests
 
             oK.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -711,8 +705,7 @@ namespace L5XAutomationToolTests
             Button ok = popupSchema.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             ok.Invoke();
 
-            // Return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -734,9 +727,9 @@ namespace L5XAutomationToolTests
 
             Button ok = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             Assert.IsNotNull(ok, "Ok button not found in popup");
+            ok.Invoke();
 
-            // Should return to homepage
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
 
         [TestMethod]
@@ -844,8 +837,7 @@ namespace L5XAutomationToolTests
             Assert.IsNotNull(noButton, "Yes button not found in add another");
             noButton.Invoke();
 
-            // Should return to action select window
-            Assert.IsTrue(actionSelect.IsEnabled, "Did not return to homepage");
+            TestHelper.CheckHomePage();
         }
     }
 }

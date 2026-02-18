@@ -318,7 +318,6 @@ namespace L5XAutomationTool
                                 // Replace the already existing element
                                 element = clashEx.clashingElements.Single();
                                 clashEx.clashingElements.Remove();
-                                _xml.ElementInfo.RootPath.Clear();
                                 retry = true;
                                 break;
                             case "Rename":
@@ -348,6 +347,7 @@ namespace L5XAutomationTool
                                 retry = false;
                                 break;
                         }
+                        _xml.ElementInfo.RootPath.Clear();
                     }
                 } while (retry);
                 _xml.ElementInfo.RootPath.Clear();
