@@ -1,11 +1,8 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using L5XAutomationTool.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -14,9 +11,10 @@ namespace L5XAutomationToolTests
 {
     internal class TestHelper
     {
-        private readonly static int shortWait = 500;
+        private static readonly int shortWait = 500;
 
-        public enum InputType{
+        public enum InputType
+        {
             Dropdown, MultiSelect, TextInput
         }
 
@@ -114,6 +112,13 @@ namespace L5XAutomationToolTests
             }
         }
 
+        public static void Confirm(Window parent)
+        {
+            Button confirm = parent.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
+            Assert.IsNotNull(confirm, "Confirm button not found in window " + parent.Name);
+            confirm.Invoke();
+        }
+
         public static void TextboxSetValue(Window parent, string inputText)
         {
             // Wait for window to appear
@@ -135,9 +140,7 @@ namespace L5XAutomationToolTests
             string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
             Assert.IsTrue(foundInput.Equals(inputText), errorMsg);
 
-            Button submitRename = textWindow.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Submit"))).SingleOrDefault()?.AsButton();
-            Assert.IsNotNull(submitRename, "Confirm button not found in text input");
-            submitRename.Invoke();
+            Confirm(textWindow);
 
             // Check that expected quantity inserted
             textWindow = parent.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
@@ -171,13 +174,13 @@ namespace L5XAutomationToolTests
             // Select the template file as the file to load
             loadedFile.DoubleClick();
         }
-    
+
         public static Window GetStandardInput(InputType input)
         {
             // Wait for window to appear
             WaitMilliseconds(shortWait);
 
-            switch(input)
+            switch (input)
             {
                 case InputType.Dropdown:
                     Window dropdown = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
