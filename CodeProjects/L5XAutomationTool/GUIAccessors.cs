@@ -144,7 +144,7 @@ namespace L5XAutomationTool.GUIAccessors
 
         public string ChooseParentFor(string elementType, List<string> candidateParents)
         {
-            return _prompts.SelectOne("Select a parent type for " + elementType, candidateParents, "Resolve Parent");
+            return _prompts.SelectOne("Select a parent type for " + elementType + " to insert under", candidateParents, "Resolve Parent");
         }
 
         public void SetAttributeValues(IEnumerable<XElement> requiredAttributes, XElement element)

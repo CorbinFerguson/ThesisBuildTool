@@ -310,7 +310,7 @@ namespace L5XAutomationTool
                     catch (ClashingElementException clashEx)
                     {
                         // Clash Resolution
-                        List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
+                        List<string> actionOps = new List<string>() { "Cancel", "Replace", "Rename" };
                         string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(attributeFilter).Value}?", actionOps, "Clashing Elements");
                         switch (selected)
                         {
@@ -318,8 +318,10 @@ namespace L5XAutomationTool
                                 // Replace the already existing element
                                 element = clashEx.clashingElements.Single();
                                 clashEx.clashingElements.Remove();
+                                _xml.ElementInfo.RootPath.Clear();
+                                retry = true;
                                 break;
-                            case "Name":
+                            case "Rename":
                                 string renameElement;
                                 // Rename the element being inserted to not clash with existing element
 
@@ -337,14 +339,15 @@ namespace L5XAutomationTool
                                 }
                                 while (clashEx.parentNode.Descendants(element.Name).Where(el => renameElement.ToLower().Equals(el.Attribute(attributeFilter)?.Value.ToLower().ToString())).Any());
 
-                                element.SetAttributeValue(attributeFilter, newAtrVal);
+                                element.SetAttributeValue(attributeFilter, renameElement);
+                                retry = true;
                                 break;
                             default:
                                 // Cancel insertion
                                 Console.WriteLine("Canceling Insertion");
+                                retry = false;
                                 break;
                         }
-                        retry = true;
                     }
                 } while (retry);
                 _xml.ElementInfo.RootPath.Clear();
@@ -421,7 +424,7 @@ namespace L5XAutomationTool
             List<string> parentOptions = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
 
 
-            string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select grandparent element you are accessing", parentOptions, "Import Element");
+            string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select parent element you are accessing", parentOptions, "Import Element");
             XElement parentElement = _xml.inputFile.Descendants().Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == grandparentName);
             XElement resolved = parentElement.Descendants(typeOfElement).Single(i => i.Attribute("Name") != null && i.Attribute("Name").Value == id);
 

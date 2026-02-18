@@ -16,6 +16,7 @@ namespace L5XAutomationTool.Forms
 
         private void ImportSelect_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             try
             {
                 _app.ImportElement();
@@ -28,9 +29,11 @@ namespace L5XAutomationTool.Forms
             {
                 MessageBox.Show(ex.Message, "Error importing element. Aborting action.");
             }
+            this.Enabled = true;
         }
         private void GenerateSelect_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             try
             {
                 _app.CreateElement();
@@ -43,10 +46,12 @@ namespace L5XAutomationTool.Forms
             {
                 MessageBox.Show(ex.Message, "Error creating element. Aborting action.");
             }
+            this.Enabled = true;
         }
 
         private void ModifySelect_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             try
             {
                 _app.ModifyElement();
@@ -59,10 +64,12 @@ namespace L5XAutomationTool.Forms
             {
                 MessageBox.Show(ex.Message, "Error modifying element. Aborting action.");
             }
+            this.Enabled = true;
         }
 
         private void DeleteSelect_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             try
             {
                 _app.DeleteElement();
@@ -75,6 +82,7 @@ namespace L5XAutomationTool.Forms
             {
                 MessageBox.Show(ex.Message, "Error deleting element. Aborting action.");
             }
+            this.Enabled = true;
         }
 
         private void ExitButton_Click(object sender, EventArgs e)
@@ -84,22 +92,30 @@ namespace L5XAutomationTool.Forms
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             _app.SaveFile();
+            this.Enabled = true;
         }
 
         private void LoadButton_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             _app.LoadFile();
+            this.Enabled = true;
         }
 
         private void NewButton_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             _app.NewFile();
+            this.Enabled = true;
         }
 
         private void ValidateButton_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             _app.ValidateFile();
+            this.Enabled = true;
         }
     }
 }

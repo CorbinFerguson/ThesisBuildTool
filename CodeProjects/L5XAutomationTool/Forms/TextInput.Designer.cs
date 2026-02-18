@@ -73,6 +73,7 @@
             // 
             // SubmitButton
             // 
+            this.SubmitButton.AccessibleName = "Confirm";
             this.SubmitButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.SubmitButton.AutoSize = true;
@@ -82,7 +83,7 @@
             this.SubmitButton.Name = "SubmitButton";
             this.SubmitButton.Size = new System.Drawing.Size(74, 30);
             this.SubmitButton.TabIndex = 3;
-            this.SubmitButton.Text = "Submit";
+            this.SubmitButton.Text = "Confirm";
             this.SubmitButton.UseVisualStyleBackColor = true;
             this.SubmitButton.Click += new System.EventHandler(this.SubmitButton_Click);
             // 
