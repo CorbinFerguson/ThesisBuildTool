@@ -39,4 +39,15 @@ namespace L5XAutomationTool
         }
     }
 
+    public class ParentMissingException : Exception
+    {
+        public XElement parentNode;
+        public IEnumerable<XElement> missingSchemaAttributes;
+        public ParentMissingException(XElement parentNode, IEnumerable<XElement> missingAttributes)
+        {
+            this.parentNode = parentNode;
+            this.missingSchemaAttributes = missingAttributes;
+        }
+    }
+
 }

@@ -230,7 +230,7 @@ namespace L5XAutomationToolTests
 
             // Click OK to close the file creation confirmation window
             Button buttonOK = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
-            Assert.IsNotNull(buttonOK, "Confirm new file creation button not found");
+            Assert.IsNotNull(buttonOK, "Accept new file creation button not found");
             buttonOK.Invoke();
 
             TestHelper.CheckHomePage();
@@ -359,8 +359,8 @@ namespace L5XAutomationToolTests
         [TestMethod]
         [TestCategory("GUI_Create")]
         [TestProperty("Description",
-        "Test that the standard creation of multiple elements works.")]
-        public void RedundantElementCreation()
+        "Test that the creation of multiple elements that clash works.")]
+        public void ClashingElementCreation()
         {
             // CREATE
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();

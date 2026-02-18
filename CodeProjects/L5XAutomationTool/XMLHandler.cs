@@ -200,7 +200,6 @@ namespace L5XAutomationTool
                 ElementInfo.RootPath = FindPathtoRootSchema(element);
 
             XName parentType = ElementInfo.RootPath.Dequeue();
-            XElement parentNode = null;
 
             string searchFilter = "Name";
             IEnumerable<XElement> clashingElements = null;
@@ -224,9 +223,10 @@ namespace L5XAutomationTool
                     XElement schemaElement = validator.GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.Equals(complexType) ?? false);
                     IEnumerable<XElement> requiredAttributes = schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute")).Where(i => i.Attribute("use")?.Value.Equals("required") ?? false);
 
+                    // The parent element has required attributes that must be added
                     if (requiredAttributes.Any())
                     {
-                        throw new NotImplementedException();
+                        throw new ParentMissingException(element, requiredAttributes);
                     }
 
                     if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute") && i.Attribute("EditedDate") != null).Any())
@@ -245,6 +245,8 @@ namespace L5XAutomationTool
                 }
             }
 
+
+            XElement parentNode = null;
             string grandparentType = ElementInfo.RootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
@@ -257,7 +259,7 @@ namespace L5XAutomationTool
             }
             else if (grandParentNodes.Count() > 1)
             {
-                throw new NotImplementedException();
+                throw new ClashingElementException(grandParentNodes, parentNode);
             }
             else
             {

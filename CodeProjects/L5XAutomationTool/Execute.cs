@@ -168,9 +168,39 @@ namespace L5XAutomationTool
                 List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
                 List<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements);
 
-                // Get the selected element, then insert it
                 List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
-                Doc = _xml.InsertElement(Doc, returnedElement);
+                bool retry = false;
+                do
+                {
+                    try
+                    {
+                        // Get the selected element, then insert it
+                        Doc = _xml.InsertElement(Doc, returnedElement);
+                        retry = false;
+                    }
+                    catch (ParentMissingException ex)
+                    {
+                        List<XAttribute> requiredAttr= new List<XAttribute>();
+                        foreach (XElement schemAttr in ex.missingSchemaAttributes)
+                        {
+                            string attributeName = schemAttr.Attribute("name").Value;
+                            string displayName = (ex.parentNode.Attribute("Name") != null) ? ex.parentNode.Attribute("Name").Value : (ex.parentNode.Attribute("CatalogNumber") != null ? ex.parentNode.Attribute("CatalogNumber").Value : ex.parentNode.Name.ToString());
+
+                            string currentVal = ex.parentNode.Attribute(attributeName) != null ? ex.parentNode.Attribute(attributeName).Value : "";
+                            string newVal = _prompts.Prompt("Input a value for " + attributeName + " attribute of auto-generated " + displayName, currentVal, null, "Modify Element");
+
+                            ex.parentNode.SetAttributeValue(attributeName, newVal);
+                        }
+                        // Remove all elements in returned elements up to that broken element
+                        int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el,deep)));
+                        returnedElement.RemoveRange(0, indexElement+1);
+
+                        Doc = _xml.InsertElement(Doc, ex.parentNode);
+
+                        // Continue
+                        retry = true;
+                    }
+                } while (retry);
 
                 // Reset the helper
                 _xml.ElementInfo.ResetElements();
@@ -180,7 +210,6 @@ namespace L5XAutomationTool
                 insertElement = _messages.Confirm("Add another element from this file?", "Import Element");
             }
         }
-
 
         public void CreateElement()
         {
@@ -309,45 +338,7 @@ namespace L5XAutomationTool
                     }
                     catch (ClashingElementException clashEx)
                     {
-                        // Clash Resolution
-                        List<string> actionOps = new List<string>() { "Cancel", "Replace", "Rename" };
-                        string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(attributeFilter).Value}?", actionOps, "Clashing Elements");
-                        switch (selected)
-                        {
-                            case "Replace":
-                                // Replace the already existing element
-                                element = clashEx.clashingElements.Single();
-                                clashEx.clashingElements.Remove();
-                                retry = true;
-                                break;
-                            case "Rename":
-                                string renameElement;
-                                // Rename the element being inserted to not clash with existing element
-
-                                string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
-                                do
-                                {
-                                    if (attributeFilter == "Name")
-                                    {
-                                        renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", "", "New Name");
-                                    }
-                                    else
-                                    {
-                                        renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$", $"New {attributeFilter}");
-                                    }
-                                }
-                                while (clashEx.parentNode.Descendants(element.Name).Where(el => renameElement.ToLower().Equals(el.Attribute(attributeFilter)?.Value.ToLower().ToString())).Any());
-
-                                element.SetAttributeValue(attributeFilter, renameElement);
-                                retry = true;
-                                break;
-                            default:
-                                // Cancel insertion
-                                Console.WriteLine("Canceling Insertion");
-                                retry = false;
-                                break;
-                        }
-                        _xml.ElementInfo.RootPath.Clear();
+                        HandleClashes(clashEx.clashingElements, clashEx.parentNode);
                     }
                 } while (retry);
                 _xml.ElementInfo.RootPath.Clear();
@@ -534,6 +525,51 @@ namespace L5XAutomationTool
         {
             foreach (var (element, attr) in elements.Zip(attrs, (n, p) => (n, p)))
                 SetAttributes(element, attr);
+        }
+
+        internal XElement HandleClashes(IEnumerable<XElement> clashingElements, XElement parentNode)
+        {
+            string attributeFilter = "Name";
+            if (parentNode.Name.Equals("Module"))
+                attributeFilter = "CatalogNumber";
+
+            XElement element = null;
+            // Clash Resolution
+            List<string> actionOps = new List<string>() { "Cancel", "Replace", "Rename" };
+            string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(attributeFilter).Value}?", actionOps, "Clashing Elements");
+            switch (selected)
+            {
+                case "Replace":
+                    // Replace the already existing element
+                    element = clashingElements.Single();
+                    clashingElements.Remove();
+                    break;
+                case "Rename":
+                    string renameElement;
+                    // Rename the element being inserted to not clash with existing element
+
+                    string newAtrVal = element.Attribute(selected)?.Value.ToString() ?? "";
+                    do
+                    {
+                        if (attributeFilter == "Name")
+                        {
+                            renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", "", "New Name");
+                        }
+                        else
+                        {
+                            renameElement = _prompts.Prompt($"Element {element.Attribute(attributeFilter).Value} already exists. Input a new {selected}.", element.Attribute(selected)?.Value ?? "", @"^\d+\.\d$", $"New {attributeFilter}");
+                        }
+                    }
+                    while (parentNode.Descendants(element.Name).Where(el => renameElement.ToLower().Equals(el.Attribute(attributeFilter)?.Value.ToLower().ToString())).Any());
+
+                    element.SetAttributeValue(attributeFilter, renameElement);
+                    break;
+                default:
+                    // Cancel insertion
+                    break;
+            }
+            _xml.ElementInfo.RootPath.Clear();
+            return element;
         }
 
         #endregion
