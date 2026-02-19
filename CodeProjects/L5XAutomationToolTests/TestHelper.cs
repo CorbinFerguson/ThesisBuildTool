@@ -12,7 +12,8 @@ namespace L5XAutomationToolTests
 {
     internal class TestHelper
     {
-        private static readonly int shortWait = 500;
+        private static readonly int stdWait = 500;
+        private static readonly int shortWait = 50;
 
         public enum InputType
         {
@@ -123,7 +124,7 @@ namespace L5XAutomationToolTests
         public static void TextboxSetValue(Window parent, string inputText)
         {
             // Wait for window to appear
-            WaitMilliseconds(shortWait);
+            WaitMilliseconds(stdWait);
 
             Window textWindow = parent.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
             Assert.IsNotNull(textWindow, "Text input window not found.");
@@ -143,23 +144,24 @@ namespace L5XAutomationToolTests
 
             Confirm(textWindow);
 
+            WaitMilliseconds(shortWait);
+
             // Check that expected quantity inserted
-            textWindow = parent.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNull(textWindow, "Text window did not disappear");
+            Assert.IsFalse(textWindow.IsEnabled, "Text window did not disappear");
         }
 
-        public static void LoadDefault(Window actionSelect)
+        public static void LoadDefault()
         {
             string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
             // LOAD FILE
-            Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
+            Button loadButton = GUITesting.actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
 
             loadButton.Invoke();
-            TestHelper.WaitMilliseconds(shortWait);
+            TestHelper.WaitMilliseconds(stdWait);
 
-            Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
-            AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+            Window fileExplorer = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
+            AutomationElement filePathPane = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
             // Click button to get file path
             filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
@@ -179,7 +181,7 @@ namespace L5XAutomationToolTests
         public static Window GetStandardInput(InputType input)
         {
             // Wait for window to appear
-            WaitMilliseconds(shortWait);
+            WaitMilliseconds(stdWait);
 
             switch (input)
             {
