@@ -1,6 +1,7 @@
 using L5XAutomationTool;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Reporting;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
@@ -20,6 +21,7 @@ namespace L5XAutomationToolTests
 
         private Execute execute;
         private TestHelper helper;
+        public TestContext TestContext { get; set; }
 
         [TestInitialize]
         public void Setup()
@@ -48,6 +50,7 @@ namespace L5XAutomationToolTests
                 mockValidation.Object,
                 mockFileSystem.Object
             );
+            TestReport.Start(TestContext.TestName);
         }
 
         #region InitializeNew Tests

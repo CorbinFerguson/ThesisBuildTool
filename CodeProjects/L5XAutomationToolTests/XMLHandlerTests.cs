@@ -1,6 +1,7 @@
 using L5XAutomationTool;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Reporting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace L5XAutomationToolTests
         private XDocument testSchema;
         private TestHelper helper;
 
+        public TestContext TestContext { get; set; }
+
         [TestInitialize]
         public void Setup()
         {
@@ -30,6 +33,8 @@ namespace L5XAutomationToolTests
             mockValidator.Setup(v => v.GetSchema()).Returns(testSchema);
 
             xmlHandler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
+
+            TestReport.Start(TestContext.TestName);
         }
 
         [TestMethod]

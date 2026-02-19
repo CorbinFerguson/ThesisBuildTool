@@ -12,22 +12,24 @@ namespace Reporting
 {
     public static class TestReport
     {
+        #region Fields
         private static readonly string RunId = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
         private static string _reportsRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestReports"));
         private static bool _rootLocked = false;
 
+
+        private static readonly AsyncLocal<TestContextState> Current = new AsyncLocal<TestContextState>();
+        public static string CurrentTestFolder => Current.Value?.ClassFolder;
+        public static string CurrentTestFilePath => Current.Value?.HtmlPath;
+        #endregion
+
+        #region Setup
         public static void SetReportsRoot(string absolutePath)
         {
             if (_rootLocked) return;
             _reportsRoot = absolutePath ?? throw new ArgumentNullException("absolutePath");
             Directory.CreateDirectory(_reportsRoot);
         }
-
-        private static readonly AsyncLocal<TestContextState> Current = new AsyncLocal<TestContextState>();
-
-        public static string CurrentTestFolder => Current.Value?.ClassFolder;
-
-        public static string CurrentTestFilePath => Current.Value?.HtmlPath;
 
         public static void Start([CallerMemberName] string testName = null, string testClassName = null)
         {
@@ -122,7 +124,7 @@ namespace Reporting
             EnsureStarted();
             var ctx = Current.Value;
             var rel = MakePathRelative(absoluteOrRelativePath, ctx.ClassFolder);
-            WriteRow(ctx, "INFO", caption ?? "Screenshot", null, null, rel);
+            WriteRow(ctx, "INFO", caption ?? "Screenshot", rel);
         }
 
         public static void Section(string title)
@@ -134,53 +136,74 @@ namespace Reporting
         public static void Info(string message)
         {
             EnsureStarted();
-            WriteRow(Current.Value, "INFO", message, null, null, null);
+            WriteRow(Current.Value, "INFO", message, null);
         }
+        #endregion
 
-        public static void IsTrue(bool condition, string message, bool captureOnFailure = true)
+        #region Evaluations
+
+        public static void IsTrue(bool condition, string userMessage, bool captureOnFailure = true)
         {
-            Evaluate(condition, "True", condition.ToString(), message, captureOnFailure);
+            EnsureStarted();
+
+            var ctx = Current.Value;
+            ctx.AssertCount++;
+
+            if (condition)
+            {
+                WriteRow(ctx, "PASS", userMessage, null);
+            }
+            else
+            {
+                string relImg = null;
+                if (captureOnFailure && ctx.ScreenshotProvider != null)
+                {
+                    try
+                    {
+                        var shotPath = ctx.ScreenshotProvider();
+                        if (!string.IsNullOrEmpty(shotPath) && File.Exists(shotPath))
+                            relImg = MakePathRelative(shotPath, ctx.ClassFolder);
+                    }
+                    catch { /* best-effort */ }
+                }
+
+                WriteRow(ctx, "FAIL", userMessage, relImg);
+                ctx.Failures.Add(userMessage);
+            }
         }
 
         public static void IsFalse(bool condition, string message, bool captureOnFailure = true)
         {
-            Evaluate(!condition, "False", condition.ToString(), message, captureOnFailure);
+            IsTrue(!condition, message, captureOnFailure);
         }
 
         public static void IsNotNull(object obj, string message, bool captureOnFailure = true)
         {
-            var notNull = obj is object;
-            Evaluate(notNull, "not null", notNull ? "not null" : "null", message, captureOnFailure);
+            bool notNull = obj is null;
+            IsFalse(notNull, message, captureOnFailure);
         }
 
         public static void IsNull(object obj, string message, bool captureOnFailure = true)
         {
-            var isNull = obj is null;
-            Evaluate(isNull, "null", isNull ? "null" : "not null", message, captureOnFailure);
+            bool isNull = obj is null;
+            IsTrue(isNull, message, captureOnFailure);
         }
 
         public static void AreEqual<T>(T expected, T actual, string message, bool captureOnFailure = true)
         {
             bool ok = object.Equals(expected, actual);
-            Evaluate(ok, ToStr(expected), ToStr(actual), message, captureOnFailure);
+            IsTrue(ok, message, captureOnFailure);
         }
 
         public static void AreNotEqual<T>(T notExpected, T actual, string message, bool captureOnFailure = true)
         {
             bool ok = !object.Equals(notExpected, actual);
-            Evaluate(ok, "not " + ToStr(notExpected), ToStr(actual), message, captureOnFailure);
-        }
-
-        public static void Contains<T>(IEnumerable<T> sequence, T item, string message, bool captureOnFailure = true)
-        {
-            bool ok = false;
-            foreach (var x in sequence) { if (object.Equals(x, item)) { ok = true; break; } }
-            Evaluate(ok, "contains " + ToStr(item), ok ? "contains" : "does not contain", message, captureOnFailure);
+            IsTrue(ok, message, captureOnFailure);
         }
 
         public static void Fail(string message, bool captureScreenshot = true)
         {
-            Evaluate(false, "PASS", "FAIL", message, captureScreenshot);
+            IsTrue(false, message, captureScreenshot);
         }
 
         private static void StartInternal(string testName, string testClassName, string groupOrSuite = null)
@@ -225,42 +248,14 @@ namespace Reporting
             WriteHtmlHeader(ctx);
         }
 
-        private static void Evaluate(bool ok, string expected, string actual, string userMessage, bool captureOnFailure)
-        {
-            EnsureStarted();
-
-            var ctx = Current.Value;
-            ctx.AssertCount++;
-
-            var title = !string.IsNullOrEmpty(userMessage) ? userMessage : ("Expected: " + expected + ", Actual: " + actual);
-            if (ok)
-            {
-                WriteRow(ctx, "PASS", title, null, null, null);
-            }
-            else
-            {
-                string relImg = null;
-                if (captureOnFailure && ctx.ScreenshotProvider != null)
-                {
-                    try
-                    {
-                        var shotPath = ctx.ScreenshotProvider();
-                        if (!string.IsNullOrEmpty(shotPath) && File.Exists(shotPath))
-                            relImg = MakePathRelative(shotPath, ctx.ClassFolder);
-                    }
-                    catch { /* best-effort */ }
-                }
-
-                WriteRow(ctx, "FAIL", title, expected, actual, relImg);
-                ctx.Failures.Add(title + "  [Expected: " + expected + "] [Actual: " + actual + "]");
-            }
-        }
-
         private static void EnsureStarted()
         {
             if (Current.Value == null)
                 throw new InvalidOperationException("TestReport.Start(testName, testClassName) must be called in TestInitialize before using TestReport.*");
         }
+        #endregion
+
+        #region HTML_Write
 
         private static void WriteHtmlHeader(TestContextState ctx)
         {
@@ -300,7 +295,7 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
-        private static void WriteRow(TestContextState ctx, string level, string message, string expected, string actual, string relPathImage)
+        private static void WriteRow(TestContextState ctx, string level, string message, string relPathImage)
         {
             var now = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
             var sb = new StringBuilder();
@@ -309,13 +304,6 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             sb.Append("<div class='time'>" + Html(now) + "</div>");
             sb.Append("<div class='msg'>");
             sb.Append(Html(message ?? ""));
-            if (!string.IsNullOrEmpty(expected) || !string.IsNullOrEmpty(actual))
-            {
-                sb.Append("<div class='kv'>");
-                if (!string.IsNullOrEmpty(expected)) sb.Append("Expected: <b>" + Html(expected) + "</b>  ");
-                if (!string.IsNullOrEmpty(actual)) sb.Append("Actual: <b>" + Html(actual) + "</b>");
-                sb.Append("</div>");
-            }
             if (!string.IsNullOrEmpty(relPathImage))
             {
                 var cap = Path.GetFileName(relPathImage);
@@ -351,24 +339,6 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
-        private static readonly ConcurrentDictionary<string, object> _classFolderLocks =
-            new ConcurrentDictionary<string, object>();
-
-        private static object GetClassLock(string classFolder)
-        {
-            return _classFolderLocks.GetOrAdd(classFolder, _ => new object());
-        }
-
-        private static string ClassIndexDataPath(string classFolder)
-        {
-            return Path.Combine(classFolder, ".index.tsv");
-        }
-
-        private static string ClassIndexHtmlPath(string classFolder)
-        {
-            return Path.Combine(classFolder, "ReportIndex.html");
-        }
-
         private static void AppendIndexRowAndRegenerateIndex(
             string classFolder,
             string testName,
@@ -380,14 +350,15 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             TimeSpan duration,
             string reportFileName)
         {
-            var lockObj = GetClassLock(classFolder);
+            ConcurrentDictionary<string, object> _classFolderLocks = new ConcurrentDictionary<string, object>();
+            var lockObj = _classFolderLocks.GetOrAdd(classFolder, _ => new object());
 
             lock (lockObj)
             {
                 Directory.CreateDirectory(classFolder);
 
-                var tsvPath = ClassIndexDataPath(classFolder);
-                var htmlPath = ClassIndexHtmlPath(classFolder);
+                var tsvPath = Path.Combine(classFolder, ".index.tsv");
+                var htmlPath = Path.Combine(classFolder, "ReportIndex.html");
 
                 // Append one TSV row: TestName\tStatus\tAssertions\tFailures\tStartedUtc\tDuration\tReportFile
                 var row = string.Join("\t", new[]
@@ -477,8 +448,9 @@ tfoot td { font-weight:600; }
                 File.WriteAllText(htmlPath, sb.ToString());
             }
         }
+        #endregion
 
-        // ---------- Helpers ----------
+        #region Helpers
         private static string ClassSimpleName(string fullOrSimple)
         {
             if (string.IsNullOrEmpty(fullOrSimple)) return "UnknownClass";
@@ -524,14 +496,6 @@ tfoot td { font-weight:600; }
             return "TestClass";
         }
 
-        private static string ToStr(object x)
-        {
-            if (x == null) return "null";
-            if (x is string s) return s;
-            var conv = Convert.ToString(x, CultureInfo.InvariantCulture);
-            return conv ?? x.ToString();
-        }
-
         private static string Html(string s)
         {
             if (s == null) return "";
@@ -565,5 +529,6 @@ tfoot td { font-weight:600; }
             public bool FooterWritten;
             public Func<string> ScreenshotProvider;
         }
+        #endregion
     }
 }
