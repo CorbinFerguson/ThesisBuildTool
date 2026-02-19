@@ -3,6 +3,7 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using L5XAutomationTool.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reporting;
 using System;
 using System.IO;
 using System.Linq;
@@ -117,7 +118,7 @@ namespace L5XAutomationToolTests
         public static void Confirm(Window parent)
         {
             Button confirm = parent.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm"))).SingleOrDefault()?.AsButton();
-            Assert.IsNotNull(confirm, "Confirm button not found in window " + parent.Name);
+            TestReport.IsNotNull(confirm, "Confirm button not found in window " + parent.Name);
             confirm.Invoke();
         }
 
@@ -127,11 +128,11 @@ namespace L5XAutomationToolTests
             WaitMilliseconds(stdWait);
 
             Window textWindow = parent.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
-            Assert.IsNotNull(textWindow, "Text input window not found.");
+            TestReport.IsNotNull(textWindow, "Text input window not found.");
 
             // find the text input field
             TextBox textField = textWindow.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-            Assert.IsNotNull(textField, "Text input field not found.");
+            TestReport.IsNotNull(textField, "Text input field not found.");
 
             // Submit a name that already exists
             textField.Click();
@@ -140,14 +141,14 @@ namespace L5XAutomationToolTests
 
             string foundInput = textField.Text;
             string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
-            Assert.IsTrue(foundInput.Equals(inputText), errorMsg);
+            TestReport.IsTrue(foundInput.Equals(inputText), errorMsg);
 
             Confirm(textWindow);
 
             WaitMilliseconds(shortWait);
 
             // Check that expected quantity inserted
-            Assert.IsFalse(textWindow.IsEnabled, "Text window did not disappear");
+            TestReport.IsFalse(textWindow.IsEnabled, "Text window did not disappear");
         }
 
         public static void LoadDefault()
@@ -187,15 +188,15 @@ namespace L5XAutomationToolTests
             {
                 case InputType.Dropdown:
                     Window dropdown = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui"))).SingleOrDefault()?.AsWindow();
-                    Assert.IsNotNull(dropdown, "Dropdown Gui was not found");
+                    TestReport.IsNotNull(dropdown, "Dropdown Gui was not found");
                     return dropdown;
                 case InputType.MultiSelect:
                     Window multiSelect = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown"))).SingleOrDefault()?.AsWindow();
-                    Assert.IsNotNull(multiSelect, "MultiSelect dropdown was not found");
+                    TestReport.IsNotNull(multiSelect, "MultiSelect dropdown was not found");
                     return multiSelect;
                 case InputType.TextInput:
                     Window textInput = GUITesting.actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput"))).SingleOrDefault()?.AsWindow();
-                    Assert.IsNotNull(textInput, "Text input was not found");
+                    TestReport.IsNotNull(textInput, "Text input was not found");
                     return textInput;
                 default:
                     throw new NotImplementedException();
@@ -204,9 +205,9 @@ namespace L5XAutomationToolTests
     
         public static void CheckHomePage()
         {
-            TestHelper.WaitMilliseconds(50);
+            TestHelper.WaitMilliseconds(100);
             // Return to homepage
-            Assert.IsTrue(GUITesting.actionSelect.IsEnabled, "Did not return to homepage");
+            TestReport.IsTrue(GUITesting.actionSelect.IsEnabled, "Did not return to homepage");
         }
     }
 }

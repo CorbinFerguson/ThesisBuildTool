@@ -78,6 +78,7 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -89,6 +90,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestReport.cs" />
     <Compile Include="ExecuteTests.cs" />
     <Compile Include="GUITesting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
