@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -25,15 +25,9 @@ namespace Reporting
 
         private static readonly AsyncLocal<TestContextState> Current = new AsyncLocal<TestContextState>();
 
-        public static string CurrentTestFolder
-        {
-            get { return Current.Value?.ClassFolder; }
-        }
+        public static string CurrentTestFolder => Current.Value?.ClassFolder;
 
-        public static string CurrentTestFilePath
-        {
-            get { return Current.Value?.HtmlPath; }
-        }
+        public static string CurrentTestFilePath => Current.Value?.HtmlPath;
 
         public static void Start([CallerMemberName] string testName = null, string testClassName = null)
         {

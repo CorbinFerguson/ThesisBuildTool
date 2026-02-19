@@ -1,11 +1,8 @@
+using L5XAutomationTool;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
-using L5XAutomationTool;
 
 namespace L5XAutomationToolTests
 {
@@ -268,7 +265,7 @@ namespace L5XAutomationToolTests
             // Arrange
             Execute.Doc = helper.CreateBasicTestDocument();
             mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program", "Task" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -294,7 +291,7 @@ namespace L5XAutomationToolTests
             // Arrange
             Execute.Doc = helper.CreateBasicTestDocument();
             mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Module" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -323,7 +320,7 @@ namespace L5XAutomationToolTests
             // Arrange
             Execute.Doc = helper.CreateBasicTestDocument();
             mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -351,7 +348,7 @@ namespace L5XAutomationToolTests
             // Arrange
             string filePath = "C:\\test\\import.L5X";
             XDocument importDoc = helper.CreateBasicTestDocument();
-            
+
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(importDoc);
@@ -365,7 +362,7 @@ namespace L5XAutomationToolTests
                 .Returns(false); // Don't loop
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<List<XElement>>()))
                 .Returns(Execute.Doc);
-            
+
             Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
@@ -403,7 +400,7 @@ namespace L5XAutomationToolTests
             string filePath = "C:\\test\\import.L5X";
             XDocument importDoc = helper.CreateBasicTestDocument();
             int confirmCallCount = 0;
-            
+
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(importDoc);
@@ -417,7 +414,7 @@ namespace L5XAutomationToolTests
                 .Returns(() => confirmCallCount++ == 0); // Return true first time, false second
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<List<XElement>>()))
                 .Returns(Execute.Doc);
-            
+
             Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
@@ -440,7 +437,7 @@ namespace L5XAutomationToolTests
             XDocument templateDoc = helper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -457,7 +454,7 @@ namespace L5XAutomationToolTests
                 .Returns("Keep programs unscheduled");
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()))
                 .Returns(Execute.Doc);
-            
+
             Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
@@ -477,7 +474,7 @@ namespace L5XAutomationToolTests
             XDocument templateDoc = helper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Task" });
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -486,13 +483,13 @@ namespace L5XAutomationToolTests
                 .Returns("MainTask");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("3");
-            
+
             int nameCallCount = 0;
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => $"Task{++nameCallCount}");
             mockXmlHandler.Setup(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()))
                 .Returns(Execute.Doc);
-            
+
             Execute.Doc = helper.CreateBasicTestDocument();
 
             // Act
@@ -516,7 +513,7 @@ namespace L5XAutomationToolTests
             );
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
-            
+
             mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
                 .Returns(new List<string> { "Program" });
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -525,9 +522,9 @@ namespace L5XAutomationToolTests
                 .Returns("Orphan");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
-            
+
             Execute.Doc = helper.CreateBasicTestDocument();
-            
+
             // Mock schema to return no valid parents
             mockValidation.Setup(v => v.GetSchema()).Returns(new XDocument(
                 new XElement(helper.ns + "schema")
@@ -553,7 +550,7 @@ namespace L5XAutomationToolTests
                 new XAttribute("Name", "TestProgram"),
                 new XAttribute("Type", "Normal")
             };
-            
+
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string> { "Name" });
             mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -582,7 +579,7 @@ namespace L5XAutomationToolTests
                 new List<XAttribute> { new XAttribute("Name", "Program1") },
                 new List<XAttribute> { new XAttribute("Name", "Program2") }
             };
-            
+
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(new List<string>());
 

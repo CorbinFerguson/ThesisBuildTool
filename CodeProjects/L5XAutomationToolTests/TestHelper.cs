@@ -1,8 +1,6 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using L5XAutomationTool.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reporting;
 using System;
 using System.IO;
@@ -202,7 +200,7 @@ namespace L5XAutomationToolTests
                     throw new NotImplementedException();
             }
         }
-    
+
         public static void CheckHomePage()
         {
             TestHelper.WaitMilliseconds(100);

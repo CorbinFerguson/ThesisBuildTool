@@ -1,11 +1,10 @@
+using L5XAutomationTool;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
-using L5XAutomationTool;
 
 namespace L5XAutomationToolTests
 {

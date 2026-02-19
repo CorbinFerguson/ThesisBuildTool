@@ -1,6 +1,6 @@
-﻿using System;
+﻿using L5XAutomationTool.GUIAccessors;
+using System;
 using System.Windows.Forms;
-using L5XAutomationTool.GUIAccessors;
 
 namespace L5XAutomationTool
 {

@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using L5XAutomationTool.Forms;
 
 namespace L5XAutomationTool
 {
@@ -43,7 +41,7 @@ namespace L5XAutomationTool
 
         public void SetOwner(Form owner)
         {
-            this._prompts.OwnerForm = owner;
+            _prompts.OwnerForm = owner;
         }
 
         public void InitializeNew()
@@ -180,7 +178,7 @@ namespace L5XAutomationTool
                     }
                     catch (ParentMissingException ex)
                     {
-                        List<XAttribute> requiredAttr= new List<XAttribute>();
+                        List<XAttribute> requiredAttr = new List<XAttribute>();
                         foreach (XElement schemAttr in ex.missingSchemaAttributes)
                         {
                             string attributeName = schemAttr.Attribute("name").Value;
@@ -192,8 +190,8 @@ namespace L5XAutomationTool
                             ex.parentNode.SetAttributeValue(attributeName, newVal);
                         }
                         // Remove all elements in returned elements up to that broken element
-                        int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el,deep)));
-                        returnedElement.RemoveRange(0, indexElement+1);
+                        int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el, deep)));
+                        returnedElement.RemoveRange(0, indexElement + 1);
 
                         Doc = _xml.InsertElement(Doc, ex.parentNode);
 

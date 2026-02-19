@@ -5,13 +5,12 @@ using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Reporting;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Reporting;
 
 namespace L5XAutomationToolTests
 {
