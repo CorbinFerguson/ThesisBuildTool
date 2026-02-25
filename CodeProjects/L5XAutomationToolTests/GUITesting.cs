@@ -45,6 +45,7 @@ namespace L5XAutomationToolTests
 
             actionSelect = app.GetAllTopLevelWindows(automation).First();
             TestReport.IsNotNull(actionSelect, "Find ActionSelect window");
+
         }
 
         [TestCleanup]
@@ -349,8 +350,6 @@ namespace L5XAutomationToolTests
         {
             // CREATE
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
-
-            // Begin element creation
             createElementButton.Invoke();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 

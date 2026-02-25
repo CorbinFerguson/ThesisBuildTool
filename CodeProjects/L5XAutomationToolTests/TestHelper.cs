@@ -138,7 +138,7 @@ namespace L5XAutomationToolTests
             textField.Enter(inputText);
 
             string foundInput = textField.Text;
-            string errorMsg = string.Concat("Input quantity not equal to expected, found: ", foundInput);
+            string errorMsg = string.Concat("Input value not equal to expected, found: ", foundInput);
             TestReport.IsTrue(foundInput.Equals(inputText), errorMsg);
 
             Confirm(textWindow);
