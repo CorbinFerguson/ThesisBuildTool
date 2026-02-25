@@ -113,20 +113,6 @@ namespace Reporting
             }
         }
 
-        public static void SetScreenshotProvider(Func<string> capturePathFunc)
-        {
-            EnsureStarted();
-            Current.Value.ScreenshotProvider = capturePathFunc;
-        }
-
-        public static void AttachScreenshot(string absoluteOrRelativePath, string caption)
-        {
-            EnsureStarted();
-            var ctx = Current.Value;
-            var rel = MakePathRelative(absoluteOrRelativePath, ctx.ClassFolder);
-            WriteRow(ctx, "INFO", caption ?? "Screenshot", rel);
-        }
-
         public static void Section(string title)
         {
             EnsureStarted();
@@ -158,13 +144,7 @@ namespace Reporting
                 string relImg = null;
                 if (captureOnFailure && ctx.ScreenshotProvider != null)
                 {
-                    try
-                    {
-                        var shotPath = ctx.ScreenshotProvider();
-                        if (!string.IsNullOrEmpty(shotPath) && File.Exists(shotPath))
-                            relImg = MakePathRelative(shotPath, ctx.ClassFolder);
-                    }
-                    catch { /* best-effort */ }
+                    // Take screenshot for the test report
                 }
 
                 WriteRow(ctx, "FAIL", userMessage, relImg);
@@ -180,7 +160,7 @@ namespace Reporting
         public static void IsNotNull(object obj, string message, bool captureOnFailure = true)
         {
             bool notNull = obj is null;
-            IsFalse(notNull, message, captureOnFailure);
+            IsTrue(!notNull, message, captureOnFailure);
         }
 
         public static void IsNull(object obj, string message, bool captureOnFailure = true)
@@ -189,21 +169,9 @@ namespace Reporting
             IsTrue(isNull, message, captureOnFailure);
         }
 
-        public static void AreEqual<T>(T expected, T actual, string message, bool captureOnFailure = true)
+        public static void Fail(string message, bool captureOnFailure = true)
         {
-            bool ok = object.Equals(expected, actual);
-            IsTrue(ok, message, captureOnFailure);
-        }
-
-        public static void AreNotEqual<T>(T notExpected, T actual, string message, bool captureOnFailure = true)
-        {
-            bool ok = !object.Equals(notExpected, actual);
-            IsTrue(ok, message, captureOnFailure);
-        }
-
-        public static void Fail(string message, bool captureScreenshot = true)
-        {
-            IsTrue(false, message, captureScreenshot);
+            IsTrue(false, message, captureOnFailure);
         }
 
         private static void StartInternal(string testName, string testClassName, string groupOrSuite = null)
@@ -502,19 +470,6 @@ tfoot td { font-weight:600; }
             return System.Net.WebUtility.HtmlEncode(s);
         }
 
-        private static string MakePathRelative(string path, string baseFolder)
-        {
-            try
-            {
-                var full = Path.GetFullPath(path);
-                var baseFull = Path.GetFullPath(baseFolder);
-                var uri = new Uri(full);
-                var baseUri = new Uri(baseFull + Path.DirectorySeparatorChar);
-                var rel = baseUri.MakeRelativeUri(uri).ToString().Replace('/', Path.DirectorySeparatorChar);
-                return Uri.UnescapeDataString(rel);
-            }
-            catch { return path; }
-        }
 
         private sealed class TestContextState
         {
