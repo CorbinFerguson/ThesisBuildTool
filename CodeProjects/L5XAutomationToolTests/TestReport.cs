@@ -1,4 +1,6 @@
-﻿using System;
+﻿using L5XAutomationTool.Forms;
+using L5XAutomationToolTests;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -179,22 +181,25 @@ namespace Reporting
             EnsureStarted();
             var ctx = Current.Value;
             ctx.AssertCount++;
+            string imagePath = string.Empty;
 
             if (condition)
             {
                 WriteRow(ctx, "PASS", userMessage, null);
                 return;
             }
+            try
+            {
+                if (captureOnFailure)
+                    imagePath = TestHelper.TakeScreenshot(Path.Combine(_reportsRoot, RunId, "Images"));
+            }
+            catch
+            { 
+                // Swallow the error
+            }
 
-            // Capture where failure originated
-            var (caller, parent) = GetTwoFrames();
-            string file = caller?.GetFileName();
-            int line = caller?.GetFileLineNumber() ?? 0;
-            string method = caller?.GetMethod()?.Name ?? "<unknown>";
-            string parentMethod = parent?.GetMethod()?.Name;
-
-            WriteFailLocation(ctx, userMessage, file, line, method, parentMethod);
-            ctx.Failures.Add($"{userMessage} (at {method}, line {line})");
+            WriteRow(ctx, "FAIL", userMessage, imagePath);
+            ctx.Failures.Add(userMessage);
         }
 
         public static void IsFalse(bool condition, string message, bool captureOnFailure = true)
@@ -389,41 +394,6 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
-        /// <summary>
-        /// Writes details about where a failure occurred, including file, line number, and method.
-        /// </summary>
-        private static void WriteFailLocation(
-            TestContextState ctx,
-            string message,
-            string filePath,
-            int lineNumber,
-            string method,
-            string parentMethod)
-        {
-            var now = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
-            var sb = new StringBuilder();
-
-            sb.Append("<div class='row'>");
-            sb.Append("<div class='tag FAIL'>FAIL</div>");
-            sb.Append("<div class='time'>" + Html(now) + "</div>");
-            sb.Append("<div class='msg'>");
-            sb.Append(Html(message));
-            sb.Append("<div class='kv' style='margin-top:6px;'>");
-            sb.Append("File: " + Html(filePath) + "<br/>");
-            sb.Append("Line: " + lineNumber + "<br/>");
-            sb.Append("Method: " + Html(method) + "<br/>");
-
-            if (!string.IsNullOrEmpty(parentMethod))
-                sb.Append("Caller: " + Html(parentMethod) + "<br/>");
-
-            sb.Append("</div></div></div>\n");
-
-            lock (ctx.WriteLock)
-            {
-                File.AppendAllText(ctx.HtmlPath, sb.ToString());
-            }
-        }
-
         #endregion
 
         #region Index Generation
@@ -553,35 +523,6 @@ tfoot td { font-weight:600; }
         #endregion
 
         #region Helpers
-
-        /// <summary>
-        /// Returns the first two stack frames that do NOT belong to TestReport,
-        /// representing where an assertion actually occurred.
-        /// </summary>
-        private static (StackFrame caller, StackFrame parent) GetTwoFrames()
-        {
-            var st = new StackTrace(true);
-            StackFrame caller = null;
-            StackFrame parent = null;
-
-            for (int i = 0; i < st.FrameCount; i++)
-            {
-                var f = st.GetFrame(i);
-                var m = f?.GetMethod();
-
-                if (m?.DeclaringType == typeof(TestReport))
-                    continue;
-
-                if (caller == null)
-                    caller = f;
-                else
-                {
-                    parent = f;
-                    break;
-                }
-            }
-            return (caller, parent);
-        }
 
         private static string ClassSimpleName(string fullOrSimple)
         {

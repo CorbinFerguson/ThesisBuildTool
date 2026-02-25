@@ -150,7 +150,7 @@ namespace L5XAutomationToolTests
                 .SingleOrDefault()
                 ?.AsButton();
 
-            TestReport.IsNotNull(confirm, "Confirm button not found in window " + parent.Name);
+            TestReport.IsNotNull(confirm, "Find confirm button in: " + parent.Name);
             confirm.Invoke();
         }
 
@@ -167,7 +167,7 @@ namespace L5XAutomationToolTests
                 .SingleOrDefault()
                 ?.AsWindow();
 
-            TestReport.IsNotNull(textWindow, "Text input window not found.");
+            TestReport.IsNotNull(textWindow, "Verify TextInput window appears");
 
             // Locate the input field inside the dialog.
             TextBox textField = textWindow
@@ -175,7 +175,7 @@ namespace L5XAutomationToolTests
                 .SingleOrDefault()
                 ?.AsTextBox();
 
-            TestReport.IsNotNull(textField, "Text input field not found.");
+            TestReport.IsNotNull(textField, "Verify the field for text input appears");
 
             // Enter and verify the text.
             textField.Click();
@@ -183,13 +183,13 @@ namespace L5XAutomationToolTests
             textField.Enter(inputText);
 
             string foundInput = textField.Text;
-            string errorMsg = $"Input value not equal to expected, found: {foundInput}";
+            string errorMsg = $"Input Expected: {inputText}  | Input found: {foundInput}";
             TestReport.IsTrue(foundInput.Equals(inputText), errorMsg);
 
             // Submit and ensure the dialog closes.
             Confirm(textWindow);
             WaitMilliseconds(shortWait);
-            TestReport.IsFalse(textWindow.IsEnabled, "Text window did not disappear");
+            TestReport.IsFalse(textWindow.IsEnabled, "Verify TextInput window closes after input");
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace L5XAutomationToolTests
                             .SingleOrDefault()
                             ?.AsWindow();
 
-                        TestReport.IsNotNull(dropdown, "Dropdown Gui was not found");
+                        TestReport.IsNotNull(dropdown, "Verify dropdown window appears");
                         return dropdown;
                     }
 
@@ -269,7 +269,7 @@ namespace L5XAutomationToolTests
                             .SingleOrDefault()
                             ?.AsWindow();
 
-                        TestReport.IsNotNull(multiSelect, "MultiSelect dropdown was not found");
+                        TestReport.IsNotNull(multiSelect, "Verify multiselect dropdown window appears");
                         return multiSelect;
                     }
 
@@ -280,7 +280,7 @@ namespace L5XAutomationToolTests
                             .SingleOrDefault()
                             ?.AsWindow();
 
-                        TestReport.IsNotNull(textInput, "Text input was not found");
+                        TestReport.IsNotNull(textInput, "Verify TextInput window appears");
                         return textInput;
                     }
 
@@ -296,7 +296,23 @@ namespace L5XAutomationToolTests
         public static void CheckHomePage()
         {
             TestHelper.WaitMilliseconds(100);
-            TestReport.IsTrue(GUITesting.actionSelect.IsEnabled, "Did not return to homepage");
+            TestReport.IsTrue(GUITesting.actionSelect.IsEnabled, "Verify control returns to homepage(Action Select)");
+        }
+
+        #endregion
+
+        #region Screenshot handler
+
+        public static string TakeScreenshot(string imgPath)
+        {
+            string imagePathAndName = Enumerable.Range(0, int.MaxValue).Select(i => Path.Combine(imgPath, $"FailImage_{i}.jpg")).First(p => !File.Exists(p));
+
+            Directory.CreateDirectory(imgPath);
+
+            AutomationElement screenshot = GUITesting.actionSelect.FindFirstDescendant(win => win.ByControlType(ControlType.Window)) ?? GUITesting.actionSelect;
+            screenshot.CaptureToFile(imagePathAndName);
+
+            return imagePathAndName;
         }
 
         #endregion
