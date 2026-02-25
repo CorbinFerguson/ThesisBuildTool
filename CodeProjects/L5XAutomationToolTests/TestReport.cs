@@ -10,43 +10,68 @@ using System.Threading;
 
 namespace Reporting
 {
+    /// <summary>
+    /// Central reporting utility used by automated tests.
+    /// Creates an HTML report for every test, logs assertions,
+    /// and aggregates results into per-class index pages.
+    /// </summary>
     public static class TestReport
     {
         #region Fields
+        // Unique id for this test run (used to group report files)
         private static readonly string RunId = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
-        private static string _reportsRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestReports"));
+
+        // Root folder where all reports are stored
+        private static string _reportsRoot =
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestReports"));
+
+        // Once a test starts, lock root path from being changed
         private static bool _rootLocked = false;
 
+        // Async-local context for currently running test
         private static readonly AsyncLocal<TestContextState> Current = new AsyncLocal<TestContextState>();
+
         public static string CurrentTestFolder => Current.Value?.ClassFolder;
         public static string CurrentTestFilePath => Current.Value?.HtmlPath;
         #endregion
 
         #region Setup
+
+        /// <summary>
+        /// Set the root directory for all reports. May only be changed before a test starts.
+        /// </summary>
         public static void SetReportsRoot(string absolutePath)
         {
             if (_rootLocked) return;
-            _reportsRoot = absolutePath ?? throw new ArgumentNullException("absolutePath");
+            _reportsRoot = absolutePath ?? throw new ArgumentNullException(nameof(absolutePath));
             Directory.CreateDirectory(_reportsRoot);
         }
 
+        /// <summary>
+        /// Begin a test report. Usually invoked by MSTest TestInitialize.
+        /// Automatically detects test class and name if not provided.
+        /// </summary>
         public static void Start([CallerMemberName] string testName = null, string testClassName = null)
         {
             StartInternal(testName, testClassName);
         }
 
+        /// <summary>
+        /// Overload allowing an optional group/suite identifier.
+        /// </summary>
         public static void Start(string testName, string testClassName, string groupOrSuite = null)
         {
             StartInternal(testName, testClassName, groupOrSuite);
         }
 
+        /// <summary>
+        /// Finish the test and write summary footer. Throws if soft assertions failed.
+        /// </summary>
         public static void End()
         {
             EnsureStarted();
-
             var ctx = Current.Value;
 
-            // Compute summary BEFORE footer so we can write to the class index
             var ended = DateTime.Now;
             var duration = ended - ctx.StartedAt;
             var status = ctx.Failures.Count == 0 ? "PASS" : "FAIL";
@@ -56,12 +81,14 @@ namespace Reporting
 
             try
             {
+                // Write footer once
                 if (!ctx.FooterWritten)
                 {
                     WriteSummaryFooter(ctx);
                     ctx.FooterWritten = true;
                 }
 
+                // Append row to index and regenerate index page
                 try
                 {
                     AppendIndexRowAndRegenerateIndex(
@@ -78,27 +105,34 @@ namespace Reporting
                 }
                 catch
                 {
-                    // Never let index generation break the test outcome
+                    // Index generation failure should never break tests
                 }
             }
             finally
             {
+                // If recorded failures exist, throw aggregated test error
                 if (ctx.Failures.Count > 0)
                 {
-                    var msg = "Soft assertion failures (" + ctx.Failures.Count + "):\n - " +
-                              string.Join("\n - ", ctx.Failures);
-                    Current.Value = null;   // clear before throwing
+                    var msg =
+                        $"Soft assertion failures ({ctx.Failures.Count}):\n - " +
+                        string.Join("\n - ", ctx.Failures);
+
+                    Current.Value = null;
                     throw new Exception(msg);
                 }
+
                 Current.Value = null;
             }
         }
 
+        /// <summary>
+        /// Throws immediately if there are any soft assertion failures encountered so far.
+        /// </summary>
         public static void AssertAll()
         {
             EnsureStarted();
-
             var ctx = Current.Value;
+
             if (ctx.Failures.Count > 0)
             {
                 if (!ctx.FooterWritten)
@@ -106,27 +140,40 @@ namespace Reporting
                     WriteSummaryFooter(ctx);
                     ctx.FooterWritten = true;
                 }
-                var msg = "Soft assertion failures (" + ctx.Failures.Count + "):\n - " +
-                          string.Join("\n - ", ctx.Failures);
+
+                var msg =
+                    $"Soft assertion failures ({ctx.Failures.Count}):\n - " +
+                    string.Join("\n - ", ctx.Failures);
+
                 throw new Exception(msg);
             }
         }
 
+        /// <summary>
+        /// Adds a visual divider section in the report to group related output.
+        /// </summary>
         public static void Section(string title)
         {
             EnsureStarted();
             WriteSection(Current.Value, title);
         }
 
+        /// <summary>
+        /// Logs an informational row into the test report.
+        /// </summary>
         public static void Info(string message)
         {
             EnsureStarted();
             WriteRow(Current.Value, "INFO", message, null);
         }
+
         #endregion
 
-        #region Evaluations
+        #region Evaluations (Assertions)
 
+        /// <summary>
+        /// Soft assertion for truth values. Logs result into report.
+        /// </summary>
         public static void IsTrue(bool condition, string userMessage, bool captureOnFailure = true)
         {
             EnsureStarted();
@@ -139,74 +186,71 @@ namespace Reporting
                 return;
             }
 
+            // Capture where failure originated
             var (caller, parent) = GetTwoFrames();
-
             string file = caller?.GetFileName();
             int line = caller?.GetFileLineNumber() ?? 0;
             string method = caller?.GetMethod()?.Name ?? "<unknown>";
-
             string parentMethod = parent?.GetMethod()?.Name;
+
             WriteFailLocation(ctx, userMessage, file, line, method, parentMethod);
             ctx.Failures.Add($"{userMessage} (at {method}, line {line})");
         }
 
-
-        public static void IsFalse(
-            bool condition,
-            string message,
-            bool captureOnFailure = true)
+        public static void IsFalse(bool condition, string message, bool captureOnFailure = true)
         {
             IsTrue(!condition, message, captureOnFailure);
         }
 
-        public static void IsNotNull(
-            object obj,
-            string message,
-            bool captureOnFailure = true)
+        public static void IsNotNull(object obj, string message, bool captureOnFailure = true)
         {
-            bool notNull = obj is null;
-            IsTrue(!notNull, message, captureOnFailure);
+            IsTrue(obj != null, message, captureOnFailure);
         }
 
-        public static void IsNull(
-            object obj,
-            string message,
-            bool captureOnFailure = true)
+        public static void IsNull(object obj, string message, bool captureOnFailure = true)
         {
-            bool isNull = obj is null;
-            IsTrue(isNull, message, captureOnFailure);
+            IsTrue(obj == null, message, captureOnFailure);
         }
 
-        public static void Fail(
-            string message,
-            bool captureOnFailure = true)
+        public static void Fail(string message, bool captureOnFailure = true)
         {
             IsTrue(false, message, captureOnFailure);
         }
 
+        #endregion
+
+        #region Internal Setup Logic
+
+        /// <summary>
+        /// Creates the test context, directory structure, and initial HTML file.
+        /// </summary>
         private static void StartInternal(string testName, string testClassName, string groupOrSuite = null)
         {
-            if (Current.Value != null) return; // already started for this thread
+            // Prevent double-start on same thread
+            if (Current.Value != null) return;
+
             _rootLocked = true;
 
+            // Detect names if needed
             var tn = !string.IsNullOrEmpty(testName) ? testName : AutoDetectTestName();
             var cn = !string.IsNullOrEmpty(testClassName) ? testClassName : AutoDetectTestClass();
-
             var classSimple = ClassSimpleName(cn);
 
+            // Create root folder for this run
             var runRoot = Path.Combine(_reportsRoot, RunId);
             Directory.CreateDirectory(runRoot);
 
-            string classFolder;
-            if (!string.IsNullOrEmpty(groupOrSuite))
-                classFolder = Path.Combine(runRoot, Sanitize(groupOrSuite), Sanitize(classSimple));
-            else
-                classFolder = Path.Combine(runRoot, Sanitize(classSimple));
+            // Optional grouping (suite/subfolder)
+            string classFolder = !string.IsNullOrEmpty(groupOrSuite)
+                ? Path.Combine(runRoot, Sanitize(groupOrSuite), Sanitize(classSimple))
+                : Path.Combine(runRoot, Sanitize(classSimple));
 
             Directory.CreateDirectory(classFolder);
 
+            // Path for the HTML report file
             var htmlFile = Path.Combine(classFolder, Sanitize(tn) + ".html");
 
+            // Construct new context
             var ctx = new TestContextState
             {
                 TestName = tn,
@@ -223,27 +267,38 @@ namespace Reporting
 
             Current.Value = ctx;
 
+            // Write initial HTML boilerplate
             WriteHtmlHeader(ctx);
         }
 
+        /// <summary>
+        /// Ensures Start() was called before any reporting.
+        /// </summary>
         private static void EnsureStarted()
         {
             if (Current.Value == null)
-                throw new InvalidOperationException("TestReport.Start(testName, testClassName) must be called in TestInitialize before using TestReport.*");
+                throw new InvalidOperationException(
+                    "TestReport.Start(testName, testClassName) must be called before using TestReport.");
         }
+
         #endregion
 
-        #region HTML_Write
+        #region HTML Formatting
 
+        /// <summary>
+        /// Writes the initial HTML layout including header and metadata.
+        /// </summary>
         private static void WriteHtmlHeader(TestContextState ctx)
         {
             lock (ctx.WriteLock)
             {
                 var sb = new StringBuilder();
+
                 sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>");
                 sb.AppendLine("<title>Test Report - " + Html(ctx.TestClassName + "." + ctx.TestName) + "</title>");
-                sb.AppendLine(
-@"<style>
+
+                sb.AppendLine(@"
+<style>
 body { font-family: Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
 h1 { margin: 0 0 8px 0; }
 .meta { color:#555; margin-bottom: 16px; }
@@ -259,12 +314,17 @@ h1 { margin: 0 0 8px 0; }
 img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
 .summary { margin-top: 16px; padding-top: 8px; border-top: 2px solid #ddd; }
 </style></head><body>");
+
                 sb.AppendLine("<h1>" + Html(ctx.TestClassName + "." + ctx.TestName) + "</h1>");
                 sb.AppendLine("<div class='meta'>Started: " + Html(ctx.StartedAt.ToString("u")) + "</div>");
+
                 File.WriteAllText(ctx.HtmlPath, sb.ToString());
             }
         }
 
+        /// <summary>
+        /// Writes a labeled section divider in the report.
+        /// </summary>
         private static void WriteSection(TestContextState ctx, string title)
         {
             lock (ctx.WriteLock)
@@ -273,15 +333,21 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
+        /// <summary>
+        /// Appends a row to the report (INFO/PASS/FAIL).
+        /// </summary>
         private static void WriteRow(TestContextState ctx, string level, string message, string relPathImage)
         {
             var now = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
             var sb = new StringBuilder();
+
             sb.Append("<div class='row'>");
             sb.Append("<div class='tag " + level + "'>" + level + "</div>");
             sb.Append("<div class='time'>" + Html(now) + "</div>");
             sb.Append("<div class='msg'>");
             sb.Append(Html(message ?? ""));
+
+            // Optional screenshot embedding
             if (!string.IsNullOrEmpty(relPathImage))
             {
                 var cap = Path.GetFileName(relPathImage);
@@ -290,6 +356,7 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
                 sb.Append("<img src='" + Html(relPathImage) + "' alt='screenshot' />");
                 sb.Append("</a>");
             }
+
             sb.Append("</div></div>\n");
 
             lock (ctx.WriteLock)
@@ -298,10 +365,15 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
+        /// <summary>
+        /// Summary footer written at end of the test.
+        /// Includes basic execution metrics.
+        /// </summary>
         private static void WriteSummaryFooter(TestContextState ctx)
         {
             var ended = DateTime.Now;
             var dur = ended - ctx.StartedAt;
+
             var sb = new StringBuilder();
             sb.AppendLine("<div class='summary'>");
             sb.AppendLine("Ended: " + Html(ended.ToString("u")) + "<br/>");
@@ -317,6 +389,9 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
+        /// <summary>
+        /// Writes details about where a failure occurred, including file, line number, and method.
+        /// </summary>
         private static void WriteFailLocation(
             TestContextState ctx,
             string message,
@@ -326,14 +401,13 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             string parentMethod)
         {
             var now = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
-
             var sb = new StringBuilder();
+
             sb.Append("<div class='row'>");
             sb.Append("<div class='tag FAIL'>FAIL</div>");
             sb.Append("<div class='time'>" + Html(now) + "</div>");
             sb.Append("<div class='msg'>");
             sb.Append(Html(message));
-
             sb.Append("<div class='kv' style='margin-top:6px;'>");
             sb.Append("File: " + Html(filePath) + "<br/>");
             sb.Append("Line: " + lineNumber + "<br/>");
@@ -350,6 +424,14 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
+        #endregion
+
+        #region Index Generation
+
+        /// <summary>
+        /// Appends a TSV entry for this test result and regenerates
+        /// the per-class HTML index page.
+        /// </summary>
         private static void AppendIndexRowAndRegenerateIndex(
             string classFolder,
             string testName,
@@ -361,7 +443,10 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             TimeSpan duration,
             string reportFileName)
         {
-            ConcurrentDictionary<string, object> _classFolderLocks = new ConcurrentDictionary<string, object>();
+            // Local per-folder lock table
+            ConcurrentDictionary<string, object> _classFolderLocks =
+                new ConcurrentDictionary<string, object>();
+
             var lockObj = _classFolderLocks.GetOrAdd(classFolder, _ => new object());
 
             lock (lockObj)
@@ -371,28 +456,30 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
                 var tsvPath = Path.Combine(classFolder, ".index.tsv");
                 var htmlPath = Path.Combine(classFolder, "ReportIndex.html");
 
-                // Append one TSV row: TestName\tStatus\tAssertions\tFailures\tStartedUtc\tDuration\tReportFile
+                // Append TSV row
                 var row = string.Join("\t", new[]
                 {
                     testName ?? "",
                     status ?? "",
                     assertCount.ToString(CultureInfo.InvariantCulture),
                     failureCount.ToString(CultureInfo.InvariantCulture),
-                    startedAt.ToUniversalTime().ToString("u").TrimEnd('Z'), // ISO-like UTC
+                    startedAt.ToUniversalTime().ToString("u").TrimEnd('Z'),
                     duration.ToString(@"hh\:mm\:ss\.fff"),
                     reportFileName ?? ""
                 }) + Environment.NewLine;
 
                 File.AppendAllText(tsvPath, row);
 
-                // Rebuild HTML index from TSV
+                // Rebuild HTML index page
                 var lines = File.ReadAllLines(tsvPath);
 
-                var pass = 0; var fail = 0;
+                int pass = 0, fail = 0;
                 var sb = new StringBuilder();
+
                 sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>");
                 sb.AppendLine("<title>" + Html(testClassName) + " - Report Index</title>");
-                sb.AppendLine(@"<style>
+                sb.AppendLine(@"
+<style>
 body { font-family: Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
 h1 { margin: 0 0 12px 0; }
 .meta { color:#555; margin-bottom: 16px; }
@@ -405,9 +492,10 @@ th { background:#f7f7f7; }
 tfoot td { font-weight:600; }
 .small { color:#666; font-size:12px; }
 </style></head><body>");
-                sb.AppendLine("<h1>" + Html(testClassName) + " – Report Index</h1>");
-                sb.AppendLine("<div class='meta'>Run Id: " + Html(RunId) + " • Generated: " + Html(DateTime.Now.ToString("u")) + "</div>");
 
+                sb.AppendLine("<h1>" + Html(testClassName) + " – Report Index</h1>");
+                sb.AppendLine("<div class='meta'>Run Id: " + Html(RunId) +
+                              " • Generated: " + Html(DateTime.Now.ToString("u")) + "</div>");
                 sb.AppendLine("<table>");
                 sb.AppendLine("<thead><tr>" +
                               "<th>#</th><th>Test</th><th>Status</th><th>Assertions</th><th>Failures</th>" +
@@ -446,6 +534,7 @@ tfoot td { font-weight:600; }
                 }
 
                 sb.AppendLine("</tbody>");
+
                 sb.AppendLine("<tfoot><tr>" +
                               "<td colspan='2'>Totals</td>" +
                               "<td>" + (pass + fail) + " tests</td>" +
@@ -453,41 +542,44 @@ tfoot td { font-weight:600; }
                               "<td>" + fail + " failed</td>" +
                               "<td colspan='3'>Pass: " + pass + " • Fail: " + fail + "</td>" +
                               "</tr></tfoot>");
+
                 sb.AppendLine("</table>");
                 sb.AppendLine("</body></html>");
 
                 File.WriteAllText(htmlPath, sb.ToString());
             }
         }
+
         #endregion
 
         #region Helpers
 
+        /// <summary>
+        /// Returns the first two stack frames that do NOT belong to TestReport,
+        /// representing where an assertion actually occurred.
+        /// </summary>
         private static (StackFrame caller, StackFrame parent) GetTwoFrames()
         {
-            var st = new StackTrace(true); // capture file/line info
+            var st = new StackTrace(true);
             StackFrame caller = null;
             StackFrame parent = null;
 
-            // Skip frames belonging to TestReport
             for (int i = 0; i < st.FrameCount; i++)
             {
                 var f = st.GetFrame(i);
-                var m = f.GetMethod();
+                var m = f?.GetMethod();
+
                 if (m?.DeclaringType == typeof(TestReport))
                     continue;
 
                 if (caller == null)
-                {
                     caller = f;
-                }
-                else if (parent == null)
+                else
                 {
                     parent = f;
                     break;
                 }
             }
-
             return (caller, parent);
         }
 
@@ -501,8 +593,10 @@ tfoot td { font-weight:600; }
         private static string Sanitize(string name)
         {
             if (string.IsNullOrEmpty(name)) return "Test";
+
             foreach (var c in Path.GetInvalidFileNameChars())
                 name = name.Replace(c, '_');
+
             return name.Trim();
         }
 
@@ -510,14 +604,19 @@ tfoot td { font-weight:600; }
         {
             var rn = typeof(TestReport).FullName ?? "";
             var st = new StackTrace();
+
+            // Find first frame outside TestReport
             for (int i = 1; i < st.FrameCount; i++)
             {
                 var m = st.GetFrame(i)?.GetMethod();
                 var t = m?.DeclaringType;
                 var full = t?.FullName;
+
                 if (full != null && full.IndexOf(rn, StringComparison.Ordinal) < 0)
-                    return (m != null ? m.Name : "TestMethod");
+                    return m != null ? m.Name : "TestMethod";
             }
+
+            // Fallback name
             return "Test_" + Guid.NewGuid().ToString("N").Substring(0, 6);
         }
 
@@ -525,14 +624,17 @@ tfoot td { font-weight:600; }
         {
             var rn = typeof(TestReport).FullName ?? "";
             var st = new StackTrace();
+
             for (int i = 1; i < st.FrameCount; i++)
             {
                 var m = st.GetFrame(i)?.GetMethod();
                 var t = m?.DeclaringType;
                 var full = t?.FullName;
+
                 if (full != null && full.IndexOf(rn, StringComparison.Ordinal) < 0)
                     return t != null ? t.FullName : "TestClass";
             }
+
             return "TestClass";
         }
 
@@ -542,7 +644,9 @@ tfoot td { font-weight:600; }
             return System.Net.WebUtility.HtmlEncode(s);
         }
 
-
+        /// <summary>
+        /// Holds all relevant per-test state.
+        /// </summary>
         private sealed class TestContextState
         {
             public string TestName;
@@ -556,6 +660,7 @@ tfoot td { font-weight:600; }
             public bool FooterWritten;
             public Func<string> ScreenshotProvider;
         }
+
         #endregion
     }
 }
