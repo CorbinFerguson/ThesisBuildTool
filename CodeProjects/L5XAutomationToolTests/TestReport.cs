@@ -17,7 +17,6 @@ namespace Reporting
         private static string _reportsRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestReports"));
         private static bool _rootLocked = false;
 
-
         private static readonly AsyncLocal<TestContextState> Current = new AsyncLocal<TestContextState>();
         public static string CurrentTestFolder => Current.Value?.ClassFolder;
         public static string CurrentTestFilePath => Current.Value?.HtmlPath;
@@ -131,45 +130,56 @@ namespace Reporting
         public static void IsTrue(bool condition, string userMessage, bool captureOnFailure = true)
         {
             EnsureStarted();
-
             var ctx = Current.Value;
             ctx.AssertCount++;
 
             if (condition)
             {
                 WriteRow(ctx, "PASS", userMessage, null);
+                return;
             }
-            else
-            {
-                string relImg = null;
-                if (captureOnFailure && ctx.ScreenshotProvider != null)
-                {
-                    // Take screenshot for the test report
-                }
 
-                WriteRow(ctx, "FAIL", userMessage, relImg);
-                ctx.Failures.Add(userMessage);
-            }
+            var (caller, parent) = GetTwoFrames();
+
+            string file = caller?.GetFileName();
+            int line = caller?.GetFileLineNumber() ?? 0;
+            string method = caller?.GetMethod()?.Name ?? "<unknown>";
+
+            string parentMethod = parent?.GetMethod()?.Name;
+            WriteFailLocation(ctx, userMessage, file, line, method, parentMethod);
+            ctx.Failures.Add($"{userMessage} (at {method}, line {line})");
         }
 
-        public static void IsFalse(bool condition, string message, bool captureOnFailure = true)
+
+        public static void IsFalse(
+            bool condition,
+            string message,
+            bool captureOnFailure = true)
         {
             IsTrue(!condition, message, captureOnFailure);
         }
 
-        public static void IsNotNull(object obj, string message, bool captureOnFailure = true)
+        public static void IsNotNull(
+            object obj,
+            string message,
+            bool captureOnFailure = true)
         {
             bool notNull = obj is null;
             IsTrue(!notNull, message, captureOnFailure);
         }
 
-        public static void IsNull(object obj, string message, bool captureOnFailure = true)
+        public static void IsNull(
+            object obj,
+            string message,
+            bool captureOnFailure = true)
         {
             bool isNull = obj is null;
             IsTrue(isNull, message, captureOnFailure);
         }
 
-        public static void Fail(string message, bool captureOnFailure = true)
+        public static void Fail(
+            string message,
+            bool captureOnFailure = true)
         {
             IsTrue(false, message, captureOnFailure);
         }
@@ -307,6 +317,39 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
         }
 
+        private static void WriteFailLocation(
+            TestContextState ctx,
+            string message,
+            string filePath,
+            int lineNumber,
+            string method,
+            string parentMethod)
+        {
+            var now = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+
+            var sb = new StringBuilder();
+            sb.Append("<div class='row'>");
+            sb.Append("<div class='tag FAIL'>FAIL</div>");
+            sb.Append("<div class='time'>" + Html(now) + "</div>");
+            sb.Append("<div class='msg'>");
+            sb.Append(Html(message));
+
+            sb.Append("<div class='kv' style='margin-top:6px;'>");
+            sb.Append("File: " + Html(filePath) + "<br/>");
+            sb.Append("Line: " + lineNumber + "<br/>");
+            sb.Append("Method: " + Html(method) + "<br/>");
+
+            if (!string.IsNullOrEmpty(parentMethod))
+                sb.Append("Caller: " + Html(parentMethod) + "<br/>");
+
+            sb.Append("</div></div></div>\n");
+
+            lock (ctx.WriteLock)
+            {
+                File.AppendAllText(ctx.HtmlPath, sb.ToString());
+            }
+        }
+
         private static void AppendIndexRowAndRegenerateIndex(
             string classFolder,
             string testName,
@@ -419,6 +462,35 @@ tfoot td { font-weight:600; }
         #endregion
 
         #region Helpers
+
+        private static (StackFrame caller, StackFrame parent) GetTwoFrames()
+        {
+            var st = new StackTrace(true); // capture file/line info
+            StackFrame caller = null;
+            StackFrame parent = null;
+
+            // Skip frames belonging to TestReport
+            for (int i = 0; i < st.FrameCount; i++)
+            {
+                var f = st.GetFrame(i);
+                var m = f.GetMethod();
+                if (m?.DeclaringType == typeof(TestReport))
+                    continue;
+
+                if (caller == null)
+                {
+                    caller = f;
+                }
+                else if (parent == null)
+                {
+                    parent = f;
+                    break;
+                }
+            }
+
+            return (caller, parent);
+        }
+
         private static string ClassSimpleName(string fullOrSimple)
         {
             if (string.IsNullOrEmpty(fullOrSimple)) return "UnknownClass";
