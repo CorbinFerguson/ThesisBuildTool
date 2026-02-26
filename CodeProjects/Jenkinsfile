@@ -7,22 +7,21 @@ pipeline {
 		stage('Checkout') {
 			steps {
 				checkout scm
-				cd CodeProjects\L5XAutomationTool
 			}
 		}
 		stage('Restore') {
             steps {
-                sh 'dotnet restore'
+                sh 'dotnet restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln'
             }
         }
         stage('Build') {
             steps {
-				sh 'dotnet build L5XAutomationToolProject.sln --configuration Release --no-restore'
+				sh 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-restore'
             }
         }
         stage('Test') {
             steps {
-                sh 'dotnet test L5XAutomationToolProject.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
+                sh 'dotnet test ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
             }
 			post {
                 always {
