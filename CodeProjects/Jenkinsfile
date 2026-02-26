@@ -20,12 +20,12 @@ pipeline {
             }
         }
         stage('Test') {
+                bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --logger trx --no-build --no-restore'
             steps {
-                bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --no-build --no-restore'
             }
 			post {
                 always {
-                    // mstest(testResultsFile: "./CodeProjects/JenkinsResults/test_results.trx", keepLongStdio: true)
+                    mstest(testResultsFile: "**/*.trx", keepLongStdio: true)
                 }
             }
 
