@@ -1,5 +1,7 @@
 pipeline {
-    node('windows&&corbinThesis'){
+    agent{
+		label 'corbinThesis'
+	}
 
     stages {
 		stage('Checkout') {
