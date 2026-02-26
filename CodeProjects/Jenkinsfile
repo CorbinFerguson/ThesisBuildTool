@@ -11,21 +11,21 @@ pipeline {
 		}
 		stage('Restore') {
             steps {
-                powershell 'dotnet restore'
+                sh 'dotnet restore'
             }
         }
         stage('Build') {
             steps {
-				powershell 'dotnet build --configuration Release --no-restore'
+				sh 'dotnet build --configuration Release --no-restore'
             }
         }
         stage('Test') {
             steps {
-                powershell 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
+                sh 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
             }
 			post {
                 always {
-                    mstest 'test_results.trx'
+                    mstest testResultsFile: "test_results.trx/*.trx", keepLongStdio: true
                 }
             }
 
