@@ -1,5 +1,5 @@
 pipeline {
-    node( label 'windows && corbinThesis' ){
+    node('windows&&corbinThesis'){
 
     stages {
 		stage('Checkout') {
