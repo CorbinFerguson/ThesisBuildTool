@@ -22,11 +22,11 @@ pipeline {
         }
         stage('Test') {
             steps {
-                bat 'dotnet test --solution ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-build --no-restore --results-directory ./CodeProjects/JenkinsResults'
+                bat 'dotnet test ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-build --no-restore --logger ./CodeProjects/JenkinsResults'
             }
 			post {
                 always {
-                    mstest testResultsFile: "./CodeProjects/JenkinsResultstest_results.trx/*.trx", keepLongStdio: true
+                    bat 'mstest(testResultsFile: "./CodeProjects/JenkinsResultstest_results.trx/*.trx", keepLongStdio: true)'
                 }
             }
 
