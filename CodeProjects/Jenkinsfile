@@ -21,11 +21,11 @@ pipeline {
         }
         stage('Test') {
             steps {
-				bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --logger "trx;logfilename=mytests.trx" --no-build --no-restore --results-directory ./CodeProjects/TestResults'
+				bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --logger "trx;logfilename=mytests.trx" --no-build --no-restore --results-directory ./CodeProjects/TestResults --collect:"Code Coverage"'
             }
 			post {
                 always {
-                    mstest(testResultsFile: "CodeProjects/TestResults/*.trx", keepLongStdio: true)
+                    mstest(testResultsFile: "CodeProjects/TestResults/*.trx", keepLongStdio: true, failOnError: false)
                 }
             }
         }
