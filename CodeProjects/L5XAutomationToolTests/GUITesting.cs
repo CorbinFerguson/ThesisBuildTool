@@ -351,23 +351,27 @@ namespace L5XAutomationToolTests
         {
             // CREATE
             // Find and invoke create element button
+            TestReport.Section("Find and invoke create element button");
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
             createElementButton.Invoke();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
+            TestReport.Section("Select element type to create");
             Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
             TestReport.IsNotNull(selectedItem, "Select desired element type from dropdown");
             selectedItem.DoubleClick();
 
             // Select element template to use
+            TestReport.Section("Select element template to use");
             Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             ListBoxItem selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(selectedTemplate, "Select desired element type from dropdown");
             selectedTemplate.DoubleClick();
 
             // Input quantity to create and handle clash resolution for each
+            TestReport.Section("Input quantity to create and handle clash resolution for each");
             int quantityToAdd = 4;
             TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
@@ -382,6 +386,7 @@ namespace L5XAutomationToolTests
 
                     if (i == 1)
                     {
+                        TestReport.Info("Resolution style: Replace");
                         // Resolution style: Replace
                         ListBoxItem replace = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Replace"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(replace, "Choose Replace in clash resolution");
@@ -389,6 +394,7 @@ namespace L5XAutomationToolTests
                     }
                     else if (i == 2)
                     {
+                        TestReport.Info("Resolution style: Rename");
                         // Resolution style: Rename
                         ListBoxItem rename = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Rename"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(rename, "Choose Rename in clash resolution");
@@ -399,6 +405,7 @@ namespace L5XAutomationToolTests
                     }
                     else if (i == 3)
                     {
+                        TestReport.Info("Resolution style: Cancel");
                         // Resolution style: Cancel
                         ListBoxItem cancel = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Cancel"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(cancel, "Choose Cancel in clash resolution");

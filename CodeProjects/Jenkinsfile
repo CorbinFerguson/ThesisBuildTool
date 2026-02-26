@@ -7,21 +7,22 @@ pipeline {
 		stage('Checkout') {
 			steps {
 				checkout scm
+				echo "Current workspace is: ${env.WORKSPACE}"
 			}
 		}
 		stage('Restore') {
             steps {
-                sh 'dotnet restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln'
+                sh 'dotnet restore ./L5XAutomationTool/L5XAutomationToolProject.sln'
             }
         }
         stage('Build') {
             steps {
-				sh 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-restore'
+				sh 'dotnet build ./L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-restore'
             }
         }
         stage('Test') {
             steps {
-                sh 'dotnet test ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
+                sh 'dotnet test ./L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
             }
 			post {
                 always {
