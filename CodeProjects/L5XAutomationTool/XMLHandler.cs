@@ -58,7 +58,6 @@ namespace L5XAutomationTool
                         // If it doesn't, insert dependency into file
                         XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
 
-                        Console.WriteLine("Dependency element found: " + dependentElement.Attribute("Name").Value);
                         docToInsert = InsertElement(docToInsert, dependentElement);
                     }
                 }

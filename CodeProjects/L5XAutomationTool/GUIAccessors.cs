@@ -196,7 +196,6 @@ namespace L5XAutomationTool.GUIAccessors
                     break;
                 default:
                     // Cancel insertion
-                    Console.WriteLine("Canceling Insertion");
                     break;
             }
         }

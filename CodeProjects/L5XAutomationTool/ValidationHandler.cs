@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -13,7 +14,7 @@ namespace L5XAutomationTool
         #region Fields
         private readonly XmlSchemaSet validationSchemaSet;
 
-        private static readonly string schemaPath = "../../../RSLogix5000_V35.xsd";
+        private static readonly string schemaPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(),"../../../RSLogix5000_V35.xsd"));
 
         private static XDocument schema;
 
@@ -37,7 +38,6 @@ namespace L5XAutomationTool
         public List<string> ValidateL5XFile(XDocument doc)
         {
             List<string> invalidElements = new List<string>();
-            Console.WriteLine("Validating document");
 
             // Validate using XML schema, misses some things however
             doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add("SCHEMA ERROR: Parent: " + (((XElement)sender).Parent.Attribute("Name")?.Value ?? ((XElement)sender).Parent.Name) + ". " + error.Message); }, true);
