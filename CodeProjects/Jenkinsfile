@@ -11,7 +11,8 @@ pipeline {
 		}
 		stage('Restore') {
             steps {
-                bat 'dotnet restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --force'
+                // bat 'dotnet restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln'
+				bat 'nuget restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln
             }
         }
         stage('Build') {
