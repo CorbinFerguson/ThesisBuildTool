@@ -7,7 +7,6 @@ pipeline {
 		stage('Checkout') {
 			steps {
 				checkout scm
-				bat 'echo "Current workspace is: ${%WORKSPACE%}"'
 			}
 		}
 		stage('Restore') {
