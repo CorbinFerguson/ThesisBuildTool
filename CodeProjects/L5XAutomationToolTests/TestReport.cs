@@ -231,7 +231,6 @@ namespace Reporting
                 ClassFolder = classFolder,
                 HtmlPath = htmlFile,
                 Failures = new List<string>(),
-                WriteLock = new object(),
                 AssertCount = 0,
                 StartedAt = DateTime.Now,
                 FooterWritten = false,
@@ -263,14 +262,12 @@ namespace Reporting
         /// </summary>
         private static void WriteHtmlHeader(TestContextState ctx)
         {
-            lock (ctx.WriteLock)
-            {
-                var sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-                sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>");
-                sb.AppendLine("<title>Test Report - " + Html(ctx.TestClassName + "." + ctx.TestName) + "</title>");
+            sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>");
+            sb.AppendLine("<title>Test Report - " + Html(ctx.TestClassName + "." + ctx.TestName) + "</title>");
 
-                sb.AppendLine(@"
+            sb.AppendLine(@"
 <style>
 body { font-family: Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
 h1 { margin: 0 0 8px 0; }
@@ -288,11 +285,10 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
 .summary { margin-top: 16px; padding-top: 8px; border-top: 2px solid #ddd; }
 </style></head><body>");
 
-                sb.AppendLine("<h1>" + Html(ctx.TestClassName + "." + ctx.TestName) + "</h1>");
-                sb.AppendLine("<div class='meta'>Started: " + Html(ctx.StartedAt.ToString("u")) + "</div>");
+            sb.AppendLine("<h1>" + Html(ctx.TestClassName + "." + ctx.TestName) + "</h1>");
+            sb.AppendLine("<div class='meta'>Started: " + Html(ctx.StartedAt.ToString("u")) + "</div>");
 
-                File.WriteAllText(ctx.HtmlPath, sb.ToString());
-            }
+            File.WriteAllText(ctx.HtmlPath, sb.ToString());
         }
 
         /// <summary>
@@ -300,10 +296,7 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
         /// </summary>
         private static void WriteSection(TestContextState ctx, string title)
         {
-            lock (ctx.WriteLock)
-            {
-                File.AppendAllText(ctx.HtmlPath, "<div class='section'>" + Html(title) + "</div>\n");
-            }
+            File.AppendAllText(ctx.HtmlPath, "<div class='section'>" + Html(title) + "</div>\n");
         }
 
         /// <summary>
@@ -331,11 +324,7 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             }
 
             sb.Append("</div></div>\n");
-
-            lock (ctx.WriteLock)
-            {
-                File.AppendAllText(ctx.HtmlPath, sb.ToString());
-            }
+            File.AppendAllText(ctx.HtmlPath, sb.ToString());
         }
 
         /// <summary>
@@ -356,10 +345,7 @@ img { max-width: 600px; border:1px solid #ddd; margin-top:6px; }
             sb.AppendLine("</div>");
             sb.AppendLine("</body></html>");
 
-            lock (ctx.WriteLock)
-            {
-                File.AppendAllText(ctx.HtmlPath, sb.ToString());
-            }
+            File.AppendAllText(ctx.HtmlPath, sb.ToString());
         }
 
         #endregion
@@ -563,7 +549,6 @@ tfoot td { font-weight:600; }
             public string ClassFolder;
             public string HtmlPath;
             public List<string> Failures;
-            public object WriteLock;
             public int AssertCount;
             public DateTime StartedAt;
             public bool FooterWritten;
