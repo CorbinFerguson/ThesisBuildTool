@@ -123,7 +123,8 @@ namespace Reporting
                     throw new Exception(msg);
                 }
 
-                Current.Value = null;
+                if (!(Current is null))
+                    Current.Value = null;
             }
         }
 

@@ -386,7 +386,7 @@ namespace L5XAutomationToolTests
 
                     if (i == 1)
                     {
-                        TestReport.Info("Resolution style: Replace");
+                        TestReport.Section("Resolution style: Replace");
                         // Resolution style: Replace
                         ListBoxItem replace = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Replace"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(replace, "Choose Replace in clash resolution");
@@ -394,7 +394,7 @@ namespace L5XAutomationToolTests
                     }
                     else if (i == 2)
                     {
-                        TestReport.Info("Resolution style: Rename");
+                        TestReport.Section("Resolution style: Rename");
                         // Resolution style: Rename
                         ListBoxItem rename = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Rename"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(rename, "Choose Rename in clash resolution");
@@ -405,7 +405,7 @@ namespace L5XAutomationToolTests
                     }
                     else if (i == 3)
                     {
-                        TestReport.Info("Resolution style: Cancel");
+                        TestReport.Section("Resolution style: Cancel");
                         // Resolution style: Cancel
                         ListBoxItem cancel = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Cancel"))).SingleOrDefault()?.AsListBoxItem();
                         TestReport.IsNotNull(cancel, "Choose Cancel in clash resolution");
