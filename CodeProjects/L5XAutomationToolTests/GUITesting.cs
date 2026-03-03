@@ -190,7 +190,8 @@ namespace L5XAutomationToolTests
             AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
             filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
             AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
-            filePathEdit.AsTextBox().Enter(TestXMLsPath + "\n");
+            filePathEdit.AsTextBox().Enter(TestXMLsPath);
+            Keyboard.Press(VirtualKeyShort.ENTER);
 
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
@@ -252,10 +253,12 @@ namespace L5XAutomationToolTests
             // Find address bar and input save path
             filePathPane = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
             filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
+
             filePathEdit = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
             string saveResultPath = Path.Combine(TestXMLsPath, "TestResults");
-            filePathEdit.AsTextBox().Text = saveResultPath;
+            filePathEdit.AsTextBox().Enter(saveResultPath);
+            Keyboard.Press(VirtualKeyShort.ENTER);
             TestHelper.WaitMilliseconds(100);
 
             // Set file name for saving, ensure uniqueness
@@ -267,12 +270,19 @@ namespace L5XAutomationToolTests
                 nameToSave = Regex.Replace(nameToSave, @"\d", string.Empty) + i.ToString();
 
             fileName.Click();
-            Keyboard.Type(nameToSave + "\n");
+            AutomationElement fileNameField = fileName.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("File name:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+            fileNameField.AsTextBox().Enter(nameToSave);
+
+            TestReport.IsTrue(fileNameField.AsTextBox().Text == nameToSave, "Text input as expected");
+
+            Keyboard.Press(VirtualKeyShort.ENTER);
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
+            TestHelper.CheckHomePage();
+
             // Verify file was saved
-            TestReport.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "Verify file saved at location");
+            TestReport.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "Verify file saved at location", false);
 
             TestReport.Section("NEW FILE CONFIRM CREATION");
             // Find and invoke new file button
@@ -849,7 +859,8 @@ namespace L5XAutomationToolTests
             AutomationElement filePathPane = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
             filePathPane.FindAllDescendants(win => win.ByName("All locations")).SingleOrDefault().AsButton().Click();
             AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
-            filePathEdit.AsTextBox().Enter(TestXMLsPath + "\n");
+            filePathEdit.AsTextBox().Enter(TestXMLsPath);
+            Keyboard.Press(VirtualKeyShort.ENTER);
 
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));

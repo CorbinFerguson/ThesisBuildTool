@@ -1,6 +1,8 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
+using FlaUI.Core.WindowsAPI;
 using Reporting;
 using System;
 using System.IO;
@@ -230,7 +232,8 @@ namespace L5XAutomationToolTests
                 .FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring)))
                 .SingleOrDefault();
 
-            filePathEdit.AsTextBox().Enter(TestXMLsPath + "\\n");
+            filePathEdit.AsTextBox().Enter(TestXMLsPath);
+            Keyboard.Press(VirtualKeyShort.ENTER);
 
             // Choose the specific template file and open it.
             AutomationElement[] files = fileExplorer
