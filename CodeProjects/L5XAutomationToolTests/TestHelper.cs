@@ -252,7 +252,6 @@ namespace L5XAutomationToolTests
             switch (input)
             {
                 case InputType.Dropdown:
-                    {
                         Window dropdown = GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui")))
                             .SingleOrDefault()
@@ -260,10 +259,8 @@ namespace L5XAutomationToolTests
 
                         TestReport.IsNotNull(dropdown, "Verify dropdown window appears");
                         return dropdown;
-                    }
 
                 case InputType.MultiSelect:
-                    {
                         Window multiSelect = GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown")))
                             .SingleOrDefault()
@@ -271,10 +268,8 @@ namespace L5XAutomationToolTests
 
                         TestReport.IsNotNull(multiSelect, "Verify multiselect dropdown window appears");
                         return multiSelect;
-                    }
 
                 case InputType.TextInput:
-                    {
                         Window textInput = GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput")))
                             .SingleOrDefault()
@@ -282,7 +277,6 @@ namespace L5XAutomationToolTests
 
                         TestReport.IsNotNull(textInput, "Verify TextInput window appears");
                         return textInput;
-                    }
 
                 default:
                     throw new NotImplementedException();

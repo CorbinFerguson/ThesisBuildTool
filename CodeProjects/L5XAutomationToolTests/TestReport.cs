@@ -1,5 +1,6 @@
 ﻿using L5XAutomationTool.Forms;
 using L5XAutomationToolTests;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -112,43 +113,8 @@ namespace Reporting
             }
             finally
             {
-                // If recorded failures exist, throw aggregated test error
-                if (ctx.Failures.Count > 0)
-                {
-                    var msg =
-                        $"Soft assertion failures ({ctx.Failures.Count}):\n - " +
-                        string.Join("\n - ", ctx.Failures);
-
-                    Current.Value = null;
-                    throw new Exception(msg);
-                }
-
                 if (!(Current is null))
                     Current.Value = null;
-            }
-        }
-
-        /// <summary>
-        /// Throws immediately if there are any soft assertion failures encountered so far.
-        /// </summary>
-        public static void AssertAll()
-        {
-            EnsureStarted();
-            var ctx = Current.Value;
-
-            if (ctx.Failures.Count > 0)
-            {
-                if (!ctx.FooterWritten)
-                {
-                    WriteSummaryFooter(ctx);
-                    ctx.FooterWritten = true;
-                }
-
-                var msg =
-                    $"Soft assertion failures ({ctx.Failures.Count}):\n - " +
-                    string.Join("\n - ", ctx.Failures);
-
-                throw new Exception(msg);
             }
         }
 
@@ -201,6 +167,7 @@ namespace Reporting
 
             WriteRow(ctx, "FAIL", userMessage, imagePath);
             ctx.Failures.Add(userMessage);
+            Assert.Fail("Failed" + userMessage);
         }
 
         public static void IsFalse(bool condition, string message, bool captureOnFailure = true)
@@ -210,12 +177,12 @@ namespace Reporting
 
         public static void IsNotNull(object obj, string message, bool captureOnFailure = true)
         {
-            IsTrue(obj != null, message, captureOnFailure);
+            IsFalse(obj is null, message, captureOnFailure);
         }
 
         public static void IsNull(object obj, string message, bool captureOnFailure = true)
         {
-            IsTrue(obj == null, message, captureOnFailure);
+            IsTrue(obj is null, message, captureOnFailure);
         }
 
         public static void Fail(string message, bool captureOnFailure = true)
