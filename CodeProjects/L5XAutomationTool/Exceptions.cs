@@ -27,6 +27,17 @@ namespace L5XAutomationTool
         }
     }
 
+    public class ClashingParentException : Exception
+    {
+        public IEnumerable<XElement> clashingElements;
+        public IEnumerable<XElement> clashingParents;
+        public ClashingParentException(IEnumerable<XElement> clashingElem, IEnumerable<XElement> clashingPar = null)
+        {
+            clashingElements = clashingElem;
+            clashingParents = clashingPar;
+        }
+    }
+
     public class AmbiguousSchemaPathException : Exception
     {
         public readonly string ElementType;

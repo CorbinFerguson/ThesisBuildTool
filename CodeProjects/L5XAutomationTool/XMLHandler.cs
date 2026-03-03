@@ -142,27 +142,27 @@ namespace L5XAutomationTool
                     // Get the parent options from the schema
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
                     List<string> parentSchemaType = validator.GetSchema().Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-                    List<string> parentNames = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
+                    List<string> parentTypes = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
 
-                    string chosenParentname = null;
+                    string chosenParentType = null;
                     if (ElementInfo.ParentElementBulk != null)
-                        chosenParentname = ElementInfo.ParentElementBulk.Name.ToString();
+                        chosenParentType = ElementInfo.ParentElementBulk.Name.ToString();
                     else if (disambiguator != null)
                     {
-                        chosenParentname = disambiguator.ChooseParentFor(name, parentNames);
-                        if (string.IsNullOrEmpty(chosenParentname) || !parentNames.Contains(chosenParentname))
-                            throw new AmbiguousSchemaPathException(name, parentNames);
-                        ElementInfo.ParentElementBulk = new XElement(chosenParentname);
+                        chosenParentType = disambiguator.ChooseParentFor(name, parentTypes);
+                        if (string.IsNullOrEmpty(chosenParentType) || !parentTypes.Contains(chosenParentType))
+                            throw new AmbiguousSchemaPathException(name, parentTypes);
+                        ElementInfo.ParentElementBulk = new XElement(chosenParentType);
                     }
                     else
-                        throw new AmbiguousSchemaPathException(name, parentNames);
+                        throw new AmbiguousSchemaPathException(name, parentTypes);
 
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
                     paths.Enqueue(disambiguousParent);
-                    paths.Enqueue(chosenParentname);
+                    paths.Enqueue(chosenParentType);
 
                     // Use the parent of the last element in the queue
-                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentname));
+                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentType));
 
                     foreach (string node in grandparentToRoot)
                         paths.Enqueue(node);
@@ -244,21 +244,28 @@ namespace L5XAutomationTool
                 }
             }
 
-
             XElement parentNode = null;
             string grandparentType = ElementInfo.RootPath.Peek();
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
             {
+                // If there is only one valid grandparent, then use that
                 parentNode = grandParentNodes.Elements(parentType).SingleOrDefault();
             }
             else if (ElementInfo.ParentElementBulk != null)
             {
-                parentNode = ElementInfo.ParentElementBulk.Elements(parentType).SingleOrDefault();
+                // If creating in bulk, then the parent type is already solved for
+                if (ElementInfo.ParentElementBulk.Attribute("Name") is null )
+                {
+                    throw new ClashingParentException(grandParentNodes);
+                }
+                XElement elnode = grandParentNodes.SingleOrDefault(i => ElementInfo.ParentElementBulk.Attribute("Name").Value.Equals(i.Attribute("Name").Value));
+                parentNode = elnode.Elements(parentType).SingleOrDefault();
+                
             }
             else if (grandParentNodes.Count() > 1)
             {
-                throw new ClashingElementException(grandParentNodes, parentNode);
+                throw new ClashingParentException(grandParentNodes);
             }
             else
             {

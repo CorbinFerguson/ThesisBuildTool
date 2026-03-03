@@ -46,7 +46,7 @@ namespace L5XAutomationToolTests
             TestReport.Start(TestContext.TestName);
 
             // Get the main window of the application
-            actionSelect = app.GetAllTopLevelWindows(automation).Single( win => win.Name.Equals("ActionSelector"));
+            actionSelect = app.GetAllTopLevelWindows(automation).Single(win => win.Name.Equals("ActionSelector"));
             TestReport.IsNotNull(actionSelect, "Find ActionSelect window");
         }
 
@@ -142,7 +142,7 @@ namespace L5XAutomationToolTests
                     TestReport.IsNotNull(close, "Press close button");
                     close.Invoke();
                 }
-                
+
             }
         }
 
@@ -152,7 +152,7 @@ namespace L5XAutomationToolTests
         "Test that the validate button creates popups upon button press.")]
         public void FileManagementTesting()
         {
-            // VALIDATE W/OUT ERROR
+            TestReport.Section("VALIDATE W/OUT ERROR");
             // Find and invoke the validate button
             Button validateButton = actionSelect.FindAllDescendants(val => val.ByName("ValidateFileButton")).SingleOrDefault()?.AsButton();
 
@@ -174,7 +174,7 @@ namespace L5XAutomationToolTests
 
             TestHelper.CheckHomePage();
 
-            // LOAD FILE
+            TestReport.Section("LOAD FILE");
             // Find and invoke the load button
             Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(loadButton, "Press Load");
@@ -205,7 +205,7 @@ namespace L5XAutomationToolTests
             // Wait for application to catch up
             TestHelper.WaitMilliseconds(100);
 
-            // VALIDATE ERROR FILE
+            TestReport.Section("VALIDATE ERROR FILE");
             // Validate loaded file to test error scenario
             validateButton.Invoke();
 
@@ -224,7 +224,7 @@ namespace L5XAutomationToolTests
 
             TestHelper.CheckHomePage();
 
-            // NEW FILE DENY CREATION
+            TestReport.Section("NEW FILE DENY CREATION");
             // Find and invoke new file button
             Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
             newButtonNo.Invoke();
@@ -240,7 +240,7 @@ namespace L5XAutomationToolTests
 
             TestHelper.CheckHomePage();
 
-            // SAVE FILE
+            TestReport.Section("SAVE FILE");
             // Find and invoke save button
             Button saveButton = actionSelect.FindAllDescendants(win => win.ByName("SaveFileButton")).SingleOrDefault()?.AsButton();
             saveButton.Invoke();
@@ -255,7 +255,7 @@ namespace L5XAutomationToolTests
             filePathEdit = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
             string saveResultPath = Path.Combine(TestXMLsPath, "TestResults");
-            filePathEdit.AsTextBox().Enter(saveResultPath + "\n");
+            filePathEdit.AsTextBox().Text = saveResultPath;
             TestHelper.WaitMilliseconds(100);
 
             // Set file name for saving, ensure uniqueness
@@ -272,9 +272,9 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Verify file was saved
-            TestReport.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "File saved at location");
+            TestReport.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "Verify file saved at location");
 
-            // NEW FILE CONFIRM CREATION
+            TestReport.Section("NEW FILE CONFIRM CREATION");
             // Find and invoke new file button
             Button newButtonYes = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
             newButtonYes.Invoke();
@@ -842,6 +842,7 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select file to import from
+            TestReport.Section("Select file to import from");
             Window fileExplorer = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open"))).SingleOrDefault()?.AsWindow();
             TestReport.IsNotNull(fileExplorer, "Open File Explorer");
 
@@ -853,26 +854,41 @@ namespace L5XAutomationToolTests
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
             AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"));
-            TestReport.IsNotNull(templateBroken, "Template file with error(TemplateProjectV1.L5X) not found.");
+            TestReport.IsNotNull(templateBroken, "Template file(TemplateProjectV1.L5X) not found.");
             templateBroken.DoubleClick();
 
             // Select element type to import (AOI)
-            Window typeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
-            ListBoxItem elemType = typeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
-            TestReport.IsNotNull(elemType, "Select element type AddOnInstructionDefinition");
-            elemType.DoubleClick();
+            TestReport.Section("Select element type(AOI) to import");
+            Window aoiSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem aoiType = aoiSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(aoiType, "Select element type AddOnInstructionDefinition");
+            aoiType.DoubleClick();
 
-            // Select element of type to import
+            // Select element to import
+            TestReport.Section("Select AOI to import");
             Window elementSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
-            ListBoxItem element = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
-            TestReport.IsNotNull(element, "Select element TemplateFBAOI");
-            element.Click();
+            ListBoxItem aoi = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(aoi, "Select element TemplateFBAOI");
+            ListBoxItem element = elementSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateLadderAOI"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(element, "Select element TemplateLadderAOI");
+            using (Keyboard.Pressing(VirtualKeyShort.LCONTROL))
+            {
+                element.Click();
+                aoi.Click();
+            }
 
+            // Verify items are actually selected
+            IEnumerable<string> selectedItems = elementSelect.FindAllDescendants(cf => cf.ByControlType(ControlType.List)).FirstOrDefault()?.AsListBox()?.SelectedItems.Select(i => i.Name);
+            ListBoxItem[] expectedItems = { aoi, element };
+            IEnumerable<string> expected = expectedItems.Select(i => i.Name);
+            TestReport.IsTrue(selectedItems.SequenceEqual<string>(expected), "Verify both template elements are selected");
+            
             TestHelper.Confirm(elementSelect);
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select Yes to add another from file
+            TestReport.Section("Add another routine");
             Window addAnotherYes = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Import Element"))).SingleOrDefault()?.AsWindow();
             TestReport.IsNotNull(addAnotherYes, "Add another element window not found");
 
@@ -880,13 +896,15 @@ namespace L5XAutomationToolTests
             TestReport.IsNotNull(yesButton, "Press Yes to add another");
             yesButton.Invoke();
 
-            // Select element type with ambiguous parent to import
+            // Select element type with ambiguous parent(routine) to import
+            TestReport.Section("Select type 'routine' to import");
             Window ambigSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             ListBoxItem ambigType = ambigSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Routine"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(ambigType, "Select element type Routine");
             ambigType.DoubleClick();
 
             // Select element of type 'Routine' to import
+            TestReport.Section("Select 'routine' to import");
             Window elementAmbig = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             ListBoxItem ambigRout = elementAmbig.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Logic"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(ambigRout, "Select element");
@@ -894,36 +912,46 @@ namespace L5XAutomationToolTests
 
             TestHelper.Confirm(elementAmbig);
 
-            // Select parent element for disambiguation
-            Window disambig = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
-            ListBoxItem parentElem = disambig.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
-            TestReport.IsNotNull(parentElem, "Select element type Routine");
-            parentElem.Click();
-
-            TestHelper.Confirm(disambig);
-
             // Select parent type from extract
+            TestReport.Section("Select parent element for extract");
             Window parentExtract = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
-            ListBoxItem parentOut = parentExtract.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
+            ListBoxItem parentOut = parentExtract.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateLadderAOI"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(parentOut, "Select parent element for disambiguation in source file");
             parentOut.Click();
 
             TestHelper.Confirm(parentExtract);
 
-            // Select parent element for insert
-            Window parentInsert = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
-            ListBoxItem parentIn = parentInsert.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
-            TestReport.IsNotNull(parentIn, "Select parent element for disambiguation in master file");
-            parentIn.Click();
+            // Select parent element type for insert
+            TestReport.Section("Select parent element type for insert");
+            Window typeInsert = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem typeIn = typeInsert.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(typeIn, "Select parent element type for insertion in master file");
+            typeIn.Click();
 
-            TestHelper.Confirm(parentInsert);
+            TestHelper.Confirm(typeInsert);
+
+            // Select parent element for insert
+            TestReport.Section("Select parent element for insert");
+            Window elemInsert = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem elemIn = elemInsert.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(elemIn, "Select parent element type for insertion in master file");
+            elemIn.Click();
+
+            TestHelper.Confirm(elemInsert);
+
+            // Clash resolution
+            TestReport.Section("Resolve clashing routines via replace");
+            Window resolutionStyle = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
+            ListBoxItem cancel = resolutionStyle.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Replace"))).SingleOrDefault()?.AsListBoxItem();
+            TestReport.IsNotNull(cancel, "Choose replace in clash resolution");
+            cancel.DoubleClick();
 
             // Select No to add another from file
             Window addAnotherNo = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Import Element"))).SingleOrDefault()?.AsWindow();
-            TestReport.IsNotNull(addAnotherNo, "Add another element window not found");
+            TestReport.IsNotNull(addAnotherNo, "Add another element window");
 
-            Button noButton = addAnotherNo.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("no"))).SingleOrDefault()?.AsButton();
-            TestReport.IsNotNull(noButton, "Press Yes to add another");
+            Button noButton = addAnotherNo.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("No"))).SingleOrDefault()?.AsButton();
+            TestReport.IsNotNull(noButton, "Press No to add another");
             noButton.Invoke();
 
             TestHelper.CheckHomePage();

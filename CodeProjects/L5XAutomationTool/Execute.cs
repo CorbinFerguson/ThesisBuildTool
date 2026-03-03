@@ -168,40 +168,63 @@ namespace L5XAutomationTool
 
                 List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
                 bool retry = false;
-                do
+                foreach (XElement element in returnedElement)
                 {
-                    try
+                    XElement tryInsert = element;
+                    do
                     {
-                        // Get the selected element, then insert it
-                        Doc = _xml.InsertElement(Doc, returnedElement);
-                        retry = false;
-                    }
-                    catch (ParentMissingException ex)
-                    {
-                        List<XAttribute> requiredAttr = new List<XAttribute>();
-                        foreach (XElement schemAttr in ex.missingSchemaAttributes)
+                        try
                         {
-                            string attributeName = schemAttr.Attribute("name").Value;
-                            string displayName = (ex.parentNode.Attribute("Name") != null) ? ex.parentNode.Attribute("Name").Value : (ex.parentNode.Attribute("CatalogNumber") != null ? ex.parentNode.Attribute("CatalogNumber").Value : ex.parentNode.Name.ToString());
-
-                            string currentVal = ex.parentNode.Attribute(attributeName) != null ? ex.parentNode.Attribute(attributeName).Value : "";
-                            string newVal = _prompts.Prompt("Input a value for " + attributeName + " attribute of auto-generated " + displayName, currentVal, null, "Modify Element");
-
-                            ex.parentNode.SetAttributeValue(attributeName, newVal);
+                            // Get the selected element, then insert it
+                            Doc = _xml.InsertElement(Doc, tryInsert);
+                            retry = false;
                         }
-                        // Remove all elements in returned elements up to that broken element
-                        int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el, deep)));
-                        returnedElement.RemoveRange(0, indexElement + 1);
+                        catch (ParentMissingException ex)
+                        {
+                            List<XAttribute> requiredAttr = new List<XAttribute>();
+                            foreach (XElement schemAttr in ex.missingSchemaAttributes)
+                            {
+                                string attributeName = schemAttr.Attribute("name").Value;
+                                string displayName = (ex.parentNode.Attribute("Name") != null) ? ex.parentNode.Attribute("Name").Value : (ex.parentNode.Attribute("CatalogNumber") != null ? ex.parentNode.Attribute("CatalogNumber").Value : ex.parentNode.Name.ToString());
 
-                        Doc = _xml.InsertElement(Doc, ex.parentNode);
+                                string currentVal = ex.parentNode.Attribute(attributeName) != null ? ex.parentNode.Attribute(attributeName).Value : "";
+                                string newVal = _prompts.Prompt("Input a value for " + attributeName + " attribute of auto-generated " + displayName, currentVal, null, "Modify Element");
 
-                        // Continue
-                        retry = true;
-                    }
-                } while (retry);
+                                ex.parentNode.SetAttributeValue(attributeName, newVal);
+                            }
+                            // Remove all elements in returned elements up to that broken element
+                            int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el, deep)));
+                            returnedElement.RemoveRange(0, indexElement + 1);
 
-                // Reset the helper
-                _xml.ElementInfo.ResetElements();
+                            Doc = _xml.InsertElement(Doc, ex.parentNode);
+
+                            // Continue
+                            retry = true;
+                        }
+                        catch (ClashingElementException ex)
+                        {
+                            ElementHelper save = _xml.ElementInfo;
+                            _xml.ElementInfo.ResetElements();
+                            retry = HandleClashes(ex.clashingElements, ex.parentNode, tryInsert);
+                            _xml.ElementInfo = save;
+                        }
+                        catch (ClashingParentException ex)
+                        {
+                            List<string> ops = ex.clashingElements.Select(i => i?.Attribute("Name")?.Value?.ToString())?.ToList() ?? ex.clashingElements.Elements(typeSelected).Select(i => i.Attribute("Name").Value.ToString())?.ToList();
+                            string selectedParent = _prompts.SelectOne("Select the parent element to insert under", ops, "Ambiguous parent");
+                            XElement parent = ex.clashingElements.Single(i => i.Attribute("Name").Value.ToString() == selectedParent);
+
+                            // Reset the helper
+                            _xml.ElementInfo.ResetElements();
+                            _xml.ElementInfo.ParentElementBulk = parent;
+                            retry = true;
+                        }
+                    } while (retry);
+
+                    // Reset the helper
+                    _xml.ElementInfo.ResetElements();
+                }
+
 
                 ValidateFile(false);
 
