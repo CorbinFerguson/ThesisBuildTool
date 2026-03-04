@@ -1,0 +1,1480 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Processor Utilization (V18)-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="L_CPU_18" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T17:26:20.549Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 12:27:05 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="L_CPU_Out" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Collected Controller Metrics]]>
+</Description>
+<Members>
+<Member Name="Identity" DataType="L_CPU_Identity" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Device Identity]]>
+</Description>
+</Member>
+<Member Name="CommUse" DataType="L_CPU_CommUse" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Comms (responding to Messages) usage]]>
+</Description>
+</Member>
+<Member Name="MemUse" DataType="L_CPU_MemUse" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Memory usage]]>
+</Description>
+</Member>
+<Member Name="CPUUse" DataType="L_CPU_CPUUse" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CPU usage]]>
+</Description>
+</Member>
+<Member Name="ConnUse" DataType="L_CPU_ConnUse" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Connection usage]]>
+</Description>
+</Member>
+<Member Name="TimeSlice" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Controller Timeslice: % of continuous task time for communications]]>
+</Description>
+</Member>
+<Member Name="IOLEDStatus" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[I/O LED Status 0=off, 1=RedBlink, 2=GreenBlink, 3=Solid Green]]>
+</Description>
+</Member>
+<Member Name="ForceStatus" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Force Status: bit 0=force installed, bit 1=force active]]>
+</Description>
+</Member>
+<Member Name="MinorFaultCount" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Fault Count: occurences since reset (0 to 65,535)]]>
+</Description>
+</Member>
+<Member Name="ZZZZZZZZZZL_CPU_Out9" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="true" ExternalAccess="Read/Write"/>
+<Member Name="MinorFaultProg" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZL_CPU_Out9" BitNumber="0" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Fault: Program Logic Problem]]>
+</Description>
+</Member>
+<Member Name="MinorFaultTask" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZL_CPU_Out9" BitNumber="1" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Fault: Task Overlap]]>
+</Description>
+</Member>
+<Member Name="MinorFaultPort" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZL_CPU_Out9" BitNumber="2" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Fault: Serial Port Problem]]>
+</Description>
+</Member>
+<Member Name="MinorFaultBatt" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZL_CPU_Out9" BitNumber="3" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Fault: Replace / Reconnect Battery]]>
+</Description>
+</Member>
+</Members>
+<Dependencies>
+<Dependency Type="DataType" Name="L_CPU_Identity"/>
+<Dependency Type="DataType" Name="L_CPU_CommUse"/>
+<Dependency Type="DataType" Name="L_CPU_MemUse"/>
+<Dependency Type="DataType" Name="L_CPU_CPUUse"/>
+<Dependency Type="DataType" Name="L_CPU_ConnUse"/>
+</Dependencies>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="L_CPU_CPUUse" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Logix CPU Utilization: Array]]>
+</Description>
+<Members>
+<Member Name="Comms" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Communications (responding to HMI and MSGs) %CPU]]>
+</Description>
+</Member>
+<Member Name="Messaging" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Sending Messages (MSG instructions) %CPU]]>
+</Description>
+</Member>
+<Member Name="Motion" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Motion Axes %CPU]]>
+</Description>
+</Member>
+<Member Name="Redundancy" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Redundancy Comms/Sync %CPU]]>
+</Description>
+</Member>
+<Member Name="Safety" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Safety Processes %CPU]]>
+</Description>
+</Member>
+<Member Name="System" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[System Processes %CPU]]>
+</Description>
+</Member>
+<Member Name="PeriodicAndEvent" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[User Periodic and Event Tasks %CPU]]>
+</Description>
+</Member>
+<Member Name="ContinuousOrFree" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Continuous Task or Free %CPU]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="L_CPU_MemUse" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Logix CPU Utilization: Memory Usage Data]]>
+</Description>
+<Members>
+<Member Name="FreeIO" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Free bytes of I/O memory]]>
+</Description>
+</Member>
+<Member Name="FreeDataLogic" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Free bytes of Data and Logic memory]]>
+</Description>
+</Member>
+<Member Name="FreeGen" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Free bytes of General memory]]>
+</Description>
+</Member>
+<Member Name="FreeSafety" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Free bytes of Safety memory]]>
+</Description>
+</Member>
+<Member Name="TotalIO" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total bytes of I/O memory]]>
+</Description>
+</Member>
+<Member Name="TotalDataLogic" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total bytes of Data and Logic memory]]>
+</Description>
+</Member>
+<Member Name="TotalGen" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total bytes of General memory]]>
+</Description>
+</Member>
+<Member Name="TotalSafety" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total bytes of Safety memory]]>
+</Description>
+</Member>
+<Member Name="MinIO" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Low water free bytes of I/O memory]]>
+</Description>
+</Member>
+<Member Name="MinDataLogic" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Low water free bytes of Data and Logic memory]]>
+</Description>
+</Member>
+<Member Name="MinGen" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Low water free bytes of General memory]]>
+</Description>
+</Member>
+<Member Name="MinSafety" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Low water free bytes of Safety memory]]>
+</Description>
+</Member>
+<Member Name="MaxBlockIO" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Largest available block of I/O memory]]>
+</Description>
+</Member>
+<Member Name="MaxBlockDataLogic" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Largest available block of Data and Logic memory]]>
+</Description>
+</Member>
+<Member Name="MaxBlockGen" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Largest Avaolalbe block of General memory]]>
+</Description>
+</Member>
+<Member Name="MaxBlockSafety" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Largest Available block of Safety memory]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+<DataType Name="L_CPU_ConnUse" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Logix CPU Utilization: Connection Object Stats]]>
+</Description>
+<Members>
+<Member Name="TotalAllow" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total Connections Supported]]>
+</Description>
+</Member>
+<Member Name="TotalCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Total Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="TotalHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Total Connections Active]]>
+</Description>
+</Member>
+<Member Name="IOAllow" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[I/O Connections Allocated]]>
+</Description>
+</Member>
+<Member Name="IOCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[I/O Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="IOHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of I/O Connections Active]]>
+</Description>
+</Member>
+<Member Name="ProdAllow" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Produced Tag  Connections Allocated]]>
+</Description>
+</Member>
+<Member Name="ProdCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Produced Tag Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="ProdHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Produced Tag Connections Active]]>
+</Description>
+</Member>
+<Member Name="ConsAllow" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Consumed Tag Connections Allocated]]>
+</Description>
+</Member>
+<Member Name="ConsCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Consumed Tag Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="ConsHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Consumed Tag Connections Active]]>
+</Description>
+</Member>
+<Member Name="MSGCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Message/Block Transfer Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="MSGHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Message/Block Transfer Connections Active]]>
+</Description>
+</Member>
+<Member Name="IncomCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Incomming Connections Currently Active]]>
+</Description>
+</Member>
+<Member Name="IncomHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Incomming Connections Active]]>
+</Description>
+</Member>
+<Member Name="UCBsAllow" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unconnected Buffers Allocated]]>
+</Description>
+</Member>
+<Member Name="UCBsCurr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unconnected Buffers Currently Active]]>
+</Description>
+</Member>
+<Member Name="UCBsHiWater" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Unconnected Buffers Active]]>
+</Description>
+</Member>
+<Member Name="MCacheAllow" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[MSG/BT Cache Entries Allocated]]>
+</Description>
+</Member>
+<Member Name="MCacheCurr" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[MSG/BT Cache Entries Currently In Use]]>
+</Description>
+</Member>
+<Member Name="MCacheHiWater" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of MSG/BT Cache Entries In Use]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="L_CPU_Identity" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Logix CPU Utilization: Controller Identity Data]]>
+</Description>
+<Members>
+<Member Name="Name" DataType="SINT" Dimension="33" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Controller Catalog Number]]>
+</Description>
+</Member>
+<Member Name="VendorID" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Vendor ID]]>
+</Description>
+</Member>
+<Member Name="ProductType" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Product Type]]>
+</Description>
+</Member>
+<Member Name="ProductCode" DataType="INT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Product Code]]>
+</Description>
+</Member>
+<Member Name="Major" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Major Firmware Revision]]>
+</Description>
+</Member>
+<Member Name="Minor" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minor Firmware Revision]]>
+</Description>
+</Member>
+<Member Name="Serial" DataType="DINT" Dimension="0" Radix="Hex" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Controller Serial Number]]>
+</Description>
+</Member>
+<Member Name="Status" DataType="INT" Dimension="0" Radix="Binary" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Device Status (bitmapped, see documentation)]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+<DataType Name="L_CPU_CommUse" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Logix CPU Utilization: Comms Stats]]>
+</Description>
+<Members>
+<Member Name="RespCPUAvail" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Available CPU for responding to Messages (HMI, etc.)]]>
+</Description>
+</Member>
+<Member Name="RespCPUAct" DataType="REAL" Dimension="0" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[CPU in use by Comm Task (responding to Messages (HMI, etc.)]]>
+</Description>
+</Member>
+<Member Name="MaxTrendInstance" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Highest current Trend Object Instance Number]]>
+</Description>
+</Member>
+<Member Name="NumTrendInstances" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Current number of Trend Object Instances]]>
+</Description>
+</Member>
+<Member Name="TrendHighWater" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[High water mark of Trend Object Instance count]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_CPU_18" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2008-10-20T16:28:26.653Z" CreatedBy="Not Available" EditedDate="2014-09-03T17:26:20.549Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02" SourceKey="eladdrawdedeer" SourceProtectionType="Full Protection">
+<Description>
+<![CDATA[Processor Utilization (V18)]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+When enabled, this Instruction monitors the Logix controller (version 18.xx) which
+is executing it.  It provides several diagnostics that may be usefull in troubleshooting
+system performance issues.  This information is good to have handy on-screen
+when calling Rockwell Automation Technical Support for assistance.  Let
+your Support Specialist know you have this info when you call.
+
+Information includes:
+*  Controller Identity information (catalog number, firmware revision)
+*  Communications Timeslice setting
+*  Minor Fault information
+*  Memory Usage/Free statistics
+*  Trend Object usage (most often used by HMI communications)
+*  Connections used for all communications
+*  I/O and Force LED Status
+
+This instruction also provides a place (on the faceplate Maintenance Tab)
+to record your Software Serial Number or Support Contract Number for
+reference when calling Rockwell Automation Technical Support.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Cfg_ContTaskInstance" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Instance Number of Continuous Task if it exists (1..31) (set to 0 if none)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_SlotNumber" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Controller Slot Number in local chassis]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UpdateT" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Update (poll) time for CPU data (sec)]]>
+</Description>
+<DefaultData>05 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="5"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_WindowT" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Window Time for collecting Task data (sec)]]>
+</Description>
+<DefaultData>00 00 80 3F</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="1.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_Enable" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to enable collection of data]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_Disable" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to disable collection of data]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Ref_Out" TagType="Base" DataType="L_CPU_Out" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Tag to receive CPU data]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgSetWindow" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Message to set data collection window time]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgGetTrendObjUse" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Message to get Trend Object usage]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgGetMemUse" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Message to get Memory usage]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgGetOSTaskTimes" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Message to get Logix O/S Task Times / CPU Utilization]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgGetUserTaskTimes" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Messge to get User Task Time / CPU Utilization]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MsgGetConnUse" TagType="Base" DataType="MESSAGE" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Message to get Connection usage]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_WindowT" TagType="Base" DataType="DINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Window Time in microseconds to TaskMetrics Object]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_TrendObjData" TagType="Base" DataType="INT" Dimensions="16" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Raw Trend Object data from MSG (Trending object)]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_MemUseData" TagType="Base" DataType="INT" Dimensions="48" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Raw Memory Use data from MSG (UserMemory object)]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_TaskTimeData" TagType="Base" DataType="DINT" Dimensions="131" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Raw Task Time data from MSG (TaskMetrics Object)]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_ConnData" TagType="Base" DataType="INT" Dimensions="80" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Raw Connection data from MSG (Port Capacity object)]]>
+</Description>
+</Parameter>
+<Parameter Name="Sts_Enabled" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Maintenance has enabled CPU data collection]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Timing" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Instruction is waiting for Update Time to complete]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Busy" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Instruction is getting CPU data from controller]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Done" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Data collection complete, CPU data are in Ref_Out tag]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MsgErr" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Message Error, unable to read at least one metric]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_WrongVersion" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Wrong firmware version (must be 18.x) or controller is not supported]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Enable" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready to receive MCmd_Enable (enable button)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Disable" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Ready to receive MCmd_Disable (enable button)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="L_CPU" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_UpdateT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Polling Timer to update data]]>
+</Description>
+<DefaultData>00 00 00 00 88 13 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="5000"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_IdentityProductRev" DataType="INT" Radix="Hex" ExternalAccess="None">
+<Description>
+<![CDATA[Device ID Revision (major, minor)]]>
+</Description>
+<DefaultData>00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="INT" Radix="Hex" Value="16#0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_WindowT" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Window Time in microseconds to MSG]]>
+</Description>
+<DefaultData>40 42 0F 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="1000000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_PrevWindowT" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Task Times sample window value from last scan]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseTotalDataLogic" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Total available data/logic memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseTotalIO" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Total available I/O memroy (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseFreeDataLogic" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Free data/logic memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseFreeIO" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Free I/O Memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMaxBlockGen" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Largest available block of general memory (Lwords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMaxBlockDataLogic" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Largest available block of data/logic memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMaxBlockIO" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Largest availalbe block of I/O memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMinGen" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Low Water free General Memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMinDataLogic" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Low Water free data/logic memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMinIO" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Low Water free I/O memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseTotalGen" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Total general memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseFreeGen" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Free General memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MinorFaultBits" DataType="DINT" Radix="Binary" ExternalAccess="None">
+<Description>
+<![CDATA[Minor Fault Causes (bitmapped)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Binary" Value="2#0000_0000_0000_0000_0000_0000_0000_0000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Poll" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Poll now: enables MSGs]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TaskTimesSum" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Total of all User Task Times (microseconds)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TaskTimesSumCtrl" DataType="CONTROL" ExternalAccess="None">
+<Description>
+<![CDATA[FAL to sum up all User Task times]]>
+</Description>
+<DefaultData>00 00 00 00 20 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="CONTROL">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="32"/>
+<DataValueMember Name="POS" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="EM" DataType="BOOL" Value="0"/>
+<DataValueMember Name="ER" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UL" DataType="BOOL" Value="0"/>
+<DataValueMember Name="IN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="FD" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_UserTaskTimes" DataType="DINT" Dimensions="32" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[User Task Times from TaskMetrics object (microseconds)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="32" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+<Element Index="[3]" Value="0"/>
+<Element Index="[4]" Value="0"/>
+<Element Index="[5]" Value="0"/>
+<Element Index="[6]" Value="0"/>
+<Element Index="[7]" Value="0"/>
+<Element Index="[8]" Value="0"/>
+<Element Index="[9]" Value="0"/>
+<Element Index="[10]" Value="0"/>
+<Element Index="[11]" Value="0"/>
+<Element Index="[12]" Value="0"/>
+<Element Index="[13]" Value="0"/>
+<Element Index="[14]" Value="0"/>
+<Element Index="[15]" Value="0"/>
+<Element Index="[16]" Value="0"/>
+<Element Index="[17]" Value="0"/>
+<Element Index="[18]" Value="0"/>
+<Element Index="[19]" Value="0"/>
+<Element Index="[20]" Value="0"/>
+<Element Index="[21]" Value="0"/>
+<Element Index="[22]" Value="0"/>
+<Element Index="[23]" Value="0"/>
+<Element Index="[24]" Value="0"/>
+<Element Index="[25]" Value="0"/>
+<Element Index="[26]" Value="0"/>
+<Element Index="[27]" Value="0"/>
+<Element Index="[28]" Value="0"/>
+<Element Index="[29]" Value="0"/>
+<Element Index="[30]" Value="0"/>
+<Element Index="[31]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CommsSubtotal" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Intermediate in calculating avail. CPU for comms]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseTotalSafety" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Total available Safety memroy (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMinSafety" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Low Water free Safety memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseMaxBlockSafety" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Largest availalbe block of Safety memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MemUseFreeSafety" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Free Safety Memory (LWords)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_SupportInfo" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[RSLogix 5000 S/N or Support Contract ID]]>
+</Description>
+<DefaultData>28 00 00 00 45 6E 74 65 72 20 53 6F 66 74 77 61 
+72 65 20 53 2F 4E 20 6F 72 20 53 75 70 70 6F 72 
+74 20 43 6F 6E 74 72 61 63 74 20 23</DefaultData>
+<DefaultData Format="String" Length="40">
+<![CDATA['Enter Software S/N or Support Contract #']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Enabled" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Maintenance has Enabled data collection]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>05 00 00 00 4C 5F 43 50 55 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="5">
+<![CDATA['L_CPU']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>05 00 00 00 4C 5F 43 50 55 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="5">
+<![CDATA['L_CPU']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>0F 00 00 00 43 50 55 20 55 74 69 6C 69 7A 61 74 
+69 6F 6E 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="15">
+<![CDATA['CPU Utilization']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>1D 00 00 00 4C 6F 67 69 78 20 43 50 55 20 55 74 
+69 6C 69 7A 61 74 69 6F 6E 20 4D 6F 6E 69 74 6F 
+72 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="29">
+<![CDATA['Logix CPU Utilization Monitor']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Collect controller CPU information; poll for CPU, Trend, Memory and Connection data if Enabled.]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+L_CPU_18:  LOGIX -- Processor Utilization (Major Rev. 18)
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V1.x and V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Inf_Lib. Removed "Main Task" scan time information,
+as this is now covered by L_TaskMon instances. Changed
+Operator Commands (OCmds) to Maintenance Commands (MCmds).
+V3.1-00  2014-06-30:  Unmodified for Logix Diagnostics Library V3.1, up-rev only.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction monitors the Logix controller executing it.  It provides
+several diagnostics that may be usefull in troubleshooting system
+performance issues.  This information is good to have handy on-screen
+when calling Rockwell Automation Technical Support for assistance.  Let
+your Tech Support engineer know you have this info when you call.
+
+Information includes:
+*  Controller Identity information (catalog number, firmware revision)
+*  Communications Timeslice setting
+*  Minor Fault information
+*  Memory Usage/Free statistics
+*  CPU Utilization for various controller and user Tasks
+*  Communications data including CPU available for and used by comms,
+Trend object usage and Connections used for all communications
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.
+
+#####  V3.0-00  2013-06-30:  Added Inf_Lib  #####]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag)CONCAT(Cfg_SupportInfo,Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+HANDLE COMMANDS
+============================================================
+These rungs handle Commands received by this instruction.
+
+If Maintenance sends the Enable Command, enable data collection.
+
+#####  V3.0-00  2013-06-30:  Operator Command changed to Maintenance Command.  #####]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)XIC(MCmd_Enable)OTU(MCmd_Enable)OTL(Wrk_Enabled);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[If Maintenance sends the Disable Command, turn off data collection.
+
+#####  V3.0-00  2013-06-30:  Operator Command changed to Maintenance Command.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(MCmd_Disable)OTU(MCmd_Disable)OTU(Wrk_Enabled);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[============================================================
+HANDLE CONFIGURATION
+============================================================
+These rungs handle configuration data for this instruction
+
+Cfg_WindowT:  The Window Time (usually 1.0 sec.) is the time over which 
+Controller Task Times (in percent) are calculated]]>
+</Comment>
+<Text>
+<![CDATA[MUL(Cfg_WindowT,1000000.0,Ref_WindowT)LES(Ref_WindowT,0)MOV(1.0,Cfg_WindowT)MOV(1000000,Ref_WindowT);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[Cfg_UpdateT: The Update Time throttles the collection of data.  Outputs
+of this instruction are gathered at this interval.  This should be at least as
+long as the Window Time (Cfg_WindowT), ideally a multiple of it.]]>
+</Comment>
+<Text>
+<![CDATA[MUL(Cfg_UpdateT,1000,Wrk_UpdateT.PRE)XIC(Wrk_UpdateT.PRE.31)MOV(5,Cfg_UpdateT)MOV(5000,Wrk_UpdateT.PRE);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[Slot number is a USINT (valid values = 0 to 255, althoug
+you'll probably never see one higher than 16.....).
+If the slot number is not valid, clear it to a valid value.
+
+Unfortunately we can't just GSV it out of the controller.......]]>
+</Comment>
+<Text>
+<![CDATA[LIM(256,Cfg_SlotNumber,-1)CLR(Cfg_SlotNumber);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[If the user changes the Window time, set up the controller path
+and send (MSG) it to the controller's TaskMetrics object.]]>
+</Comment>
+<Text>
+<![CDATA[NEQ(Wrk_WindowT,Wrk_PrevWindowT)[MOV(2,Ref_MsgSetWindow.Path.LEN) ,MOV(1,Ref_MsgSetWindow.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgSetWindow.Path.DATA[1]) ,MSG(Ref_MsgSetWindow) ,XIC(Ref_MsgSetWindow.EN) XIC(Ref_MsgSetWindow.DN) MOV(Wrk_WindowT,Wrk_PrevWindowT) ];]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[The Continuous Task Instance number (Task instance 1 to 31,
+or zero if NO Continuous Task) is used as a pointer in logic below,
+so we need to make sure it is valid so as not to fault the controller.]]>
+</Comment>
+<Text>
+<![CDATA[LIM(32,Cfg_ContTaskInstance,-1)CLR(Cfg_ContTaskInstance);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[============================================================
+PROCESSOR UTILIZATION DATA UPDATE TIMER
+============================================================
+This rung is a self repeating timer for triggering data collection at the Update Time interval.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_UpdateT.DN)TON(Wrk_UpdateT,?,?);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[============================================================
+EVERY UPDATE
+============================================================
+:  Gat Controller Identity Data
+
+Even though it won't be changing, every update we gather the controller Device Identity data.
+Place the Device Identity datat appropriately in the Output (Identity) registers.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_UpdateT.DN)[FLL(0,Ref_Out.Identity.Name[0],33) ,GSV(ControllerDevice,,DeviceName,Ref_Out.Identity.Name[0]) ,MOV(1,Ref_Out.Identity.VendorID) MOV(14,Ref_Out.Identity.ProductType) GSV(ControllerDevice,,ProductCode,Ref_Out.Identity.ProductCode) ,GSV(ControllerDevice,,ProductRev,Wrk_IdentityProductRev) BTD(Wrk_IdentityProductRev,0,Ref_Out.Identity.Major,0,8) BTD(Wrk_IdentityProductRev,8,Ref_Out.Identity.Minor,0,8) ,GSV(ControllerDevice,,SerialNumber,Ref_Out.Identity.Serial) ];]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[Check Controller Firmware version and Controller Product Code
+
+If the Major Revision of the firmware is not 18, or if the
+controller Product Code is for a SOFT controller (SoftLogix, Emulator, etc.),
+then the results of this instruction will not be reliable.  Set the
+"Wrong Version" status in this case.]]>
+</Comment>
+<Text>
+<![CDATA[[NEQ(Ref_Out.Identity.Major,18) ,EQU(Ref_Out.Identity.ProductCode,15) ,EQU(Ref_Out.Identity.ProductCode,53) ,EQU(Ref_Out.Identity.ProductCode,62) ,EQU(Ref_Out.Identity.ProductCode,63) ]OTE(Sts_WrongVersion);]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[Controller Time Slice and Minor Faults
+
+Then get the Controller Time Slice configuration and the Minor Fault
+information and format that into the Output data.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_UpdateT.DN) [GSV(ControllerDevice,,Status,Ref_Out.Identity.Status) ,GSV(Controller,,TimeSlice,Ref_Out.TimeSlice) ,BTD(0,0,Ref_Out.MinorFaultCount,16,16) GSV(FaultLog,,MinorEvents,Ref_Out.MinorFaultCount) ,GSV(FaultLog,,MinorFaultBits,Wrk_MinorFaultBits) ,GSV(Module,,LEDStatus,Ref_Out.IOLEDStatus) ,GSV(Module,,ForceStatus,Ref_Out.ForceStatus) ] ,XIC(Wrk_MinorFaultBits.4) OTE(Ref_Out.MinorFaultProg) ,XIC(Wrk_MinorFaultBits.6) OTE(Ref_Out.MinorFaultTask) ,XIC(Wrk_MinorFaultBits.9) OTE(Ref_Out.MinorFaultPort) ,XIC(Wrk_MinorFaultBits.10) OTE(Ref_Out.MinorFaultBatt) ];]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[If this instruction is NOT ENABLED for data collection,
+clear the Trend Object Usage High Water value,
+reset the update timer, and clear the various status bits.
+
+Then skip the remainder of the code and jump to the end to reduce scan impact.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_Enabled)[CLR(Ref_Out.CommUse.TrendHighWater) ,OTU(Wrk_Poll) OTU(Sts_Done) OTU(Sts_MsgErr) JMP(End) ];]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[============================================================
+MESSAGES TO CIP OBJECTS IN CONTROLLER
+============================================================
+Much of the information we need can only be obtianed via CIP GENERIC Messages.
+
+Each update, we set a latch that is held ON undil ALL the messages
+to the controller to get performance data have finished or errored.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_UpdateT.DN)OTL(Wrk_Poll)OTU(Sts_Done)OTU(Sts_MsgErr);]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[Trend Object Usage
+
+Trend objects are used by Trends (from RSLogix 5000), but are primarily
+used by RSLinx and RSLinx Enterprise to group data for regular reading by the HMI.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_Poll)[MOV(2,Ref_MsgGetTrendObjUse.Path.LEN) ,MOV(1,Ref_MsgGetTrendObjUse.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgGetTrendObjUse.Path.DATA[1]) ,MSG(Ref_MsgGetTrendObjUse) ];]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[Once the Trend Object Usage Message completes,
+store the data in the Output.
+
+Note: the response includes the number of attributes and the attribute numbers,
+so the data values are offset in the array.  See the L_CPU document for more information.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgGetTrendObjUse.EN)XIC(Ref_MsgGetTrendObjUse.DN)[COP(Ref_TrendObjData[3],Ref_Out.CommUse.MaxTrendInstance,1) COP(Ref_TrendObjData[7],Ref_Out.CommUse.NumTrendInstances,1) ,GRT(Ref_Out.CommUse.NumTrendInstances,Ref_Out.CommUse.TrendHighWater) MOV(Ref_Out.CommUse.NumTrendInstances,Ref_Out.CommUse.TrendHighWater) ];]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Comment>
+<![CDATA[Memory Usage
+
+Once the Task 1 Scan Time Message completes (or fails),
+go get the User Memory Usage data.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgGetTrendObjUse.EN)[XIC(Ref_MsgGetTrendObjUse.DN) ,XIC(Ref_MsgGetTrendObjUse.ER) ][MOV(2,Ref_MsgGetMemUse.Path.LEN) ,MOV(1,Ref_MsgGetMemUse.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgGetMemUse.Path.DATA[1]) ,MSG(Ref_MsgGetMemUse) ];]]>
+</Text>
+</Rung>
+<Rung Number="17" Type="N">
+<Comment>
+<![CDATA[Once the User Memory Usage Message completes,
+store the data in the Output.
+
+Note: the response includes the number of attributes and the attribute numbers,
+so the data values are offset in the array.  See the L_CPU document for more information.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgGetMemUse.EN)XIC(Ref_MsgGetMemUse.DN)[COP(Ref_MemUseData[4],Wrk_MemUseFreeIO,1) MUL(Wrk_MemUseFreeIO,4,Ref_Out.MemUse.FreeIO) ,COP(Ref_MemUseData[6],Wrk_MemUseFreeDataLogic,1) MUL(Wrk_MemUseFreeDataLogic,4,Ref_Out.MemUse.FreeDataLogic) ,COP(Ref_MemUseData[8],Wrk_MemUseFreeGen,1) MUL(Wrk_MemUseFreeGen,4,Ref_Out.MemUse.FreeGen) ,COP(Ref_MemUseData[10],Wrk_MemUseFreeSafety,1) MUL(Wrk_MemUseFreeSafety,4,Ref_Out.MemUse.FreeSafety) ,COP(Ref_MemUseData[15],Wrk_MemUseTotalIO,1) MUL(Wrk_MemUseTotalIO,4,Ref_Out.MemUse.TotalIO) ,COP(Ref_MemUseData[17],Wrk_MemUseTotalDataLogic,1) MUL(Wrk_MemUseTotalDataLogic,4,Ref_Out.MemUse.TotalDataLogic) ,COP(Ref_MemUseData[19],Wrk_MemUseTotalGen,1) MUL(Wrk_MemUseTotalGen,4,Ref_Out.MemUse.TotalGen) ,COP(Ref_MemUseData[21],Wrk_MemUseTotalSafety,1) MUL(Wrk_MemUseTotalSafety,4,Ref_Out.MemUse.TotalSafety) ,COP(Ref_MemUseData[26],Wrk_MemUseMinIO,1) MUL(Wrk_MemUseMinIO,4,Ref_Out.MemUse.MinIO) ,COP(Ref_MemUseData[28],Wrk_MemUseMinDataLogic,1) MUL(Wrk_MemUseMinDataLogic,4,Ref_Out.MemUse.MinDataLogic) ,COP(Ref_MemUseData[30],Wrk_MemUseMinGen,1) MUL(Wrk_MemUseMinGen,4,Ref_Out.MemUse.MinGen) ,COP(Ref_MemUseData[32],Wrk_MemUseMinSafety,1) MUL(Wrk_MemUseMinSafety,4,Ref_Out.MemUse.MinSafety) ,COP(Ref_MemUseData[37],Wrk_MemUseMaxBlockIO,1) MUL(Wrk_MemUseMaxBlockIO,4,Ref_Out.MemUse.MaxBlockIO) ,COP(Ref_MemUseData[39],Wrk_MemUseMaxBlockDataLogic,1) MUL(Wrk_MemUseMaxBlockDataLogic,4,Ref_Out.MemUse.MaxBlockDataLogic) ,COP(Ref_MemUseData[41],Wrk_MemUseMaxBlockGen,1) MUL(Wrk_MemUseMaxBlockGen,4,Ref_Out.MemUse.MaxBlockGen) ,COP(Ref_MemUseData[43],Wrk_MemUseMaxBlockSafety,1) MUL(Wrk_MemUseMaxBlockSafety,4,Ref_Out.MemUse.MaxBlockSafety) ];]]>
+</Text>
+</Rung>
+<Rung Number="18" Type="N">
+<Comment>
+<![CDATA[Connection Usage
+
+Once the Memory Usage Message completes, go get the Connection Use data.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgGetMemUse.EN)[XIC(Ref_MsgGetMemUse.DN) ,XIC(Ref_MsgGetMemUse.ER) ][MOV(2,Ref_MsgGetConnUse.Path.LEN) ,MOV(1,Ref_MsgGetConnUse.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgGetConnUse.Path.DATA[1]) ,MSG(Ref_MsgGetConnUse) ];]]>
+</Text>
+</Rung>
+<Rung Number="19" Type="N">
+<Comment>
+<![CDATA[Once the Connection Usage Message completes,
+store the data in the Output.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgGetConnUse.EN)XIC(Ref_MsgGetConnUse.DN)[MOV(Ref_ConnData[3],Ref_Out.ConnUse.TotalAllow) MOV(Ref_ConnData[6],Ref_Out.ConnUse.TotalCurr) MOV(Ref_ConnData[9],Ref_Out.ConnUse.TotalHiWater) ,MOV(Ref_ConnData[12],Ref_Out.ConnUse.IOAllow) MOV(Ref_ConnData[15],Ref_Out.ConnUse.IOCurr) MOV(Ref_ConnData[18],Ref_Out.ConnUse.IOHiWater) ,MOV(Ref_ConnData[21],Ref_Out.ConnUse.ProdAllow) MOV(Ref_ConnData[24],Ref_Out.ConnUse.ProdCurr) MOV(Ref_ConnData[27],Ref_Out.ConnUse.ProdHiWater) ,MOV(Ref_ConnData[30],Ref_Out.ConnUse.ConsAllow) MOV(Ref_ConnData[33],Ref_Out.ConnUse.ConsCurr) MOV(Ref_ConnData[36],Ref_Out.ConnUse.ConsHiWater) ,MOV(Ref_ConnData[39],Ref_Out.ConnUse.MSGCurr) MOV(Ref_ConnData[42],Ref_Out.ConnUse.MSGHiWater) ,MOV(Ref_ConnData[45],Ref_Out.ConnUse.IncomCurr) MOV(Ref_ConnData[48],Ref_Out.ConnUse.IncomHiWater) ,COP(Ref_ConnData[51],Ref_Out.ConnUse.UCBsAllow,1) COP(Ref_ConnData[59],Ref_Out.ConnUse.UCBsCurr,1) COP(Ref_ConnData[55],Ref_Out.ConnUse.UCBsHiWater,1) ,MOV(Ref_ConnData[63],Ref_Out.ConnUse.MCacheAllow) MOV(Ref_ConnData[66],Ref_Out.ConnUse.MCacheCurr) MOV(Ref_ConnData[69],Ref_Out.ConnUse.MCacheHiWater) ];]]>
+</Text>
+</Rung>
+<Rung Number="20" Type="N">
+<Comment>
+<![CDATA[Task Times (CPU Utilization)
+
+NOTE:  The Tast Times data are version specific.  Don't even try to process
+these items if we're not Version 18 or if we're a Soft / Emulated controller!
+
+Once the Connection Usage Message completes (or fails),
+go get the Operating System Task Times data.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_WrongVersion)XIC(Ref_MsgGetConnUse.EN)[XIC(Ref_MsgGetConnUse.DN) ,XIC(Ref_MsgGetConnUse.ER) ][MOV(2,Ref_MsgGetOSTaskTimes.Path.LEN) ,MOV(1,Ref_MsgGetOSTaskTimes.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgGetOSTaskTimes.Path.DATA[1]) ,MSG(Ref_MsgGetOSTaskTimes) ];]]>
+</Text>
+</Rung>
+<Rung Number="21" Type="N">
+<Comment>
+<![CDATA[And once the Operating System Task Times Message completes (don't bother if it fails!),
+go get the User Task Times data.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_WrongVersion)XIC(Ref_MsgGetOSTaskTimes.EN)XIC(Ref_MsgGetOSTaskTimes.DN)[MOV(2,Ref_MsgGetUserTaskTimes.Path.LEN) ,MOV(1,Ref_MsgGetUserTaskTimes.Path.DATA[0]) ,MOV(Cfg_SlotNumber,Ref_MsgGetUserTaskTimes.Path.DATA[1]) ,MSG(Ref_MsgGetUserTaskTimes) ];]]>
+</Text>
+</Rung>
+<Rung Number="22" Type="N">
+<Comment>
+<![CDATA[Once BOTH TaskTime Messages complete,
+store the data in the Output.
+
+Note: the response format is Logix version 18.xx specific]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_WrongVersion)XIC(Ref_MsgGetUserTaskTimes.EN)XIC(Ref_MsgGetUserTaskTimes.DN)GRT(Ref_TaskTimeData[0],0)[CPT(Ref_Out.CPUUse.Comms,100.0*(Ref_TaskTimeData[2]+Ref_TaskTimeData[3]+Ref_TaskTimeData[4]+Ref_TaskTimeData[20]+Ref_TaskTimeData[21]+Ref_TaskTimeData[23]+Ref_TaskTimeData[29]+Ref_TaskTimeData[42]+Ref_TaskTimeData[43]+Ref_TaskTimeData[44]+Ref_TaskTimeData[45]+Ref_TaskTimeData[46]+Ref_TaskTimeData[47]+Ref_TaskTimeData[48]+Ref_TaskTimeData[49]+Ref_TaskTimeData[50]+Ref_TaskTimeData[51])/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.Messaging,100.0*Ref_TaskTimeData[14]/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.Motion,100.0*Ref_TaskTimeData[17]/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.Redundancy,100.0*(Ref_TaskTimeData[30]+Ref_TaskTimeData[31]+Ref_TaskTimeData[32]+Ref_TaskTimeData[34]+Ref_TaskTimeData[41]+Ref_TaskTimeData[52])/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.Safety,100.0*(Ref_TaskTimeData[37]+Ref_TaskTimeData[38]+Ref_TaskTimeData[39])/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.System,100.0*(Ref_TaskTimeData[5]+Ref_TaskTimeData[6]+Ref_TaskTimeData[8]+Ref_TaskTimeData[9]+Ref_TaskTimeData[11]+Ref_TaskTimeData[12]+Ref_TaskTimeData[13]+Ref_TaskTimeData[16]+Ref_TaskTimeData[19]+Ref_TaskTimeData[22]+Ref_TaskTimeData[24]+Ref_TaskTimeData[25]+Ref_TaskTimeData[26]+Ref_TaskTimeData[27]+Ref_TaskTimeData[28]+Ref_TaskTimeData[33]+Ref_TaskTimeData[35]+Ref_TaskTimeData[36]+Ref_TaskTimeData[40]+Ref_TaskTimeData[59]+Ref_TaskTimeData[60]+Ref_TaskTimeData[61]+Ref_TaskTimeData[62]+Ref_TaskTimeData[63])/Ref_TaskTimeData[0]) ];]]>
+</Text>
+</Rung>
+<Rung Number="23" Type="N">
+<Comment>
+<![CDATA[Once BOTH TaskTime Messages complete,
+store the data in the Output.
+
+Note: the response format is Logix version 18.xx specific.
+
+#####  V3.0-00  2013-06-30:  Modified rung to use configured Continuous Task instance number  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Sts_WrongVersion)XIC(Ref_MsgGetUserTaskTimes.EN)XIC(Ref_MsgGetUserTaskTimes.DN)GRT(Ref_TaskTimeData[0],0)[COP(Ref_TaskTimeData[70],Wrk_UserTaskTimes[0],32) ,CLR(Wrk_TaskTimesSum) ,FAL(Wrk_TaskTimesSumCtrl,?,?,all,Wrk_TaskTimesSum,Wrk_TaskTimesSum+Wrk_UserTaskTimes[Wrk_TaskTimesSumCtrl.POS]) ,CPT(Wrk_CommsSubtotal,Ref_TaskTimeData[0]-Ref_TaskTimeData[6]-Ref_TaskTimeData[8]-Ref_TaskTimeData[9]-Ref_TaskTimeData[10]-Ref_TaskTimeData[12]-Ref_TaskTimeData[16]-Ref_TaskTimeData[17]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[19]-Ref_TaskTimeData[21]-Ref_TaskTimeData[22]-Ref_TaskTimeData[23]-Ref_TaskTimeData[24]-Ref_TaskTimeData[25]-Ref_TaskTimeData[26]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[27]-Ref_TaskTimeData[28]-Ref_TaskTimeData[29]-Ref_TaskTimeData[30]-Ref_TaskTimeData[31]-Ref_TaskTimeData[33]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[34]-Ref_TaskTimeData[35]-Ref_TaskTimeData[38]-Ref_TaskTimeData[39]-Ref_TaskTimeData[40]-Ref_TaskTimeData[3]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[2]-Ref_TaskTimeData[41]-Ref_TaskTimeData[52]-Ref_TaskTimeData[60]-Ref_TaskTimeData[61]-Ref_TaskTimeData[62]-Ref_TaskTimeData[63]) ,EQU(Cfg_ContTaskInstance,0) [CPT(Ref_Out.CPUUse.PeriodicAndEvent,100.0*(Wrk_TaskTimesSum+Ref_TaskTimeData[10])/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.ContinuousOrFree,100.0*Ref_TaskTimeData[1]/Ref_TaskTimeData[0]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Wrk_TaskTimesSum) ] ,NEQ(Cfg_ContTaskInstance,0) [CPT(Ref_Out.CPUUse.PeriodicAndEvent,100.0*(Wrk_TaskTimesSum+Ref_TaskTimeData[10]-Wrk_UserTaskTimes[Cfg_ContTaskInstance])/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CPUUse.ContinuousOrFree,100.0*Wrk_UserTaskTimes[Cfg_ContTaskInstance]/Ref_TaskTimeData[0]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Wrk_TaskTimesSum+Wrk_UserTaskTimes[Cfg_ContTaskInstance]) ,CPT(Wrk_CommsSubtotal,0.01*Ref_Out.TimeSlice*Wrk_CommsSubtotal) ] ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[5]-Ref_TaskTimeData[13]-Ref_TaskTimeData[14]-Ref_TaskTimeData[20]-Ref_TaskTimeData[32]-Ref_TaskTimeData[36]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[37]-Ref_TaskTimeData[42]-Ref_TaskTimeData[43]-Ref_TaskTimeData[44]-Ref_TaskTimeData[45]-Ref_TaskTimeData[46]) ,CPT(Wrk_CommsSubtotal,Wrk_CommsSubtotal-Ref_TaskTimeData[47]-Ref_TaskTimeData[48]-Ref_TaskTimeData[49]-Ref_TaskTimeData[50]-Ref_TaskTimeData[51]-Ref_TaskTimeData[59]) ,CPT(Ref_Out.CommUse.RespCPUAvail,100.0*Wrk_CommsSubtotal/Ref_TaskTimeData[0]) ,CPT(Ref_Out.CommUse.RespCPUAct,100.0*Ref_TaskTimeData[4]/Ref_TaskTimeData[0]) ];]]>
+</Text>
+</Rung>
+<Rung Number="24" Type="N">
+<Comment>
+<![CDATA[If all the Messages we're using went DONE, clear the Message Error Status.
+
+#####  V3.0.00  2013-06-30:  Modified to remove Main Task Scan Time message.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Ref_MsgSetWindow.DN)XIC(Ref_MsgGetTrendObjUse.DN)XIC(Ref_MsgGetMemUse.DN)XIC(Ref_MsgGetConnUse.DN)[XIC(Ref_MsgGetOSTaskTimes.DN) XIC(Ref_MsgGetUserTaskTimes.DN) ,XIC(Sts_WrongVersion) ]OTU(Sts_MsgErr);]]>
+</Text>
+</Rung>
+<Rung Number="25" Type="N">
+<Comment>
+<![CDATA[If any of the Messages we're using ERRORED, set the Message Error Status.
+
+#####  V3.0.00  2013-06-30:  Modified to remove Main Task Scan Time message.  #####]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Ref_MsgSetWindow.ER) ,XIC(Ref_MsgGetTrendObjUse.ER) ,XIC(Ref_MsgGetMemUse.ER) ,XIC(Ref_MsgGetConnUse.ER) ,XIO(Sts_WrongVersion) [XIC(Ref_MsgGetOSTaskTimes.ER) ,XIC(Ref_MsgGetUserTaskTimes.ER) ] ]OTL(Sts_MsgErr);]]>
+</Text>
+</Rung>
+<Rung Number="26" Type="N">
+<Comment>
+<![CDATA[If this is the correct version of firmware and a supported controller,
+once the Task Times are done (or errored), we're dont with this poll.
+
+If this is NOT the correct verion or a supported controller,
+we skipped the Task Times.  We're done when the Connection Usage
+has finished (or errored).]]>
+</Comment>
+<Text>
+<![CDATA[[XIO(Sts_WrongVersion) [XIC(Ref_MsgGetUserTaskTimes.EN) [XIC(Ref_MsgGetUserTaskTimes.DN) ,XIC(Ref_MsgGetUserTaskTimes.ER) ] ,XIC(Ref_MsgGetOSTaskTimes.EN) XIC(Ref_MsgGetOSTaskTimes.ER) ] ,XIC(Sts_WrongVersion) XIC(Ref_MsgGetConnUse.EN) [XIC(Ref_MsgGetConnUse.DN) ,XIC(Ref_MsgGetConnUse.ER) ] ][OTU(Wrk_Poll) ,XIO(Sts_MsgErr) OTL(Sts_Done) ];]]>
+</Text>
+</Rung>
+<Rung Number="27" Type="N">
+<Comment>
+<![CDATA[============================================================
+STATUS AND READIES
+============================================================
+If the instruction is Enabled:
+
+* Show the Enabled status.
+* If it is in the midst of polling the CPU data, show the Busy status.
+*  If the Update timer is timing but the poll is NOT busy, show the Timing status.
+(Sts_MsgErr and Sts_Done are handled above.)
+*  Show Ready to receive the Disable command.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(End)XIC(Wrk_Enabled)[OTE(Sts_Enabled) ,XIC(Wrk_Poll) OTE(Sts_Busy) ,XIC(Wrk_UpdateT.TT) XIO(Wrk_Poll) OTE(Sts_Timing) ,OTE(Rdy_Disable) ];]]>
+</Text>
+</Rung>
+<Rung Number="28" Type="N">
+<Comment>
+<![CDATA[Finally, if the instruction is NOT Enabled, it is Ready to receive the Enable command.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_Enabled)OTE(Rdy_Enable);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Initialize "high water" data, "previous" data. Stop active polling and set to Disabled state.]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+PRESCAN :  Initialize
+============================================================
+This rung clears the "previous" Window Time configuration, forcing the
+instruction to write the window time MSG when first scanned, and
+clears the instruction-trackedTrend use  "high water" value.
+
+Any active polling is stopped and the instruction is set to the
+"Disabled" state.  Data collection must be manually Enabled.]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_PrevWindowT)CLR(Ref_Out.CommUse.TrendHighWater)OTU(Wrk_Poll)OTU(Wrk_Enabled);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA["Lurking" Operator Commands are cleared.]]>
+</Comment>
+<Text>
+<![CDATA[OTU(MCmd_Disable)OTU(MCmd_Enable);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+<Dependency Type="DataType" Name="L_CPU_Out"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+<ControllerDevice Use="Reference">
+</ControllerDevice>
+<FaultLog Use="Reference">
+</FaultLog>
+</Controller>
+</RSLogix5000Content>

@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Thu Apr 23 16:22:24 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+<DataType Name="DateTime" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Date and TimeOfDay (absolute) or Time (duration/interval)]]>
+</Description>
+<Members>
+<Member Name="Yr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Year(s)]]>
+</Description>
+</Member>
+<Member Name="Mo" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Month(s)]]>
+</Description>
+</Member>
+<Member Name="Da" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Day(s)]]>
+</Description>
+</Member>
+<Member Name="Hr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Hour(s)]]>
+</Description>
+</Member>
+<Member Name="Min" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Minute(s)]]>
+</Description>
+</Member>
+<Member Name="Sec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Second(s)]]>
+</Description>
+</Member>
+<Member Name="uSec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Microsecond(s)]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="T_Now" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2008-04-04T14:39:38.945Z" CreatedBy="Not Available" EditedDate="2009-04-23T20:17:18.247Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Current DateTime]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial formal release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Returns the current local Date and Time from the controller clock as a DateTime In/Out Parameter
+
+This instuction depends on the (external) DateTime data type:
+   Yr : DINT    year
+   Mo : DINT    month
+   Da : DINT    day
+   Hr : DINT    hour
+   Min : DINT    minute
+   Sec : DINT    second
+   uSec : DINT    microsecond]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Ref_Out" DataType="DateTime" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Returned current date/time from controller clock]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_DT" DataType="DINT" Dimensions="7" Radix="Decimal">
+<Description>
+<![CDATA[Date / Time from GSV instruction (requires array)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Returns current Local Date and Time to a Date/Time in/out parameter]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+T_Now:  TIME -- RETURN CURRENT DATE / TIME
+============================================================
+Revision 1.0-00 - Release:  2009-04-24
+Initial formal release
+============================================================
+Returns the current local Date and Time from the controller clock as a DateTime
+(Yr : DINT, 
+Mo : DINT,
+Da : DINT,
+Hr : DINT,
+Min : DINT,
+Sec : DINT,
+uSec : DINT)
+============================================================
+POWERUP / INVALID STATE HANDLING
+============================================================
+This object returns the date and time every scan when enabled.
+No powerup or invalid state handling is necessary.
+============================================================
+GET CURRENT LOCAL TIME
+============================================================
+Use a GSV (Get System Value) to get the current local clock time.]]>
+</Comment>
+<Text>
+<![CDATA[GSV(WallClockTime,,LocalDateTime,Wrk_DT[0]);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[Return the date and time values in the In/Out (reference) DateTime Tag.
+
+(NOTE: You can type <ALT>- 0 (zero) or click the "tree structure" icon on the toolbar
+to close the Controller Organizer tree if you would like a wider view of this rung.)]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_DT[0],Ref_Out.Yr)MOV(Wrk_DT[1],Ref_Out.Mo)MOV(Wrk_DT[2],Ref_Out.Da)MOV(Wrk_DT[3],Ref_Out.Hr)MOV(Wrk_DT[4],Ref_Out.Min)MOV(Wrk_DT[5],Ref_Out.Sec)MOV(Wrk_DT[6],Ref_Out.uSec);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="DateTime"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+<WallClockTime Use="Context">
+</WallClockTime>
+</Controller>
+</RSLogix5000Content>

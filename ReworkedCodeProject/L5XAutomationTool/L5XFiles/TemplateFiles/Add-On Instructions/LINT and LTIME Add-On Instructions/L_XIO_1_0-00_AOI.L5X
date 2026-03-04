@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Fri Jul 31 11:02:43 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+<DataType Name="L_LINT_BOOL_ARRAY" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[UDT containing a 64-bit (LINT-sized) BOOL array for use as a COP destination]]>
+</Description>
+<Members>
+<Member Name="Bit" DataType="BOOL" Dimension="64" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Bit array]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_XIO" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2009-07-07T16:39:50.037Z" CreatedBy="Not Available" EditedDate="2009-07-31T15:02:33.497Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Examine Off (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction examines the given Bit of the input LINT (64-bit integer)
+and outputs TRUE (1) if the bit is 1, FALSE (0) if the bit is 0.
+
+NOTE:  Use the output rung state or EnableOut to feed downstream logic.
+The output bit "Out" reflects ONLY the state of the given bit, for ladder
+animation, and NOT the RUNG STATE!!!
+
+If the given Bit number is outside the range 0..63, the controller will
+MAJOR FAULT on an invalid array index (bad bit number). To keep
+performance "snappy", there is no validity checking of the given Bit number!]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp_LINT" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[LINT in which to examine a bit]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_BitNum" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Bit position to examine (0 .. 63)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Out" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[Output: TRUE if given bit is true (1)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Bit" DataType="L_LINT_BOOL_ARRAY">
+<Description>
+<![CDATA[Array of 64 BOOLs (must be in a UDT to COPy to it)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[If rung is false, clear output "Out"]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE LOGIC
+============================================================
+When EnableIn is false (false rung in LD, input of 0 in FBD),
+the main Logic Routine is not scanned.
+
+We still need the output "Out" to reflect the input bit state.
+So grab the input LINT and test the bit.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_LINT,Wrk_Bit,1);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[Examine (OFF) the bit in the BOOL [ 64 ] array and output the result
+to Out for animation.  NOTE: the EnableInFalse Routine cannot set EnableOut.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_Bit.Bit[Inp_BitNum])OTE(Out);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Examine given bit in LINT input; output TRUE if bit is FALSE (0)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_XIO : 64-bit Examine OFF
+============================================================
+Revision 1.0-00 Release:  2009-Jun-31
+Initial Release
+============================================================
+Examines the given Bit of the input LINT (64-bit integer) and outputs
+TRUE if the bit is 0 (false), FALSE if the bit is 1 (true).
+
+Logix (V16/V17) has a LINT data type, but bit instructions
+(and AOI Input and Output Parameters) don't support LINT.
+
+This version of the L_XIO instruction:
+
+*  copies the input LINT into a 64-bit BOOL array
+(This must be done with a UDT -- you can't COPy to
+a BOOL array -- so there is a dependency on an
+external type definition -- UDT!)
+
+*  does NO checking of the bit number
+(If the bit number is not in the range 0 to 63, the
+controller will fault on an invalid array index!)
+
+===================================================
+CONVERT LINT TO BOOL [ array ]
+===================================================
+This COPy takes the input LINT and copies it into a BOOL array.
+NOTE:  a BOOL array must be placed inside a UDT to do a COPy to it!!!]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_LINT,Wrk_Bit,1);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[Examine (XIO) the bit in the BOOL [ 64 ] array and output the result
+to Out and to EnableOut (to drive the rung condition).]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_Bit.Bit[Inp_BitNum])OTE(EnableOut)OTE(Out);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="L_LINT_BOOL_ARRAY"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

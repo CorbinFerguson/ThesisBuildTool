@@ -1,0 +1,1948 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Operator Prompt-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_Prompt" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:38:14.815Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:38:23 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="P_PromptCfg" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Prompt Instance Configuration Data]]>
+</Description>
+<Members>
+<Member Name="Cfg_Message" DataType="STRING" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Message to display to operator]]>
+</Description>
+</Member>
+<Member Name="Cfg_Label" DataType="STRING_20" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Title of this instance for prompt list displays]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValLabel" DataType="STRING_20" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Labels for numeric entry fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispValLabel" DataType="STRING_20" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Labels for numeric display fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_SelectLabel" DataType="STRING_20" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Labels for operator selection radio buttons]]>
+</Description>
+</Member>
+<Member Name="Cfg_RespLabel" DataType="STRING_20" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Labels for response string entry fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispValEU" DataType="STRING_8" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Engineering units text for numeric display fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValEU" DataType="STRING_8" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Engineering units text for numeric entry fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispVal" DataType="REAL" Dimension="4" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Values for numeric display fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValLoLim" DataType="REAL" Dimension="4" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minimum allowed numeric entry values]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValHiLim" DataType="REAL" Dimension="4" Radix="Float" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maximum allowed numeric entry values]]>
+</Description>
+</Member>
+<Member Name="Cfg_HasDispVal" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits enable (make visible) numeric display fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispValUsesInp" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits=1=Use AOI Input for display value, 0=use configuration for display value]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispValScl" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits=1=Apply scaling input to display value, 0=use value as is]]>
+</Description>
+</Member>
+<Member Name="Cfg_DispValVrfy" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits=1=User must he has read the display value]]>
+</Description>
+</Member>
+<Member Name="Cfg_HasSelect" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits enable (make visible) individual selection buttons]]>
+</Description>
+</Member>
+<Member Name="Cfg_SelectDef" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bit chooses default operator selection (pre-selects radio button)]]>
+</Description>
+</Member>
+<Member Name="Cfg_HasInpVal" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits enable (make visible) numeric entry fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValNotReqd" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits=1=Operator numeric entry is not required, 0=operator must enter value]]>
+</Description>
+</Member>
+<Member Name="Cfg_InpValDefMax" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[If not required, bits=1=sets default value to Max, 0=sets to Min]]>
+</Description>
+</Member>
+<Member Name="Cfg_HasResp" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits enable (make visible) response string entry fields]]>
+</Description>
+</Member>
+<Member Name="Cfg_RespNotReqd" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Bits=1=Operator response string entry is not required, 0=operator must enter response]]>
+</Description>
+</Member>
+<Member Name="ZZZZZZZZZZP_PromptCf22" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="true" ExternalAccess="Read/Write"/>
+<Member Name="Cfg_AlertDefeat" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZP_PromptCf22" BitNumber="0" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Disables the Alert icon (orange (!) ) for standalone use]]>
+</Description>
+</Member>
+</Members>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_8"/>
+<Dependency Type="DataType" Name="STRING_8"/>
+</Dependencies>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="P_PromptResp" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Operator-Entered Prompt Response Data (as Strings)]]>
+</Description>
+<Members>
+<Member Name="Selection" DataType="STRING_20" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Text of operator-selected option]]>
+</Description>
+</Member>
+<Member Name="NumericInput" DataType="STRING_16" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Text of operator's numeric entries]]>
+</Description>
+</Member>
+<Member Name="CharInput" DataType="STRING_40" Dimension="4" Radix="NullType" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Text of operator's response strings]]>
+</Description>
+</Member>
+</Members>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+<Dependency Type="DataType" Name="STRING_40"/>
+</Dependencies>
+</DataType>
+<DataType Name="STRING_8" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="8" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_Prompt" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2012-07-25T16:53:44.728Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:38:14.815Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02" SourceKey="eladdrawdedeer" SourceProtectionType="Full Protection">
+<Description>
+<![CDATA[Operator Prompt]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This instruction is used to post a prompt (with data, see below)
+to an operator and accept operator-input data (see below) and
+confirmation.
+
+The configuration data for a set of prompts are stored in a separate
+array. An array element of prompt configuration data includes:
+
+*  Prompt message displayed to operator (80-character string)
+*  A prompt label (20 characters) for use on prompt list displays
+*  Configuration for FOUR response selections (operator chooses
+   one of the four buttons), each with:
+    - selection label (20 character string)
+    - selection enable
+    - selection default
+*  Configuration for FOUR numeric (REAL) display values, each with:
+    - display value label (20 char)
+    - display value engineering units (8 char)
+    - display value enable
+    - value to display (from configuration or AOI input)
+    - option to scale displayed value
+*  Configuration for FOUR numeric (REAL) operator entries, each with:
+    - numeric entry label (20 char)
+    - numeric entry engineering units (8 char)
+    - entry low and high limits (REAL)
+    - option for entry required or not
+    - if entry not required, option to use minimum or maximum
+       value as entry default
+    - option to require operator verify entered value
+*  Configuration for FOUR string response operator entries, each with:
+    - response label (20 char)
+    - response enable
+    - option for response entry (non-empty string) required
+
+The prompt response includes the numeric entries, the operator
+selection (choice among up to four), and the operator response
+string entries.  The number entries are also available as 16-
+character text strings for use in building text for reports, etc.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Req" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Input to Enable an Operator Prompt]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Ref" TagType="Base" DataType="DINT" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Manual Prompt Configuration in the Array to Use]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_ScalePct" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Percent By Which to Scale Configured Numeric Display Values]]>
+</Description>
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Real_0" TagType="Alias" Usage="Input" Radix="Float" AliasFor="Inp_Real[0]" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Programmatic Real Value to Display (0)]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Real_1" TagType="Alias" Usage="Input" Radix="Float" AliasFor="Inp_Real[1]" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Programmatic Real Value to Display (1)]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Real_2" TagType="Alias" Usage="Input" Radix="Float" AliasFor="Inp_Real[2]" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Programmatic Real Value to Display (2)]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Real_3" TagType="Alias" Usage="Input" Radix="Float" AliasFor="Inp_Real[3]" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Programmatic Real Value to Display (3)]]>
+</Description>
+</Parameter>
+<Parameter Name="OCmd_Cfm" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Operator Confirmation]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Cfm" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Operator Confirmation Output]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Rdy" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Prompt is Ready to be Displayed]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Select" TagType="Alias" Usage="Output" Radix="Decimal" AliasFor="OSet_Select" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Value of Operator Response to Selector]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Real_0" TagType="Alias" Usage="Output" Radix="Float" AliasFor="Out_Real[0]" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Real Numeric Value of Operator Entry (0)]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Real_1" TagType="Alias" Usage="Output" Radix="Float" AliasFor="Out_Real[1]" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Real Numeric Value of Operator Entry (1)]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Real_2" TagType="Alias" Usage="Output" Radix="Float" AliasFor="Out_Real[2]" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Real Numeric Value of Operator Entry (2)]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Real_3" TagType="Alias" Usage="Output" Radix="Float" AliasFor="Out_Real[3]" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Real Numeric Value of Operator Entry (3)]]>
+</Description>
+</Parameter>
+<Parameter Name="Val_Ref" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Number of Manual Prompt Configuration in the Array Used]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Alert" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Status for Alert Breadcrumb]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_RefChg" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=The Inp_Ref Has Changed (Single Scan)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Error in Config, see detail bits for reason]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_PromptCfgSize" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Error in size of an array in the P_PromptCfg UDT definition]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_RespDataSize" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Error in size of an array in the P_PromptResp UDT definition]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_MsgRef" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Error in Value of Inp_Ref (past end of prompt array)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Rdy_Cfm" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Prompt Ready for Operator Confirmation]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Prompts" TagType="Base" DataType="P_PromptCfg" Dimensions="1" Usage="InOut" Required="true" Visible="true" Constant="false"/>
+<Parameter Name="RespData" TagType="Base" DataType="P_PromptResp" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Structure to Hold Most Recent Response Data in Character Format]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Init" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxIndexMPArray" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Idx1" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_IMPR_Latch" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_MaxPromptIdx" DataType="DINT" Radix="Decimal" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="OSet_Select" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<DefaultData>04</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="4"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Alrt_Resp" DataType="SINT" Radix="Decimal" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Alrt_InpVal" DataType="SINT" Radix="Decimal" ExternalAccess="Read Only">
+<Description>
+<![CDATA[A required input value has not been entered]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Alrt_DispVal" DataType="SINT" Radix="Decimal" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Prompt" DataType="P_PromptCfg" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="P_PromptCfg">
+<StructureMember Name="Cfg_Message" DataType="STRING">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</StructureMember>
+<StructureMember Name="Cfg_Label" DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</StructureMember>
+<ArrayMember Name="Cfg_InpValLabel" DataType="STRING_20" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_DispValLabel" DataType="STRING_20" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_SelectLabel" DataType="STRING_20" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_RespLabel" DataType="STRING_20" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_20">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_20" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_DispValEU" DataType="STRING_8" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_InpValEU" DataType="STRING_8" Dimensions="4">
+<Element Index="[0]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[1]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[2]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+<Element Index="[3]">
+<Structure DataType="STRING_8">
+<DataValueMember Name="LEN" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="DATA" DataType="STRING_8" Radix="ASCII">
+<![CDATA[]]>
+</DataValueMember>
+</Structure>
+</Element>
+</ArrayMember>
+<ArrayMember Name="Cfg_DispVal" DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</ArrayMember>
+<ArrayMember Name="Cfg_InpValLoLim" DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</ArrayMember>
+<ArrayMember Name="Cfg_InpValHiLim" DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</ArrayMember>
+<DataValueMember Name="Cfg_HasDispVal" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_DispValUsesInp" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_DispValScl" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_DispValVrfy" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_HasSelect" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_SelectDef" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_HasInpVal" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_InpValNotReqd" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_InpValDefMax" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_HasResp" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_RespNotReqd" DataType="SINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Cfg_AlertDefeat" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Alrt_Select" DataType="BOOL" Radix="Decimal" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="OSet_RealOut" DataType="REAL" Dimensions="4" Radix="Float" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="OSet_Resp" DataType="STRING_40" Dimensions="4" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_nullString" DataType="STRING_16" ExternalAccess="None">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_scrString" DataType="STRING_16" ExternalAccess="None">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="0">
+<![CDATA['']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Val_DispReal" DataType="REAL" Dimensions="4" Radix="Float" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_scrReal" DataType="REAL" Radix="Float" ExternalAccess="None">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inp_Real" DataType="REAL" Dimensions="4" Radix="Float" ExternalAccess="Read/Write">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Out_Real" DataType="REAL" Dimensions="4" Radix="Float" ExternalAccess="Read Only">
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="REAL" Dimensions="4" Radix="Float">
+<Element Index="[0]" Value="0.0"/>
+<Element Index="[1]" Value="0.0"/>
+<Element Index="[2]" Value="0.0"/>
+<Element Index="[3]" Value="0.0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_None" DataType="STRING_8" ExternalAccess="None">
+<DefaultData>06 00 00 00 3C 4E 6F 6E 65 3E 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['<None>']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Alrt_Cfm" DataType="BOOL" Radix="Decimal" ExternalAccess="Read Only">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_NotInit" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<DefaultData>00 00 00 80</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="-2147483648"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<DefaultData>08 00 00 00 50 5F 50 72 6F 6D 70 74 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="8">
+<![CDATA['P_Prompt']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<DefaultData>05 00 00 00 52 41 2D 55 49 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="5">
+<![CDATA['RA-UI']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Idx2" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="OSet_DispValVrfy" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_RefOld" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_RespErr" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Buffer bit for building Err_RespDataSize]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CfgErr" DataType="BOOL" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Buffer bit for building Err_PromptCfgSize]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="ST">
+<Description>
+<![CDATA[Post selected operator prompt with data and accept operator inputs (string and numeric) and selection.]]>
+</Description>
+<STContent>
+<Line Number="0">
+<![CDATA[// Copyright © Rockwell Automation, Inc.  All Rights Reserved.]]>
+</Line>
+<Line Number="1">
+<![CDATA[//================================================================]]>
+</Line>
+<Line Number="2">
+<![CDATA[// P_PROMPT :  USER INTERFACE -- PROMPT]]>
+</Line>
+<Line Number="3">
+<![CDATA[//================================================================]]>
+</Line>
+<Line Number="4">
+<![CDATA[//   Revision 3.1-01 Release 2014-09-03: See V3.1-xx Release Notes for details.]]>
+</Line>
+<Line Number="5">
+<![CDATA[// V3.0-00 2014-01-30: New Instruction for Library of Process Objects V3.0.]]>
+</Line>
+<Line Number="6">
+<![CDATA[//   See Release Notes for Library version 3.0-06 for details on this release.]]>
+</Line>
+<Line Number="7">
+<![CDATA[// V3.0-01 2014-04-04: Additional error checking on Prompts array sizes;]]>
+</Line>
+<Line Number="8">
+<![CDATA[//   fix on display value alerting.]]>
+</Line>
+<Line Number="9">
+<![CDATA[// V3.0-02 2014-06-12: Modified configuration error checking.]]>
+</Line>
+<Line Number="10">
+<![CDATA[// V3.1-00 2014-06-30: Unmodified for Library of Process Objects V3.1, up-rev only.]]>
+</Line>
+<Line Number="11">
+<![CDATA[// V3.1-01 2014-09-03: Unmodified, up-rev only for V3.1-01 public release.]]>
+</Line>
+<Line Number="12">
+<![CDATA[//================================================================]]>
+</Line>
+<Line Number="13">
+<![CDATA[// This instruction is used to post a prompt (possibly with data)]]>
+</Line>
+<Line Number="14">
+<![CDATA[// to an operator and (optionally) accept operator-input]]>
+</Line>
+<Line Number="15">
+<![CDATA[// numeric and text data, selection choice, and confirmation.]]>
+</Line>
+<Line Number="16">
+<![CDATA[]]>
+</Line>
+<Line Number="17">
+<![CDATA[If s:fs OR NOT(Init) OR Sts_Err Then]]>
+</Line>
+<Line Number="18">
+<![CDATA[	SIZE(Prompts,0,Wrk_MaxIndexMPArray);]]>
+</Line>
+<Line Number="19">
+<![CDATA[	Wrk_MaxIndexMPArray:=Wrk_MaxIndexMPArray-1;]]>
+</Line>
+<Line Number="20">
+<![CDATA[	Val_MaxPromptIdx:=Wrk_MaxIndexMPArray;]]>
+</Line>
+<Line Number="21">
+<![CDATA[]]>
+</Line>
+<Line Number="22">
+<![CDATA[//V3.0-01 Added Err_PromptCfgSize, Err_RespDataSize.]]>
+</Line>
+<Line Number="23">
+<![CDATA[//V3.0-02 Replaced UID/UIE with buffer bits]]>
+</Line>
+<Line Number="24">
+<![CDATA[]]>
+</Line>
+<Line Number="25">
+<![CDATA[	Wrk_CfgErr := 0;]]>
+</Line>
+<Line Number="26">
+<![CDATA[]]>
+</Line>
+<Line Number="27">
+<![CDATA[	SIZE(Prompt.Cfg_InpValLabel,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="28">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="29">
+<![CDATA[	SIZE(Prompt.Cfg_DispValLabel,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="30">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="31">
+<![CDATA[	SIZE(Prompt.Cfg_SelectLabel,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="32">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="33">
+<![CDATA[	SIZE(Prompt.Cfg_RespLabel,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="34">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="35">
+<![CDATA[	SIZE(Prompt.Cfg_DispValEU,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="36">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="37">
+<![CDATA[	SIZE(Prompt.Cfg_InpValEU,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="38">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="39">
+<![CDATA[	SIZE(Prompt.Cfg_DispVal,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="40">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="41">
+<![CDATA[	SIZE(Prompt.Cfg_InpValLoLim,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="42">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="43">
+<![CDATA[	SIZE(Prompt.Cfg_InpValHiLim,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="44">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_CfgErr:=1; End_If;]]>
+</Line>
+<Line Number="45">
+<![CDATA[]]>
+</Line>
+<Line Number="46">
+<![CDATA[	Err_PromptCfgSize := Wrk_CfgErr;]]>
+</Line>
+<Line Number="47">
+<![CDATA[]]>
+</Line>
+<Line Number="48">
+<![CDATA[	Wrk_RespErr := 0;]]>
+</Line>
+<Line Number="49">
+<![CDATA[]]>
+</Line>
+<Line Number="50">
+<![CDATA[	SIZE(RespData.NumericInput,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="51">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_RespErr:=1; End_If;]]>
+</Line>
+<Line Number="52">
+<![CDATA[	SIZE(RespData.CharInput,0,Wrk_Idx1);]]>
+</Line>
+<Line Number="53">
+<![CDATA[	If Wrk_Idx1<4 Then Wrk_RespErr:=1; End_If;]]>
+</Line>
+<Line Number="54">
+<![CDATA[]]>
+</Line>
+<Line Number="55">
+<![CDATA[	Err_RespDataSize := Wrk_RespErr;]]>
+</Line>
+<Line Number="56">
+<![CDATA[]]>
+</Line>
+<Line Number="57">
+<![CDATA[// ----V3.0-01, V3.0-02]]>
+</Line>
+<Line Number="58">
+<![CDATA[]]>
+</Line>
+<Line Number="59">
+<![CDATA[	Wrk_IMPR_Latch:=0;]]>
+</Line>
+<Line Number="60">
+<![CDATA[	OSet_Select:=0;]]>
+</Line>
+<Line Number="61">
+<![CDATA[		]]>
+</Line>
+<Line Number="62">
+<![CDATA[	Wrk_RefOld:=-1;]]>
+</Line>
+<Line Number="63">
+<![CDATA[]]>
+</Line>
+<Line Number="64">
+<![CDATA[	Rdy_Cfm:=0;]]>
+</Line>
+<Line Number="65">
+<![CDATA[	OCmd_Cfm:=0;]]>
+</Line>
+<Line Number="66">
+<![CDATA[	Out_Select:=0;]]>
+</Line>
+<Line Number="67">
+<![CDATA[]]>
+</Line>
+<Line Number="68">
+<![CDATA[	Alrt_Cfm:=0;]]>
+</Line>
+<Line Number="69">
+<![CDATA[	Alrt_Resp:=0;]]>
+</Line>
+<Line Number="70">
+<![CDATA[	Alrt_Select:=0;]]>
+</Line>
+<Line Number="71">
+<![CDATA[	Sts_Alert:=0;]]>
+</Line>
+<Line Number="72">
+<![CDATA[]]>
+</Line>
+<Line Number="73">
+<![CDATA[	COP(Inf_nullString,RespData.Selection,1);]]>
+</Line>
+<Line Number="74">
+<![CDATA[	COP(Inf_nullString,RespData.NumericInput[0],1);]]>
+</Line>
+<Line Number="75">
+<![CDATA[	COP(Inf_nullString,RespData.NumericInput[1],1);]]>
+</Line>
+<Line Number="76">
+<![CDATA[	COP(Inf_nullString,RespData.NumericInput[2],1);]]>
+</Line>
+<Line Number="77">
+<![CDATA[	COP(Inf_nullString,RespData.NumericInput[3],1);]]>
+</Line>
+<Line Number="78">
+<![CDATA[	COP(Inf_nullString,RespData.CharInput[0],1);]]>
+</Line>
+<Line Number="79">
+<![CDATA[	COP(Inf_nullString,RespData.CharInput[1],1);]]>
+</Line>
+<Line Number="80">
+<![CDATA[	COP(Inf_nullString,RespData.CharInput[2],1);]]>
+</Line>
+<Line Number="81">
+<![CDATA[	COP(Inf_nullString,RespData.CharInput[3],1);]]>
+</Line>
+<Line Number="82">
+<![CDATA[]]>
+</Line>
+<Line Number="83">
+<![CDATA[	Init[:=]1;]]>
+</Line>
+<Line Number="84">
+<![CDATA[End_If;]]>
+</Line>
+<Line Number="85">
+<![CDATA[]]>
+</Line>
+<Line Number="86">
+<![CDATA[// Check the requested prompt exists in the array]]>
+</Line>
+<Line Number="87">
+<![CDATA[]]>
+</Line>
+<Line Number="88">
+<![CDATA[If Inp_Ref>=0 AND Inp_Ref<=Wrk_MaxIndexMPArray Then]]>
+</Line>
+<Line Number="89">
+<![CDATA[	Err_MsgRef := 0;]]>
+</Line>
+<Line Number="90">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="91">
+<![CDATA[	Err_MsgRef := 1;]]>
+</Line>
+<Line Number="92">
+<![CDATA[End_If;]]>
+</Line>
+<Line Number="93">
+<![CDATA[]]>
+</Line>
+<Line Number="94">
+<![CDATA[//V3.0-01 Added Err_PromptCfgSize, Err_RespDataSize.]]>
+</Line>
+<Line Number="95">
+<![CDATA[Sts_Err := Err_PromptCfgSize OR Err_RespDataSize OR Err_MsgRef;]]>
+</Line>
+<Line Number="96">
+<![CDATA[//----V3.0-01]]>
+</Line>
+<Line Number="97">
+<![CDATA[]]>
+</Line>
+<Line Number="98">
+<![CDATA[If NOT(Sts_Err) Then]]>
+</Line>
+<Line Number="99">
+<![CDATA[]]>
+</Line>
+<Line Number="100">
+<![CDATA[	If Inp_Ref=Wrk_RefOld Then]]>
+</Line>
+<Line Number="101">
+<![CDATA[		Sts_RefChg:=0;]]>
+</Line>
+<Line Number="102">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="103">
+<![CDATA[		Wrk_RefOld:=Inp_Ref;]]>
+</Line>
+<Line Number="104">
+<![CDATA[		Sts_RefChg:=1;]]>
+</Line>
+<Line Number="105">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="106">
+<![CDATA[		If Inp_Req AND NOT(Wrk_IMPR_Latch) Then]]>
+</Line>
+<Line Number="107">
+<![CDATA[]]>
+</Line>
+<Line Number="108">
+<![CDATA[		// MAIN SETUP PROCESSING  *********************]]>
+</Line>
+<Line Number="109">
+<![CDATA[		// Get the chosen MP]]>
+</Line>
+<Line Number="110">
+<![CDATA[]]>
+</Line>
+<Line Number="111">
+<![CDATA[		COP(Prompts[Inp_Ref],Prompt,1);]]>
+</Line>
+<Line Number="112">
+<![CDATA[		Val_Ref:=Inp_Ref;]]>
+</Line>
+<Line Number="113">
+<![CDATA[]]>
+</Line>
+<Line Number="114">
+<![CDATA[//		Cnt:=0;]]>
+</Line>
+<Line Number="115">
+<![CDATA[//		Base:=61;]]>
+</Line>
+<Line Number="116">
+<![CDATA[//		Offset:=10;]]>
+</Line>
+<Line Number="117">
+<![CDATA[//		Spacing:=16;]]>
+</Line>
+<Line Number="118">
+<![CDATA[//]]>
+</Line>
+<Line Number="119">
+<![CDATA[//		Accum:=Base;]]>
+</Line>
+<Line Number="120">
+<![CDATA[//		For Wrk_Idx2:=0 To 3 Do]]>
+</Line>
+<Line Number="121">
+<![CDATA[//			For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="122">
+<![CDATA[//				Case Wrk_Idx2 Of]]>
+</Line>
+<Line Number="123">
+<![CDATA[//					0: scrbit:=Prompt.Cfg_HasDispVal.[Wrk_Idx1];]]>
+</Line>
+<Line Number="124">
+<![CDATA[//					1: scrbit:=Prompt.Cfg_HasInpVal.[Wrk_Idx1];]]>
+</Line>
+<Line Number="125">
+<![CDATA[//					2: scrbit:=Prompt.Cfg_HasSelect.[Wrk_Idx1];]]>
+</Line>
+<Line Number="126">
+<![CDATA[//					3: scrbit:=Prompt.Cfg_HasResp.[Wrk_Idx1];]]>
+</Line>
+<Line Number="127">
+<![CDATA[//				End_Case;]]>
+</Line>
+<Line Number="128">
+<![CDATA[//				If scrbit Then]]>
+</Line>
+<Line Number="129">
+<![CDATA[//					HMI_Tops[Wrk_Idx2*4+Wrk_Idx1]:=Accum;]]>
+</Line>
+<Line Number="130">
+<![CDATA[//					Accum:=Accum+Spacing;]]>
+</Line>
+<Line Number="131">
+<![CDATA[//					If Wrk_Idx2=2 Then]]>
+</Line>
+<Line Number="132">
+<![CDATA[//						HMI_SelectAlertTop:=Accum;]]>
+</Line>
+<Line Number="133">
+<![CDATA[//						Accum:=Accum+Spacing;]]>
+</Line>
+<Line Number="134">
+<![CDATA[//						Cnt:=Cnt+1;]]>
+</Line>
+<Line Number="135">
+<![CDATA[//					End_If;]]>
+</Line>
+<Line Number="136">
+<![CDATA[//				End_If;]]>
+</Line>
+<Line Number="137">
+<![CDATA[//			End_For;]]>
+</Line>
+<Line Number="138">
+<![CDATA[//			Accum:=Accum+Offset;]]>
+</Line>
+<Line Number="139">
+<![CDATA[//		End_For;]]>
+</Line>
+<Line Number="140">
+<![CDATA[//]]>
+</Line>
+<Line Number="141">
+<![CDATA[//		//  HMI_Height:=?]]>
+</Line>
+<Line Number="142">
+<![CDATA[//		//  HMI_SelectAlertTop:=?]]>
+</Line>
+<Line Number="143">
+<![CDATA[]]>
+</Line>
+<Line Number="144">
+<![CDATA[		Alrt_Select:=0;]]>
+</Line>
+<Line Number="145">
+<![CDATA[		Wrk_Idx1:=Prompt.Cfg_HasSelect AND Prompt.Cfg_SelectDef AND 16#0f;]]>
+</Line>
+<Line Number="146">
+<![CDATA[		If Wrk_Idx1>0 Then]]>
+</Line>
+<Line Number="147">
+<![CDATA[			Alrt_Select:=1;]]>
+</Line>
+<Line Number="148">
+<![CDATA[		End_If;]]>
+</Line>
+<Line Number="149">
+<![CDATA[]]>
+</Line>
+<Line Number="150">
+<![CDATA[//		// Clear the Event records]]>
+</Line>
+<Line Number="151">
+<![CDATA[//		For Wrk_Idx1:=0 To 8 Do ]]>
+</Line>
+<Line Number="152">
+<![CDATA[//			COP(Inf_nullString,EventData[Wrk_Idx1],1);]]>
+</Line>
+<Line Number="153">
+<![CDATA[//		End_For;]]>
+</Line>
+<Line Number="154">
+<![CDATA[		// If any, Get values for user display entries, scale]]>
+</Line>
+<Line Number="155">
+<![CDATA[		For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="156">
+<![CDATA[			If Prompt.Cfg_HasDispVal.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="157">
+<![CDATA[				If Prompt.Cfg_DispValUsesInp.[Wrk_Idx1] Then		// Constant (0) or Input (1)]]>
+</Line>
+<Line Number="158">
+<![CDATA[					Wrk_scrReal:=Inp_Real[Wrk_Idx1];]]>
+</Line>
+<Line Number="159">
+<![CDATA[				Else]]>
+</Line>
+<Line Number="160">
+<![CDATA[					Wrk_scrReal:=Prompt.Cfg_DispVal[Wrk_Idx1];]]>
+</Line>
+<Line Number="161">
+<![CDATA[					If Prompt.Cfg_DispValScl.[Wrk_Idx1] Then	// Scale the constant? (1)]]>
+</Line>
+<Line Number="162">
+<![CDATA[						Wrk_scrReal:=Wrk_scrReal*Inp_ScalePct/100.0;]]>
+</Line>
+<Line Number="163">
+<![CDATA[					End_If;]]>
+</Line>
+<Line Number="164">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="165">
+<![CDATA[				Val_DispReal[Wrk_Idx1]:=Wrk_scrReal;		// Assign to display]]>
+</Line>
+<Line Number="166">
+<![CDATA[			End_If;]]>
+</Line>
+<Line Number="167">
+<![CDATA[		End_For;]]>
+</Line>
+<Line Number="168">
+<![CDATA[		// If any, Set default for select]]>
+</Line>
+<Line Number="169">
+<![CDATA[//		Out_Select:=0;]]>
+</Line>
+<Line Number="170">
+<![CDATA[		OSet_Select:=0;]]>
+</Line>
+<Line Number="171">
+<![CDATA[		If (Prompt.Cfg_HasSelect&15)>0 Then Alrt_Select:=1; End_If;]]>
+</Line>
+<Line Number="172">
+<![CDATA[		For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="173">
+<![CDATA[			If Prompt.Cfg_HasSelect.[Wrk_Idx1] AND Prompt.Cfg_SelectDef.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="174">
+<![CDATA[				OSet_Select:=Wrk_Idx1+1;]]>
+</Line>
+<Line Number="175">
+<![CDATA[				Alrt_Select:=0;]]>
+</Line>
+<Line Number="176">
+<![CDATA[				Exit;]]>
+</Line>
+<Line Number="177">
+<![CDATA[			End_If;]]>
+</Line>
+<Line Number="178">
+<![CDATA[		End_For;]]>
+</Line>
+<Line Number="179">
+<![CDATA[		// If any, set user inputs to Default]]>
+</Line>
+<Line Number="180">
+<![CDATA[]]>
+</Line>
+<Line Number="181">
+<![CDATA[		For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="182">
+<![CDATA[			If Prompt.Cfg_HasInpVal.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="183">
+<![CDATA[				If Prompt.Cfg_InpValNotReqd.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="184">
+<![CDATA[					If Prompt.Cfg_InpValDefMax.[Wrk_Idx1] Then	// Default is min (0) max (1)]]>
+</Line>
+<Line Number="185">
+<![CDATA[						OSet_RealOut[Wrk_Idx1]:=Prompt.Cfg_InpValHiLim[Wrk_Idx1];]]>
+</Line>
+<Line Number="186">
+<![CDATA[					Else]]>
+</Line>
+<Line Number="187">
+<![CDATA[						OSet_RealOut[Wrk_Idx1]:=Prompt.Cfg_InpValLoLim[Wrk_Idx1];]]>
+</Line>
+<Line Number="188">
+<![CDATA[					End_If;]]>
+</Line>
+<Line Number="189">
+<![CDATA[				Else]]>
+</Line>
+<Line Number="190">
+<![CDATA[					COP(Inf_NotInit,OSet_RealOut[Wrk_Idx1],1);	// We got NAN stuff here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]]>
+</Line>
+<Line Number="191">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="192">
+<![CDATA[			End_If;]]>
+</Line>
+<Line Number="193">
+<![CDATA[			COP(Inf_nullString,OSet_Resp[Wrk_Idx1],1);]]>
+</Line>
+<Line Number="194">
+<![CDATA[		End_For;]]>
+</Line>
+<Line Number="195">
+<![CDATA[		// If any, set up Alert for mandatory Char Inputs]]>
+</Line>
+<Line Number="196">
+<![CDATA[		Alrt_Resp:=0;]]>
+</Line>
+<Line Number="197">
+<![CDATA[		Alrt_Resp:=Prompt.Cfg_HasResp AND NOT Prompt.Cfg_RespNotReqd;]]>
+</Line>
+<Line Number="198">
+<![CDATA[		// Set up DispVal ChkBx OSet and Alrt]]>
+</Line>
+<Line Number="199">
+<![CDATA[		Alrt_DispVal:=Prompt.Cfg_DispValVrfy;]]>
+</Line>
+<Line Number="200">
+<![CDATA[		OSet_DispValVrfy:=0;]]>
+</Line>
+<Line Number="201">
+<![CDATA[]]>
+</Line>
+<Line Number="202">
+<![CDATA[		// END OF MAIN SETUP PROCESSING  ***************************************]]>
+</Line>
+<Line Number="203">
+<![CDATA[]]>
+</Line>
+<Line Number="204">
+<![CDATA[		Wrk_IMPR_Latch:=1;]]>
+</Line>
+<Line Number="205">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="206">
+<![CDATA[		If NOT(Inp_Req) AND Wrk_IMPR_Latch Then]]>
+</Line>
+<Line Number="207">
+<![CDATA[			Wrk_IMPR_Latch:=0;]]>
+</Line>
+<Line Number="208">
+<![CDATA[		End_If;]]>
+</Line>
+<Line Number="209">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="210">
+<![CDATA[]]>
+</Line>
+<Line Number="211">
+<![CDATA[	// Indicates that the MP is active]]>
+</Line>
+<Line Number="212">
+<![CDATA[	If Inp_Req AND Wrk_IMPR_Latch AND NOT(Out_Cfm) Then]]>
+</Line>
+<Line Number="213">
+<![CDATA[		Out_Select:=OSet_Select;]]>
+</Line>
+<Line Number="214">
+<![CDATA[		Out_Rdy:=1;]]>
+</Line>
+<Line Number="215">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="216">
+<![CDATA[		Out_Rdy:=0;]]>
+</Line>
+<Line Number="217">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="218">
+<![CDATA[]]>
+</Line>
+<Line Number="219">
+<![CDATA[	// When the user asserts the confirm (One ping only, Vassily)]]>
+</Line>
+<Line Number="220">
+<![CDATA[	If OCmd_Cfm AND Inp_Req Then]]>
+</Line>
+<Line Number="221">
+<![CDATA[		If NOT(Out_Cfm) Then]]>
+</Line>
+<Line Number="222">
+<![CDATA[]]>
+</Line>
+<Line Number="223">
+<![CDATA[			// Main Processing of Inputs and Reports.When confirm is pressed  *************************]]>
+</Line>
+<Line Number="224">
+<![CDATA[]]>
+</Line>
+<Line Number="225">
+<![CDATA[			// Report Stuff Here]]>
+</Line>
+<Line Number="226">
+<![CDATA[			COP(Inf_nullString,RespData.Selection,1);]]>
+</Line>
+<Line Number="227">
+<![CDATA[			COP(Inf_nullString,RespData.NumericInput[0],1);]]>
+</Line>
+<Line Number="228">
+<![CDATA[			COP(Inf_nullString,RespData.NumericInput[1],1);]]>
+</Line>
+<Line Number="229">
+<![CDATA[			COP(Inf_nullString,RespData.NumericInput[2],1);]]>
+</Line>
+<Line Number="230">
+<![CDATA[			COP(Inf_nullString,RespData.NumericInput[3],1);]]>
+</Line>
+<Line Number="231">
+<![CDATA[			COP(Inf_nullString,RespData.CharInput[0],1);]]>
+</Line>
+<Line Number="232">
+<![CDATA[			COP(Inf_nullString,RespData.CharInput[1],1);]]>
+</Line>
+<Line Number="233">
+<![CDATA[			COP(Inf_nullString,RespData.CharInput[2],1);]]>
+</Line>
+<Line Number="234">
+<![CDATA[			COP(Inf_nullString,RespData.CharInput[3],1);]]>
+</Line>
+<Line Number="235">
+<![CDATA[]]>
+</Line>
+<Line Number="236">
+<![CDATA[			For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="237">
+<![CDATA[				If Prompt.Cfg_HasInpVal.[Wrk_Idx1] Then RTOS(OSet_RealOut[Wrk_Idx1],Wrk_scrString); COP(Wrk_scrString,RespData.NumericInput[Wrk_Idx1],1); End_If;]]>
+</Line>
+<Line Number="238">
+<![CDATA[				]]>
+</Line>
+<Line Number="239">
+<![CDATA[				If Prompt.Cfg_HasResp.[Wrk_Idx1] Then COP(OSet_Resp[Wrk_Idx1],RespData.CharInput[Wrk_Idx1],1); End_If;]]>
+</Line>
+<Line Number="240">
+<![CDATA[			End_For;]]>
+</Line>
+<Line Number="241">
+<![CDATA[]]>
+</Line>
+<Line Number="242">
+<![CDATA[			If Prompt.Cfg_HasSelect<>0 Then]]>
+</Line>
+<Line Number="243">
+<![CDATA[				If Out_Select=0 Then]]>
+</Line>
+<Line Number="244">
+<![CDATA[					COP(Inf_None,RespData.Selection,1);]]>
+</Line>
+<Line Number="245">
+<![CDATA[				Else]]>
+</Line>
+<Line Number="246">
+<![CDATA[					COP(Prompt.Cfg_SelectLabel[Out_Select-1],RespData.Selection,1);]]>
+</Line>
+<Line Number="247">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="248">
+<![CDATA[			End_If;]]>
+</Line>
+<Line Number="249">
+<![CDATA[]]>
+</Line>
+<Line Number="250">
+<![CDATA[			Out_Select:=OSet_Select;]]>
+</Line>
+<Line Number="251">
+<![CDATA[]]>
+</Line>
+<Line Number="252">
+<![CDATA[			For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="253">
+<![CDATA[				If Prompt.Cfg_hasInpVal.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="254">
+<![CDATA[// Must process this detecting and filtering the NAN or what ever is used !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]]>
+</Line>
+<Line Number="255">
+<![CDATA[					COP(OSet_RealOut[Wrk_Idx1],Wrk_Idx2,1);]]>
+</Line>
+<Line Number="256">
+<![CDATA[					If Wrk_Idx2=Inf_NotInit Then]]>
+</Line>
+<Line Number="257">
+<![CDATA[						OSet_RealOut[Wrk_Idx1]:=Prompt.Cfg_InpValLoLim[Wrk_Idx1];	// 	Might not work !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]]>
+</Line>
+<Line Number="258">
+<![CDATA[					End_If;]]>
+</Line>
+<Line Number="259">
+<![CDATA[					Out_Real[Wrk_Idx1]:=OSet_RealOut[Wrk_Idx1];]]>
+</Line>
+<Line Number="260">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="261">
+<![CDATA[			End_For;]]>
+</Line>
+<Line Number="262">
+<![CDATA[			// End of Main Processing of Inputs and Reports  *************************]]>
+</Line>
+<Line Number="263">
+<![CDATA[]]>
+</Line>
+<Line Number="264">
+<![CDATA[		End_If;]]>
+</Line>
+<Line Number="265">
+<![CDATA[		Out_Cfm:=1;]]>
+</Line>
+<Line Number="266">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="267">
+<![CDATA[		Out_Cfm:=0;]]>
+</Line>
+<Line Number="268">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="269">
+<![CDATA[]]>
+</Line>
+<Line Number="270">
+<![CDATA[	// The user confirmation is still on but the request has been removed (last thing to do, reset the user confirm)]]>
+</Line>
+<Line Number="271">
+<![CDATA[	If  OCmd_Cfm AND NOT(Inp_Req) Then]]>
+</Line>
+<Line Number="272">
+<![CDATA[		OCmd_Cfm:=0;]]>
+</Line>
+<Line Number="273">
+<![CDATA[//		Out_Select:=0;					//  This should not be cleared until another MP occurs  ???????]]>
+</Line>
+<Line Number="274">
+<![CDATA[		OSet_Select:=0;]]>
+</Line>
+<Line Number="275">
+<![CDATA[		Inp_ScalePct:=100.0;]]>
+</Line>
+<Line Number="276">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="277">
+<![CDATA[]]>
+</Line>
+<Line Number="278">
+<![CDATA[	// Conditions to set/clear Alert bits and Rdy_Cfm. All Alerts for required items must be off (requirements met)]]>
+</Line>
+<Line Number="279">
+<![CDATA[	If Inp_Req Then]]>
+</Line>
+<Line Number="280">
+<![CDATA[		If OSet_Select<>0 Then Alrt_Select:=0; End_If;]]>
+</Line>
+<Line Number="281">
+<![CDATA[		For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="282">
+<![CDATA[			If Prompt.Cfg_hasResp.[Wrk_Idx1] & Not Prompt.Cfg_RespNotReqd.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="283">
+<![CDATA[				If OSet_Resp[Wrk_Idx1].LEN=0 Then]]>
+</Line>
+<Line Number="284">
+<![CDATA[					Alrt_Resp.[Wrk_Idx1]:=1;]]>
+</Line>
+<Line Number="285">
+<![CDATA[				Else]]>
+</Line>
+<Line Number="286">
+<![CDATA[					Alrt_Resp.[Wrk_Idx1]:=0;]]>
+</Line>
+<Line Number="287">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="288">
+<![CDATA[			Else]]>
+</Line>
+<Line Number="289">
+<![CDATA[				Alrt_Resp.[Wrk_Idx1]:=0;]]>
+</Line>
+<Line Number="290">
+<![CDATA[			End_IF;]]>
+</Line>
+<Line Number="291">
+<![CDATA[		End_For;]]>
+</Line>
+<Line Number="292">
+<![CDATA[]]>
+</Line>
+<Line Number="293">
+<![CDATA[		For Wrk_Idx1:=0 To 3 Do]]>
+</Line>
+<Line Number="294">
+<![CDATA[			If Prompt.Cfg_HasInpVal.[Wrk_Idx1] & Not Prompt.Cfg_InpValNotReqd.[Wrk_Idx1] Then]]>
+</Line>
+<Line Number="295">
+<![CDATA[				COP(OSet_RealOut[Wrk_Idx1],Wrk_Idx2,1);]]>
+</Line>
+<Line Number="296">
+<![CDATA[				If Wrk_Idx2=Inf_NotInit Then	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]]>
+</Line>
+<Line Number="297">
+<![CDATA[					Alrt_InpVal.[Wrk_Idx1]:=1;]]>
+</Line>
+<Line Number="298">
+<![CDATA[				Else]]>
+</Line>
+<Line Number="299">
+<![CDATA[					Alrt_InpVal.[Wrk_Idx1]:=0;]]>
+</Line>
+<Line Number="300">
+<![CDATA[				End_If;]]>
+</Line>
+<Line Number="301">
+<![CDATA[			Else]]>
+</Line>
+<Line Number="302">
+<![CDATA[				Alrt_InpVal.[Wrk_Idx1]:=0;]]>
+</Line>
+<Line Number="303">
+<![CDATA[			End_If;]]>
+</Line>
+<Line Number="304">
+<![CDATA[		End_For;]]>
+</Line>
+<Line Number="305">
+<![CDATA[]]>
+</Line>
+<Line Number="306">
+<![CDATA[//V3.0-01 Add check on Prompt.Cfg_HasDispVal]]>
+</Line>
+<Line Number="307">
+<![CDATA[		Alrt_DispVal:=(Prompt.Cfg_DispValVrfy XOR OSet_DispValVrfy) & Prompt.Cfg_DispValVrfy & Prompt.Cfg_HasDispVal & 16#0F;]]>
+</Line>
+<Line Number="308">
+<![CDATA[//----V3.0-01]]>
+</Line>
+<Line Number="309">
+<![CDATA[]]>
+</Line>
+<Line Number="310">
+<![CDATA[		If NOT(Alrt_Select) AND Alrt_Resp=0 AND Alrt_InpVal=0 AND Alrt_DispVal=0 Then]]>
+</Line>
+<Line Number="311">
+<![CDATA[			Alrt_Cfm:=1;]]>
+</Line>
+<Line Number="312">
+<![CDATA[			Rdy_Cfm:=1;]]>
+</Line>
+<Line Number="313">
+<![CDATA[		Else]]>
+</Line>
+<Line Number="314">
+<![CDATA[			Alrt_Cfm:=0;]]>
+</Line>
+<Line Number="315">
+<![CDATA[			Rdy_Cfm:=0;]]>
+</Line>
+<Line Number="316">
+<![CDATA[		End_If;]]>
+</Line>
+<Line Number="317">
+<![CDATA[]]>
+</Line>
+<Line Number="318">
+<![CDATA[	Else]]>
+</Line>
+<Line Number="319">
+<![CDATA[		Alrt_Cfm:=0;]]>
+</Line>
+<Line Number="320">
+<![CDATA[		Rdy_Cfm:=0;]]>
+</Line>
+<Line Number="321">
+<![CDATA[	End_If;]]>
+</Line>
+<Line Number="322">
+<![CDATA[]]>
+</Line>
+<Line Number="323">
+<![CDATA[	//	If it's being requested then an alert must be on]]>
+</Line>
+<Line Number="324">
+<![CDATA[	If Prompt.Cfg_AlertDefeat Then Sts_Alert:=0; Else Sts_Alert:=Inp_Req; End_If;]]>
+</Line>
+<Line Number="325">
+<![CDATA[]]>
+</Line>
+<Line Number="326">
+<![CDATA[End_If;]]>
+</Line>
+<Line Number="327">
+<![CDATA[]]>
+</Line>
+<Line Number="328">
+<![CDATA[]]>
+</Line>
+</STContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_8"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="P_PromptCfg"/>
+<Dependency Type="DataType" Name="P_PromptResp"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

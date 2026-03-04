@@ -1,0 +1,694 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Thu Apr 23 16:22:46 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+<DataType Name="DateTime" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Date and TimeOfDay (absolute) or Time (duration/interval)]]>
+</Description>
+<Members>
+<Member Name="Yr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Year(s)]]>
+</Description>
+</Member>
+<Member Name="Mo" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Month(s)]]>
+</Description>
+</Member>
+<Member Name="Da" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Day(s)]]>
+</Description>
+</Member>
+<Member Name="Hr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Hour(s)]]>
+</Description>
+</Member>
+<Member Name="Min" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Minute(s)]]>
+</Description>
+</Member>
+<Member Name="Sec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Second(s)]]>
+</Description>
+</Member>
+<Member Name="uSec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Microsecond(s)]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="T_Sun" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2008-05-02T21:03:59.506Z" CreatedBy="Not Available" EditedDate="2009-04-23T20:18:18.701Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Sun Rise / Set / Az/El]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial formal release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction takes a given Date/Time, and for the Date part, plus the configured latitude, longitude and UTC offset, returns the Date/Time of local sunrise and local sunset (to the nearest minute, to an accuracy of within about two minutes....).
+
+Solar Azimuth (heading, clockwise in degrees from true north) and Elevation (degrees above horizon) are calculated and accurate to within about half a degree when the sun is above the horizon.  Azimuth bearing is not necessarily accurate when Elevation is more than a degree or two negative!
+
+The given Date is assumed VALID. If necessary, check using T_Valid first!
+
+NOTE:  This instruction only uses the month and day to estimate the sunrise and sunset times to within a couple minutes.  It does NOT deal with detailed astronomical calculations based on planetary models!!!  It is based on the current Gregorian calendar and does NOT deal with Julian dates for dates before 1582 (or 1753 or whenever your place of interest switched to the Gregorian Calendar (see Wikipedia on Gregorian Calendar for details)!
+
+NOTE:  For algorithms, see http://www.srrb.noaa.gov/highlights/sunrise/solareqns.PDF
+
+NOTE:  To get your Latitude and Longitude, try http://www.batchgeocode.com/lookup/]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Ref_DT" DataType="DateTime" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Date/Time for which to calculate Rise, Set, Az/El Position]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Out_Rise" DataType="DateTime" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Input Date plus Calculated Time of Local Sunrise]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Out_Set" DataType="DateTime" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Input Date plus Calculated Time of Local Sunset]]>
+</Description>
+</Parameter>
+<Parameter Name="Cfg_Lat" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false">
+<Description>
+<![CDATA[Latitude of location in decimal degrees (+ = East, - = West)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_Long" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false">
+<Description>
+<![CDATA[Longitude of location in decimal degrees (+ = North, - = South)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UTCOffset" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false">
+<Description>
+<![CDATA[Offset from UTC in Hours (+ = East, - = West)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Val_Azimuth" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false">
+<Description>
+<![CDATA[Solar Azimuth angle (deg) 0 to 359.xxx,
+0 = true north]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Val_Elevation" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="false">
+<Description>
+<![CDATA[Solar Elevation (deg), 0 = horizon, 90 = overhead]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MidnightSun" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1=24-hour daylight, no sunset this date]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_NoonNight" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1=24-hour night, no sunrise this date]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_InvalidCfg" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1=Bad Lat/Long
+or UTC Offset configuration]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Sunset" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Sunset local time in minutes after midnight]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Sunrise" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Sunrise local time in minutes after midnight]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_RHA" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Rise / Set Hour angle in radians]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Decl" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Solar declination angle in radians]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_EQTime" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Equatorial Time in minutes]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_FYr" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Fractional year in radians 1/1 = 0.0, 12/31 = 2*pi]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_DoY" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Day of the year, from 1 to 366]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_F" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Function of month for calculating day of year]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Lat" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Local latitude converted to radians]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_HrCos" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Hour Angle Cosine, -1 to 1 for rise and set]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Elevation" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Elevation angle cosine in radians]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Azimuth" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Azimuth angle cosine in radians]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SHA" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Actual solar hour angle for Az/El calcs]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Long" DataType="REAL" Radix="Float">
+<Description>
+<![CDATA[Longitude in Radians WEST of UTC]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="ST">
+<Description>
+<![CDATA[Calculate local sunrise and sunset Date/Time outputs]]>
+</Description>
+<STContent>
+<Line Number="0">
+<![CDATA[// T_Sun : TIME -- SUNRISE / SUNSET]]>
+</Line>
+<Line Number="1">
+<![CDATA[// ]]>
+</Line>
+<Line Number="2">
+<![CDATA[//  This instruction takes a given Date/Time, and for the Date part, plus the configured]]>
+</Line>
+<Line Number="3">
+<![CDATA[//  latitude, longitude and UTC offset, returns the Date/Time of local sunrise and local sunset]]>
+</Line>
+<Line Number="4">
+<![CDATA[//  (to the nearest minute, to an accuracy of within about two minutes....).]]>
+</Line>
+<Line Number="5">
+<![CDATA[// ]]>
+</Line>
+<Line Number="6">
+<![CDATA[//  The given Date is assumed VALID. If necessary, check using T_Valid first!]]>
+</Line>
+<Line Number="7">
+<![CDATA[//]]>
+</Line>
+<Line Number="8">
+<![CDATA[//  NOTE:  The Time part of Input Parameter DT (hours, minutes, seconds, microseconds) is ignored.]]>
+</Line>
+<Line Number="9">
+<![CDATA[//]]>
+</Line>
+<Line Number="10">
+<![CDATA[//  NOTE:  This instruction only uses the month and day to estimate the sunrise and sunset times to within a couple]]>
+</Line>
+<Line Number="11">
+<![CDATA[//  minutes.  It does NOT deal with detailed astronomical calculations based on planetary models!!!  It is based on the]]>
+</Line>
+<Line Number="12">
+<![CDATA[//  current Gregorian calendar and does NOT deal with Julian dates for dates before 1582 (or 1753 or whenever your place]]>
+</Line>
+<Line Number="13">
+<![CDATA[//  of interest switched to the Gregorian Calendar (see Wikipedia on Gregorian Calendar for details)!]]>
+</Line>
+<Line Number="14">
+<![CDATA[//]]>
+</Line>
+<Line Number="15">
+<![CDATA[//  NOTE:  For algorithms, see http://www.srrb.noaa.gov/highlights/sunrise/solareqns.PDF]]>
+</Line>
+<Line Number="16">
+<![CDATA[//  NOTE:  To get your Latitude and Longitude, try http://www.batchgeocode.com/lookup/]]>
+</Line>
+<Line Number="17">
+<![CDATA[//]]>
+</Line>
+<Line Number="18">
+<![CDATA[//  Version 1.0-00 Release]]>
+</Line>
+<Line Number="19">
+<![CDATA[//	Initial Formal Release]]>
+</Line>
+<Line Number="20">
+<![CDATA[//]]>
+</Line>
+<Line Number="21">
+<![CDATA[]]>
+</Line>
+<Line Number="22">
+<![CDATA[// Flag bad Position or UTC Offset data and exit  (allow for +/- 13-hour offsets plus DST)]]>
+</Line>
+<Line Number="23">
+<![CDATA[IF ((Cfg_Lat > 90.0) OR (Cfg_Lat < -90.0) OR (Cfg_Long > 180.0) OR (Cfg_Long < -180.0) OR (Cfg_UTCOffset > 14.0) OR (Cfg_UTCOffset < -14.0)) THEN]]>
+</Line>
+<Line Number="24">
+<![CDATA[	Sts_InvalidCfg := 1;]]>
+</Line>
+<Line Number="25">
+<![CDATA[	Ref_Out_Rise.Hr := 0;]]>
+</Line>
+<Line Number="26">
+<![CDATA[	Ref_Out_Rise.Min := 0;]]>
+</Line>
+<Line Number="27">
+<![CDATA[	Ref_Out_Set.Hr := 0;]]>
+</Line>
+<Line Number="28">
+<![CDATA[	Ref_Out_Set.Min := 0;]]>
+</Line>
+<Line Number="29">
+<![CDATA[	Sts_NoonNight := 0;]]>
+</Line>
+<Line Number="30">
+<![CDATA[	Sts_MidnightSun := 0;]]>
+</Line>
+<Line Number="31">
+<![CDATA[	Val_Azimuth := 0.0;]]>
+</Line>
+<Line Number="32">
+<![CDATA[	Val_Elevation := 0.0;]]>
+</Line>
+<Line Number="33">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="34">
+<![CDATA[]]>
+</Line>
+<Line Number="35">
+<![CDATA[// Configs are valid - clear the invalid flag and do the calculations ]]>
+</Line>
+<Line Number="36">
+<![CDATA[	Sts_InvalidCfg := 0;]]>
+</Line>
+<Line Number="37">
+<![CDATA[]]>
+</Line>
+<Line Number="38">
+<![CDATA[// First, convert entered Latitude in degrees to radians]]>
+</Line>
+<Line Number="39">
+<![CDATA[	Wrk_Lat := Cfg_Lat * 0.017453293;]]>
+</Line>
+<Line Number="40">
+<![CDATA[// Entered Long is EAST, calculations want it WEST... and in Degrees]]>
+</Line>
+<Line Number="41">
+<![CDATA[	Wrk_Long := -Cfg_Long;]]>
+</Line>
+<Line Number="42">
+<![CDATA[]]>
+</Line>
+<Line Number="43">
+<![CDATA[// Calculate the Day of the Year]]>
+</Line>
+<Line Number="44">
+<![CDATA[	Wrk_F := (Ref_DT.Mo + 9) MOD 12;]]>
+</Line>
+<Line Number="45">
+<![CDATA[	Wrk_DoY := ((Wrk_F*306+5)/10+Ref_DT.Da+60) MOD 366;]]>
+</Line>
+<Line Number="46">
+<![CDATA[]]>
+</Line>
+<Line Number="47">
+<![CDATA[// Calculate the Fractional Year in RADIANS (Jan 1 = 0.0, Dec. 31 = about 2 pi)]]>
+</Line>
+<Line Number="48">
+<![CDATA[	Wrk_FYr := 0.017214206 * (Wrk_DoY - 1 + (Ref_DT.Hr-12.0)/24.0);]]>
+</Line>
+<Line Number="49">
+<![CDATA[]]>
+</Line>
+<Line Number="50">
+<![CDATA[// Now calculate the solar time on the equator at 0 Longitude (in minutes)]]>
+</Line>
+<Line Number="51">
+<![CDATA[	Wrk_EQTime := 229.18 *(0.000075 + 0.001868*cos(Wrk_FYr) - 0.032077*sin(Wrk_FYr) - 0.014615*cos(2.0*Wrk_FYr) - 0.040849*sin(2.0*Wrk_FYr));]]>
+</Line>
+<Line Number="52">
+<![CDATA[]]>
+</Line>
+<Line Number="53">
+<![CDATA[// And calculate the solar declination angle in radians]]>
+</Line>
+<Line Number="54">
+<![CDATA[	Wrk_Decl := 0.006918 - 0.399912*cos(Wrk_FYr) + 0.070257*sin(Wrk_FYr) - 0.006758*cos(2.0*Wrk_FYr) + 0.000907*sin(2.0*Wrk_FYr) - 0.002697*cos(3.0*Wrk_FYr) + 0.00148*sin(3.0*Wrk_FYr);]]>
+</Line>
+<Line Number="55">
+<![CDATA[]]>
+</Line>
+<Line Number="56">
+<![CDATA[// Now calculate the Hour Angle cosine, corresponding to the angle (time) from solar noon to sunrise (-) and sunset (+)]]>
+</Line>
+<Line Number="57">
+<![CDATA[	Wrk_HrCos := (-0.014538081/cos(Wrk_Lat)/cos(Wrk_Decl))- tan(Wrk_Lat)*tan(Wrk_Decl);]]>
+</Line>
+<Line Number="58">
+<![CDATA[]]>
+</Line>
+<Line Number="59">
+<![CDATA[// If the Hour Angle cosine is less than -1, then we're in a polar location with midnight sun...]]>
+</Line>
+<Line Number="60">
+<![CDATA[]]>
+</Line>
+<Line Number="61">
+<![CDATA[	IF (Wrk_HrCos < -1.0) THEN]]>
+</Line>
+<Line Number="62">
+<![CDATA[]]>
+</Line>
+<Line Number="63">
+<![CDATA[		Ref_Out_Rise.Hr := 0;]]>
+</Line>
+<Line Number="64">
+<![CDATA[		Ref_Out_Rise.Min := 0;]]>
+</Line>
+<Line Number="65">
+<![CDATA[	]]>
+</Line>
+<Line Number="66">
+<![CDATA[		Ref_Out_Set.Hr := 0;]]>
+</Line>
+<Line Number="67">
+<![CDATA[		Ref_Out_Set.Min := 0;]]>
+</Line>
+<Line Number="68">
+<![CDATA[]]>
+</Line>
+<Line Number="69">
+<![CDATA[		Sts_NoonNight := 0;]]>
+</Line>
+<Line Number="70">
+<![CDATA[		Sts_MidnightSun := 1;]]>
+</Line>
+<Line Number="71">
+<![CDATA[]]>
+</Line>
+<Line Number="72">
+<![CDATA[// And if the Hour Anlge cosine is greater than 1, then we're in a polar location with noon darkness...]]>
+</Line>
+<Line Number="73">
+<![CDATA[]]>
+</Line>
+<Line Number="74">
+<![CDATA[	ELSIF (Wrk_HrCos > 1.0) THEN]]>
+</Line>
+<Line Number="75">
+<![CDATA[]]>
+</Line>
+<Line Number="76">
+<![CDATA[		Ref_Out_Rise.Hr := 0;]]>
+</Line>
+<Line Number="77">
+<![CDATA[		Ref_Out_Rise.Min := 0;]]>
+</Line>
+<Line Number="78">
+<![CDATA[	]]>
+</Line>
+<Line Number="79">
+<![CDATA[		Ref_Out_Set.Hr := 0;]]>
+</Line>
+<Line Number="80">
+<![CDATA[		Ref_Out_Set.Min := 0;]]>
+</Line>
+<Line Number="81">
+<![CDATA[]]>
+</Line>
+<Line Number="82">
+<![CDATA[		Sts_NoonNight := 1;]]>
+</Line>
+<Line Number="83">
+<![CDATA[		Sts_MidnightSun := 0;]]>
+</Line>
+<Line Number="84">
+<![CDATA[ ]]>
+</Line>
+<Line Number="85">
+<![CDATA[	ELSE]]>
+</Line>
+<Line Number="86">
+<![CDATA[]]>
+</Line>
+<Line Number="87">
+<![CDATA[// Otherwise we have a day with a sunrise and sunset and we can calculate the times.]]>
+</Line>
+<Line Number="88">
+<![CDATA[		Wrk_RHA := 57.29577951 * acos ( Wrk_HrCos );]]>
+</Line>
+<Line Number="89">
+<![CDATA[]]>
+</Line>
+<Line Number="90">
+<![CDATA[// We have all we need to calculate when the sun rises and sets at our longitude, accounting for time zone]]>
+</Line>
+<Line Number="91">
+<![CDATA[// (converted from hours to minutes) in minutes since local midnight. 720 minutes = noon with no EQTime correction]]>
+</Line>
+<Line Number="92">
+<![CDATA[// Adding 1440 minutes more ensures the Modulo math works if sunrise is before 00:00 local...]]>
+</Line>
+<Line Number="93">
+<![CDATA[		Wrk_Sunrise := 2160.0 + 4.0 * (Wrk_Long - Wrk_RHA ) - Wrk_EQTime + Cfg_UTCOffset * 60.0;]]>
+</Line>
+<Line Number="94">
+<![CDATA[		Wrk_Sunset := 2160.0 + 4.0 * (Wrk_Long + Wrk_RHA ) - Wrk_EQTime + Cfg_UTCOffset * 60.0;]]>
+</Line>
+<Line Number="95">
+<![CDATA[]]>
+</Line>
+<Line Number="96">
+<![CDATA[// Now fill out the output parameters (in this case, InOut parameters, because they are structures....)]]>
+</Line>
+<Line Number="97">
+<![CDATA[		Ref_Out_Rise.Hr := (Wrk_Sunrise / 60) MOD 24;]]>
+</Line>
+<Line Number="98">
+<![CDATA[		Ref_Out_Rise.Min := Wrk_Sunrise MOD 60;]]>
+</Line>
+<Line Number="99">
+<![CDATA[	]]>
+</Line>
+<Line Number="100">
+<![CDATA[		Ref_Out_Set.Hr := (Wrk_Sunset / 60) MOD 24;]]>
+</Line>
+<Line Number="101">
+<![CDATA[		Ref_Out_Set.Min := Wrk_Sunset MOD 60;]]>
+</Line>
+<Line Number="102">
+<![CDATA[]]>
+</Line>
+<Line Number="103">
+<![CDATA[// And clear the polar status bits...	]]>
+</Line>
+<Line Number="104">
+<![CDATA[		Sts_NoonNight := 0;]]>
+</Line>
+<Line Number="105">
+<![CDATA[		Sts_MidnightSun := 0;]]>
+</Line>
+<Line Number="106">
+<![CDATA[	]]>
+</Line>
+<Line Number="107">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="108">
+<![CDATA[]]>
+</Line>
+<Line Number="109">
+<![CDATA[// Now for the solar eaimuth and elevation...]]>
+</Line>
+<Line Number="110">
+<![CDATA[	Wrk_SHA := ( (Wrk_EQTime - (4.0 * Wrk_Long) - (60.0 * Cfg_UTCOffset) + (Ref_DT.Hr * 60.0) +  Ref_DT.Min + (Ref_DT.Sec / 60.0) )/ 4.0 - 180.0)/ 57.29577951;]]>
+</Line>
+<Line Number="111">
+<![CDATA[]]>
+</Line>
+<Line Number="112">
+<![CDATA[	Wrk_Elevation := ( cos(Wrk_SHA) * cos(Wrk_Decl) * cos(Wrk_Lat) ) + ( sin(Wrk_Decl) * sin(Wrk_Lat) );]]>
+</Line>
+<Line Number="113">
+<![CDATA[	IF ( Wrk_Elevation < -1.0 ) THEN]]>
+</Line>
+<Line Number="114">
+<![CDATA[		Wrk_Elevation := -1.0;]]>
+</Line>
+<Line Number="115">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="116">
+<![CDATA[	IF ( Wrk_Elevation > 1.0 ) THEN]]>
+</Line>
+<Line Number="117">
+<![CDATA[		Wrk_Elevation := 1.0;]]>
+</Line>
+<Line Number="118">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="119">
+<![CDATA[]]>
+</Line>
+<Line Number="120">
+<![CDATA[	Val_Elevation := 57.29577951 * asin (Wrk_Elevation);]]>
+</Line>
+<Line Number="121">
+<![CDATA[]]>
+</Line>
+<Line Number="122">
+<![CDATA[	Wrk_Azimuth := ( ( cos(Wrk_SHA) * cos(Wrk_Decl) * sin(Wrk_Lat) ) - ( sin(Wrk_Decl) * cos(Wrk_Lat) ) ) / cos(Val_Elevation / 57.29577951);]]>
+</Line>
+<Line Number="123">
+<![CDATA[	IF ( Wrk_Azimuth < -1.0 ) THEN]]>
+</Line>
+<Line Number="124">
+<![CDATA[		Wrk_Azimuth := -1.0;]]>
+</Line>
+<Line Number="125">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="126">
+<![CDATA[	IF ( Wrk_Azimuth > 1.0 ) THEN]]>
+</Line>
+<Line Number="127">
+<![CDATA[		Wrk_Azimuth := 1.0;]]>
+</Line>
+<Line Number="128">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="129">
+<![CDATA[]]>
+</Line>
+<Line Number="130">
+<![CDATA[	IF ( Wrk_SHA < 0 ) then]]>
+</Line>
+<Line Number="131">
+<![CDATA[		Val_Azimuth := 180.0 - ( 57.29577951 * acos(Wrk_Azimuth) );]]>
+</Line>
+<Line Number="132">
+<![CDATA[	ELSE]]>
+</Line>
+<Line Number="133">
+<![CDATA[		Val_Azimuth := 180.0 + ( 57.29577951 * acos(Wrk_Azimuth) );]]>
+</Line>
+<Line Number="134">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="135">
+<![CDATA[]]>
+</Line>
+<Line Number="136">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="137">
+<![CDATA[]]>
+</Line>
+<Line Number="138">
+<![CDATA[// Now fill in the rest of the output parameters...]]>
+</Line>
+<Line Number="139">
+<![CDATA[]]>
+</Line>
+<Line Number="140">
+<![CDATA[Ref_Out_Rise.Yr := Ref_DT.Yr;]]>
+</Line>
+<Line Number="141">
+<![CDATA[Ref_Out_Rise.Mo := Ref_DT.Mo;]]>
+</Line>
+<Line Number="142">
+<![CDATA[Ref_Out_Rise.Da := Ref_DT.Da;]]>
+</Line>
+<Line Number="143">
+<![CDATA[Ref_Out_Rise.Sec := 0;]]>
+</Line>
+<Line Number="144">
+<![CDATA[Ref_Out_Rise.uSec := 0;]]>
+</Line>
+<Line Number="145">
+<![CDATA[	]]>
+</Line>
+<Line Number="146">
+<![CDATA[Ref_Out_Set.Yr := Ref_DT.Yr;]]>
+</Line>
+<Line Number="147">
+<![CDATA[Ref_Out_Set.Mo := Ref_DT.Mo;]]>
+</Line>
+<Line Number="148">
+<![CDATA[Ref_Out_Set.Da := Ref_DT.Da;]]>
+</Line>
+<Line Number="149">
+<![CDATA[Ref_Out_Set.Sec := 0;]]>
+</Line>
+<Line Number="150">
+<![CDATA[Ref_Out_Set.uSec := 0;]]>
+</Line>
+<Line Number="151">
+<![CDATA[]]>
+</Line>
+</STContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="DateTime"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

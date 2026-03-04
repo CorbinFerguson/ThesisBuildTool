@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Fri Jul 31 10:45:00 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_NOT" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-06-23T14:20:15.609Z" CreatedBy="Not Available" EditedDate="2009-07-31T14:44:49.414Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Bitwise NOT (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction returns the bitwise Logical NOT (inverse or 1's complement)
+of an input 64-bit integer (LINT) value.  (It flips all the bits.)]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Input]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Output = - Input]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[32-bit portions of Input]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Perform a bitwise logical NOT (invert)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_NOT : 64-bit Logical NOT ( Output = ~ Input )
+============================================================
+Revision 1.0-00 Release:  2009-Jun-31
+Initial Release
+============================================================
+Returns the Logical NOT (1's complement, all bits flipped)
+of the input 64-bit integer (LINT) value.
+
+This instruction breaks the LINT input into two DINTs
+(32-bit signed each) to do the inverting.
+===================================================
+CONVERT LINT TO DINTs
+===================================================
+This COPy takes the input LINT and breaks it into a pair of DINTs.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp,Wrk[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+COMPLEMENT THE INDIVIDUAL DINT VALUES
+===================================================
+Now just flip the bits in the split-up (32-bit) values.]]>
+</Comment>
+<Text>
+<![CDATA[NOT(Wrk[0],Wrk[0])NOT(Wrk[1],Wrk[1]);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[===================================================
+CONVERT DINTs TO LINT
+===================================================
+This COPy takes the output pair of DINTs (internal) and combines them
+into a single output LINT (64-bit signed integer)]]>
+</Comment>
+<Text>
+<![CDATA[COP(Wrk[0],Out,1);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

@@ -1,0 +1,636 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Run Time and Starts-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_RunTime" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:39:22.266Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:39:29 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_RunTime" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="true" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2008-04-01T18:56:21.678Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:39:22.266Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Run Time and Starts]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction monitors the "Running" and "Starting" Status of a motor or other device and  provides:
+
+*  Total accumulated run time, in 1/10 hour increments (hour meter)
+*  Total number of starts or start attemptes (count)
+*  Maximum continuous run time for any start (hours)
+*  Program and Maintenance Commands to allow clearing of the totals/maximum]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Starting" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Motor is Starting (from motor instruction)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_Running" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Motor is Running (from motor instruction)]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_PCmdClear" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Clear Program Commands on receipt
+0=Leave Set]]>
+</Description>
+<DefaultData>01</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="1"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearStarts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Count of Starts (attempts)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearMaxHrs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Maximum (continuous) Run Time for any start]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="PCmd_ClearTotHrs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Program Command to Clear Total Running Time]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearStarts" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Count of Starts (attempts)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearMaxHrs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Maximum (continuous) Run Time for any start]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="MCmd_ClearTotHrs" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Maintenance Command to Clear Total Running Time]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_Starts" TagType="Base" DataType="DINT" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Total number of motor starts or attempts]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_CurRunHrs" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Current running time this start (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_MaxRunHrs" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Maximum continuous running time for a given start (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Val_TotRunHrs" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Total accumulated running time (hours)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_RunTime" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_CurHours" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Whole hours of current run time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_CurRunT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Timer for timing current run time]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotTenths" DataType="DINT" Radix="Decimal" ExternalAccess="None">
+<Description>
+<![CDATA[Tenths of hours of total run time]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Starts" DataType="COUNTER" ExternalAccess="None">
+<Description>
+<![CDATA[Counter for counting motor starts]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="COUNTER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="CU" DataType="BOOL" Value="0"/>
+<DataValueMember Name="CD" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="OV" DataType="BOOL" Value="0"/>
+<DataValueMember Name="UN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TotRunT" DataType="TIMER" ExternalAccess="None">
+<Description>
+<![CDATA[Retentive timer for timing 0.1 hour total run time]]>
+</Description>
+<DefaultData>00 00 00 00 FF FF FF 7F 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="2147483647"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MaxHours" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Internal Maximum Run Hours]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>09 00 00 00 50 5F 52 75 6E 54 69 6D 65 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="9">
+<![CDATA['P_RunTime']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>08 00 00 00 52 75 6E 20 54 69 6D 65 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="8">
+<![CDATA['Run Time']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>09 00 00 00 50 5F 52 75 6E 54 69 6D 65 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="9">
+<![CDATA['P_RunTime']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>1C 00 00 00 41 63 63 75 6D 75 6C 61 74 65 64 20 
+52 75 6E 20 54 69 6D 65 20 28 48 6F 75 72 73 29 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="28">
+<![CDATA['Accumulated Run Time (Hours)']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[False Rung or Enable In False: as if motor is Stopped]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE HANDLING
+============================================================
+EnableIn False is treated the same as "Motor Stopped" --
+Commands are still processed, 
+total run time is held (RTO), the Starts counter is prepared for
+the next start (.CU clears on CTU with AFI), and the
+Current Run Time is cleared (TON false).
+============================================================
+COMMAND PROCESSING
+============================================================
+These rungs handle received Commands.  This object has no Modes and
+Commands are accepted regardless of Mode.  Commands should be
+restriceted to authorized personnel (typically at a maintenance level).
+
+PCmd_ClearTotHrs: Program Command to Clear Total Runtime Hours
+MCmd_ClearTotHrs: Maintenance Command to Clear Total Runtime Hours]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearTotHrs) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearTotHrs) ,NOP() ] ,XIC(MCmd_ClearTotHrs) OTU(MCmd_ClearTotHrs) ]RES(Wrk_TotRunT)CLR(Wrk_TotTenths);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearStarts: Program Command to Clear Count of Starts
+MCmd_ClearStarts: Maintenance Command to Clear Count of Starts]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearStarts) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearStarts) ,NOP() ] ,XIC(MCmd_ClearStarts) OTU(MCmd_ClearStarts) ]RES(Wrk_Starts);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearMaxHrs: Program Command to Clear Maximum Single Run Hours
+MCmd_ClearMaxHrs: Maintenance Command to Clear Maximum Single Run Hours]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearMaxHrs) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearMaxHrs) ,NOP() ] ,XIC(MCmd_ClearMaxHrs) OTU(MCmd_ClearMaxHrs) ]CLR(Wrk_MaxHours)CLR(Val_MaxRunHrs);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE HANDLING
+============================================================
+EnableIn False is treated the same as "Motor Stopped" --
+Total run time is held (RTO), the Starts counter is prepared for
+the next start (.CU clears on CTU with AFI), and the
+Current Run Time is cleared (TON false).
+
+NOTE: IN ORDER TO AVOID USING AN AFI (resulting in routine verification warnings in V17),
+THIS RUNG USES AN XIC AND XIO OF THE SAME BIT TO ENSURE THE
+TIMERS AND COUNTER ARE SCANNED FALSE.
+
+THIS IS NOT DEAD CODE.  IT IS INTENTIONALLY CODED THIS WAY FOR PROPER OPERATION.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Inp_Running)XIO(Inp_Running)RTO(Wrk_TotRunT,?,?)CTU(Wrk_Starts,?,?)TON(Wrk_CurRunT,?,?);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[============================================================
+REPORT VALUES
+============================================================
+
+The number of starts is directly reported as an integer Value.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_Starts.ACC,Val_Starts);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[The current hours working register is cleared, but the Value is left
+in place for display until the next run begins.
+
+NOTE: The Maximum Run Hours (high-water of Current Run Hours)
+is also left in place.]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_CurHours);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[The Total Running Time is reported as a REAL number of Hours.
+(This will always be in "completed tenths" of an hour, like a mechanical hours counter.)]]>
+</Comment>
+<Text>
+<![CDATA[MUL(Wrk_TotTenths,0.1,Val_TotRunHrs);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Accumulate Run Time (if runnings) and Count Starts]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_RunTime:  PROCESS -- RUN TIME AND STARTS
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V1.x, V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Inf_Lib. Added display of Local STRING Tags
+on header (this) rung..
+V3.1-00  2014-06-30:  Unmodified for Library of Process Objects V3.1, up-rev only.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction monitors the "Running" and "Starting" Status of a motor or other device and  provides:
+
+*  Total accumulated run time, in 1/10 hour increments (hour meter)
+*  Total number of starts or start attemptes (count)
+*  Maximum continuous run time for any start (hours)
+* Commands to allow clearing of the totals/maximum
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag)LOWER(Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+COMMAND PROCESSING
+============================================================
+These rungs handle received Commands.  This object has no Modes and
+Commands are accepted regardless of Mode.  Commands should be
+restriceted to authorized personnel (typically at a maintenance level).
+
+PCmd_ClearTotHrs: Program Command to Clear Total Runtime Hours
+MCmd_ClearTotHrs: Maintenance Command to Clear Total Runtime Hours]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)[XIC(PCmd_ClearTotHrs) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearTotHrs) ,NOP() ] ,XIC(MCmd_ClearTotHrs) OTU(MCmd_ClearTotHrs) ]RES(Wrk_TotRunT)CLR(Wrk_TotTenths);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearStarts: Program Command to Clear Count of Starts
+MCmd_ClearStarts: Maintenance Command to Clear Count of Starts]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearStarts) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearStarts) ,NOP() ] ,XIC(MCmd_ClearStarts) OTU(MCmd_ClearStarts) ]RES(Wrk_Starts);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[PCmd_ClearMaxHrs: Program Command to Clear Maximum Single Run Hours
+MCmd_ClearMaxHrs: Maintenance Command to Clear Maximum Single Run Hours]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(PCmd_ClearMaxHrs) [XIC(Cfg_PCmdClear) OTU(PCmd_ClearMaxHrs) ,NOP() ] ,XIC(MCmd_ClearMaxHrs) OTU(MCmd_ClearMaxHrs) ]CLR(Wrk_MaxHours);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[Clear current run hours if stopped.
+NOTE: Val_CurHours is maintained for display!]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Inp_Starting)XIO(Inp_Running)RES(Wrk_CurRunT)CLR(Wrk_CurHours);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[============================================================
+ACCUMULATE TIMES / STARTS
+============================================================
+This rung runs the Total (retentive) and Maximum (non-retentive) Run Time
+timers and increments the Number of Starts counter  whenever
+ the motor/device is Starting or Running (contactor energized...).
+
+NOTE:  The counter only counts on the rising edge of the rung.  As long as
+there's no delay between Starting going OFF and Running coming ON, this will work fine.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Inp_Starting) ,XIC(Inp_Running) ][RTO(Wrk_TotRunT,?,?) ,CTU(Wrk_Starts,?,?) ,TON(Wrk_CurRunT,?,?) ];]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[Note that an RTO timer can only time up to 2G milliseconds, about 28 days.
+A pump will accumulate much more run time.  So the RTO is used to time 1/10 hour,
+which is then added to a count of "Tenths of Hours".  Then the RTO accumulator is reduced by 1/10 hour.
+(The timer doesn't lose time because it is not reset and keeps running.)]]>
+</Comment>
+<Text>
+<![CDATA[GEQ(Wrk_TotRunT.ACC,360000)ADD(Wrk_TotTenths,1,Wrk_TotTenths)SUB(Wrk_TotRunT.ACC,360000,Wrk_TotRunT.ACC);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[The Maximum Run Time TON is treated the same way.  A motor/device
+could potentially run continuously for more than 28 days, so an integer count
+of (up to 2 billion) hours (almost 245,000 years!) is used.  Should be enough...]]>
+</Comment>
+<Text>
+<![CDATA[GEQ(Wrk_CurRunT.ACC,3600000)ADD(Wrk_CurHours,1,Wrk_CurHours)SUB(Wrk_CurRunT.ACC,3600000,Wrk_CurRunT.ACC);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[============================================================
+REPORT VALUES
+============================================================
+
+The number of starts is directly reported as an integer Value.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(Wrk_Starts.ACC,Val_Starts);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[The Current (continuous) Run Time is reported as a REAL number of Hours.
+This number includes all fractional hours (timer accumulator / 3,600,000 ms/hr),
+not just completed tenths like the total run time below.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Inp_Starting) ,XIC(Inp_Running) ]CPT(Val_CurRunHrs,Wrk_CurHours+(Wrk_CurRunT.ACC/3600000.0));]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[If the Current Run Time exceeds the stored Maximum Run Time,
+update the Maximum.
+Regardless, report the Maximum Run Time.
+
+NOTE:  The Wrk_MaxHours register is required to prevent writes to Val_MaxHours
+from improperly overwriting this object's state.
+]]>
+</Comment>
+<Text>
+<![CDATA[[GRT(Val_CurRunHrs,Wrk_MaxHours) MOV(Val_CurRunHrs,Wrk_MaxHours) ,MOV(Wrk_MaxHours,Val_MaxRunHrs) ];]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[The Total Running Time is reported as a REAL number of Hours.
+(This will always be in "completed tenths" of an hour, like a mechanical hours counter.)]]>
+</Comment>
+<Text>
+<![CDATA[MUL(Wrk_TotTenths,0.1,Val_TotRunHrs);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Prescan" Type="RLL">
+<Description>
+<![CDATA[Set Current Run time internally to 0.  Display value is left in place.]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+POWERUP / PRESCAN HANDLING
+============================================================
+Total run time, Maximum run time and starts count are retained through
+a power cycle.  Current run time is reset (internally only,
+Val_CurHours is maintained for display!).]]>
+</Comment>
+<Text>
+<![CDATA[RES(Wrk_CurRunT)CLR(Wrk_CurHours);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[On Prescan, clear any "lurking" Commands.]]>
+</Comment>
+<Text>
+<![CDATA[[OTU(MCmd_ClearMaxHrs) OTU(MCmd_ClearTotHrs) OTU(MCmd_ClearStarts) ,OTU(PCmd_ClearMaxHrs) OTU(PCmd_ClearTotHrs) OTU(PCmd_ClearStarts) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

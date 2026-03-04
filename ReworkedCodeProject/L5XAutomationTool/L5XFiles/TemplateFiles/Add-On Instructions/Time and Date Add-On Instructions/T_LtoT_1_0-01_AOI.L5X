@@ -1,0 +1,1304 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--LTIME to DateTime-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="T_LtoT" TargetType="AddOnInstructionDefinition" TargetRevision="1.0 01 Release" TargetLastEdited="2014-02-27T22:29:40.239Z" ContainsContext="true" Owner="Dale E. Reed, Rockwell Automation" ExportDate="Thu Feb 27 17:30:00 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="ProcessObjects_3_0_07">
+<DataTypes Use="Context">
+<DataType Name="DateTime" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Date and TimeOfDay (absolute) or Time (duration/interval)]]>
+</Description>
+<Members>
+<Member Name="Yr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Year(s)]]>
+</Description>
+</Member>
+<Member Name="Mo" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Month(s)]]>
+</Description>
+</Member>
+<Member Name="Da" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Day(s)]]>
+</Description>
+</Member>
+<Member Name="Hr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Hour(s)]]>
+</Description>
+</Member>
+<Member Name="Min" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Minute(s)]]>
+</Description>
+</Member>
+<Member Name="Sec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Second(s)]]>
+</Description>
+</Member>
+<Member Name="uSec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Microsecond(s)]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Name="L_DIV" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-06-19T16:40:26.214Z" CreatedBy="Not Available" EditedDate="2013-02-01T22:25:32.347Z" EditedBy="Not Available"
+ SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Divide (64-bit by 32-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This instruction implements an elementary-school shift/subtract (looping)
+method of dividing a 64-bit integer (LINT) dividend by a 32-bit integer (DINT)
+divisor.  The resulting quotient is a 64-bit integer (LINT), and the remainder
+(32-bit integer DINT) is also returned.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Dividend" TagType="Base" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Dividend (numerator) 64-bit]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Divisor" TagType="Base" DataType="DINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Divisor (denominator) 32-bit]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Quotient" TagType="Base" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Quotient (result) 64-bit]]>
+</Description>
+</Parameter>
+<Parameter Name="Out_Remainder" TagType="Base" DataType="DINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Remainder 32-bit]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_OutC" DataType="DINT" Dimensions="2" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Quotient Output as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="2" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpA" DataType="DINT" Dimensions="2" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Dividend Input as two 32-bit DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="2" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_B_Sign" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Sign of Divisor]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_A_Sign" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Sign of Dividend]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_index" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Loop index for shift/subtract]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_C" DataType="DINT" Dimensions="3" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Quotient building]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="3" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_B" DataType="DINT" Dimensions="3" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Divisor shifted]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="3" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_A" DataType="DINT" Dimensions="3" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Starts as Dividend, ends as Remainder]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="3" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+<Element Index="[2]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpB" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Absolute Value of Divisor]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_B_LES_A" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Still need to shift Divisor left to align with Dividend]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_A_GEQ_B" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Add one to Quotient]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OutRem" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Remainder Output]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OutLoOvflw" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output low-order 32 bits overflow on Negate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_OutHiOvflw" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Output high-order 32 bits overflow on Negate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpAHiOvflw" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Input A high-order 32 bits overflow on Negate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_InpALoOvflw" DataType="BOOL" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Input A low-order 32 bits overflow on Negate]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Divide 64-bit LINT by a 32-bit DINT to give 64-bit (LINT) quotient and 32-bit (DINT) remainder]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+L_DIV : Divide (64-bit by 32-bit)
+============================================================
+Revision 1.0-00 Release:  2009-Jul-31
+Initial Release
+============================================================
+Divides a LINT (signed 64-bit) dividend by a DINT (signed 32-bit) divisor
+and returns a LINT (signed 64-bit) quotient and a DINT (signed 32-bit) remainder.
+
+This instruction breaks the LINT divident into three DINTs
+(24 bits, 20 bits and 20 bits) to do the math in order to
+avoid generating a Controller MINOR FAULT on overflow.
+(Sample code provided in RSLogix 5000 Online Help is much
+smaller and faster, but causes numerous Minor Faults on
+Overflows -- S:V -- on the low-order difference!  The controller must
+take time to log the minor faults, and many users do not want to see
+Minor Faults on normal math operations.  See the RSLogix 5000
+Help Topic "Arithmetic Status Flags" for more information.)
+===================================================
+CONVERT LINT DIVIDENT TO DINTs
+===================================================
+This COPy takes the input dividend LINT and breaks it into a pair of DINTs so we can do math on it.
+Logix V17 has a LINT data type, but math instructions (and AOI Input and Output Parameters) don't support LINT.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_Dividend,Wrk_InpA[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+CHECK FOR DIVIDE BY ZERO
+===================================================
+If the divisor is zero, simply output the most positive number (if the
+dividend is positive) or most negative number (if the dividend is negative).]]>
+</Comment>
+<Text>
+<![CDATA[EQU(Inp_Divisor,0)[XIO(Wrk_InpA[1].31) MOV(16#7fff_ffff,Wrk_OutC[1]) MOV(16#ffff_ffff,Wrk_OutC[0]) MOV(16#7fff_ffff,Wrk_OutRem) ,XIC(Wrk_InpA[1].31) MOV(16#8000_0000,Wrk_OutC[1]) CLR(Wrk_OutC[0]) MOV(16#8000_0000,Wrk_OutRem) ]JMP(End);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[===================================================
+TRACK SIGNS
+===================================================
+If the dividend is negative, track that, and negate it.
+If the divisor is negative, track that, and negate it.
+We'll do the division with the unsigned values, then
+figure out the final signs.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_InpA[1].31) [NOT(Wrk_InpA[0],Wrk_InpA[0]) NOT(Wrk_InpA[1],Wrk_InpA[1]) ,EQU(Wrk_InpA[0],16#7FFF_FFFF) MOV(16#8000_0000,Wrk_InpA[0]) OTE(Wrk_InpALoOvflw) ,XIO(Wrk_InpALoOvflw) ADD(Wrk_InpA[0],1,Wrk_InpA[0]) ,EQU(Wrk_InpA[0],0) [EQU(Wrk_InpA[1],16#7FFF_FFFF) MOV(16#8000_0000,Wrk_InpA[1]) OTE(Wrk_InpAHiOvflw) ,XIO(Wrk_InpAHiOvflw) ADD(Wrk_InpA[1],1,Wrk_InpA[1]) ] ,OTE(Wrk_A_Sign) ] ,ABS(Inp_Divisor,Wrk_InpB) XIC(Inp_Divisor.31) OTE(Wrk_B_Sign) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[===================================================
+SPREAD 64 BITS ACROSS THREE DINTs
+===================================================
+If we do the math on 32-bit DINTs, the math on the low-order DINT (bits .0 to .31 of the 64-bit value)
+will cause Overflows, setting the S:V status bit and THROWING A MINOR FAULT.
+
+To avoid the Minor Fault, we take the two DINTs and break them up into THREE:
+a 24 bit low-order DINT,
+a 20-bit middle DINT, and
+a 20-bit high-order DINT.
+
+Doing the math on less than 30 bits per ADD ensures we never have an Overflow that throws a Minor Fault.
+The BTDs split the 64 bits of Input A among the three DINTs used in the math.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_A[0],3)BTD(Wrk_InpA[0],0,Wrk_A[0],0,24)BTD(Wrk_InpA[0],24,Wrk_A[1],0,8)BTD(Wrk_InpA[1],0,Wrk_A[1],8,12)BTD(Wrk_InpA[1],12,Wrk_A[2],0,20);]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[We need to do the same with our 32-bit divisor, because we will be shifting it
+left in a 64-bit space to align with the dividend for subtraction.]]>
+</Comment>
+<Text>
+<![CDATA[FLL(0,Wrk_B[0],3)BTD(Wrk_InpB,0,Wrk_B[0],0,24)BTD(Wrk_InpB,24,Wrk_B[1],0,8)FLL(0,Wrk_C[0],3);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[===================================================
+LOOP TO SHIFT DIVISOR LEFT
+===================================================
+This instruction uses the grade-school long division method,
+shifting and subtracting.  In preparation for the big shift-subtract loop,
+shift the divisor left until it is larger than the dividend.]]>
+</Comment>
+<Text>
+<![CDATA[CLR(Wrk_index);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[If the shifted divisor is still less than the dividend,
+we need to shift another position to the left.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(ShiftLeft)[LES(Wrk_B[2],Wrk_A[2]) ,EQU(Wrk_B[2],Wrk_A[2]) [LES(Wrk_B[1],Wrk_A[1]) ,EQU(Wrk_B[1],Wrk_A[1]) LES(Wrk_B[0],Wrk_A[0]) ] ]OTE(Wrk_B_LES_A);]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[When the divisor has been shifted left to be greater than the
+dividend, we can start to shift right and subtract, just like
+grade school division.]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Wrk_B_LES_A)JMP(ShiftRight);]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[This rung does the actual bit shift to the left, in the
+20 / 20 / 24 bit groups.  The "Wrk_index" keeps track
+of HOW MANY positions we shifted left ("decimal place")]]>
+</Comment>
+<Text>
+<![CDATA[[BTD(Wrk_B[2],0,Wrk_B[2],1,19) XIC(Wrk_B[1].19) OTE(Wrk_B[2].0) ,BTD(Wrk_B[1],0,Wrk_B[1],1,19) XIC(Wrk_B[0].23) OTE(Wrk_B[1].0) ,BTD(Wrk_B[0],0,Wrk_B[0],1,23) OTU(Wrk_B[0].0) ,ADD(Wrk_index,1,Wrk_index) ,XIO(Wrk_B[2].19) JMP(ShiftLeft) ];]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[Now start to shift the divisor right and subtract from the dividend.
+
+Do the check for Dividend greater than or equal to Divisor.
+If it is, we add one to the quotient.  (That 1 will get shifted
+left as we work the index back to 0 and do the subtractions
+for each "decimal place".]]>
+</Comment>
+<Text>
+<![CDATA[LBL(ShiftRight)[GRT(Wrk_A[2],Wrk_B[2]) ,EQU(Wrk_A[2],Wrk_B[2]) [GRT(Wrk_A[1],Wrk_B[1]) ,EQU(Wrk_A[1],Wrk_B[1]) GEQ(Wrk_A[0],Wrk_B[0]) ] ]OTE(Wrk_A_GEQ_B);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[Subtract the shifted divisor from the remaining dividend to
+determine the remainder for this decimal place.]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Wrk_A_GEQ_B)[SUB(Wrk_A[0],Wrk_B[0],Wrk_A[0]) ,XIC(Wrk_A[0].24) SUB(Wrk_A[1],1,Wrk_A[1]) ,SUB(Wrk_A[1],Wrk_B[1],Wrk_A[1]) ,XIC(Wrk_A[1].20) SUB(Wrk_A[2],1,Wrk_A[2]) ,SUB(Wrk_A[2],Wrk_B[2],Wrk_A[2]) ,MVM(0,16#ff00_0000,Wrk_A[0]) MVM(0,16#fff0_0000,Wrk_A[1]) ,ADD(Wrk_C[0],1,Wrk_C[0]) ,XIC(Wrk_C[0].24) ADD(Wrk_C[1],1,Wrk_C[1]) ,XIC(Wrk_C[1].20) ADD(Wrk_C[2],1,Wrk_C[2]) ,MVM(0,16#ff00_0000,Wrk_C[0]) MVM(0,16#fff0_0000,Wrk_C[1]) ];]]>
+</Text>
+</Rung>
+<Rung Number="11" Type="N">
+<Comment>
+<![CDATA[If the index has been counted down to zero, we've done
+the last subtraction.  Skip the shift and go report the results.]]>
+</Comment>
+<Text>
+<![CDATA[LEQ(Wrk_index,0)JMP(Output);]]>
+</Text>
+</Rung>
+<Rung Number="12" Type="N">
+<Comment>
+<![CDATA[Now if we're not down to the "1's" place (index not back to 0),
+shift the quotient LEFT one place, and shift the divisor RIGHT one place
+and prepare for the next compare/subtract.]]>
+</Comment>
+<Text>
+<![CDATA[[BTD(Wrk_C[2],0,Wrk_C[2],1,19) XIC(Wrk_C[1].19) OTE(Wrk_C[2].0) ,BTD(Wrk_C[1],0,Wrk_C[1],1,19) XIC(Wrk_C[0].23) OTE(Wrk_C[1].0) ,BTD(Wrk_C[0],0,Wrk_C[0],1,23) OTU(Wrk_C[0].0) ,BTD(Wrk_B[0],1,Wrk_B[0],0,23) XIC(Wrk_B[1].0) OTE(Wrk_B[0].23) ,BTD(Wrk_B[1],1,Wrk_B[1],0,19) XIC(Wrk_B[2].0) OTE(Wrk_B[1].19) ,BTD(Wrk_B[2],1,Wrk_B[2],0,19) OTU(Wrk_B[2].19) ,SUB(Wrk_index,1,Wrk_index) JMP(ShiftRight) ];]]>
+</Text>
+</Rung>
+<Rung Number="13" Type="N">
+<Comment>
+<![CDATA[===================================================
+GATHER 64-BIT QUOTIENT FROM THREE DINTs
+===================================================
+Now we're done with the actual division and have a quotient and remainder.
+The quotient is in a set of DINTs, so we need to extract those back to
+a pair of DINTs so we can copy to the final LINT quotient.
+
+This rung takes the 20-, 20- and 24-bit results and puts them into 2 32-bit DINT output words.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(Output)BTD(Wrk_C[0],0,Wrk_OutC[0],0,24)BTD(Wrk_C[1],0,Wrk_OutC[0],24,8)BTD(Wrk_C[1],8,Wrk_OutC[1],0,12)BTD(Wrk_C[2],0,Wrk_OutC[1],12,20);]]>
+</Text>
+</Rung>
+<Rung Number="14" Type="N">
+<Comment>
+<![CDATA[What's left in the Dividend after all the subtraction is our remainder.
+It is bit-aligned with the quotient (24, 8 bits), so we need to bring
+these parts together to make the final DINT remainder.]]>
+</Comment>
+<Text>
+<![CDATA[BTD(Wrk_A[0],0,Wrk_OutRem,0,24)BTD(Wrk_A[1],0,Wrk_OutRem,24,8);]]>
+</Text>
+</Rung>
+<Rung Number="15" Type="N">
+<Comment>
+<![CDATA[===================================================
+DETERMINE SIGN OF FINAL QUOTIENT AND REMAINDER
+===================================================
+If only one of the Inputs is negative, negate the quotient.
+If the quotient is negative, so is the remainder.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Wrk_A_Sign) XIO(Wrk_B_Sign) ,XIO(Wrk_A_Sign) XIC(Wrk_B_Sign) ][NOT(Wrk_OutC[0],Wrk_OutC[0]) NOT(Wrk_OutC[1],Wrk_OutC[1]) ,EQU(Wrk_OutC[0],16#7FFF_FFFF) MOV(16#8000_0000,Wrk_OutC[0]) OTE(Wrk_OutLoOvflw) ,XIO(Wrk_OutLoOvflw) ADD(Wrk_OutC[0],1,Wrk_OutC[0]) ,EQU(Wrk_OutC[0],0) [EQU(Wrk_OutC[1],16#7FFF_FFFF) MOV(16#8000_0000,Wrk_OutC[1]) OTE(Wrk_OutHiOvflw) ,XIO(Wrk_OutHiOvflw) ADD(Wrk_OutC[1],1,Wrk_OutC[1]) ] ,NEG(Wrk_OutRem,Wrk_OutRem) ];]]>
+</Text>
+</Rung>
+<Rung Number="16" Type="N">
+<Comment>
+<![CDATA[===================================================
+COPY REASSEMBLED QUOTIENT, REMAINDER TO OUTPUTS
+===================================================]]>
+</Comment>
+<Text>
+<![CDATA[LBL(End)COP(Wrk_OutC[0],Out_Quotient,1)MOV(Wrk_OutRem,Out_Remainder);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+<AddOnInstructionDefinition Name="T_ADD" Revision="1.0" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2008-04-08T21:16:05.802Z" CreatedBy="Not Available" EditedDate="2014-02-27T22:09:21.517Z" EditedBy="Not Available"
+ SoftwareRevision="v18.02">
+<Description>
+<![CDATA[DateTime := DateTime + Time]]>
+</Description>
+<RevisionNote>
+<![CDATA[Add buffering of input Ref_DT so same tag can be used as Ref_DT and Ref_Out (to "bump" a DateTime)]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[T_Add : Add Date/Time plus Time to get new Date/Time
+
+This instruction adds a given amount of Time to a Date/Time to arrive at a new Date/Time.
+The new Date/Time is "normalized", that is, given as a valid (if possible) Gregorian Date and Time:
+
+*  0 <= Microseconds < 1,000,000
+*  0 <= Seconds < 60    (NOTE: this instruction cannot add leap seconds;  sorry!)
+*  0 <= Minutes < 60
+*  0 <= Hours < 24
+*  1 <= Day <= 31 AND Date is a Valid Gregorian Date (see below)
+*  1 <= Month <= 12
+
+NOTE:  The Ref_DT parameter must be a valid Date and Time, NOT an AMOUNT of time!
+   The Ref_Time parameter is the AMOUNT of  time!  If you swap these, you'll get an invalid
+    result, at least if Ref_DT.Yr, Ref_DT.Mo or Ref_DT.Da is zero!
+
+NOTE:  This instruction does NOT switch to Julian dates for dates before 1582 (or 1753 or
+    whenever your place of interest switched to the Gregorian Calendar -- see Wikipedia on
+    "Gregorian Calendar" for details)!  This instruction assumes the Gregorian Calendar extends
+    "indefinitely" (about 5.8 million years) either side of "zero" CE!  It DOES handle the Gregorian
+    4 / 100 / 400 year rules, so Feb. 29, 2000 is a valid date, but Feb. 29, 2100 is not.  It DOES
+    NOT handle Daylight Savings Time hour offsets when the amount of Time added carries the
+    Date/Time across summer/winter time boundaries.
+]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_DT" TagType="Base" DataType="DateTime" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[DT (Date/Time) to which to add Time]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Time" TagType="Base" DataType="DateTime" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Time to be added to DT (Date/Time)]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Out" TagType="Base" DataType="DateTime" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Date/Time = DT+Time]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_YrFromMo" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Years to add from Months]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_DaFromHr" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Days to add from Hours]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_HrFromMin" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Hours to add from Minutes]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_MinFromSec" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Minutes to add from Seconds]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_SecFrom_uSec" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Seconds to add from Microseconds]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_yyy" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Intermediate for year calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_y" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Calculated YEAR from Gregorian Day Number]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_mmm" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Intermediate for month calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_m" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Calculated MONTH from Gregorian Day Number]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_GD" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Gregorian Day Number (calculated for given Y/M/D)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_G" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Used in calculating Gregorian Day Number (function of Year and F)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_F" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Used in calculating Gregorian Day Number (function of month)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ddd" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Intermediate for day calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_DT" DataType="DateTime" ExternalAccess="None">
+<Description>
+<![CDATA[Buffered copy of Ref_DT]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="DateTime">
+<DataValueMember Name="Yr" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Mo" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Da" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Hr" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Min" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Sec" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="uSec" DataType="DINT" Radix="Decimal" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="ST">
+<Description>
+<![CDATA[Add Date/Time plus Time to give new Date/Time]]>
+</Description>
+<STContent>
+<Line Number="0">
+<![CDATA[// T_ADD : TIME -- ADD DATE/TIME PLUS TIME -> DATE/TIME]]>
+</Line>
+<Line Number="1">
+<![CDATA[//]]>
+</Line>
+<Line Number="2">
+<![CDATA[// This instruction adds a given amount of Time to a Date/Time to arrive at a new Date/Time]]>
+</Line>
+<Line Number="3">
+<![CDATA[// The new Date/Time is "normalized", that is, given as a valid (if possible) Gregorian Date and Time:]]>
+</Line>
+<Line Number="4">
+<![CDATA[//]]>
+</Line>
+<Line Number="5">
+<![CDATA[//   *  0 <= Microseconds < 1,000,000]]>
+</Line>
+<Line Number="6">
+<![CDATA[//   *  0 <= Seconds < 60    (NOTE: this instruction cannot add leap seconds;  sorry!]]>
+</Line>
+<Line Number="7">
+<![CDATA[//   *  0 <= Minutes < 60]]>
+</Line>
+<Line Number="8">
+<![CDATA[//   *  0 <= Hours < 24]]>
+</Line>
+<Line Number="9">
+<![CDATA[//   *  1 <= Day <= 31 AND Date is a Valid Gregorian Date (see below)]]>
+</Line>
+<Line Number="10">
+<![CDATA[//   *  1 <= Month <= 12]]>
+</Line>
+<Line Number="11">
+<![CDATA[//]]>
+</Line>
+<Line Number="12">
+<![CDATA[//  NOTE:  The Ref_DT parameter must be a valid Date and Time, NOT an AMOUNT of time!  The Ref_Time parameter is the AMOUNT of]]>
+</Line>
+<Line Number="13">
+<![CDATA[//    time!  If you swap these, you'll get an invalid result, at least if Ref_DT.Yr, Ref_DT.Mo or Ref_DT.Da is zero!]]>
+</Line>
+<Line Number="14">
+<![CDATA[//]]>
+</Line>
+<Line Number="15">
+<![CDATA[//  NOTE:  This instruction does NOT switch to Julian dates for dates before 1582 (or 1753 or whenever your place of interest]]>
+</Line>
+<Line Number="16">
+<![CDATA[//    switched to the Gregorian Calendar -- see Wikipedia on "Gregorian Calendar" for details)!  This instruction assumes the ]]>
+</Line>
+<Line Number="17">
+<![CDATA[//    Gregorian Calendar extends "indefinitely" (about 5.8 million years) either side of "zero" CE!  It DOES handle the]]>
+</Line>
+<Line Number="18">
+<![CDATA[//    Gregorian 4 / 100 / 400 year rules, so Feb. 29, 2000 is a valid date, but Feb. 29, 2100 is not.  It DOES NOT handle]]>
+</Line>
+<Line Number="19">
+<![CDATA[//    Daylight Savings Time hour offsets when the amount of Time added carries the Date/Time across summer/winter time boundaries.]]>
+</Line>
+<Line Number="20">
+<![CDATA[//]]>
+</Line>
+<Line Number="21">
+<![CDATA[//  NOTE:  For algorithms used for Gregorian Date and Days Between Dates, see http://alcor.concordia.ca/~gpkatch/gdate-algorithm.html]]>
+</Line>
+<Line Number="22">
+<![CDATA[//]]>
+</Line>
+<Line Number="23">
+<![CDATA[//  V1.0-00 2009-04-23: Initial formal release]]>
+</Line>
+<Line Number="24">
+<![CDATA[//	V1.0-01 2014-02-28: Add buffering of input Ref_DT so same tag can be used as Ref_DT and Ref_Out (to "bump" a DateTime)]]>
+</Line>
+<Line Number="25">
+<![CDATA[//]]>
+</Line>
+<Line Number="26">
+<![CDATA[]]>
+</Line>
+<Line Number="27">
+<![CDATA[// Buffer input DateTime]]>
+</Line>
+<Line Number="28">
+<![CDATA[Wrk_DT.Yr   := Ref_DT.Yr;]]>
+</Line>
+<Line Number="29">
+<![CDATA[Wrk_DT.Mo   := Ref_DT.Mo;]]>
+</Line>
+<Line Number="30">
+<![CDATA[Wrk_DT.Da   := Ref_DT.Da;]]>
+</Line>
+<Line Number="31">
+<![CDATA[Wrk_DT.Hr   := Ref_DT.Hr;]]>
+</Line>
+<Line Number="32">
+<![CDATA[Wrk_DT.Min  := Ref_DT.Min;]]>
+</Line>
+<Line Number="33">
+<![CDATA[Wrk_DT.Sec  := Ref_DT.Sec;]]>
+</Line>
+<Line Number="34">
+<![CDATA[Wrk_DT.uSec := Ref_DT.uSec;]]>
+</Line>
+<Line Number="35">
+<![CDATA[]]>
+</Line>
+<Line Number="36">
+<![CDATA[// Add Microseconds (accounting for adding a negative number of Microseconds!)]]>
+</Line>
+<Line Number="37">
+<![CDATA[Ref_Out.uSec := (Wrk_DT.uSec+Ref_Time.uSec) MOD 1000000;]]>
+</Line>
+<Line Number="38">
+<![CDATA[// Carry excess Seconds]]>
+</Line>
+<Line Number="39">
+<![CDATA[Wrk_SecFrom_uSec := (Wrk_DT.uSec+Ref_Time.uSec) / 1000000;]]>
+</Line>
+<Line Number="40">
+<![CDATA[IF (Ref_Out.uSec < 0) THEN]]>
+</Line>
+<Line Number="41">
+<![CDATA[  Ref_Out.uSec := Ref_Out.uSec + 1000000;]]>
+</Line>
+<Line Number="42">
+<![CDATA[  Wrk_SecFrom_uSec := Wrk_SecFrom_uSec - 1;]]>
+</Line>
+<Line Number="43">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="44">
+<![CDATA[]]>
+</Line>
+<Line Number="45">
+<![CDATA[// Add Seconds]]>
+</Line>
+<Line Number="46">
+<![CDATA[Ref_Out.Sec := (Wrk_DT.Sec+Ref_Time.Sec+Wrk_SecFrom_uSec) MOD 60;]]>
+</Line>
+<Line Number="47">
+<![CDATA[// Carry excess Minutes]]>
+</Line>
+<Line Number="48">
+<![CDATA[Wrk_MinFromSec := (Wrk_DT.Sec+Ref_Time.Sec+Wrk_SecFrom_uSec) / 60;]]>
+</Line>
+<Line Number="49">
+<![CDATA[// Handle negative sum]]>
+</Line>
+<Line Number="50">
+<![CDATA[IF (Ref_Out.Sec < 0) THEN]]>
+</Line>
+<Line Number="51">
+<![CDATA[  Ref_Out.Sec := Ref_Out.Sec + 60;]]>
+</Line>
+<Line Number="52">
+<![CDATA[  Wrk_MinFromSec := Wrk_MinFromSec - 1;]]>
+</Line>
+<Line Number="53">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="54">
+<![CDATA[]]>
+</Line>
+<Line Number="55">
+<![CDATA[// Add Minutes]]>
+</Line>
+<Line Number="56">
+<![CDATA[Ref_Out.Min := (Wrk_DT.Min+Ref_Time.Min+Wrk_MinFromSec) MOD 60;]]>
+</Line>
+<Line Number="57">
+<![CDATA[// Carry excess Hours]]>
+</Line>
+<Line Number="58">
+<![CDATA[Wrk_HrFromMin := (Wrk_DT.Min+Ref_Time.Min+Wrk_MinFromSec) / 60;]]>
+</Line>
+<Line Number="59">
+<![CDATA[// Handle negative sum]]>
+</Line>
+<Line Number="60">
+<![CDATA[IF (Ref_Out.Min < 0) THEN]]>
+</Line>
+<Line Number="61">
+<![CDATA[  Ref_Out.Min := Ref_Out.Min + 60;]]>
+</Line>
+<Line Number="62">
+<![CDATA[  Wrk_HrFromMin := Wrk_HrFromMin - 1;]]>
+</Line>
+<Line Number="63">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="64">
+<![CDATA[]]>
+</Line>
+<Line Number="65">
+<![CDATA[// Add Hours]]>
+</Line>
+<Line Number="66">
+<![CDATA[Ref_Out.Hr := (Wrk_DT.Hr+Ref_Time.Hr+Wrk_HrFromMin) MOD 24;]]>
+</Line>
+<Line Number="67">
+<![CDATA[// Carry excess Days]]>
+</Line>
+<Line Number="68">
+<![CDATA[Wrk_DaFromHr := (Wrk_DT.Hr+Ref_Time.Hr+Wrk_HrFromMin) / 24;]]>
+</Line>
+<Line Number="69">
+<![CDATA[// Handle negative sum]]>
+</Line>
+<Line Number="70">
+<![CDATA[IF (Ref_Out.Hr < 0) THEN]]>
+</Line>
+<Line Number="71">
+<![CDATA[  Ref_Out.Hr := Ref_Out.Hr + 24;]]>
+</Line>
+<Line Number="72">
+<![CDATA[  Wrk_DaFromHr := Wrk_DaFromHr - 1;]]>
+</Line>
+<Line Number="73">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="74">
+<![CDATA[]]>
+</Line>
+<Line Number="75">
+<![CDATA[// That takes care of the time.  To add the days, we need to compute a Gregorian Day Number from the input Date,]]>
+</Line>
+<Line Number="76">
+<![CDATA[// then add the days and compute a Date from the new total Gregorian Day Number.  This takes care of the days in the months.]]>
+</Line>
+<Line Number="77">
+<![CDATA[// (After thet, we'll add the Months and Years like we did with the time.)]]>
+</Line>
+<Line Number="78">
+<![CDATA[]]>
+</Line>
+<Line Number="79">
+<![CDATA[// Compute the Gregorian Day Number for the input Date]]>
+</Line>
+<Line Number="80">
+<![CDATA[Wrk_F := (Wrk_DT.Mo+9) MOD 12;]]>
+</Line>
+<Line Number="81">
+<![CDATA[Wrk_G := Wrk_DT.Yr - Wrk_F/10;]]>
+</Line>
+<Line Number="82">
+<![CDATA[Wrk_GD := 365*Wrk_G+Wrk_G/4-Wrk_G/100+Wrk_G/400+(Wrk_F*306+5)/10+Wrk_DT.Da-1;]]>
+</Line>
+<Line Number="83">
+<![CDATA[]]>
+</Line>
+<Line Number="84">
+<![CDATA[// Add the days]]>
+</Line>
+<Line Number="85">
+<![CDATA[Wrk_GD := Wrk_GD+Ref_Time.Da+Wrk_DaFromHr;]]>
+</Line>
+<Line Number="86">
+<![CDATA[]]>
+</Line>
+<Line Number="87">
+<![CDATA[// And back out from this Gregorian Day Number to a date]]>
+</Line>
+<Line Number="88">
+<![CDATA[Wrk_yyy := TRUNC (Wrk_GD +1.5)/365.2425;]]>
+</Line>
+<Line Number="89">
+<![CDATA[Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="90">
+<![CDATA[IF (Wrk_ddd < 0) THEN]]>
+</Line>
+<Line Number="91">
+<![CDATA[	Wrk_yyy := Wrk_yyy - 1;]]>
+</Line>
+<Line Number="92">
+<![CDATA[	Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="93">
+<![CDATA[	IF (Wrk_ddd < 0) THEN]]>
+</Line>
+<Line Number="94">
+<![CDATA[		Wrk_yyy := Wrk_yyy - 1;]]>
+</Line>
+<Line Number="95">
+<![CDATA[		Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="96">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="97">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="98">
+<![CDATA[Wrk_mmm := (100*Wrk_ddd + 52)/3060;]]>
+</Line>
+<Line Number="99">
+<![CDATA[Wrk_y := Wrk_yyy + (Wrk_mmm + 2)/12;]]>
+</Line>
+<Line Number="100">
+<![CDATA[Wrk_m := ((Wrk_mmm + 2) MOD 12) + 1; ]]>
+</Line>
+<Line Number="101">
+<![CDATA[Ref_Out.Da := Wrk_ddd - ((Wrk_mmm * 306) + 5)/10 + 1;]]>
+</Line>
+<Line Number="102">
+<![CDATA[]]>
+</Line>
+<Line Number="103">
+<![CDATA[// Add Months]]>
+</Line>
+<Line Number="104">
+<![CDATA[Ref_Out.Mo := ((Wrk_m+Ref_Time.Mo-1) MOD 12)+1;]]>
+</Line>
+<Line Number="105">
+<![CDATA[// Carry excess Years]]>
+</Line>
+<Line Number="106">
+<![CDATA[Wrk_YrFromMo := (Wrk_m+Ref_Time.Mo-1) / 12;]]>
+</Line>
+<Line Number="107">
+<![CDATA[// Handle negative sum]]>
+</Line>
+<Line Number="108">
+<![CDATA[IF (Ref_Out.Mo < 1) THEN]]>
+</Line>
+<Line Number="109">
+<![CDATA[  Ref_Out.Mo := Ref_Out.Mo + 12;]]>
+</Line>
+<Line Number="110">
+<![CDATA[  Wrk_YrFromMo := Wrk_YrFromMo - 1;]]>
+</Line>
+<Line Number="111">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="112">
+<![CDATA[]]>
+</Line>
+<Line Number="113">
+<![CDATA[// Add Years]]>
+</Line>
+<Line Number="114">
+<![CDATA[Ref_Out.yr := Wrk_y+Ref_Time.Yr+Wrk_YrFromMo;]]>
+</Line>
+<Line Number="115">
+<![CDATA[]]>
+</Line>
+</STContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="DateTime"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+<AddOnInstructionDefinition Use="Target" Name="T_LtoT" Revision="1.0" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-06-23T14:20:15.609Z" CreatedBy="Not Available" EditedDate="2014-02-27T22:29:40.239Z"
+ EditedBy="Not Available" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[LTIME to DateTime]]>
+</Description>
+<RevisionNote>
+<![CDATA[Uses updated T_ADD V1.0-01.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This instruction converts an LTIME (64-bit integer timestamp, e.g., from an ALMD
+or ALMA instruction or the WALLCLOCKTIME object) to a DateTime (Year, Month,
+Day, Hour, Minute, Second, Microsecond as DINTs) in Coordinated Universal Time
+(UTC offset = 0).
+
+The input LTIME is the 64-bit (LINT) number of microseconds since
+DT#1970-01-01_00:00:00.000000 UTC.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp" TagType="Base" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[Input LTIME (64-bit microseconds since UTC 1970-01-01 00:00:00.000000]]>
+</Description>
+</Parameter>
+<Parameter Name="Ref_Out" TagType="Base" DataType="DateTime" Usage="InOut" Required="true" Visible="true" Constant="false">
+<Description>
+<![CDATA[DateTime (DINT Year, Month, Day, Hour, Minute, Second, Microsecond)]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_SecPerDa" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of Secoinds in a Day]]>
+</Description>
+<DefaultData>80 51 01 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="86400"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_uSecPerSec" DataType="DINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Number of microseconds in a second]]>
+</Description>
+<DefaultData>40 42 0F 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="DINT" Radix="Decimal" Value="1000000"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LDIV1" DataType="L_DIV" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Divide input by one million to get seconds, remainder in microseconds]]>
+</Description>
+<DefaultData>01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="L_DIV">
+<DataValueMember Name="EnableIn" DataType="BOOL" Value="1"/>
+<DataValueMember Name="EnableOut" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LSec" DataType="LINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Seconds since 1970-01-01 00:00:00]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="LINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LDIV2" DataType="L_DIV" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Divide by 86,400 to get DAYS since 1970- 01-01, remainder is seconds in that day]]>
+</Description>
+<DefaultData>01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="L_DIV">
+<DataValueMember Name="EnableIn" DataType="BOOL" Value="1"/>
+<DataValueMember Name="EnableOut" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_BaseDT" DataType="DateTime" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Base DateTime for LTIME: 1970-01-01 00:00:00.000000]]>
+</Description>
+<DefaultData>B2 07 00 00 01 00 00 00 01 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="DateTime">
+<DataValueMember Name="Yr" DataType="DINT" Radix="Decimal" Value="1970"/>
+<DataValueMember Name="Mo" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="Da" DataType="DINT" Radix="Decimal" Value="1"/>
+<DataValueMember Name="Hr" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Min" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Sec" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="uSec" DataType="DINT" Radix="Decimal" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_DT" DataType="DateTime" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Amount of time since 1970-01-01 in Days, Seconds and Microseconds]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="DateTime">
+<DataValueMember Name="Yr" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Mo" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Da" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Hr" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Min" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="Sec" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="uSec" DataType="DINT" Radix="Decimal" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_TADD" DataType="T_ADD" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[T_ADD to add Base DateTime and offset in Days + Sec + uSec]]>
+</Description>
+<DefaultData>01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Structure DataType="T_ADD">
+<DataValueMember Name="EnableIn" DataType="BOOL" Value="1"/>
+<DataValueMember Name="EnableOut" DataType="BOOL" Value="0"/>
+</Structure>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LDays" DataType="LINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Days since 1970-01-01 as a LINT (64-bit integer)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="LINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Days" DataType="DINT" Dimensions="2" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[LINT Days split into two DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<Array DataType="DINT" Dimensions="2" Radix="Decimal">
+<Element Index="[0]" Value="0"/>
+<Element Index="[1]" Value="0"/>
+</Array>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Convert LTIME (64-bit microseconds since 1970-01-01) to DateTime (Yr, Mo, Da, Hr, Min, Sec, uSec)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+T_LtoT : Convert LTIME to DateTime
+============================================================
+Revision 1.0-01 - Release:  2014-02-28
+V1.0-00, 2009-04-23: Initial formal release
+V1.0-01, 2014-02-28: Uses updated T_ADD V1.0-01.
+============================================================
+This instruction converts an LTIME (64-bit integer timestamp, e.g., from an ALMD
+or ALMA instruction or the WALLCLOCKTIME object) to a DateTime
+(Year, Month , Day, Hour, Minute, Second, Microsecond as DINTs)
+in Coordinated Universal Time (UTC offset = 0).
+
+The input LTIME is the 64-bit (LINT) number of microseconds
+since DT#1970-01-01_00:00:00.0000 UTC.
+===================================================
+DIVIDE MICROSECONDS BY 1,000,000
+===================================================
+This L_DIV divides the input Microseconds by one million (1,000,000)
+to get the number of seconds since 1970-01-01 00:00:00.
+The instruction provides a remainder, which is the Microseconds
+value for the DateTime output.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(1000000,Wrk_uSecPerSec)L_DIV(Wrk_LDIV1,Inp,Wrk_uSecPerSec,Wrk_LSec,Wrk_DT.uSec);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+DIVIDE SECONDS BY 86,400 PER DAY
+===================================================
+This L_DIV divides the number of Seconds since 1970-01-01 by
+86,400 (seconds in a day) to get the number of DAYS since 1970-01-01
+and a remainder of the number of seconds in that day.]]>
+</Comment>
+<Text>
+<![CDATA[MOV(86400,Wrk_SecPerDa)L_DIV(Wrk_LDIV2,Wrk_LSec,Wrk_SecPerDa,Wrk_LDays,Wrk_DT.Sec);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[The number of days will fit in a DINT (for about +/- 5.8 million years!), so
+extract the bottom half of the LINT days to a DINT and put it into the T_ADD below.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Wrk_LDays,Wrk_Days[0],2)MOV(Wrk_Days[0],Wrk_DT.Da);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[===================================================
+ADD "1970-01-01_00:00:00.000000" TO GET DateTime
+===================================================
+This T_ADD adds the amount of time in microseconds, seconds and
+days to a constant "1970" "1" "1" "0" "0" "0" "0" DateTime to
+get the UTC DateTime.]]>
+</Comment>
+<Text>
+<![CDATA[[MOV(1970,Wrk_BaseDT.Yr) MOV(1,Wrk_BaseDT.Mo) MOV(1,Wrk_BaseDT.Da) ,CLR(Wrk_BaseDT.Hr) CLR(Wrk_BaseDT.Min) CLR(Wrk_BaseDT.Sec) ,CLR(Wrk_BaseDT.uSec) T_ADD(Wrk_TADD,Wrk_BaseDT,Wrk_DT,Ref_Out) ];]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="DateTime"/>
+<Dependency Type="AddOnInstructionDefinition" Name="L_DIV"/>
+<Dependency Type="AddOnInstructionDefinition" Name="T_ADD"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

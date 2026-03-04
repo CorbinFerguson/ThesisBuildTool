@@ -1,0 +1,535 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--Press / Temp Compensator-->
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="18.02" TargetName="P_PTComp" TargetType="AddOnInstructionDefinition" TargetRevision="3.1 01 Release" TargetLastEdited="2014-09-03T14:38:31.870Z" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Wed Sep 03 09:38:40 2014" ExportOptions="References DecoratedData Context Dependencies AllProjDocTrans">
+<Controller Use="Context" Name="RSL5k_18_Samples_ProcessLib_3_1_01">
+<DataTypes Use="Context">
+<DataType Name="STRING_16" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="16" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_40" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="40" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_20" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="20" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="STRING_12" Family="StringFamily" Class="User">
+<Members>
+<Member Name="LEN" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="DATA" DataType="SINT" Dimension="12" Radix="ASCII" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="P_PTComp" Revision="3.1" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-09-17T21:01:12.921Z" CreatedBy="Not Available" EditedDate="2014-09-03T14:38:31.870Z"
+ EditedBy="PROCESS\Library" SoftwareRevision="v18.02">
+<Description>
+<![CDATA[Press / Temp Compensator]]>
+</Description>
+<RevisionNote>
+<![CDATA[See V3.1-xx Release Notes for details. Unmodified, up-rev only for V3.1-01 public release.]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+
+This Instruction takes its primary input (analog) from a flowmeter or
+differential pressure transmitter, plus inputs for actual temperature
+and pressure, and uses them to calculate a compensated flow,
+in other words, flow at standard temperature and pressure.
+(With appropriate factors, this is a Mass Flow Rate.)
+
+The calculation is based on the ideal gas law (PV=nRT),
+so as the fluid in question deviates from an ideal gas,
+this method becomes less accurate.
+
+This instruction should NOT be used for steam or natural gas;
+industry standard calculations based on the detailed properties of those
+fluids (steam tables, AGA/API standards, etc.) should be used instead.
+
+If the absolute value of the calculated flow rate is less than a
+configured low flow cutoff, the flow is reported as zero.
+(This helps keep flow totalizers from accumulating
+an offset zero value when flow is stopped.)]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Input - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Enable Output - System Defined Parameter]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_T_Act" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Actual (Measured) Temperature, can be abs. or common units
+(e.g., F or C)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_P_Act" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Actual (Measured) Pressure, can be abs. or  common units (e.g., PSIG)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_DP_Act" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Actual (Measured) Differential Pressure (e.g., "WC)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Inp_F_Act" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="true" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Actual (Measured) Uncompensated Flow in volumetric units (e.g., CFM)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_LoFlowCutoff" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[If Out_Flow is less than this cutoff value, it is shown as 0.0]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_T_Std" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Standard Temperature in Inp_T_Act units
+(e.g., F or C)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_P_Std" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Standard Pressure in Inp_P_Act units (e.g., PSIG)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_T_Offset" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA['Zero' input-units Temperature in absolute units (e.g., R or K)]]>
+</Description>
+<DefaultData>33 93 88 43</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="273.15"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_P_Offset" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA['Zero' input-units Pressure in Absolute units (e.g., PSIA)]]>
+</Description>
+<DefaultData>D1 22 6B 41</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="14.696"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_DP_Ref" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Reference (full- scale) Differential Pressure (e.g., "WC)]]>
+</Description>
+<DefaultData>00 00 C8 42</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="100.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_F_Ref" TagType="Base" DataType="REAL" Usage="Input" Radix="Float" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Reference Flow in volumetric units (e.g., CFM) at Reference DP]]>
+</Description>
+<DefaultData>00 00 80 3F</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="1.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Cfg_UseDP" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[1=Use Inp_DP_Act (sq.rt. curve) to calculate flow, 0=Use Inp_F_Act (linear)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Out_Flow" TagType="Base" DataType="REAL" Usage="Output" Radix="Float" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Compensated Flow (at Standard Temperature and Pressure: Mass Flow)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Sts_Err" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Invalid Configuration, see Err_ bits]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_T_Std" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Invalid Standard Temperature (T_Std + T_Offset must be > 0.0)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_P_Std" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Invalid Standard Pressure (P_Std + P_Offset must be > 0.0)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_DP_Ref" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Invalid Reference Differential Pressure (must be > 0.0 if DP used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="Err_F_Ref" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+<Description>
+<![CDATA[1=Invalid Reference Flow (at Reference DP) (must be > 0.0 if DP used)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+<Parameter Name="P_PTComp" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Unique Parameter Name for auto - discovery]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Factor" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Calculated Flow Factor (sq.rt. of this times Ref Flow = Comp Flow)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Flow" DataType="REAL" Radix="Float" ExternalAccess="None">
+<Description>
+<![CDATA[Calculated Flow (subject to negation)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="REAL" Radix="Float" Value="0.0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Type" DataType="STRING_16" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Must contain AOI name, used for HMI and Information S/W]]>
+</Description>
+<DefaultData>08 00 00 00 50 5F 50 54 43 6F 6D 70 00 00 00 00 
+00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="8">
+<![CDATA['P_PTComp']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Tab" DataType="SINT" Radix="Decimal" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tab to display (FTView ME)]]>
+</Description>
+<DefaultData>00</DefaultData>
+<DefaultData Format="Decorated">
+<DataValue DataType="SINT" Radix="Decimal" Value="0"/>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Tag" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Tagname for display on HMI]]>
+</Description>
+<DefaultData>08 00 00 00 50 5F 50 54 43 6F 6D 70 00 00 00 00 
+00 00 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="8">
+<![CDATA['P_PTComp']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Label" DataType="STRING_20" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Label for graphic symbol displayed on HMI]]>
+</Description>
+<DefaultData>12 00 00 00 46 6C 6F 77 20 61 74 20 53 74 64 2E 
+20 43 6F 6E 64 2E 00 00</DefaultData>
+<DefaultData Format="String" Length="18">
+<![CDATA['Flow at Std. Cond.']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Cfg_Desc" DataType="STRING_40" ExternalAccess="Read/Write">
+<Description>
+<![CDATA[Description for display on HMI]]>
+</Description>
+<DefaultData>27 00 00 00 50 72 65 73 73 75 72 65 20 2F 20 54 
+65 6D 70 65 72 61 74 75 72 65 20 43 6F 6D 70 65 
+6E 73 61 74 65 64 20 46 6C 6F 77 00</DefaultData>
+<DefaultData Format="String" Length="39">
+<![CDATA['Pressure / Temperature Compensated Flow']]>
+</DefaultData>
+</LocalTag>
+<LocalTag Name="Inf_Lib" DataType="STRING_12" ExternalAccess="Read Only">
+<Description>
+<![CDATA[Display Library for Faceplate call-up]]>
+</Description>
+<DefaultData>06 00 00 00 52 41 2D 42 41 53 00 00 00 00 00 00</DefaultData>
+<DefaultData Format="String" Length="6">
+<![CDATA['RA-BAS']]>
+</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Calculated Flow at Standard Temperature and Pressure]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[Copyright © Rockwell Automation, Inc.  All Rights Reserved.
+============================================================
+P_PTComp :  PROCESS -- PRESSURE / TEMPERATURE COMPENSATOR
+============================================================
+Revision 3.1-01 Release  2014-09-03:  See V3.1-xx Release Notes for details.
+V2.x Revision History archived.
+V3.0-00  2013-06-30:  Added Inf_Lib.
+V3.0-01  2014-01-22:  Modified compensation calculations.
+V3.1-00  2014-06-30:  Unmodified for Library of Process Objects V3.1, up-rev only.
+V3.1-01  2014-09-03:  Unmodified, up-rev only for V3.1-01 public release.
+============================================================
+This Instruction takes its primary input (analog) from a flowmeter or
+differential pressure transmitter, plus inputs for actual temperature
+and pressure, and uses them to calculate a compensated flow,
+in other words, flow at standard temperature and pressure.
+(With appropriate factors, this is a Mass Flow Rate.)
+
+The calculation is based on the ideal gas law (PV=nRT),
+so as the fluid in question deviates from an ideal gas,
+this method becomes less accurate.
+
+This instruction should NOT be used for steam or natural gas;
+industry standard calculations based on the detailed properties of those
+fluids (steam tables, AGA/API standards, etc.) should be used instead.
+
+If the absolute value of the calculated flow rate is less than a
+configured low flow cutoff, the flow is reported as zero.
+(This helps keep flow totalizers from accumulating
+an offset zero value when flow is stopped.)
+============================================================
+SHOW LOCAL STRINGS
+============================================================
+The STRINGs containing the text associated with each instance of this
+instruction cannot be Input or Output Parameters, because STRINGs are not
+ 'atomic' types. (Inputs and Outputs must be SINT, INT, DINT, REAL, or BOOL.)
+
+In order to make it easier to find and configure these STRINGs, this rung
+was added.  THE JMP (and the LBL on the following rung)
+MUST NOT BE REMOVED!!!
+
+To view the STRINGs, go to the instruction instance (in LD or FBD), RIGHT-click
+to bring up the context menu and select "Open Instruction Logic".
+This rung will appear with the STRING values for the selected instance.
+You may double-click the STRING values here to modify them as well.]]>
+</Comment>
+<Text>
+<![CDATA[JMP(SkipText)CONCAT(Cfg_Desc,Cfg_Label,Cfg_Tag)LOWER(Inf_Lib,Inf_Type);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+CONFIGURATION PROCESSING
+============================================================
+These rungs handle Configuration Data:
+
+Check Cfg_T_Std (Standard Temperature).
+
+The Standard Temperature IN ABSOLUTE TEMPERATURE UNITS
+ must be greater than 0.0.
+
+HOWEVER: Cfg_T_Std is in "familiar" temperature units -- Celsius or Fahrenheit.
+So (Cfg_T_Std + Cfg_T_Offset) must be > 0.0 and < +Inf.
+
+Cfg_T_Std is the Standard (Reference) Temperature in the same units as Inp_T_Act.
+Cfg_T_Offset is the absolute temperature when Inp_T_Act is zero.
+
+Typical values for Cfg_T_Offset are 273.15 --- Kelvins, for Inp_T_Act in Celsius,
+or 459.67 --- Rankine, for Inp_T_Act in Fahrenheit.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(SkipText)[CMP(((Cfg_T_Std + Cfg_T_Offset) <= 0.0)) ,CMP(((Cfg_T_Std + Cfg_T_Offset) > 3.402823e38)) ]OTE(Err_T_Std);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[Check Cfg_P_Std (Standard Pressure).
+The Standard Pressure IN ABSOLUTE PRESSURE UNITS
+ must be greater than 0.0.
+
+HOWEVER:  Cfg_P_Std is assumed to be a gauge pressure.
+So (Cfg_P_Std + Cfg_P_Offset) must be > 0.0 and < +Inf.
+
+Cfg_P_Std is the Standard (Reference) Pressure in the same units as Inp_P_Act (gauge pressure).
+Cfg_P_Offset is the absolute pressure when Inp_P_Act is zero.
+
+A typical value for Cfg_P_Offset is 14.696 --- in PSIA]]>
+</Comment>
+<Text>
+<![CDATA[[CMP((Cfg_P_Std + Cfg_P_Offset) <= 0.0) ,CMP((Cfg_P_Std + Cfg_P_Offset) > 3.402823e38) ]OTE(Err_P_Std);]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Comment>
+<![CDATA[If the Differential Pressure Input is used, check Cfg_DP_Ref (Reference
+Differential Pressure) and Cfg_F_Ref (Reference Flow at Reference DP).
+
+The Reference Differential Pressure IN PRESSURE DIFFERENCE UNITS
+ must be greater than 0.0 and less than +Inf..
+The Reference Flow (at Reference DP) in FLOW (at S.T.P.) UNITS
+must be greater than 0.0 and less than +Inf..]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Cfg_UseDP)[[LEQ(Cfg_DP_Ref,0.0) ,GRT(Cfg_DP_Ref,3.402823e38) ] OTE(Err_DP_Ref) ,[LEQ(Cfg_F_Ref,0.0) ,GRT(Cfg_F_Ref,3.402823e38) ] OTE(Err_F_Ref) ];]]>
+</Text>
+</Rung>
+<Rung Number="4" Type="N">
+<Comment>
+<![CDATA[If any of the Configuration values is invalid, skip further processing
+and exit with an Error Status.  (Set the calculated flow to zero.)]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Err_T_Std) ,XIC(Err_P_Std) ,XIC(Err_DP_Ref) ,XIC(Err_F_Ref) ]OTE(Sts_Err)CLR(Wrk_Flow)JMP(End);]]>
+</Text>
+</Rung>
+<Rung Number="5" Type="N">
+<Comment>
+<![CDATA[The selected Input must be a valid REAL number.
+If it is Infinite (-1.$, 1.$),Indeterminate (-1.#IND) or Not a Number (-1.#QNAN or 1.#QNAN),
+skip the calculations and return the input REAL exception value instead.]]>
+</Comment>
+<Text>
+<![CDATA[[XIC(Cfg_UseDP) [LEQ(Inp_DP_Act,-3.402823e38) ,GRT(Inp_DP_Act,3.402823e38) ] COP(Inp_DP_Act,Wrk_Flow,1) ,XIO(Cfg_UseDP) [LEQ(Inp_F_Act,-3.402823e38) ,GRT(Inp_F_Act,3.402823e38) ] COP(Inp_F_Act,Wrk_Flow,1) ]JMP(End);]]>
+</Text>
+</Rung>
+<Rung Number="6" Type="N">
+<Comment>
+<![CDATA[============================================================
+CALCULATE COMPENSATED FLOW
+============================================================
+This first CPT calculates   T_std_abs / T_act_abs * P_act_abs / P_std_abs.
+This factor is common to both means of calculating flow, below.
+
+Absolute temperatures and pressures are calculated by adding the configured
+offsets (Cfg_T_Offset, Cfg_P_Offset) to each Standard or Actual T or P value.]]>
+</Comment>
+<Text>
+<![CDATA[CPT(Wrk_Factor,((Cfg_T_Std+Cfg_T_Offset)/(Inp_T_Act+Cfg_T_Offset)*(Inp_P_Act+Cfg_P_Offset)/(Cfg_P_Std+Cfg_P_Offset)));]]>
+</Text>
+</Rung>
+<Rung Number="7" Type="N">
+<Comment>
+<![CDATA[If the flow calculation uses the Differential Pressure (DP) Input
+(Cfg_UseDP = 1), this rung calculates the flow as follows:
+
+Flow =  Flow_ref * ( T_std_abs / T_act_abs ) * ( P_act_abs / P_std_abs ) * SQRT ( DP_act / DP_ref )
+
+and if the DP is negative, reports a negative (reverse) flow.
+
+#####  V3.0-01  2014-01-20:  Modified compensation calculation.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIC(Cfg_UseDP)[CPT(Wrk_Flow,Cfg_F_Ref*Wrk_Factor*SQR(ABS(Inp_DP_Act)/Cfg_DP_Ref)) ,LES(Inp_DP_Act,0.0) NEG(Wrk_Flow,Wrk_Flow) ];]]>
+</Text>
+</Rung>
+<Rung Number="8" Type="N">
+<Comment>
+<![CDATA[If the flow calculation uses the Uncompensated Flow Input
+(Cfg_UseDP = 0, default), this rung calculates the Compensated Flow as follows:
+
+Flow_comp =  Flow_uncomp * ( T_std_abs / T_act_abs ) * ( P_act_abs / P_std_abs )
+
+The sign of the Output (compensated) Flow follows the sign of the Input (uncompensated) flow.
+(All the values in the "factor" form above should be positive, so "factor" is positive.)
+
+#####  V3.0-01  2014-01-20:  Simplified calculation.  #####]]>
+</Comment>
+<Text>
+<![CDATA[XIO(Cfg_UseDP)MUL(Inp_F_Act,Wrk_Factor,Wrk_Flow);]]>
+</Text>
+</Rung>
+<Rung Number="9" Type="N">
+<Comment>
+<![CDATA[Finally, if the ABSOLUTE VALUE of the calculated flow is LESS THAN
+the configured LOW CUTOFF value (default = 0.0), report ZERO flow.]]>
+</Comment>
+<Text>
+<![CDATA[CMP(ABS(Wrk_Flow)<Cfg_LoFlowCutoff)CLR(Wrk_Flow);]]>
+</Text>
+</Rung>
+<Rung Number="10" Type="N">
+<Comment>
+<![CDATA[Whatever flow we determined (and it might be Inf, NaN, if the input is Inf, NaN),
+copy it to the output.]]>
+</Comment>
+<Text>
+<![CDATA[LBL(End)COP(Wrk_Flow,Out_Flow,1);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="STRING_40"/>
+<Dependency Type="DataType" Name="STRING_20"/>
+<Dependency Type="DataType" Name="STRING_12"/>
+<Dependency Type="DataType" Name="STRING_16"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

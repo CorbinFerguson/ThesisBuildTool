@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Fri Jul 31 10:37:52 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_INC" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2009-06-23T14:20:15.609Z" CreatedBy="Not Available" EditedDate="2009-07-31T14:37:42.608Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Increment (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial Release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction increments the input 64-bit integer, returning its value plus 1.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Input]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[Output = Input + 1]]>
+</Description>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Working pair of 32-bit integers (DINTs)]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_LoOvflw" DataType="BOOL" Radix="Decimal">
+<Description>
+<![CDATA[Low-order 32-bit overflow (without minor fault)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_HiOvflw" DataType="BOOL" Radix="Decimal">
+<Description>
+<![CDATA[High-order 32-bit overflow (without minor fault)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Output the value of the input plus 1]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_INC : Increment (64-bit) ( Output = Input + 1 )
+============================================================
+Revision 1.0-00 Release:  2009-Jun-31
+Initial Release
+============================================================
+Returns the value of the input 64-bit integer (LINT) plus one (1).
+
+This instruction breaks the LINT input into two DINTs
+(32-bit signed each) to do the math.
+===================================================
+CONVERT LINT TO DINTs
+===================================================
+This COPy takes the input LINT and breaks it into a pair of DINTs.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp,Wrk[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[===================================================
+INCREMENT THE VALUE
+===================================================
+Do an UNSIGNED add of 1 to the low-order 32 bits.
+If the add results in a carry (new value == 0), then
+add 1 to the high-order 32 bits.
+
+We check the values for 16#7FFF_FFFF so we don't
+cause a controller minor fault by adding 1 to this value
+(resulting in a signed overflow to negative).]]>
+</Comment>
+<Text>
+<![CDATA[[EQU(Wrk[0],16#7FFF_FFFF) MOV(16#8000_0000,Wrk[0]) OTE(Wrk_LoOvflw) ,XIO(Wrk_LoOvflw) ADD(Wrk[0],1,Wrk[0]) ,EQU(Wrk[0],0) [EQU(Wrk[1],16#7FFF_FFFF) MOV(16#8000_0000,Wrk[1]) OTE(Wrk_HiOvflw) ,XIO(Wrk_HiOvflw) ADD(Wrk[1],1,Wrk[1]) ] ];]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Comment>
+<![CDATA[===================================================
+CONVERT DINTs TO LINT
+===================================================
+The incremented value is copied back from the pair of 32-bit
+integers (DINTs) to a single 64-bit integer (LINT).]]>
+</Comment>
+<Text>
+<![CDATA[COP(Wrk[0],Out,1);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

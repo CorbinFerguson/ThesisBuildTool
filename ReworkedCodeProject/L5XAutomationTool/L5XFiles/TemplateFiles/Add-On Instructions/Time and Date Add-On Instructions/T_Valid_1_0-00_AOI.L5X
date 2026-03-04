@@ -1,0 +1,532 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Thu Apr 23 16:22:58 2009" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjix">
+<DataTypes Use="Context">
+<DataType Name="DateTime" Family="NoFamily" Class="User">
+<Description>
+<![CDATA[Date and TimeOfDay (absolute) or Time (duration/interval)]]>
+</Description>
+<Members>
+<Member Name="Yr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Year(s)]]>
+</Description>
+</Member>
+<Member Name="Mo" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Month(s)]]>
+</Description>
+</Member>
+<Member Name="Da" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Day(s)]]>
+</Description>
+</Member>
+<Member Name="Hr" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Hour(s)]]>
+</Description>
+</Member>
+<Member Name="Min" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Minute(s)]]>
+</Description>
+</Member>
+<Member Name="Sec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Second(s)]]>
+</Description>
+</Member>
+<Member Name="uSec" DataType="DINT" Dimension="0" Radix="Decimal" Hidden="false">
+<Description>
+<![CDATA[Microsecond(s)]]>
+</Description>
+</Member>
+</Members>
+</DataType>
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="T_Valid" Revision="1.0" RevisionExtension="00 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2007-09-07T20:09:49.027Z" CreatedBy="Not Available" EditedDate="2009-04-23T20:18:50.732Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Is DateTime Valid?]]>
+</Description>
+<RevisionNote>
+<![CDATA[Initial formal release]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[This instruction tests the given DateTime variable and verifies that it is a valid calendar date and clock time, as follows:
+
+  *  0 <= Microseconds < 1,000,000
+  *  0 <= Seconds < 60    (NOTE: this instruction cannot check leap seconds;  sorry!
+  *  0 <= Minutes < 60
+  *  0 <= Hours < 24
+  *  1 <= Day <= 31 AND Day is Valid for Gregorian Date (28, 29, 30 or 31 days in month, see below)
+  *  1 <= Month <= 12
+  *  Year is within the range of dates that this instruction can calculate a Gregorian day number (about +/- 5.8 million years)
+
+  NOTE:  This instruction does NOT switch to Julian dates for dates before 1582 (or 1753 or whenever your place of interest switched to the Gregorian Calendar (see Wikipedia on Gregorian Calendar for details)!  This instruction assumes the Gregorian Calendar extends "indefinitely" (at least 5.8 million years) either side of "zero"!  It DOES handle the Gregorian 4 / 100 / 400 year rules, so Feb. 29, 2000 is a valid date, but Feb. 29, 2100 is not.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Ref_DT" DataType="DateTime" Usage="InOut" Required="true" Visible="true">
+<Description>
+<![CDATA[Date and Time to check for validity]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[1 = Date/Time is valid (exists)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_YrInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Date is invalid because year is out of the range this instruction can check]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MoInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Month is Invalid (1 to 12)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_DaInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Day is Invalid (not within days for that month/year)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_HrInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Hour is Invalid (0 to 23)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_MinInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Minute is invalid (0 to 59)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_SecInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Second is invalid (0 to 59)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+<Parameter Name="Sts_uSecInvalid" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false">
+<Description>
+<![CDATA[1 = Microsecond is Invalid (0 to 999,999)]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_F" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Used in calculating Gregorian Day Number (function of month)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_G" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Used in calculating Gregorian Day Number (function of Year and F)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_GD" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Gregorian Day Number (calculated for given Y/M/D)]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_yyy" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Intermediate for year calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_ddd" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Intermediate for day calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_mmm" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Intermediate for month calculation]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_y" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Calculated YEAR from Gregorian Day Number]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_m" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Calculated MONTH from Gregorian Day Number]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_d" DataType="DINT" Radix="Decimal">
+<Description>
+<![CDATA[Calculated DAY from Gregorian Day Number]]>
+</Description>
+<DefaultData>00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="Logic" Type="ST">
+<Description>
+<![CDATA[Checks whether given DateTime is valid (exists on common calendar/clock)]]>
+</Description>
+<STContent>
+<Line Number="0">
+<![CDATA[// T_Valid : TIME -- CHECK FOR VALID DATE / TIME]]>
+</Line>
+<Line Number="1">
+<![CDATA[// ]]>
+</Line>
+<Line Number="2">
+<![CDATA[// This instruction tests the given DateTime variable and verifies that it is a valid calendar date and clock time, as follows:]]>
+</Line>
+<Line Number="3">
+<![CDATA[//]]>
+</Line>
+<Line Number="4">
+<![CDATA[//  *  0 <= Microseconds < 1,000,000]]>
+</Line>
+<Line Number="5">
+<![CDATA[//  *  0 <= Seconds < 60    (NOTE: this instruction cannot check leap seconds;  sorry!]]>
+</Line>
+<Line Number="6">
+<![CDATA[//  *  0 <= Minutes < 60]]>
+</Line>
+<Line Number="7">
+<![CDATA[//  *  0 <= Hours < 24]]>
+</Line>
+<Line Number="8">
+<![CDATA[//  *  1 <= Day <= 31 AND Day is Valid for Gregorian Date (28, 29, 30 or 31 days in month, see below)]]>
+</Line>
+<Line Number="9">
+<![CDATA[//  *  1 <= Month <= 12]]>
+</Line>
+<Line Number="10">
+<![CDATA[//  *  Year is within the range of dates that this instruction can calculate a Gregorian day number (about +/- 5.8 million years)]]>
+</Line>
+<Line Number="11">
+<![CDATA[//]]>
+</Line>
+<Line Number="12">
+<![CDATA[//  NOTE:  This instruction does NOT switch to Julian dates for dates before 1582 (or 1753 or whenever your place of interest]]>
+</Line>
+<Line Number="13">
+<![CDATA[//  switched to the Gregorian Calendar (see Wikipedia on Gregorian Calendar for details)!  This instruction assumes the Gregorian]]>
+</Line>
+<Line Number="14">
+<![CDATA[//  Calendar extends "indefinitely" (at least 5.8 million years) either side of "zero"!  It DOES handle the Gregorian 4 / 100 /]]>
+</Line>
+<Line Number="15">
+<![CDATA[//  400 year rules, so Feb. 29, 2000 is a valid date, but Feb. 29, 2100 is not.]]>
+</Line>
+<Line Number="16">
+<![CDATA[//]]>
+</Line>
+<Line Number="17">
+<![CDATA[//  NOTE:  For algorithms, see http://alcor.concordia.ca/~gpkatch/gdate-algorithm.html]]>
+</Line>
+<Line Number="18">
+<![CDATA[//]]>
+</Line>
+<Line Number="19">
+<![CDATA[//  Version 1.0-00 Release]]>
+</Line>
+<Line Number="20">
+<![CDATA[//	Initial Formal Release]]>
+</Line>
+<Line Number="21">
+<![CDATA[//]]>
+</Line>
+<Line Number="22">
+<![CDATA[]]>
+</Line>
+<Line Number="23">
+<![CDATA[// Check Microseconds]]>
+</Line>
+<Line Number="24">
+<![CDATA[IF ((Ref_DT.uSec < 0) OR (Ref_DT.uSec > 999999)) THEN]]>
+</Line>
+<Line Number="25">
+<![CDATA[	Sts_uSecInvalid := 1;]]>
+</Line>
+<Line Number="26">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="27">
+<![CDATA[	Sts_uSecInvalid := 0;]]>
+</Line>
+<Line Number="28">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="29">
+<![CDATA[]]>
+</Line>
+<Line Number="30">
+<![CDATA[// Check Seconds]]>
+</Line>
+<Line Number="31">
+<![CDATA[IF ((Ref_DT.Sec < 0) OR (Ref_DT.Sec > 59)) THEN]]>
+</Line>
+<Line Number="32">
+<![CDATA[	Sts_SecInvalid := 1;]]>
+</Line>
+<Line Number="33">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="34">
+<![CDATA[	Sts_SecInvalid := 0;]]>
+</Line>
+<Line Number="35">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="36">
+<![CDATA[]]>
+</Line>
+<Line Number="37">
+<![CDATA[// Check Minutes]]>
+</Line>
+<Line Number="38">
+<![CDATA[IF ((Ref_DT.Min < 0) OR (Ref_DT.Min > 59)) THEN]]>
+</Line>
+<Line Number="39">
+<![CDATA[	Sts_MinInvalid := 1;]]>
+</Line>
+<Line Number="40">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="41">
+<![CDATA[	Sts_MinInvalid := 0;]]>
+</Line>
+<Line Number="42">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="43">
+<![CDATA[]]>
+</Line>
+<Line Number="44">
+<![CDATA[// Check Hour]]>
+</Line>
+<Line Number="45">
+<![CDATA[IF ((Ref_DT.Hr < 0) OR (Ref_DT.Hr > 23)) THEN]]>
+</Line>
+<Line Number="46">
+<![CDATA[	Sts_HrInvalid := 1;]]>
+</Line>
+<Line Number="47">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="48">
+<![CDATA[	Sts_HrInvalid := 0;]]>
+</Line>
+<Line Number="49">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="50">
+<![CDATA[]]>
+</Line>
+<Line Number="51">
+<![CDATA[// Check Day (basic check, see below for more!)]]>
+</Line>
+<Line Number="52">
+<![CDATA[IF ((Ref_DT.Da < 1) OR (Ref_DT.Da > 31)) THEN]]>
+</Line>
+<Line Number="53">
+<![CDATA[	Sts_DaInvalid := 1;]]>
+</Line>
+<Line Number="54">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="55">
+<![CDATA[	Sts_DaInvalid := 0;]]>
+</Line>
+<Line Number="56">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="57">
+<![CDATA[]]>
+</Line>
+<Line Number="58">
+<![CDATA[// Check Month]]>
+</Line>
+<Line Number="59">
+<![CDATA[IF ((Ref_DT.Mo < 1) OR (Ref_DT.Mo > 12)) THEN]]>
+</Line>
+<Line Number="60">
+<![CDATA[	Sts_MoInvalid := 1;]]>
+</Line>
+<Line Number="61">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="62">
+<![CDATA[	Sts_MoInvalid := 0;]]>
+</Line>
+<Line Number="63">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="64">
+<![CDATA[]]>
+</Line>
+<Line Number="65">
+<![CDATA[// Check Year is in the range we can test]]>
+</Line>
+<Line Number="66">
+<![CDATA[IF ((Ref_DT.Yr < -5879600) OR (Ref_DT.Yr > 5879600)) THEN]]>
+</Line>
+<Line Number="67">
+<![CDATA[	Sts_YrInvalid := 1;]]>
+</Line>
+<Line Number="68">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="69">
+<![CDATA[	Sts_YrInvalid := 0;]]>
+</Line>
+<Line Number="70">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="71">
+<![CDATA[]]>
+</Line>
+<Line Number="72">
+<![CDATA[// If the Year, Month and Day are all valid in the base checks above, check that the Date is a valid Gregorian Date]]>
+</Line>
+<Line Number="73">
+<![CDATA[IF (NOT(Sts_DaInvalid) AND NOT(Sts_MoInvalid) AND NOT(Sts_YrInvalid)) THEN]]>
+</Line>
+<Line Number="74">
+<![CDATA[//  First, Calculate a "Gregorian Day Number" for the input Yr/Mo/Da:]]>
+</Line>
+<Line Number="75">
+<![CDATA[	Wrk_F := (Ref_DT.Mo+9) MOD 12;]]>
+</Line>
+<Line Number="76">
+<![CDATA[	Wrk_G := Ref_DT.Yr - Wrk_F/10;]]>
+</Line>
+<Line Number="77">
+<![CDATA[	Wrk_GD := 365*Wrk_G+Wrk_G/4-Wrk_G/100+Wrk_G/400+(Wrk_F*306+5)/10+Ref_DT.Da-1;]]>
+</Line>
+<Line Number="78">
+<![CDATA[]]>
+</Line>
+<Line Number="79">
+<![CDATA[//  Now, given the Gregorian Day Number, calculate the calendar date]]>
+</Line>
+<Line Number="80">
+<![CDATA[]]>
+</Line>
+<Line Number="81">
+<![CDATA[	Wrk_yyy := TRUNC (Wrk_GD +1.5)/365.2425;]]>
+</Line>
+<Line Number="82">
+<![CDATA[	Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="83">
+<![CDATA[	IF (Wrk_ddd < 0) THEN]]>
+</Line>
+<Line Number="84">
+<![CDATA[		Wrk_yyy := Wrk_yyy - 1;]]>
+</Line>
+<Line Number="85">
+<![CDATA[		Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="86">
+<![CDATA[		IF (Wrk_ddd < 0) THEN]]>
+</Line>
+<Line Number="87">
+<![CDATA[			Wrk_yyy := Wrk_yyy - 1;]]>
+</Line>
+<Line Number="88">
+<![CDATA[			Wrk_ddd := Wrk_GD - (365*Wrk_yyy+Wrk_yyy/4-Wrk_yyy/100+Wrk_yyy/400);]]>
+</Line>
+<Line Number="89">
+<![CDATA[		END_IF;]]>
+</Line>
+<Line Number="90">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="91">
+<![CDATA[	Wrk_mmm := (100*Wrk_ddd + 52)/3060;]]>
+</Line>
+<Line Number="92">
+<![CDATA[	Wrk_y := Wrk_yyy + (Wrk_mmm + 2)/12;]]>
+</Line>
+<Line Number="93">
+<![CDATA[	Wrk_m := ((Wrk_mmm + 2) MOD 12) + 1; ]]>
+</Line>
+<Line Number="94">
+<![CDATA[	Wrk_d := Wrk_ddd - ((Wrk_mmm * 306) + 5)/10 + 1;]]>
+</Line>
+<Line Number="95">
+<![CDATA[]]>
+</Line>
+<Line Number="96">
+<![CDATA[//  If the Input Year/Month/Day match the calculated Year/Month/Day, the date (day number) is valid.]]>
+</Line>
+<Line Number="97">
+<![CDATA[]]>
+</Line>
+<Line Number="98">
+<![CDATA[	IF ((Wrk_m <> Ref_DT.Mo) OR (Wrk_y <> Ref_DT.Yr) OR (Wrk_d <> Ref_DT.Da)) THEN]]>
+</Line>
+<Line Number="99">
+<![CDATA[		Sts_DaInvalid := 1;]]>
+</Line>
+<Line Number="100">
+<![CDATA[	END_IF;]]>
+</Line>
+<Line Number="101">
+<![CDATA[	]]>
+</Line>
+<Line Number="102">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="103">
+<![CDATA[]]>
+</Line>
+<Line Number="104">
+<![CDATA[//  If nothing is invalid, set Out to indicate a valid date/time; otherwise, clear Out]]>
+</Line>
+<Line Number="105">
+<![CDATA[]]>
+</Line>
+<Line Number="106">
+<![CDATA[IF ((NOT(Sts_uSecInvalid)) AND (NOT(Sts_SecInvalid)) AND (NOT(Sts_MinInvalid)) AND (NOT(Sts_HrInvalid)) AND (NOT(Sts_DaInvalid)) AND (NOT(Sts_MoInvalid)) AND (NOT(Sts_YrInvalid))) THEN]]>
+</Line>
+<Line Number="107">
+<![CDATA[	Out := 1;]]>
+</Line>
+<Line Number="108">
+<![CDATA[ELSE]]>
+</Line>
+<Line Number="109">
+<![CDATA[	Out := 0;]]>
+</Line>
+<Line Number="110">
+<![CDATA[END_IF;]]>
+</Line>
+<Line Number="111">
+<![CDATA[]]>
+</Line>
+</STContent>
+</Routine>
+</Routines>
+<Dependencies>
+<Dependency Type="DataType" Name="DateTime"/>
+</Dependencies>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>

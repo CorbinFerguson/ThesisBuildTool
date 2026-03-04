@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="16.03" TargetType="AddOnInstructionDefinition" ContainsContext="true" Owner="Dale Reed, Rockwell Automation" ExportDate="Tue Jan 26 12:38:34 2010" ExportOptions="References Context">
+<Controller Use="Context" Name="ProcessObjects">
+<DataTypes Use="Context">
+</DataTypes>
+<AddOnInstructionDefinitions Use="Context">
+<AddOnInstructionDefinition Use="Target" Name="L_MEQ" Revision="1.0" RevisionExtension="01 Release" Vendor="Rockwell Automation" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="true" CreatedDate="2008-04-15T14:24:48.205Z" CreatedBy="Not Available" EditedDate="2010-01-26T17:36:50.226Z"
+ EditedBy="Not Available" SoftwareRevision="v16.03">
+<Description>
+<![CDATA[Masked Equal (64-bit)]]>
+</Description>
+<RevisionNote>
+<![CDATA[Deleted unused Local Tag]]>
+</RevisionNote>
+<AdditionalHelpText>
+<![CDATA[Performs a 64-bit bitwise comparison of a Source Value against a Compare Value,
+and returns TRUE if they are the same in all bit positions which have a '1' in the Mask
+Value.  In other words, the output is true if (Source AND Mask) = (Compare AND Mask).
+
+On a False rung in LD, or in FBD with EnableIn cleared to 0, Out is cleared to 0.]]>
+</AdditionalHelpText>
+<Parameters>
+<Parameter Name="Inp_Source" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[64-bit signed integer Source Value]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Mask" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[64-bit signed integer Mask for bitwise compare]]>
+</Description>
+</Parameter>
+<Parameter Name="Inp_Compare" DataType="LINT" Usage="InOut" Radix="Decimal" Required="true" Visible="true">
+<Description>
+<![CDATA[64-bit signed integer  Compare Value]]>
+</Description>
+</Parameter>
+<Parameter Name="Out" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="true">
+<Description>
+<![CDATA[1 if Source AND Mask = Compare AND Mask, 0 otherwise]]>
+</Description>
+<DefaultData>00</DefaultData>
+</Parameter>
+</Parameters>
+<LocalTags>
+<LocalTag Name="Wrk_Source" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Inp_Source as a pair of DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Compare" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Inp_Compare as a pair of DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+<LocalTag Name="Wrk_Mask" DataType="DINT" Dimensions="2" Radix="Decimal">
+<Description>
+<![CDATA[Inp_Mask as a pair of DINTs]]>
+</Description>
+<DefaultData>00 00 00 00 00 00 00 00</DefaultData>
+</LocalTag>
+</LocalTags>
+<Routines>
+<Routine Name="EnableInFalse" Type="RLL">
+<Description>
+<![CDATA[If rung is false, clear output "Out"]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+ENABLE-IN FALSE LOGIC
+============================================================
+When EnableIn is false (false rung in LD, input of 0 in FBD),
+the main Logic Routine is not scanned.
+However, we still want to generate "Out" to provide animation!
+============================================================
+CONVERT INPUTS TO PAIRS OF 32-BIT VALUES (DINTs)
+============================================================
+This rung copies all the input values into pairs of 32-bit integers (DINTs) per value
+so we can do the compares with 32-bit instructions.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_Source,Wrk_Source[0],2)COP(Inp_Mask,Wrk_Mask[0],2)COP(Inp_Compare,Wrk_Compare[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+BASED ON 32-BIT COMPARES, DETERMINE OUTPUT
+============================================================
+If the bottom 32 bits compare OK, and the top 32 bits compare OK,
+the 64-bit comparison is good and the output is SET.]]>
+</Comment>
+<Text>
+<![CDATA[MEQ(Wrk_Source[0],Wrk_Mask[0],Wrk_Compare[0])MEQ(Wrk_Source[1],Wrk_Mask[1],Wrk_Compare[1])OTE(Out);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+<Routine Name="Logic" Type="RLL">
+<Description>
+<![CDATA[Perform bitwise compare and output TRUE if (Source AND Mask) = (Compare AND Mask)]]>
+</Description>
+<RLLContent>
+<Rung Number="0" Type="N">
+<Comment>
+<![CDATA[============================================================
+L_MEQ:  Masked Equal (64-bit)
+============================================================
+Revision 1.0-01 Release:  2010-01-26
+Deleted unused Local Tag
+============================================================
+Performs a 64-bit bitwise comparison of a Source Value against a
+Compare Value, and returns TRUE if they are the same in all bit
+positions which have a '1' in the Mask Value.
+
+In other words, the output is true if (Source AND Mask) = (Compare AND Mask).
+============================================================
+POWERUP / INVALID STATE HANDLING
+============================================================
+This logic determines a comparison result every scan when enabled
+(and sets EnableOut and Out to 0 every scan if on a False Rung or if EnableIn is cleared).
+No powerup or invalid state handling is necessary.
+============================================================
+CONVERT INPUTS TO PAIRS OF 32-BIT VALUES (DINTs)
+============================================================
+This rung copies all the input values into pairs of 32-bit integers (DINTs) per value
+so we can do the compares with 32-bit instructions.]]>
+</Comment>
+<Text>
+<![CDATA[COP(Inp_Source,Wrk_Source[0],2)COP(Inp_Mask,Wrk_Mask[0],2)COP(Inp_Compare,Wrk_Compare[0],2);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Comment>
+<![CDATA[============================================================
+BASED ON 32-BIT COMPARES, DETERMINE OUTPUT
+============================================================
+If the bottom 32 bits compare OK, and the top 32 bits compare OK,
+the 64-bit comparison is good and the output is SET.]]>
+</Comment>
+<Text>
+<![CDATA[MEQ(Wrk_Source[0],Wrk_Mask[0],Wrk_Compare[0])MEQ(Wrk_Source[1],Wrk_Mask[1],Wrk_Compare[1])OTE(Out)OTE(EnableOut);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</AddOnInstructionDefinition>
+</AddOnInstructionDefinitions>
+</Controller>
+</RSLogix5000Content>
