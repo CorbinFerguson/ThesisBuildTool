@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace GuiTesting
 {
+    [STATestClass]
     [TestClass]
     [DoNotParallelize]
     public class GUITesting
@@ -57,13 +58,6 @@ namespace GuiTesting
             // Close the application and end test reporting
             app?.Close();
             TestReport.End();
-
-            // Terminate any running instances of the application that may be left behind.(optimally none)
-            Process[] running = Process.GetProcessesByName("L5XAutomationTool");
-            foreach (Process proc in running)
-            {
-                proc.Kill();
-            }
         }
 
         [TestMethod]
