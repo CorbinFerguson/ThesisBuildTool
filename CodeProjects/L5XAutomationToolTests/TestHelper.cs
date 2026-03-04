@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace L5XAutomationToolTests
+namespace L5XAutomationToolTestHelpers
 {
     /// <summary>
     /// Small, focused helpers for GUI-driven tests and XML test data creation.
@@ -204,7 +204,7 @@ namespace L5XAutomationToolTests
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
 
             // Open the File Open dialog.
-            Button loadButton = GUITesting.actionSelect
+            Button loadButton = GuiTesting.GUITesting.actionSelect
                 .FindAllDescendants(but => but.ByName("LoadFileButton"))
                 .SingleOrDefault()
                 ?.AsButton();
@@ -213,12 +213,12 @@ namespace L5XAutomationToolTests
             TestHelper.WaitMilliseconds(stdWait);
 
             // Target the Windows "Open" dialog and its address bar.
-            Window fileExplorer = GUITesting.actionSelect
+            Window fileExplorer = GuiTesting.GUITesting.actionSelect
                 .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Open")))
                 .SingleOrDefault()
                 ?.AsWindow();
 
-            AutomationElement filePathPane = GUITesting.actionSelect
+            AutomationElement filePathPane = GuiTesting.GUITesting.actionSelect
                 .FindAllDescendants(win => win.ByControlType(ControlType.ToolBar).And(win.ByName("Address:", PropertyConditionFlags.MatchSubstring)))
                 .SingleOrDefault();
 
@@ -255,7 +255,7 @@ namespace L5XAutomationToolTests
             switch (input)
             {
                 case InputType.Dropdown:
-                        Window dropdown = GUITesting.actionSelect
+                        Window dropdown = GuiTesting.GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui")))
                             .SingleOrDefault()
                             ?.AsWindow();
@@ -264,7 +264,7 @@ namespace L5XAutomationToolTests
                         return dropdown;
 
                 case InputType.MultiSelect:
-                        Window multiSelect = GUITesting.actionSelect
+                        Window multiSelect = GuiTesting.GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown")))
                             .SingleOrDefault()
                             ?.AsWindow();
@@ -273,7 +273,7 @@ namespace L5XAutomationToolTests
                         return multiSelect;
 
                 case InputType.TextInput:
-                        Window textInput = GUITesting.actionSelect
+                        Window textInput = GuiTesting.GUITesting.actionSelect
                             .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput")))
                             .SingleOrDefault()
                             ?.AsWindow();
@@ -293,7 +293,7 @@ namespace L5XAutomationToolTests
         public static void CheckHomePage()
         {
             TestHelper.WaitMilliseconds(100);
-            TestReport.IsTrue(GUITesting.actionSelect.IsEnabled, "Verify control returns to homepage(Action Select)");
+            TestReport.IsTrue(GuiTesting.GUITesting.actionSelect.IsEnabled, "Verify control returns to homepage(Action Select)");
         }
 
         #endregion
@@ -306,7 +306,7 @@ namespace L5XAutomationToolTests
 
             Directory.CreateDirectory(imgPath);
 
-            AutomationElement screenshot = GUITesting.actionSelect.FindFirstDescendant(win => win.ByControlType(ControlType.Window)) ?? GUITesting.actionSelect;
+            AutomationElement screenshot = GuiTesting.GUITesting.actionSelect.FindFirstDescendant(win => win.ByControlType(ControlType.Window)) ?? GuiTesting.GUITesting.actionSelect;
             screenshot.CaptureToFile(imagePathAndName);
 
             return imagePathAndName;

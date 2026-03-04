@@ -4,6 +4,7 @@ using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA2;
+using L5XAutomationToolTestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reporting;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace L5XAutomationToolTests
+namespace GuiTesting
 {
     [TestClass]
     public class GUITesting

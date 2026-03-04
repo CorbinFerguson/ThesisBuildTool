@@ -1,11 +1,12 @@
 using L5XAutomationTool;
+using L5XAutomationToolTestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Reporting;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace L5XAutomationToolTests
+namespace ExecuteTests
 {
     [TestClass]
     public class ExecuteTests

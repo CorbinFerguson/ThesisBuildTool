@@ -1,5 +1,5 @@
 ﻿using L5XAutomationTool.Forms;
-using L5XAutomationToolTests;
+using L5XAutomationToolTestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;

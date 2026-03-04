@@ -1,4 +1,5 @@
 using L5XAutomationTool;
+using L5XAutomationToolTestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Reporting;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace L5XAutomationToolTests
+namespace XMLHandlerTests
 {
     [TestClass]
     public class XMLHandlerTests
