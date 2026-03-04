@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 namespace L5XAutomationTool
@@ -6,7 +7,7 @@ namespace L5XAutomationTool
     public class ElementHelper
     {
         #region Fields
-        public Queue<string> RootPath = null;
+        public LinkedList<string> RootPath = null;
 
         public string ElementType = null;
 
@@ -25,14 +26,14 @@ namespace L5XAutomationTool
         public ElementHelper(ElementHelper elementInfo)
         {
             if (elementInfo.RootPath != null)
-                RootPath = new Queue<string>(elementInfo.RootPath);
+                RootPath = new LinkedList<string>(elementInfo.RootPath);
             ElementType = elementInfo.ElementType;
             BulkProgramParentGen = elementInfo.BulkProgramParentGen;
             if (elementInfo.ParentElementBulk != null)
                 ParentElementBulk = new XElement(elementInfo.ParentElementBulk);
         }
 
-        public ElementHelper(Queue<string> rootPath, string elementType, string collectionParent, XElement parentEl)
+        public ElementHelper(LinkedList<string> rootPath, string elementType, string collectionParent, XElement parentEl)
         {
             RootPath = rootPath;
             ElementType = elementType;
@@ -49,6 +50,13 @@ namespace L5XAutomationTool
             ElementType = null;
             BulkProgramParentGen = null;
             ParentElementBulk = null;
+        }
+
+        public string GetFirst()
+        {
+            string back = RootPath.First.Value;
+            RootPath.RemoveFirst();
+            return back;
         }
         #endregion
     }

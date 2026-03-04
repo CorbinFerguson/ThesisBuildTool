@@ -257,7 +257,7 @@ namespace XMLHandlerTests
             XElement element = new XElement("Program", new XAttribute("Name", "TestProgram"));
 
             // Act
-            Queue<string> path = xmlHandler.FindPathtoRootSchema(element);
+            LinkedList<string> path = xmlHandler.FindPathtoRootSchema(element);
 
             // Assert
             Assert.IsNotNull(path);
@@ -292,7 +292,7 @@ namespace XMLHandlerTests
             // Act & Assert - This test verifies the disambiguator is called when there's ambiguity
             try
             {
-                Queue<string> path = xmlHandler.FindPathtoRootSchema(element);
+                LinkedList<string> path = xmlHandler.FindPathtoRootSchema(element);
                 Assert.IsNotNull(path);
             }
             catch (AmbiguousSchemaPathException)
@@ -380,7 +380,7 @@ namespace XMLHandlerTests
             xmlHandler.inputFile = helper.CreateBasicTestDocument();
             XDocument doc = helper.CreateBasicTestDocument();
             XElement program = new XElement("Program", new XAttribute("Name", "NewProgram"));
-            xmlHandler.ElementInfo.RootPath = new Queue<string>(new[] { "Programs", "Controller" });
+            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
 
             // Act
             XDocument result = xmlHandler.InsertElement(doc, program);
@@ -409,7 +409,7 @@ namespace XMLHandlerTests
             );
 
             XElement program = new XElement("Program", new XAttribute("Name", "ExistingProgram"));
-            xmlHandler.ElementInfo.RootPath = new Queue<string>(new[] { "Programs", "Controller" });
+            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
 
             // Act
             xmlHandler.InsertElement(doc, program);
@@ -451,7 +451,7 @@ namespace XMLHandlerTests
             xmlHandler.inputFile = helper.CreateBasicTestDocument();
             XDocument doc = helper.CreateBasicTestDocument();
             XElement module = new XElement("Module", new XAttribute("CatalogNumber", "1234-5678"));
-            xmlHandler.ElementInfo.RootPath = new Queue<string>(new[] { "Controller" });
+            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Controller" });
 
             // Act
             try

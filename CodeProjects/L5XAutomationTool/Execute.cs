@@ -203,10 +203,7 @@ namespace L5XAutomationTool
                         }
                         catch (ClashingElementException ex)
                         {
-                            ElementHelper save = _xml.ElementInfo;
-                            _xml.ElementInfo.ResetElements();
                             retry = HandleClashes(ex.clashingElements, ex.parentNode, tryInsert);
-                            _xml.ElementInfo = save;
                         }
                         catch (ClashingParentException ex)
                         {
@@ -564,7 +561,9 @@ namespace L5XAutomationTool
                     // Replace the already existing element
                     insertElement = clashingElements.Single();
                     clashingElements.Remove();
-                    break;
+                    _xml.ElementInfo.ParentElementBulk = parentNode.Parent;
+                    _xml.ElementInfo.RootPath.AddFirst(parentNode.Name.ToString());
+                    return retry;
                 case "Rename":
                     string renameElement;
                     // Rename the element being inserted to not clash with existing element

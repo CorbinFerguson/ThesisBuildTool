@@ -108,9 +108,9 @@ namespace L5XAutomationTool
         }
 
         // Function to get a list of the names for the nodes leading from the root(RSLogix5000) to element using the XSD schema document
-        internal Queue<string> FindPathtoRootSchema(XElement element)
+        internal LinkedList<string> FindPathtoRootSchema(XElement element)
         {
-            Queue<string> paths = new Queue<string>();
+            LinkedList<string> paths = new LinkedList<string>();
 
             string name = element.Name.ToString();
             XElement schemaElement = null;
@@ -129,7 +129,7 @@ namespace L5XAutomationTool
                     // search for something with that type
                     schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Single(i => i.Attribute("type")?.Value.Equals(name) ?? false);
 
-                    paths.Enqueue(schemaElement.Attribute("name").Value);
+                    paths.AddLast(schemaElement.Attribute("name").Value);
                 }
                 if (paths.Count == 0)
                     throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
@@ -158,14 +158,14 @@ namespace L5XAutomationTool
                         throw new AmbiguousSchemaPathException(name, parentTypes);
 
                     string disambiguousParent = validator.GetSchema().Descendants().Where(i => i.Attribute("type")?.Value.ToString().Equals(name) ?? false).Select(i => i.Attribute("name").Value).Distinct().Single().ToString();
-                    paths.Enqueue(disambiguousParent);
-                    paths.Enqueue(chosenParentType);
+                    paths.AddLast(disambiguousParent);
+                    paths.AddLast(chosenParentType);
 
                     // Use the parent of the last element in the queue
-                    Queue<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentType));
+                    LinkedList<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentType));
 
                     foreach (string node in grandparentToRoot)
-                        paths.Enqueue(node);
+                        paths.AddLast(node);
 
                     return paths;
                 }
@@ -198,7 +198,7 @@ namespace L5XAutomationTool
             if ((ElementInfo.RootPath?.Count() ?? 0) <= 1)
                 ElementInfo.RootPath = FindPathtoRootSchema(element);
 
-            XName parentType = ElementInfo.RootPath.Dequeue();
+            XName parentType = ElementInfo.GetFirst();
 
             string searchFilter = "Name";
             IEnumerable<XElement> clashingElements = null;
@@ -235,17 +235,17 @@ namespace L5XAutomationTool
                         element.SetAttributeValue(editedDate.Name, editedDate.Value);
                     }
 
-                    parentType = ElementInfo.RootPath.Dequeue();
+                    parentType = ElementInfo.GetFirst();
                 }
                 catch (InvalidOperationException)
                 {
                     // Multiple options for parent element, already handled in findRoot
-                    parentType = ElementInfo.RootPath.Dequeue();
+                    parentType = ElementInfo.GetFirst();
                 }
             }
 
             XElement parentNode = null;
-            string grandparentType = ElementInfo.RootPath.Peek();
+            string grandparentType = ElementInfo.RootPath.First.Value;
             IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
             {
@@ -309,10 +309,10 @@ namespace L5XAutomationTool
         // Function to insert a list of elements
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
-            Queue<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
+            LinkedList<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
             foreach (XElement element in returnedElement)
             {
-                ElementInfo.RootPath = new Queue<string>(unchangedPath);
+                ElementInfo.RootPath = new LinkedList<string>(unchangedPath);
                 InsertElement(doc, element);
             }
             return doc;

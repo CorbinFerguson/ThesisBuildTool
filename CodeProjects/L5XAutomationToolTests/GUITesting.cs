@@ -260,7 +260,7 @@ namespace GuiTesting
             string saveResultPath = Path.Combine(TestXMLsPath, "TestResults");
             filePathEdit.AsTextBox().Enter(saveResultPath);
             Keyboard.Press(VirtualKeyShort.ENTER);
-            TestHelper.WaitMilliseconds(100);
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Set file name for saving, ensure uniqueness
             AutomationElement fileName = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.ComboBox).And(win.ByName("File name:"))).SingleOrDefault()?.AsTextBox();
@@ -272,6 +272,7 @@ namespace GuiTesting
 
             fileName.Click();
             AutomationElement fileNameField = fileName.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("File name:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
+            TestReport.IsNotNull(fileNameField, "Find file name field");
             fileNameField.AsTextBox().Enter(nameToSave);
 
             TestReport.IsTrue(fileNameField.AsTextBox().Text == nameToSave, "Text input as expected");
