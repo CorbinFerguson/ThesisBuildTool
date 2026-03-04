@@ -9,14 +9,9 @@ pipeline {
 				checkout scm
 			}
 		}
-		stage('Restore') {
-            steps {
-				bat 'nuget restore ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln'
-            }
-        }
         stage('Build') {
             steps {
-				bat 'dotnet msbuild ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln /t:Rebuild /p:Configuration=Release'
+				bat 'dotnet msbuild ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln /restore /t:Rebuild /p:Configuration=Release'
             }
         }
         stage('Test') {
