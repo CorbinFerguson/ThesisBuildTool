@@ -1,11 +1,11 @@
 pipeline {
     agent{
-		label 'corbinThesis'
+		label params.CUSTOM_NODE ?: params.NODE
 	}
-
     stages {
 		stage('Checkout') {
 			steps {
+				cleanWs()
 				checkout scm
 			}
 		}
