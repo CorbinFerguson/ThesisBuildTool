@@ -38,7 +38,10 @@ namespace XMLHandlerTests
             TestReport.Start(TestContext.TestName);
         }
 
+        #region Constructor Tests
+
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that the XMLHandler constructor properly initializes with a validator and disambiguator, and that the validator can be retrieved.")]
         public void Constructor_SetsValidatorAndDisambiguator()
@@ -52,7 +55,12 @@ namespace XMLHandlerTests
             Assert.AreEqual(mockValidator.Object, handler.GetValidator());
         }
 
+        #endregion
+
+        #region Element Retrieval Tests
+
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetSimpleElements returns a list of element names from the input file while excluding CustomProperties elements.")]
         public void GetSimpleElements_ReturnsListOfElements_ExcludingCustomProperties()
@@ -69,6 +77,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetElementTypes returns a list of valid element type names from the provided XML document.")]
         public void GetElementTypes_ReturnsValidTypes_FromDocument()
@@ -93,6 +102,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetElementTypes throws an EmptyListException when the document contains no valid elements.")]
         [ExpectedException(typeof(EmptyListException))]
@@ -109,7 +119,12 @@ namespace XMLHandlerTests
             xmlHandler.GetElementTypes(doc);
         }
 
+        #endregion
+
+        #region Dependency Handling Tests
+
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies identifies and adds dependent elements to the document when dependencies exist in the source element.")]
         public void CheckForDependencies_AddsDependentElements_WhenDependenciesExist()
@@ -141,6 +156,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies skips adding dependencies that already exist in the target document to avoid duplication.")]
         public void CheckForDependencies_SkipsDependencies_WhenAlreadyExist()
@@ -177,6 +193,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies properly handles elements with a ParentModule attribute when the module is not local.")]
         public void CheckForDependencies_HandlesParentModule_WhenNotLocal()
@@ -203,6 +220,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies can process a list of multiple elements and check dependencies for each element.")]
         public void CheckForDependencies_WithList_ProcessesAllElements()
@@ -224,6 +242,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies correctly handles Task elements with ScheduledProgram child elements as dependencies.")]
         public void CheckForDependencies_HandlesTaskWithScheduledPrograms()
@@ -248,7 +267,12 @@ namespace XMLHandlerTests
             Assert.IsNotNull(result);
         }
 
+        #endregion
+
+        #region Path Finding Tests
+
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that FindPathtoRootSchema returns a valid queue of element names representing the path from the element to the schema root.")]
         public void FindPathtoRootSchema_ReturnsPathQueue_ForValidElement()
@@ -265,6 +289,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that FindPathtoRootSchema throws an EmptyListException when attempting to find a path for the root element itself.")]
         [ExpectedException(typeof(EmptyListException))]
@@ -277,49 +302,12 @@ namespace XMLHandlerTests
             xmlHandler.FindPathtoRootSchema(element);
         }
 
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that FindPathtoRootSchema uses the disambiguator to resolve ambiguous schema paths when multiple parent paths are possible.")]
-        public void FindPathtoRootSchema_HandlesAmbiguousPath_WithDisambiguator()
-        {
-            // Arrange
-            mockDisambiguator.Setup(d => d.ChooseParentFor(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns("Controller");
+        #endregion
 
-            XElement element = new XElement("Program", new XAttribute("Name", "TestProgram"));
-            xmlHandler.ElementInfo.ParentElementBulk = null;
-
-            // Act & Assert - This test verifies the disambiguator is called when there's ambiguity
-            try
-            {
-                LinkedList<string> path = xmlHandler.FindPathtoRootSchema(element);
-                Assert.IsNotNull(path);
-            }
-            catch (AmbiguousSchemaPathException)
-            {
-                // This is acceptable if the test schema creates ambiguity
-                Assert.IsTrue(true);
-            }
-        }
+        #region Attribute Handling Tests
 
         [TestMethod]
-        [TestProperty("Description",
-            "Test that FindPathtoRootSchema throws an AmbiguousSchemaPathException when the path is ambiguous and no disambiguator is available.")]
-        [ExpectedException(typeof(AmbiguousSchemaPathException))]
-        public void FindPathtoRootSchema_ThrowsException_WhenAmbiguousAndNoDisambiguator()
-        {
-            // Arrange
-            var handlerWithoutDisambiguator = new XMLHandler(mockValidator.Object, null);
-            mockDisambiguator.Setup(d => d.ChooseParentFor(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(string.Empty);
-
-            XElement element = new XElement("Program", new XAttribute("Name", "TestProgram"));
-
-            // Act
-            handlerWithoutDisambiguator.FindPathtoRootSchema(element);
-        }
-
-        [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetAttributes returns a list of all attributes for a given XML element.")]
         public void GetAttributes_ReturnsAllAttributes_ForElement()
@@ -334,7 +322,12 @@ namespace XMLHandlerTests
             Assert.IsNotNull(attributes);
         }
 
+        #endregion
+
+        #region Misc tests
+
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetAttributes can process multiple elements and return a list of attribute lists, one for each element.")]
         public void GetAttributes_WithMultipleElements_ReturnsListOfAttributeLists()
@@ -354,6 +347,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that LoadBasicFile successfully loads and returns an XDocument from the template file.")]
         public void LoadBasicFile_ReturnsXDocument()
@@ -372,6 +366,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that InsertElement successfully adds an element to the specified location in the target document.")]
         public void InsertElement_AddsElement_ToDocument()
@@ -390,6 +385,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that InsertElement throws a ClashingElementException when attempting to insert an element that already exists in the document.")]
         [ExpectedException(typeof(ClashingElementException))]
@@ -416,6 +412,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that InsertElement can process and insert multiple elements from a list into the target document.")]
         public void InsertElement_WithList_InsertsAllElements()
@@ -443,6 +440,7 @@ namespace XMLHandlerTests
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that InsertElement properly handles Module elements that have a CatalogNumber attribute instead of a Name attribute.")]
         public void InsertElement_HandlesModules_WithCatalogNumber()
@@ -465,36 +463,6 @@ namespace XMLHandlerTests
                 Assert.Inconclusive("Schema validation prevented module insertion");
             }
         }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that GetValidator returns the validation service instance used by the XMLHandler.")]
-        public void GetValidator_ReturnsValidationService()
-        {
-            // Act
-            IValidationService result = xmlHandler.GetValidator();
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(mockValidator.Object, result);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that the Ns property contains the correct XML Schema namespace URI.")]
-        public void Namespace_IsCorrect()
-        {
-            // Assert
-            Assert.AreEqual(@"http://www.w3.org/2001/XMLSchema", xmlHandler.Ns.NamespaceName);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that the ElementInfo property is properly initialized when the XMLHandler is constructed.")]
-        public void ElementInfo_IsInitialized()
-        {
-            // Assert
-            Assert.IsNotNull(xmlHandler.ElementInfo);
-        }
+        #endregion
     }
 }

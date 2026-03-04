@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-				bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --logger "trx;logfilename=mytests.trx" --no-build --no-restore --results-directory ./CodeProjects/TestResults || exit /b 0'
+				bat 'dotnet test ./CodeProjects/L5XAutomationToolTests/L5XAutomationToolTests.csproj --configuration Release --filter "Category = ${params.TEST_CATEGORY}" --logger "trx;logfilename=mytests.trx" --no-build --no-restore --results-directory ./CodeProjects/TestResults || exit /b 0'
             }
 			post {
                 always {

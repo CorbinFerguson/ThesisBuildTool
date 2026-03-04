@@ -61,6 +61,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("File Manipulation")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that the ActionSelect window launches with all necessary buttons, and that the exit button closes the window.")]
         public void ActionSelectLayout()
@@ -106,6 +107,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("File Manipulation")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that action select cannot be manipulated during operations.")]
         public void ActionSelectLoseControl()
@@ -149,6 +151,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("File Manipulation")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that the validate button creates popups upon button press.")]
         public void FileManagementTesting()
@@ -312,6 +315,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("File Manipulation")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that when the user modifies the file in a way that is not valid for the schema, an error window appears.")]
         public void ValidationErrorWindow()
@@ -357,6 +361,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Create")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that the creation of multiple elements that clash works.")]
         public void ClashingElementCreation()
@@ -431,6 +436,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Create")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that the standard creation of multiple elements works.")]
         public void ElementQuantityCreation()
@@ -506,6 +512,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Create")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that the creation of modules with no name works.")]
         public void NamelessModuleCreation()
@@ -537,6 +544,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Delete")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that deleting an element that exists in the file and has no abnormal behavior works.")]
         public void DeleteElementFound()
@@ -587,6 +595,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Delete")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Testing that attempting to delete an element when no element exists causes a popup.")]
         public void DeleteNoElement()
@@ -612,6 +621,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Delete")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test that modules can be deleted using the port as a filter instead of name.")]
         public void DeleteModuleByPort()
@@ -664,6 +674,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Modify")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test attempting to modify a file with no elements.")]
         public void NoElementToModify()
@@ -689,6 +700,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Modify")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test the modification of a normal behaving element.")]
         public void RedundantModifyElement()
@@ -740,6 +752,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Modify")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test the modification of a normal behaving element.")]
         public void StandardElementModify()
@@ -843,6 +856,7 @@ namespace GuiTesting
 
         [TestMethod]
         [TestCategory("GUI_Import")]
+        [TestCategory("GUI_Test")]
         [TestProperty("Description",
         "Test the functionality of the Import Element block.")]
         public void ImportElement()
