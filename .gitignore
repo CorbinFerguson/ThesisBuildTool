@@ -35,3 +35,4 @@ CodeProjects/L5XFiles/*
 !CodeProjects/L5XFiles/TestingFiles/
 CodeProjects/L5XFiles/TestingFiles/TestResults/
 !CodeProjects/L5XFiles/TemplateFiles/
+/CodeProjects/agent.jar
