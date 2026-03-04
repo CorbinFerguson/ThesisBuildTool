@@ -201,10 +201,10 @@ namespace L5XAutomationToolTests
             // Double-click to load the broken template file
             templateBroken.DoubleClick();
 
-            TestHelper.CheckHomePage();
-
             // Wait for application to catch up
             TestHelper.WaitMilliseconds(100);
+
+            TestHelper.CheckHomePage();
 
             TestReport.Section("VALIDATE ERROR FILE");
             // Validate loaded file to test error scenario
