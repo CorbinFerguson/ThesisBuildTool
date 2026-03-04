@@ -255,13 +255,13 @@ namespace L5XAutomationTool
             else if (ElementInfo.ParentElementBulk != null)
             {
                 // If creating in bulk, then the parent type is already solved for
-                if (ElementInfo.ParentElementBulk.Attribute("Name") is null )
+                if (ElementInfo.ParentElementBulk.Attribute("Name") is null)
                 {
                     throw new ClashingParentException(grandParentNodes);
                 }
                 XElement elnode = grandParentNodes.SingleOrDefault(i => ElementInfo.ParentElementBulk.Attribute("Name").Value.Equals(i.Attribute("Name").Value));
                 parentNode = elnode.Elements(parentType).SingleOrDefault();
-                
+
             }
             else if (grandParentNodes.Count() > 1)
             {

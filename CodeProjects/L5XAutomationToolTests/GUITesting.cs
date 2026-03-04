@@ -895,7 +895,7 @@ namespace GuiTesting
             ListBoxItem[] expectedItems = { aoi, element };
             IEnumerable<string> expected = expectedItems.Select(i => i.Name);
             TestReport.IsTrue(selectedItems.SequenceEqual<string>(expected), "Verify both template elements are selected");
-            
+
             TestHelper.Confirm(elementSelect);
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);

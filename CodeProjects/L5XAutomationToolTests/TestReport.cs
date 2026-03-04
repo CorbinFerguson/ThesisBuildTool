@@ -1,5 +1,4 @@
-﻿using L5XAutomationTool.Forms;
-using L5XAutomationToolTestHelpers;
+﻿using L5XAutomationToolTestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
@@ -161,7 +160,7 @@ namespace Reporting
                     imagePath = TestHelper.TakeScreenshot(Path.Combine(_reportsRoot, RunId, "Images"));
             }
             catch
-            { 
+            {
                 // Swallow the error
             }
 

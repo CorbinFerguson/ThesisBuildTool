@@ -255,31 +255,31 @@ namespace L5XAutomationToolTestHelpers
             switch (input)
             {
                 case InputType.Dropdown:
-                        Window dropdown = GuiTesting.GUITesting.actionSelect
-                            .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui")))
-                            .SingleOrDefault()
-                            ?.AsWindow();
+                    Window dropdown = GuiTesting.GUITesting.actionSelect
+                        .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("DropdownGui")))
+                        .SingleOrDefault()
+                        ?.AsWindow();
 
-                        TestReport.IsNotNull(dropdown, "Verify dropdown window appears");
-                        return dropdown;
+                    TestReport.IsNotNull(dropdown, "Verify dropdown window appears");
+                    return dropdown;
 
                 case InputType.MultiSelect:
-                        Window multiSelect = GuiTesting.GUITesting.actionSelect
-                            .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown")))
-                            .SingleOrDefault()
-                            ?.AsWindow();
+                    Window multiSelect = GuiTesting.GUITesting.actionSelect
+                        .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("MultiSelectDropdown")))
+                        .SingleOrDefault()
+                        ?.AsWindow();
 
-                        TestReport.IsNotNull(multiSelect, "Verify multiselect dropdown window appears");
-                        return multiSelect;
+                    TestReport.IsNotNull(multiSelect, "Verify multiselect dropdown window appears");
+                    return multiSelect;
 
                 case InputType.TextInput:
-                        Window textInput = GuiTesting.GUITesting.actionSelect
-                            .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput")))
-                            .SingleOrDefault()
-                            ?.AsWindow();
+                    Window textInput = GuiTesting.GUITesting.actionSelect
+                        .FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("TextInput")))
+                        .SingleOrDefault()
+                        ?.AsWindow();
 
-                        TestReport.IsNotNull(textInput, "Verify TextInput window appears");
-                        return textInput;
+                    TestReport.IsNotNull(textInput, "Verify TextInput window appears");
+                    return textInput;
 
                 default:
                     throw new NotImplementedException();

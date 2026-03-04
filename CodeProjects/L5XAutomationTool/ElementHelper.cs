@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 namespace L5XAutomationTool
