@@ -572,7 +572,7 @@ namespace ExecuteTests
             ));
 
             // Act
-            Assert.ThrowsExactly<EmptyListException>(() =>execute.CreateElement());
+            Assert.ThrowsExactly<EmptyListException>(() => execute.CreateElement());
         }
 
         #endregion

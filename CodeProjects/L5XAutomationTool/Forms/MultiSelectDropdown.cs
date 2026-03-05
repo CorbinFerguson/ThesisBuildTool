@@ -33,7 +33,7 @@ namespace L5XAutomationTool.Forms
             {
                 throw new AbortedElementException();
             }
-            if(!AcceptEmptyList && DropdownElements.SelectedItems.Count == 0)
+            if (!AcceptEmptyList && DropdownElements.SelectedItems.Count == 0)
             {
                 throw new EmptyListException("Closed GUI without selecting item");
             }

@@ -405,7 +405,7 @@ namespace XMLHandlerTests
             xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
 
             // Act
-            Assert.ThrowsExactly< ClashingElementException>(()=>xmlHandler.InsertElement(doc, program));
+            Assert.ThrowsExactly<ClashingElementException>(() => xmlHandler.InsertElement(doc, program));
         }
 
         [TestMethod]
