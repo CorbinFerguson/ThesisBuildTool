@@ -1,2 +1,0 @@
-curl.exe -sO http://us-gre-lpus-jenkins.ncsa.endress.com/jnlpJars/agent.jar
-java -jar agent.jar -url http://10.139.15.249 -secret 1ba9ee09e34ab7469ca6f5a83f4f29748d528e44b45ac8983af7fd36514322a8 -name NUSGREPCMD0037 -webSocket -workDir "c:\jenkins"
