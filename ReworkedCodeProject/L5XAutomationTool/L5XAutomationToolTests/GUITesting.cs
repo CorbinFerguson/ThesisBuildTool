@@ -99,7 +99,7 @@ namespace GuiTesting
             TestReport.Section("Exit");
             // Find and click the exit button to close the window
             AutomationElement exitButton = actionSelect.FindAllDescendants(but => but.ByName("ExitActionSelect")).SingleOrDefault();
-            exitButton.AsButton().Invoke();
+            exitButton.AsButton().Click();
 
             // Wait and verify that the application has closed
             TestHelper.WaitMilliseconds(longTimeoutMS);
@@ -114,7 +114,7 @@ namespace GuiTesting
         public void ActionSelectLoseControl()
         {
             // List of buttons that should not be tested for control loss
-            List<string> prohibNames = new List<string>() { "ExitActionSelect", "Minimize", "Maximize", "Close" };
+            List<string> prohibNames = ["ExitActionSelect", "Minimize", "Maximize", "Close"];
             // Get all main menu buttons except prohibited ones
             IEnumerable<AutomationElement> mainMenuButtons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button)).Where(but => !prohibNames.Contains(but.Name));
 
@@ -123,12 +123,12 @@ namespace GuiTesting
                 // Ensure ActionSelect is enabled before operation
                 TestReport.IsTrue(actionSelect.IsEnabled, "Action select found");
 
-                // Invoke button to open a new window
-                button.AsButton().Invoke();
+                // Click button to open a new window
+                button.AsButton().Click();
 
                 // Find the popup window that appears
-                Window popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window)).SingleOrDefault()?.AsWindow();
-                TestReport.IsNotNull(popup, "Open popup window for: " + button?.Name ?? "button is null");
+                Window? popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window)).SingleOrDefault()?.AsWindow();
+                TestReport.IsNotNull(popup, "Open popup window for: " + button.Name);
 
                 // ActionSelect should be disabled while popup is open
                 TestReport.IsFalse(actionSelect.IsEnabled, "Action select yields control");
@@ -138,13 +138,13 @@ namespace GuiTesting
                 {
                     Button no = popup.FindAllDescendants(win => win.ByName("No")).SingleOrDefault().AsButton();
                     TestReport.IsNotNull(no, "Select 'No' to cancel new file");
-                    no.Invoke();
+                    no.Click();
                 }
                 else
                 {
                     Button close = popup.FindAllDescendants(win => win.ByName("Close")).SingleOrDefault().AsButton();
                     TestReport.IsNotNull(close, "Press close button");
-                    close.Invoke();
+                    close.Click();
                 }
 
             }
@@ -158,11 +158,11 @@ namespace GuiTesting
         public void FileManagementTesting()
         {
             TestReport.Section("VALIDATE W/OUT ERROR");
-            // Find and invoke the validate button
+            // Find and Click the validate button
             Button validateButton = actionSelect.FindAllDescendants(val => val.ByName("ValidateFileButton")).SingleOrDefault()?.AsButton();
 
             // Validate blank document to test errorless scenario
-            validateButton.Invoke();
+            validateButton.Click();
 
             // Find the popup for detected errors
             AutomationElement popup = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault();
@@ -175,16 +175,16 @@ namespace GuiTesting
             // Find and click OK button to close popup
             Button ok = popup.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(ok, "Press OK");
-            ok.Invoke();
+            ok.Click();
 
             TestHelper.CheckHomePage();
 
             TestReport.Section("LOAD FILE");
-            // Find and invoke the load button
+            // Find and Click the load button
             Button loadButton = actionSelect.FindAllDescendants(but => but.ByName("LoadFileButton")).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(loadButton, "Press Load");
 
-            loadButton.Invoke();
+            loadButton.Click();
             TestHelper.WaitMilliseconds(500);
 
             // Find file explorer window
@@ -213,7 +213,7 @@ namespace GuiTesting
 
             TestReport.Section("VALIDATE ERROR FILE");
             // Validate loaded file to test error scenario
-            validateButton.Invoke();
+            validateButton.Click();
 
             // Find error popup
             AutomationElement errors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault();
@@ -226,14 +226,14 @@ namespace GuiTesting
             // Find and click OK button to close error popup
             Button accept = errors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(accept, "Press OK");
-            accept.Invoke();
+            accept.Click();
 
             TestHelper.CheckHomePage();
 
             TestReport.Section("NEW FILE DENY CREATION");
-            // Find and invoke new file button
+            // Find and Click new file button
             Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
-            newButtonNo.Invoke();
+            newButtonNo.Click();
 
             // Verify confirmation window appears
             Window verifyCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();
@@ -242,17 +242,17 @@ namespace GuiTesting
             // Select No to cancel new file creation
             Button selectNo = verifyCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("No"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(selectNo, "Press No to cancel");
-            selectNo.Invoke();
+            selectNo.Click();
 
             TestHelper.CheckHomePage();
 
             TestReport.Section("SAVE FILE");
-            // Find and invoke save button
+            // Find and Click save button
             Button saveButton = actionSelect.FindAllDescendants(win => win.ByName("SaveFileButton")).SingleOrDefault()?.AsButton();
-            saveButton.Invoke();
+            saveButton.Click();
 
             // Find Save As file explorer window
-            Window fileExp = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Save As"))).SingleOrDefault()?.AsWindow();
+            Window? fileExp = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Save As"))).SingleOrDefault()?.AsWindow();
             TestReport.IsNotNull(fileExp, "Open File Explorer");
 
             // Find address bar and input save path
@@ -291,9 +291,9 @@ namespace GuiTesting
             TestReport.IsTrue(File.Exists(Path.Combine(saveResultPath, nameToSave + ".L5X")), "Verify file saved at location", false);
 
             TestReport.Section("NEW FILE CONFIRM CREATION");
-            // Find and invoke new file button
+            // Find and Click new file button
             Button newButtonYes = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
-            newButtonYes.Invoke();
+            newButtonYes.Click();
 
             // Verify confirmation window appears
             Window confirmCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();
@@ -302,14 +302,14 @@ namespace GuiTesting
             // Select Yes to confirm new file creation
             Button selectYes = confirmCreate.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(selectYes, "Press Yes to create new file");
-            selectYes.Invoke();
+            selectYes.Click();
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Click OK to close confirmation window
             Button buttonOK = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(buttonOK, "Press OK to confirm creation");
-            buttonOK.Invoke();
+            buttonOK.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -322,9 +322,9 @@ namespace GuiTesting
         public void ValidationErrorWindow()
         {
             // CREATE
-            // Find and invoke create element button
+            // Find and Click create element button
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
-            createElementButton.Invoke();
+            createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
@@ -355,7 +355,7 @@ namespace GuiTesting
 
             // Click OK to close error window
             Button ok = detectErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
-            ok.Invoke();
+            ok.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -368,10 +368,10 @@ namespace GuiTesting
         public void ClashingElementCreation()
         {
             // CREATE
-            // Find and invoke create element button
-            TestReport.Section("Find and invoke create element button");
+            // Find and Click create element button
+            TestReport.Section("Find and Click create element button");
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
-            createElementButton.Invoke();
+            createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
@@ -443,9 +443,9 @@ namespace GuiTesting
         public void ElementQuantityCreation()
         {
             // CREATE
-            // Find and invoke create element button
+            // Find and Click create element button
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
-            createElementButton.Invoke();
+            createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
@@ -519,9 +519,9 @@ namespace GuiTesting
         public void NamelessModuleCreation()
         {
             // CREATE
-            // Find and invoke create element button
+            // Find and Click create element button
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
-            createElementButton.Invoke();
+            createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select element type to create
@@ -553,9 +553,9 @@ namespace GuiTesting
             // Load default file for deletion test
             TestHelper.LoadDefault();
 
-            // Find and invoke delete element button
+            // Find and Click delete element button
             Button deleteButton = actionSelect.FindAllDescendants(val => val.ByName("DeleteElementButton")).SingleOrDefault()?.AsButton();
-            deleteButton.Invoke();
+            deleteButton.Click();
 
             // Select element type to delete
             Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
@@ -589,7 +589,7 @@ namespace GuiTesting
 
             Button oK = detectedErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(oK, "Press OK in error popup");
-            oK.Invoke();
+            oK.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -601,9 +601,9 @@ namespace GuiTesting
         "Testing that attempting to delete an element when no element exists causes a popup.")]
         public void DeleteNoElement()
         {
-            // Find and invoke delete element button
+            // Find and Click delete element button
             Button deleteButton = actionSelect.FindAllDescendants(val => val.ByName("DeleteElementButton")).SingleOrDefault()?.AsButton();
-            deleteButton.Invoke();
+            deleteButton.Click();
 
             // Check for error window indicating no elements found
             Window errorDialog = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Error", PropertyConditionFlags.MatchSubstring))).SingleOrDefault()?.AsWindow();
@@ -615,7 +615,7 @@ namespace GuiTesting
             Button oK = errorDialog.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(oK, "Press OK");
 
-            oK.Invoke();
+            oK.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -630,9 +630,9 @@ namespace GuiTesting
             // Load default file for module deletion test
             TestHelper.LoadDefault();
 
-            // Find and invoke delete element button
+            // Find and Click delete element button
             Button deleteButton = actionSelect.FindAllDescendants(val => val.ByName("DeleteElementButton")).SingleOrDefault()?.AsButton();
-            deleteButton.Invoke();
+            deleteButton.Click();
 
             // Select module type to delete
             Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
@@ -668,7 +668,7 @@ namespace GuiTesting
 
             Button oK = detectedErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(oK, "Press OK in error popup");
-            oK.Invoke();
+            oK.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -680,9 +680,9 @@ namespace GuiTesting
         "Test attempting to modify a file with no elements.")]
         public void NoElementToModify()
         {
-            // Find and invoke modify element button
+            // Find and Click modify element button
             Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
-            modifyButton.Invoke();
+            modifyButton.Click();
 
             // Check for error popup indicating no elements to modify
             Window popupNoElements = actionSelect.FindAllDescendants(win => win.ByName("Error", PropertyConditionFlags.MatchSubstring).And(win.ByControlType(ControlType.Window))).SingleOrDefault()?.AsWindow();
@@ -694,7 +694,7 @@ namespace GuiTesting
 
             Button ok = popupNoElements.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(ok, "Press OK in popup");
-            ok.Invoke();
+            ok.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -709,10 +709,10 @@ namespace GuiTesting
             // Load default file for modification test
             TestHelper.LoadDefault();
 
-            // Find and invoke modify element button
+            // Find and Click modify element button
             TestReport.Section("Press modify button");
             Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
-            modifyButton.Invoke();
+            modifyButton.Click();
 
             // Select element type to modify
             TestReport.Section("Select element type to modify");
@@ -761,9 +761,9 @@ namespace GuiTesting
             // Load default file for modification test
             TestHelper.LoadDefault();
 
-            // Find and invoke modify element button
+            // Find and Click modify element button
             Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
-            modifyButton.Invoke();
+            modifyButton.Click();
 
             // Select element type to modify
             Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
@@ -825,7 +825,7 @@ namespace GuiTesting
             // Close subelement select window
             Window subSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             Button close = subSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Close"))).SingleOrDefault()?.AsButton();
-            close.Invoke();
+            close.Click();
 
             // Select attributes of TemplateLadderAOI to modify
             Window ladderAttrs = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
@@ -841,7 +841,7 @@ namespace GuiTesting
             // Close subelement select window for TemplateLadderAOI
             Window ladderSubSelect = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             Button ladderClose = ladderSubSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Close"))).SingleOrDefault()?.AsButton();
-            ladderClose.Invoke();
+            ladderClose.Click();
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
@@ -850,7 +850,7 @@ namespace GuiTesting
             TestReport.IsNotNull(popupSchema, "Open Schema Error popup");
 
             Button ok = popupSchema.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
-            ok.Invoke();
+            ok.Click();
 
             TestHelper.CheckHomePage();
         }
@@ -864,7 +864,7 @@ namespace GuiTesting
         {
             // Press "Import Element" Button
             Button importButton = actionSelect.FindAllDescendants(val => val.ByName("ImportElementButton")).SingleOrDefault()?.AsButton();
-            importButton.Invoke();
+            importButton.Click();
 
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
@@ -906,7 +906,7 @@ namespace GuiTesting
             }
 
             // Verify items are actually selected
-            IEnumerable<string> selectedItems = elementSelect.FindAllDescendants(cf => cf.ByControlType(ControlType.List)).FirstOrDefault()?.AsListBox()?.SelectedItems.Select(i => i.Name);
+            IEnumerable<string>? selectedItems = elementSelect.FindAllDescendants(cf => cf.ByControlType(ControlType.List)).FirstOrDefault()?.AsListBox()?.SelectedItems.Select(i => i.Name);
             ListBoxItem[] expectedItems = { aoi, element };
             IEnumerable<string> expected = expectedItems.Select(i => i.Name);
             TestReport.IsTrue(selectedItems.SequenceEqual<string>(expected), "Verify both template elements are selected");
@@ -922,7 +922,7 @@ namespace GuiTesting
 
             Button yesButton = addAnotherYes.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Yes"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(yesButton, "Press Yes to add another");
-            yesButton.Invoke();
+            yesButton.Click();
 
             // Select element type with ambiguous parent(routine) to import
             TestReport.Section("Select type 'routine' to import");
@@ -980,7 +980,7 @@ namespace GuiTesting
 
             Button noButton = addAnotherNo.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("No"))).SingleOrDefault()?.AsButton();
             TestReport.IsNotNull(noButton, "Press No to add another");
-            noButton.Invoke();
+            noButton.Click();
 
             TestHelper.CheckHomePage();
         }

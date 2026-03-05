@@ -20,7 +20,7 @@ namespace L5XAutomationToolTestHelpers
     {
         // Standardized small waits (milliseconds) to stabilize UI timing in tests.
         private static readonly int stdWait = 500;
-        private static readonly int shortWait = 50;
+        private static readonly int shortWait = 75;
 
         /// <summary>Common input dialog types exposed by the AUT.</summary>
         public enum InputType
@@ -151,13 +151,13 @@ namespace L5XAutomationToolTestHelpers
         /// </summary>
         public static void Confirm(Window parent)
         {
-            Button confirm = parent
+            Button? confirm = parent
                 .FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("Confirm")))
                 .SingleOrDefault()
                 ?.AsButton();
 
             TestReport.IsNotNull(confirm, "Find confirm button in: " + parent.Name);
-            confirm.Invoke();
+            confirm.Click();
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace L5XAutomationToolTestHelpers
                 .SingleOrDefault()
                 ?.AsButton();
 
-            loadButton.Invoke();
+            loadButton.Click();
             TestHelper.WaitMilliseconds(stdWait);
 
             // Target the Windows "Open" dialog and its address bar.

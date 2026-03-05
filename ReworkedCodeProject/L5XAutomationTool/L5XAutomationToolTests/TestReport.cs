@@ -50,7 +50,7 @@ namespace Reporting
         }
 
         /// <summary>
-        /// Begin a test report. Usually invoked by MSTest TestInitialize.
+        /// Begin a test report. Usually Clickd by MSTest TestInitialize.
         /// Automatically detects test class and name if not provided.
         /// </summary>
         public static void Start([CallerMemberName] string testName = null, string testClassName = null)
