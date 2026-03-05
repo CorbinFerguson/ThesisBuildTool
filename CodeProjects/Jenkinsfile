@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-				bat 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release'
+				bat 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln --configuration Release  --no-restore'
             }
         }
         stage('Test') {
