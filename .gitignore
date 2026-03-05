@@ -29,8 +29,6 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 .vs/
 .idea/
-#Nuget packages folder
-packages/
 CodeProjects/L5XFiles/*
 !CodeProjects/L5XFiles/TestingFiles/
 CodeProjects/L5XFiles/TestingFiles/TestResults/
