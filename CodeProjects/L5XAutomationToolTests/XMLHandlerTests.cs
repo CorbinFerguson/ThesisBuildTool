@@ -105,7 +105,6 @@ namespace XMLHandlerTests
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that GetElementTypes throws an EmptyListException when the document contains no valid elements.")]
-        [ExpectedException(typeof(EmptyListException))]
         public void GetElementTypes_ThrowsEmptyListException_WhenNoValidElements()
         {
             // Arrange
@@ -116,7 +115,7 @@ namespace XMLHandlerTests
             );
 
             // Act
-            xmlHandler.GetElementTypes(doc);
+            Assert.ThrowsExactly<EmptyListException>(() => xmlHandler.GetElementTypes(doc));
         }
 
         #endregion
@@ -292,14 +291,13 @@ namespace XMLHandlerTests
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that FindPathtoRootSchema throws an EmptyListException when attempting to find a path for the root element itself.")]
-        [ExpectedException(typeof(EmptyListException))]
         public void FindPathtoRootSchema_ThrowsException_WhenStartingAtRoot()
         {
             // Arrange
             XElement element = new XElement("RSLogix5000Content");
 
             // Act
-            xmlHandler.FindPathtoRootSchema(element);
+            Assert.ThrowsExactly<EmptyListException>(() => xmlHandler.FindPathtoRootSchema(element));
         }
 
         #endregion
@@ -388,7 +386,6 @@ namespace XMLHandlerTests
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that InsertElement throws a ClashingElementException when attempting to insert an element that already exists in the document.")]
-        [ExpectedException(typeof(ClashingElementException))]
         public void InsertElement_ThrowsException_WhenElementAlreadyExists()
         {
             // Arrange
@@ -408,7 +405,7 @@ namespace XMLHandlerTests
             xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
 
             // Act
-            xmlHandler.InsertElement(doc, program);
+            Assert.ThrowsExactly< ClashingElementException>(()=>xmlHandler.InsertElement(doc, program));
         }
 
         [TestMethod]

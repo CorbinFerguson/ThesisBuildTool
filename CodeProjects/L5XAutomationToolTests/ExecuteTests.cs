@@ -544,7 +544,6 @@ namespace ExecuteTests
         [TestCategory("CreateElement")]
         [TestProperty("Description",
             "Test that CreateElement throws an EmptyListException when no valid parent elements can be found in the schema.")]
-        [ExpectedException(typeof(EmptyListException))]
         public void CreateElement_NoValidParents_ThrowsException()
         {
             // Arrange
@@ -573,7 +572,7 @@ namespace ExecuteTests
             ));
 
             // Act
-            execute.CreateElement();
+            Assert.ThrowsExactly<EmptyListException>(() =>execute.CreateElement());
         }
 
         #endregion
