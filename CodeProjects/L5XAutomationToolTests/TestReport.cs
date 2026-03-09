@@ -25,7 +25,7 @@ namespace Reporting
 
         // Root folder where all reports are stored
         private static string _reportsRoot =
-            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestReports"));
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "L5XFiles", "TestReports"));
 
         // Once a test starts, lock root path from being changed
         private static bool _rootLocked = false;
@@ -166,7 +166,7 @@ namespace Reporting
 
             WriteRow(ctx, "FAIL", userMessage, imagePath);
             ctx.Failures.Add(userMessage);
-            Assert.Fail("Failed" + userMessage);
+            Assert.Fail("Failed: " + userMessage);
         }
 
         public static void IsFalse(bool condition, string message, bool captureOnFailure = true)

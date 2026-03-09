@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 
@@ -13,7 +10,7 @@ namespace L5XAutomationTool
         #region Fields
         private readonly XmlSchemaSet validationSchemaSet;
 
-        private static readonly string schemaPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../RSLogix5000_V35.xsd"));
+        private static readonly string schemaPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../../RSLogix5000_V35.xsd"));
 
         private static XDocument schema;
 

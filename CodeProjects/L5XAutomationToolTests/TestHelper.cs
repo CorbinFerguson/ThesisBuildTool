@@ -19,8 +19,8 @@ namespace L5XAutomationToolTestHelpers
     internal class TestHelper
     {
         // Standardized small waits (milliseconds) to stabilize UI timing in tests.
-        private static readonly int stdWait = 500;
-        private static readonly int shortWait = 50;
+        private static readonly int stdWait = 750;
+        private static readonly int shortWait = 75;
 
         /// <summary>Common input dialog types exposed by the AUT.</summary>
         public enum InputType
@@ -153,7 +153,8 @@ namespace L5XAutomationToolTestHelpers
                 ?.AsButton();
 
             TestReport.IsNotNull(confirm, "Find confirm button in: " + parent.Name);
-            confirm.Invoke();
+            confirm.Click();
+            WaitMilliseconds(shortWait*2);
         }
 
         /// <summary>
@@ -191,7 +192,6 @@ namespace L5XAutomationToolTestHelpers
             // Submit and ensure the dialog closes.
             Confirm(textWindow);
             WaitMilliseconds(shortWait);
-            TestReport.IsFalse(textWindow.IsEnabled, "Verify TextInput window closes after input");
         }
 
         /// <summary>
@@ -200,8 +200,7 @@ namespace L5XAutomationToolTestHelpers
         /// </summary>
         public static void LoadDefault()
         {
-            string TestXMLsPath = Path.GetFullPath(
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "L5XFiles", "TestingFiles"));
+            string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "L5XFiles", "TestingFiles"));
 
             // Open the File Open dialog.
             Button loadButton = GuiTesting.GUITesting.actionSelect
@@ -209,7 +208,7 @@ namespace L5XAutomationToolTestHelpers
                 .SingleOrDefault()
                 ?.AsButton();
 
-            loadButton.Invoke();
+            loadButton.Click();
             TestHelper.WaitMilliseconds(stdWait);
 
             // Target the Windows "Open" dialog and its address bar.

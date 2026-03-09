@@ -19,7 +19,13 @@ namespace L5XAutomationTool.Forms
                 throw new EmptyListException("Attempted to initialize dropdown gui with no elements");
             }
             InitializeComponent();
-            DropdownElements.Items.AddRange(names.ToArray());
+
+            if (DropdownElements.Columns.Count == 0)
+            {
+                DropdownElements.Columns.Add("", -2); 
+            }
+
+            DropdownElements.Items.AddRange(names.Select(n => new ListViewItem(n)).ToArray());
             TextBox.Text = text;
             TextBox.MaximumSize = new System.Drawing.Size(int.MaxValue, 25);
             this.AcceptEmptyList = acceptEmptyList;
@@ -38,7 +44,7 @@ namespace L5XAutomationTool.Forms
                 throw new EmptyListException("Closed GUI without selecting item");
             }
             else
-                selected = DropdownElements.SelectedItems?.Cast<string>().ToList();
+                selected = [.. DropdownElements.SelectedItems.Cast<ListViewItem>().Select(i => i.Text)];
         }
 
         private void ExitSelect_Click(object sender, EventArgs e)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace L5XAutomationTool.Forms
+﻿namespace L5XAutomationTool.Forms
 {
     public partial class ActionSelect : Form
     {

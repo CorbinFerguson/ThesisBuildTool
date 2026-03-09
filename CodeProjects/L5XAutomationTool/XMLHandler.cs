@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace L5XAutomationTool
 {
@@ -321,7 +318,7 @@ namespace L5XAutomationTool
         // Loads a premade blank file containing basic structure for the program to build off of
         internal XDocument LoadBasicFile()
         {
-            XDocument doc = XDocument.Load("../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
+            XDocument doc = XDocument.Load("../../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
         }
 
