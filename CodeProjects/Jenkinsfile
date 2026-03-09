@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-				bat 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln /t:Release /p:Platform="Any CPU" --no-restore'
+				bat 'dotnet build ./CodeProjects/L5XAutomationTool/L5XAutomationToolProject.sln /t:"Release" /p:Platform="Any CPU" --no-restore'
             }
         }
         stage('Test') {
