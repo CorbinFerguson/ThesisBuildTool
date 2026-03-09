@@ -1,6 +1,4 @@
 ﻿using L5XAutomationTool.GUIAccessors;
-using System;
-using System.Windows.Forms;
 
 namespace L5XAutomationTool
 {

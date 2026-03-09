@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
+﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace L5XAutomationTool
@@ -20,7 +15,7 @@ namespace L5XAutomationTool
         private readonly IFileSystem _fs;
 
         public static XDocument Doc = new XDocument();
-        private static readonly string outputPath = "../../../L5XFiles/GeneratedFiles/";
+        private static readonly string outputPath = "../../../../L5XFiles/GeneratedFiles/";
         private static string outputName = "GenFile";
 
         public Execute(XMLHandler xml, IMessageService messages, IUserPromptService prompts, IOpenFileService openFile, ISaveFileService saveFile, IValidationService validation, IFileSystem fs)
@@ -232,7 +227,7 @@ namespace L5XAutomationTool
         public void CreateElement()
         {
             // Use template as input file
-            _xml.inputFile = XDocument.Load("../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            _xml.inputFile = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
 
             // Pick element type to import
             List<string> types = _xml.GetElementTypes(_xml.inputFile);

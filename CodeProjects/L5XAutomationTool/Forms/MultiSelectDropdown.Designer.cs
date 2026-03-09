@@ -28,87 +28,87 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ExitSelect = new System.Windows.Forms.Button();
-            this.TextBox = new System.Windows.Forms.TextBox();
-            this.DropdownElements = new System.Windows.Forms.ListBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.SuspendLayout();
+            ExitSelect = new Button();
+            TextBox = new TextBox();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            DropdownElements = new ListView();
+            tableLayoutPanel1.SuspendLayout();
+            SuspendLayout();
             // 
             // ExitSelect
             // 
-            this.ExitSelect.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExitSelect.Location = new System.Drawing.Point(334, 23);
-            this.ExitSelect.Name = "ExitSelect";
-            this.ExitSelect.Size = new System.Drawing.Size(102, 27);
-            this.ExitSelect.TabIndex = 5;
-            this.ExitSelect.Text = "Confirm";
-            this.ExitSelect.UseVisualStyleBackColor = true;
-            this.ExitSelect.Click += new System.EventHandler(this.ExitSelect_Click);
+            ExitSelect.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            ExitSelect.Location = new Point(334, 23);
+            ExitSelect.Name = "ExitSelect";
+            ExitSelect.Size = new Size(102, 27);
+            ExitSelect.TabIndex = 5;
+            ExitSelect.Text = "Confirm";
+            ExitSelect.UseVisualStyleBackColor = true;
+            ExitSelect.Click += ExitSelect_Click;
             // 
             // TextBox
             // 
-            this.TextBox.AccessibleName = "Title";
-            this.TextBox.AccessibleRole = System.Windows.Forms.AccessibleRole.TitleBar;
-            this.TextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.SetColumnSpan(this.TextBox, 2);
-            this.TextBox.Location = new System.Drawing.Point(3, 3);
-            this.TextBox.MaximumSize = new System.Drawing.Size(4, 25);
-            this.TextBox.Name = "TextBox";
-            this.TextBox.ReadOnly = true;
-            this.TextBox.Size = new System.Drawing.Size(4, 25);
-            this.TextBox.TabIndex = 4;
-            // 
-            // DropdownElements
-            // 
-            this.DropdownElements.AccessibleName = "Elements";
-            this.DropdownElements.AccessibleRole = System.Windows.Forms.AccessibleRole.List;
-            this.DropdownElements.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DropdownElements.FormattingEnabled = true;
-            this.DropdownElements.HorizontalScrollbar = true;
-            this.DropdownElements.Location = new System.Drawing.Point(3, 23);
-            this.DropdownElements.Name = "DropdownElements";
-            this.DropdownElements.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.DropdownElements.Size = new System.Drawing.Size(325, 238);
-            this.DropdownElements.Sorted = true;
-            this.DropdownElements.TabIndex = 3;
+            TextBox.AccessibleName = "Title";
+            TextBox.AccessibleRole = AccessibleRole.TitleBar;
+            TextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.SetColumnSpan(TextBox, 2);
+            TextBox.Location = new Point(3, 3);
+            TextBox.MaximumSize = new Size(4, 25);
+            TextBox.Name = "TextBox";
+            TextBox.ReadOnly = true;
+            TextBox.Size = new Size(4, 23);
+            TextBox.TabIndex = 4;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.5F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.5F));
-            this.tableLayoutPanel1.Controls.Add(this.ExitSelect, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.TextBox, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.DropdownElements, 0, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(439, 263);
-            this.tableLayoutPanel1.TabIndex = 6;
+            tableLayoutPanel1.AutoSize = true;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75.5F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 24.5F));
+            tableLayoutPanel1.Controls.Add(ExitSelect, 1, 1);
+            tableLayoutPanel1.Controls.Add(TextBox, 0, 0);
+            tableLayoutPanel1.Controls.Add(DropdownElements, 0, 1);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 0);
+            tableLayoutPanel1.Margin = new Padding(2);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 2;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.Size = new Size(439, 263);
+            tableLayoutPanel1.TabIndex = 6;
+            // 
+            // DropdownElements
+            // 
+            DropdownElements.AccessibleName = "Elements";
+            DropdownElements.AccessibleRole = AccessibleRole.List;
+            DropdownElements.AutoArrange = false;
+            DropdownElements.Dock = DockStyle.Fill;
+            DropdownElements.FullRowSelect = true;
+            DropdownElements.HeaderStyle = ColumnHeaderStyle.None;
+            DropdownElements.LabelWrap = false;
+            DropdownElements.Location = new Point(3, 23);
+            DropdownElements.Name = "DropdownElements";
+            DropdownElements.Size = new Size(325, 237);
+            DropdownElements.TabIndex = 6;
+            DropdownElements.UseCompatibleStateImageBehavior = false;
+            DropdownElements.View = View.Details;
             // 
             // MultiSelectDropdown
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(439, 263);
-            this.Controls.Add(this.tableLayoutPanel1);
-            this.MinimumSize = new System.Drawing.Size(223, 128);
-            this.Name = "MultiSelectDropdown";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "MultiSelectDropdown";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MultiSelectDropdown_FormClosed);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(439, 263);
+            Controls.Add(tableLayoutPanel1);
+            MinimumSize = new Size(223, 128);
+            Name = "MultiSelectDropdown";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "MultiSelectDropdown";
+            FormClosed += MultiSelectDropdown_FormClosed;
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -116,7 +116,7 @@
 
         private System.Windows.Forms.Button ExitSelect;
         private System.Windows.Forms.TextBox TextBox;
-        private System.Windows.Forms.ListBox DropdownElements;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private ListView DropdownElements;
     }
 }
