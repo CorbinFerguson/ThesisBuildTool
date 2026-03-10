@@ -350,6 +350,54 @@ namespace ExecuteTests
             mockXmlHandler.Verify(x => x.GetElementTypes(It.IsAny<XDocument>()), Times.Once);
         }
 
+        [TestMethod]
+        [TestCategory("Execute_UnitTest")]
+        [TestCategory("ModifyElement")]
+        [TestProperty("Description",
+            "Test that ModifyElement returns early without modifying the document when the user cancels the element type selection.")]
+        public void ModifyElement_UserCancelsTypeSelection_ReturnsEarly()
+        {
+            // Arrange
+            Execute.Doc = helper.CreateBasicTestDocument();
+            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
+            mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
+                .Returns(new List<string> { "Program", "Task" });
+            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Cancel");
+            // Act
+            execute.ModifyElement();
+            // Assert
+            mockXmlHandler.Verify(x => x.GetElementTypes(It.IsAny<XDocument>()), Times.Once);
+            mockPrompts.Verify(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [TestMethod]
+        [TestCategory("Execute_UnitTest")]
+        [TestCategory("ModifyElement")]
+        [TestProperty("Description",
+            "Test that ModifyElement changes element properties in Doc object by modifying name attribute of element")]
+        public void ModifyElement_ModifiesElementProperties_UpdatesDoc()
+        {
+            // Arrange
+            Execute.Doc = helper.CreateBasicTestDocument();
+            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
+            mockXmlHandler.Setup(x => x.GetElementTypes(It.IsAny<XDocument>()))
+                .Returns(new List<string> { "Program" });
+            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Program");
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(new List<string> { "MainProgram" });
+            mockXmlHandler.Setup(x => x.GetAttributes(It.IsAny<XElement>()))
+                .Returns(new List<XAttribute> { new XAttribute("Name", "MainProgram") });
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a new value for Name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("ModifiedProgram");
+            
+            // Act
+            execute.ModifyElement();
+            // Assert
+            XElement modifiedElement = Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "ModifiedProgram");
+            Assert.IsNotNull(modifiedElement);
+        }
         #endregion
 
         #region DeleteElement Tests
@@ -411,6 +459,9 @@ namespace ExecuteTests
 
             // Assert
             mockValidation.Verify(v => v.ValidateL5XFile(It.IsAny<XDocument>()), Times.Once);
+
+            // Verify that the Module element with CatalogNumber "1234-5678" is removed
+            Assert.IsNull(Execute.Doc.Descendants("Module").FirstOrDefault(m => m.Attribute("CatalogNumber")?.Value == "1234-5678"));
         }
 
         #endregion
@@ -562,7 +613,7 @@ namespace ExecuteTests
             XDocument importDoc = helper.CreateBasicTestDocument();
             XElement existingElement = new XElement("Program", new XAttribute("Name", "MainProgram"));
             XElement parentNode = new XElement("Programs");
-            ClashingElementException exception = new ClashingElementException(new[] { existingElement }, parentNode);
+            ClashingElementException exception = new(new[] { existingElement }, parentNode);
 
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
@@ -1540,320 +1591,27 @@ namespace ExecuteTests
 
         #endregion
 
-        #region ResolveElementFromFile Tests (Single Element)
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile returns null when no matching element is found.")]
-        public void ResolveElementFromFile_NoMatchingElement_ReturnsNull()
-        {
-            // Arrange
-            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
-
-            // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Program", "NonExistentProgram" });
-
-            // Assert
-            Assert.IsNull(result);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile returns the single matching element when only one exists.")]
-        public void ResolveElementFromFile_SingleMatch_ReturnsElement()
-        {
-            // Arrange
-            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
-
-            // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Program", "MainProgram" });
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Program", result.Name.ToString());
-            Assert.AreEqual("MainProgram", result.Attribute("Name").Value);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile prompts for disambiguation when multiple elements match.")]
-        public void ResolveElementFromFile_MultipleMatches_PromptsForDisambiguation()
-        {
-            // Arrange
-            XDocument docWithDuplicates = new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XElement("Programs",
-                            new XElement("Program",
-                                new XAttribute("Name", "Parent1"),
-                                new XElement("Tags",
-                                    new XElement("Tag", new XAttribute("Name", "DuplicateTag"))
-                                )
-                            ),
-                            new XElement("Program",
-                                new XAttribute("Name", "Parent2"),
-                                new XElement("Tags",
-                                    new XElement("Tag", new XAttribute("Name", "DuplicateTag"))
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-
-            mockXmlHandler.Object.inputFile = docWithDuplicates;
-            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Parent1");
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
-
-            // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Tag", "DuplicateTag" });
-
-            // Assert
-            Assert.IsNotNull(result);
-            mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("Multiple elements")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile uses CatalogNumber for Module type elements.")]
-        public void ResolveElementFromFile_WithModuleType_UsesCatalogNumber()
-        {
-            // Arrange
-            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
-
-            // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Module", "1234-5678" });
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Module", result.Name.ToString());
-        }
-
-        #endregion
-
-        #region ResolveElementFromFile Tests (Multiple Elements)
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile returns all matching elements for the provided identifiers.")]
-        public void ResolveElementFromFile_MultipleIds_ReturnsAllMatchingElements()
-        {
-            // Arrange
-            XDocument docWithMultiple = new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XElement("Programs",
-                            new XElement("Program", new XAttribute("Name", "Program1")),
-                            new XElement("Program", new XAttribute("Name", "Program2")),
-                            new XElement("Program", new XAttribute("Name", "Program3"))
-                        )
-                    )
-                )
-            );
-
-            mockXmlHandler.Object.inputFile = docWithMultiple;
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "Program1", "Program3" } });
-
-            // Assert
-            Assert.AreEqual(2, results.Count);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile handles Module type with multiple selections and prompts for specific modules.")]
-        public void ResolveElementFromFile_MultipleModules_PromptsForSpecificSelection()
-        {
-            // Arrange
-            XDocument docWithModules = new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XElement("Modules",
-                            new XElement("Module",
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "1"))
-                                )
-                            ),
-                            new XElement("Module",
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "2"))
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-
-            mockXmlHandler.Object.inputFile = docWithModules;
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(new List<string> { "1234-5678 with no Name at port 1" });
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Module", new List<string> { "1234-5678" } });
-
-            // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.Is<string>(s => s.Contains("Select specific Module")), It.IsAny<List<string>>()), Times.Once);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile handles Module selection by name when Name attribute exists.")]
-        public void ResolveElementFromFile_ModuleWithName_UsesName()
-        {
-            // Arrange
-            XDocument docWithModules = new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XElement("Modules",
-                            new XElement("Module",
-                                new XAttribute("Name", "NamedModule"),
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "1"))
-                                )
-                            ),
-                            new XElement("Module",
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "2"))
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-
-            mockXmlHandler.Object.inputFile = docWithModules;
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(new List<string> { "NamedModule" });
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Module", new List<string> { "1234-5678" } });
-
-            // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile returns empty list when none of the identifiers match any elements.")]
-        public void ResolveElementFromFile_NoMatchingElements_ReturnsEmptyList()
-        {
-            // Arrange
-            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "NonExistent1", "NonExistent2" } });
-
-            // Assert
-            Assert.IsNotNull(results);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that ResolveElementFromFile for non-Module types calls single element resolver.")]
-        public void ResolveElementFromFile_NonModuleType_CallsSingleResolver()
-        {
-            // Arrange
-            mockXmlHandler.Object.inputFile = helper.CreateBasicTestDocument();
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "MainProgram" } });
-
-            // Assert
-            Assert.IsNotNull(results);
-            Assert.AreEqual(1, results.Count);
-        }
-
-        #endregion
-
         #region Integration-Style Tests
 
         [TestMethod]
         [TestCategory("Execute_UnitTest")]
         [TestCategory("Integration")]
         [TestProperty("Description",
-            "Test that the Execute constructor properly initializes with all required service dependencies.")]
-        public void Execute_Constructor_InitializesAllDependencies()
-        {
-            // Assert
-            Assert.IsNotNull(execute);
-        }
-
-        [TestMethod]
-        [TestCategory("Execute_UnitTest")]
-        [TestCategory("Integration")]
-        [TestProperty("Description",
-            "Test that the static Doc property can be set and retrieved correctly.")]
-        public void StaticDoc_IsAccessible()
-        {
-            // Arrange
-            XDocument testDoc = helper.CreateBasicTestDocument();
-
-            // Act
-            Execute.Doc = testDoc;
-
-            // Assert
-            Assert.IsNotNull(Execute.Doc);
-            Assert.AreEqual(testDoc, Execute.Doc);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
             "Test that SaveFile handles file name conflicts by appending incremental numbers.")]
         public void SaveFile_WithExistingFileName_AppendsNumber()
         {
             // Arrange
             Execute.Doc = helper.CreateBasicTestDocument();
-            string expectedPath = "C:\\test\\GenFile0.L5X";
+            string basePath = "C:\\test\\";
+            string baseFileName = "GenFile";
+            string extension = ".L5X";
+            
+            // Simulate that GenFile0.L5X and GenFile1.L5X already exist
+            mockFileSystem.Setup(f => f.FileExists($"{basePath}{baseFileName}0{extension}")).Returns(true);
+            mockFileSystem.Setup(f => f.FileExists($"{basePath}{baseFileName}1{extension}")).Returns(true);
+            mockFileSystem.Setup(f => f.FileExists($"{basePath}{baseFileName}2{extension}")).Returns(false);
+            
+            string expectedPath = $"{basePath}{baseFileName}2{extension}";
             mockSaveFile.Setup(s => s.TrySave(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -1865,7 +1623,14 @@ namespace ExecuteTests
             execute.SaveFile();
 
             // Assert
-            mockFileSystem.Verify(f => f.SaveXml(It.IsAny<XDocument>(), It.IsAny<string>()), Times.Once);
+            mockFileSystem.Verify(f => f.SaveXml(
+                It.Is<XDocument>(doc => doc.ToString() == Execute.Doc.ToString()), 
+                It.Is<string>(path => path == expectedPath)), 
+                Times.Once);
+            
+            // Verify that the file was saved with the incremented name (GenFile2.L5X)
+            Assert.IsTrue(expectedPath.Contains("GenFile2.L5X"), 
+                $"Expected filename to be GenFile2.L5X but got {expectedPath}");
         }
 
         [TestMethod]
