@@ -460,6 +460,271 @@ namespace XMLHandlerTests
                 Assert.Inconclusive("Schema validation prevented module insertion");
             }
         }
-        #endregion
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that GetValidator returns the validation service instance used by the XMLHandler.")]
+        public void GetValidator_ReturnsValidationService()
+        {
+            // Act
+            IValidationService result = xmlHandler.GetValidator();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(mockValidator.Object, result);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that the Ns property contains the correct XML Schema namespace URI.")]
+        public void Namespace_IsCorrect()
+        {
+            // Assert
+            Assert.AreEqual(@"http://www.w3.org/2001/XMLSchema", xmlHandler.Ns.NamespaceName);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that the ElementInfo property is properly initialized when the XMLHandler is constructed.")]
+        public void ElementInfo_IsInitialized()
+        {
+            // Assert
+            Assert.IsNotNull(xmlHandler.ElementInfo);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+    "Test that CheckForDependencies handles elements with no dependencies gracefully.")]
+        public void CheckForDependencies_NoDependencies_HandlesGracefully()
+        {
+            // Arrange
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XElement element = new XElement("Program", new XAttribute("Name", "MainProgram"));
+
+            // Act
+            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Descendants("Program").Count());
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that CheckForDependencies detects and handles circular dependencies to avoid infinite loops.")]
+        public void CheckForDependencies_CircularDependencies_HandlesGracefully()
+        {
+            // Arrange
+            xmlHandler.inputFile = new XDocument(
+                new XElement("RSLogix5000Content",
+                    new XElement("Program", new XAttribute("Name", "MainProgram"),
+                        new XElement("Dependencies",
+                            new XElement("Dependency", new XAttribute("Name", "CustomType"), new XAttribute("Type", "Datatype"))
+                        )
+                    ),
+                    new XElement("Datatype", new XAttribute("Name", "CustomType"),
+                        new XElement("Dependencies",
+                            new XElement("Dependency", new XAttribute("Name", "MainProgram"), new XAttribute("Type", "Program"))
+                        )
+                    )
+                )
+            );
+
+            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XElement element = xmlHandler.inputFile.Descendants("Program").First();
+
+            // Act
+            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Descendants("Program").Count());
+            Assert.AreEqual(1, result.Descendants("Datatype").Count());
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that CheckForDependencies skips invalid ParentModule references.")]
+        public void CheckForDependencies_InvalidParentModule_SkipsGracefully()
+        {
+            // Arrange
+            xmlHandler.inputFile = new XDocument(
+                new XElement("RSLogix5000Content",
+                    new XElement("LocalTag", new XAttribute("Name", "TestTag"))
+                )
+            );
+
+            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XElement element = new XElement("LocalTag",
+                new XAttribute("Name", "TestTag"),
+                new XAttribute("ParentModule", "NonExistentModule")
+            );
+
+            // Act
+            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Descendants("Module").Count());
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that FindPathtoRootSchema throws an exception when the element is not found in the schema.")]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void FindPathtoRootSchema_ElementNotInSchema_ThrowsException()
+        {
+            // Arrange
+            XElement element = new XElement("NonExistentElement");
+
+            // Act
+            xmlHandler.FindPathtoRootSchema(element);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that FindPathtoRootSchema handles schemas with no root element gracefully.")]
+        [ExpectedException(typeof(EmptyListException))]
+        public void FindPathtoRootSchema_NoRootElement_ThrowsException()
+        {
+            // Arrange
+            mockValidator.Setup(v => v.GetSchema()).Returns(new XDocument());
+
+            XElement element = new XElement("Program", new XAttribute("Name", "TestProgram"));
+
+            // Act
+            xmlHandler.FindPathtoRootSchema(element);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that InsertElement throws a ParentMissingException when required attributes are missing.")]
+        [ExpectedException(typeof(ParentMissingException))]
+        public void InsertElement_MissingRequiredAttributes_ThrowsException()
+        {
+            // Arrange
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
+            XElement program = new XElement("Program");
+
+            // Act
+            xmlHandler.InsertElement(doc, program);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that InsertElement handles optional attributes correctly.")]
+        public void InsertElement_OptionalAttributes_HandlesCorrectly()
+        {
+            // Arrange
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
+            XElement program = new XElement("Program", new XAttribute("Name", "NewProgram"), new XAttribute("OptionalAttr", "OptionalValue"));
+
+            // Act
+            XDocument result = xmlHandler.InsertElement(doc, program);
+
+            // Assert
+            Assert.IsNotNull(result);
+            XElement insertedProgram = result.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "NewProgram");
+            Assert.IsNotNull(insertedProgram);
+            Assert.AreEqual("OptionalValue", insertedProgram.Attribute("OptionalAttr")?.Value);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that InsertElement handles bulk insertion with mixed valid and invalid elements.")]
+        public void InsertElement_BulkInsertion_MixedValidity()
+        {
+            // Arrange
+            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            XDocument doc = helper.CreateBasicTestDocument();
+            List<XElement> elements = new List<XElement>
+            {
+                new XElement("Program", new XAttribute("Name", "ValidProgram")),
+                new XElement("Program") // Missing required attributes
+            };
+
+            // Act
+            try
+            {
+                XDocument result = xmlHandler.InsertElement(doc, elements);
+                Assert.Fail("Expected an exception for invalid elements.");
+            }
+            catch (ParentMissingException)
+            {
+                // Expected exception for invalid elements
+                Assert.IsTrue(true);
+            }
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that GetSimpleElements returns an empty list when the schema contains no elements.")]
+        public void GetSimpleElements_NoElements_ReturnsEmptyList()
+        {
+            // Arrange
+            mockValidator.Setup(v => v.GetSchema()).Returns(new XDocument());
+
+            // Act
+            List<string> elements = xmlHandler.GetSimpleElements();
+
+            // Assert
+            Assert.IsNotNull(elements);
+            Assert.AreEqual(0, elements.Count);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that GetAttributes returns an empty list when the element has no attributes.")]
+        public void GetAttributes_NoAttributes_ReturnsEmptyList()
+        {
+            // Arrange
+            XElement element = new XElement("Program");
+
+            // Act
+            List<XAttribute> attributes = xmlHandler.GetAttributes(element);
+
+            // Assert
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(0, attributes.Count);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that LoadBasicFile throws a FileNotFoundException when the template file is missing.")]
+        [ExpectedException(typeof(System.IO.FileNotFoundException))]
+        public void LoadBasicFile_FileNotFound_ThrowsException()
+        {
+            // Arrange
+            // Ensure the file path is invalid
+            xmlHandler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
+
+            // Act
+            xmlHandler.LoadBasicFile();
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that GetElementTypes excludes unsupported element types from the result.")]
+        public void GetElementTypes_ExcludesUnsupportedTypes()
+        {
+            // Arrange
+            XDocument doc = new XDocument(
+                new XElement("RSLogix5000Content",
+                    new XElement("UnsupportedType", new XAttribute("Name", "Unsupported")),
+                    new XElement("Program", new XAttribute("Name", "Supported"))
+                )
+            );
+
+            // Act
+            List<string> types = xmlHandler.GetElementTypes(doc);
+
+            // Assert
+            Assert.IsNotNull(types);
+            Assert.IsTrue(types.Contains("Program"));
+            Assert.IsFalse(types.Contains("UnsupportedType"));
+        }
     }
 }
