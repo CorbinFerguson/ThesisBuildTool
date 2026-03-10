@@ -82,12 +82,12 @@ namespace GuiTesting
 
             TestReport.Section("Verify that all buttons are there");
             // Collect button names for comparison
-            List<string> buttonNames = buttons.Select(but => but.Name).ToList();
+            List<string> buttonNames = [.. buttons.Select(but => but.Name)];
 
-            TestReport.IsTrue(buttonNames.Any(), "Collect button names");
+            TestReport.IsTrue(buttonNames.Count != 0, "Collect button names");
 
             // List of expected button names
-            List<string> expectedButtons = new List<string>() { "ImportElementButton", "CreateElementButton", "ModifyElementButton", "DeleteElementButton", "NewFileButton", "LoadFileButton", "ValidateFileButton", "SaveFileButton", "ExitActionSelect", "Minimize", "Maximize", "Close" };
+            List<string> expectedButtons = ["ImportElementButton", "CreateElementButton", "ModifyElementButton", "DeleteElementButton", "NewFileButton", "LoadFileButton", "ValidateFileButton", "SaveFileButton", "ExitActionSelect", "Minimize", "Maximize", "Close"];
 
             // Check that the number of buttons matches expectation
             TestReport.IsTrue(expectedButtons.Count == buttonNames.Count, "Expected quantity of buttons");
@@ -116,7 +116,7 @@ namespace GuiTesting
         public void ActionSelectLoseControl()
         {
             // List of buttons that should not be tested for control loss
-            List<string> prohibNames = new List<string>() { "ExitActionSelect", "Minimize", "Maximize", "Close" };
+            List<string> prohibNames = ["ExitActionSelect", "Minimize", "Maximize", "Close"];
             // Get all main menu buttons except prohibited ones
             IEnumerable<AutomationElement> mainMenuButtons = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Button)).Where(but => !prohibNames.Contains(but.Name));
 
@@ -573,7 +573,7 @@ namespace GuiTesting
 
             // Select templates to delete
             Window deleteElems = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
-            AutomationElement[] delElems = deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI")))).ToArray();
+            AutomationElement[] delElems = [.. deleteElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI"))))];
             TestReport.IsTrue(delElems.Length == 2, "Select two elements to delete");
 
             // Select both elements for deletion using shift
@@ -797,7 +797,7 @@ namespace GuiTesting
             Window attrmod = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             AutomationElement[] attrs = attrmod.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Name").Or(win.ByName("CreatedBy"))));
             TestReport.IsTrue(attrs?.Length == 2, "Attributes in dropdown not found. Found: " + string.Join(", ", attrs.Select(a => a.Name)));
-            
+
             using (Keyboard.Pressing(VirtualKeyShort.CONTROL))
             {
                 foreach (AutomationElement templateAttribute in attrs)
@@ -921,7 +921,7 @@ namespace GuiTesting
             ListBox listBox = elementSelect.FindAllDescendants(cf => cf.ByControlType(ControlType.List)).FirstOrDefault()?.AsListBox();
             TestReport.IsNotNull(listBox, "Find the list box containing selectable elements");
             IEnumerable<string> selectedItems = listBox.SelectedItems.Select(i => i.Name);
-            ListBoxItem[] expectedItems = { aoi, element };
+            ListBoxItem[] expectedItems = [aoi, element];
             string[] expected = [.. expectedItems.Select(i => i.Name)];
             Array.Sort(expected);
             TestReport.IsTrue(selectedItems.SequenceEqual<string>(expected), "Verify both template elements are selected");

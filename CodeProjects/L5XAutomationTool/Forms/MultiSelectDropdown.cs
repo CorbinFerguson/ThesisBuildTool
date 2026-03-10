@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-
-namespace L5XAutomationTool.Forms
+﻿namespace L5XAutomationTool.Forms
 {
     public partial class MultiSelectDropdown : Form
     {
@@ -22,7 +17,7 @@ namespace L5XAutomationTool.Forms
 
             if (DropdownElements.Columns.Count == 0)
             {
-                DropdownElements.Columns.Add("", -2); 
+                DropdownElements.Columns.Add("", -2);
             }
 
             DropdownElements.Items.AddRange(names.Select(n => new ListViewItem(n)).ToArray());

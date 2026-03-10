@@ -154,7 +154,7 @@ namespace L5XAutomationToolTestHelpers
 
             TestReport.IsNotNull(confirm, "Find confirm button in: " + parent.Name);
             confirm.Click();
-            WaitMilliseconds(shortWait*2);
+            WaitMilliseconds(shortWait * 2);
         }
 
         /// <summary>
