@@ -84,7 +84,7 @@ namespace L5XAutomationTool.GUIAccessors
 
         public List<string> SelectMany(string prompt, List<string> options, bool acceptEmpty)
         {
-            var dlg = new MultiSelectDropdown(options.ToList(), prompt, acceptEmpty);
+            var dlg = new MultiSelectDropdown([.. options], prompt, acceptEmpty);
             dlg.ShowDialog(OwnerForm, out List<string> selected);
             return selected;
         }
