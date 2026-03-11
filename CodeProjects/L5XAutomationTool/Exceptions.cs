@@ -2,11 +2,8 @@
 
 namespace L5XAutomationTool
 {
-    public class EmptyListException : Exception
+    public class EmptyListException(string message) : Exception(message)
     {
-        // Constructor that takes a message
-        public EmptyListException(string message) : base(message) { }
-
     }
 
     public class AbortedElementException : Exception
@@ -14,49 +11,28 @@ namespace L5XAutomationTool
         public AbortedElementException() { }
     }
 
-    public class ClashingElementException : Exception
+    public class ClashingElementException(IEnumerable<XElement> clashingElem, XElement parent) : Exception
     {
-        public IEnumerable<XElement> clashingElements;
-        public XElement parentNode;
-        public ClashingElementException(IEnumerable<XElement> clashingElem, XElement parent)
-        {
-            clashingElements = clashingElem;
-            parentNode = parent;
-        }
+        public IEnumerable<XElement> clashingElements = clashingElem;
+        public XElement parentNode = parent;
     }
 
-    public class ClashingParentException : Exception
+    public class ClashingParentException(IEnumerable<XElement> clashingElem, IEnumerable<XElement> clashingPar = null) : Exception
     {
-        public IEnumerable<XElement> clashingElements;
-        public IEnumerable<XElement> clashingParents;
-        public ClashingParentException(IEnumerable<XElement> clashingElem, IEnumerable<XElement> clashingPar = null)
-        {
-            clashingElements = clashingElem;
-            clashingParents = clashingPar;
-        }
+        public IEnumerable<XElement> clashingElements = clashingElem;
+        public IEnumerable<XElement> clashingParents = clashingPar;
     }
 
-    public class AmbiguousSchemaPathException : Exception
+    public class AmbiguousSchemaPathException(string elementType, List<string> candidateParentNames) : Exception("Ambiguous schema path for element type '" + elementType + "'. " + "Caller must choose one of the candidate parents.")
     {
-        public readonly string ElementType;
-        public readonly List<string> CandidateParentNames;
-
-        public AmbiguousSchemaPathException(string elementType, List<string> candidateParentNames) : base("Ambiguous schema path for element type '" + elementType + "'. " + "Caller must choose one of the candidate parents.")
-        {
-            ElementType = elementType;
-            CandidateParentNames = candidateParentNames ?? new List<string>();
-        }
+        public readonly string ElementType = elementType;
+        public readonly List<string> CandidateParentNames = candidateParentNames ?? new List<string>();
     }
 
-    public class ParentMissingException : Exception
+    public class ParentMissingException(XElement parentNode, IEnumerable<XElement> missingAttributes) : Exception
     {
-        public XElement parentNode;
-        public IEnumerable<XElement> missingSchemaAttributes;
-        public ParentMissingException(XElement parentNode, IEnumerable<XElement> missingAttributes)
-        {
-            this.parentNode = parentNode;
-            missingSchemaAttributes = missingAttributes;
-        }
+        public XElement parentNode = parentNode;
+        public IEnumerable<XElement> missingSchemaAttributes = missingAttributes;
     }
 
 }

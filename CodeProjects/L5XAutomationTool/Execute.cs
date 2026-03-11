@@ -94,7 +94,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> elements = ResolveElementFromFile(typeSelected, namesSelected);
             foreach (XElement element in elements)
             {
-                List<XAttribute> attrToSet = _xml.GetAttributes(element);
+                List<XAttribute> attrToSet = _xml.GetAllAttributes(element);
                 SetAttributes(element, attrToSet);
             }
 

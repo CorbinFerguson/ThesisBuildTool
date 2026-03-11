@@ -13,8 +13,7 @@
 <Port Id="1" Address="1" Type="ICP" Upstream="true"/>
 </Ports>
 </Module>
-<Module Use="Target" CatalogNumber="1756-IA16" Vendor="1" ProductType="7" ProductCode="9" Major="3" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false"
->
+<Module Use="Target" CatalogNumber="1756-IA16" Vendor="1" ProductType="7" ProductCode="9" Major="3" Minor="1" ParentModule="Local" ParentModPortId="1" Inhibited="false" MajorFault="false">
 <EKey State="CompatibleModule"/>
 <Ports>
 <Port Id="1" Address="0" Type="ICP" Upstream="true"/>
@@ -200,8 +199,7 @@
 <Tags/>
 <Routines/>
 </Program>
-<Program Name="TemplateEquipmentPhase" Type="EquipmentPhase" TestEdits="false" Disabled="false" InitialStepIndex="0" InitialState="Idle" CompleteStateIfNotImpl="StateComplete" LossOfCommCmd="None" ExternalRequestAction="None" UseAsFolder="false" AutoValueAssignStepToPhase="true"
- AutoValueAssignPhaseToStepOnComplete="true" AutoValueAssignPhaseToStepOnStopped="true" AutoValueAssignPhaseToStepOnAborted="true">
+<Program Name="TemplateEquipmentPhase" Type="EquipmentPhase" TestEdits="false" Disabled="false" InitialStepIndex="0" InitialState="Idle" CompleteStateIfNotImpl="StateComplete" LossOfCommCmd="None" ExternalRequestAction="None" UseAsFolder="false" AutoValueAssignStepToPhase="true" AutoValueAssignPhaseToStepOnComplete="true" AutoValueAssignPhaseToStepOnStopped="true" AutoValueAssignPhaseToStepOnAborted="true">
 <Tags/>
 <Routines/>
 </Program>

@@ -44,66 +44,16 @@ namespace L5XAutomationToolTestHelpers
         /// Builds a minimal XSD schema representing a small subset of an L5X structure.
         /// Used by validation tests that require a schema without depending on external files.
         /// </summary>
-        public XDocument CreateTestSchema()
+        public static XDocument CreateTestSchema()
         {
-            return new XDocument(
-                new XElement(ns + "schema",
-                    new XElement(ns + "element",
-                        new XAttribute("name", "RSLogix5000Content"),
-                        new XAttribute("type", "RSLogix5000ContentType")),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "RSLogix5000ContentType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Controller"),
-                                new XAttribute("type", "ControllerType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ControllerType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Programs"),
-                                new XAttribute("type", "ProgramsType")),
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Tasks"),
-                                new XAttribute("type", "TasksType"))),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ProgramsType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Program"),
-                                new XAttribute("type", "ProgramType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "ProgramType"),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "TasksType"),
-                        new XElement(ns + "sequence",
-                            new XElement(ns + "element",
-                                new XAttribute("name", "Task"),
-                                new XAttribute("type", "TaskType")))),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "TaskType"),
-                        new XElement(ns + "attribute",
-                            new XAttribute("name", "Name"),
-                            new XAttribute("use", "required"))),
-                    new XElement(ns + "element",
-                        new XAttribute("name", "Datatype"),
-                        new XAttribute("type", "DatatypeType")),
-                    new XElement(ns + "complexType",
-                        new XAttribute("name", "DatatypeType"))
-                )
-            );
+            string schemaPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../../RSLogix5000_V35.xsd"));
+            return XDocument.Load(schemaPath);
         }
 
         /// <summary>
         /// Creates a compact, valid L5X document for smoke tests that need a baseline file.
         /// </summary>
-        public XDocument CreateBasicTestDocument()
+        public static XDocument CreateBasicTestDocument()
         {
             return new XDocument(
                 new XElement("RSLogix5000Content",

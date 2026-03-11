@@ -205,14 +205,14 @@ namespace L5XAutomationTool
         /// <summary>
         /// Inserts an element into the specified document, including its dependencies.
         /// </summary>
-        /// <param name="inDoc">The document to insert the element into.</param>
+        /// <param name="docToInsert">The document to insert the element into.</param>
         /// <param name="insertEl">The element to insert.</param>
         /// <returns>The updated document with the element inserted.</returns>
         /// <exception cref="ClashingElementException">Thrown when the element already exists in the document.</exception>
-        internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
+        internal XDocument InsertElement(XDocument docToInsert, XElement insertEl)
         {
             XElement element = new(insertEl);
-            inDoc = CheckForDependencies(inDoc, element);
+            docToInsert = CheckForDependencies(docToInsert, element);
             if ((ElementInfo.RootPath?.Count ?? 0) <= 1)
                 ElementInfo.RootPath = FindPathtoRootSchema(element);
 
@@ -229,7 +229,7 @@ namespace L5XAutomationTool
             }
 
             // Check that the parent node exists in the document using the schema
-            while (!inDoc.Descendants(parentType).Any())
+            while (!docToInsert.Descendants(parentType).Any())
             {
                 element = new XElement(parentType, element);
 
@@ -264,7 +264,7 @@ namespace L5XAutomationTool
 
             XElement parentNode = null;
             string grandparentType = ElementInfo.RootPath.First.Value;
-            IEnumerable<XElement> grandParentNodes = inDoc.Descendants(grandparentType);
+            IEnumerable<XElement> grandParentNodes = docToInsert.Descendants(grandparentType);
             if (grandParentNodes.Count() == 1)
             {
                 // If there is only one valid grandparent, then use that
@@ -288,7 +288,7 @@ namespace L5XAutomationTool
             else
             {
                 parentNode = new XElement(parentType, element);
-                return InsertElement(inDoc, parentNode);
+                return InsertElement(docToInsert, parentNode);
             }
 
             // Check that the element being added doesn't already exist
@@ -321,7 +321,7 @@ namespace L5XAutomationTool
                 parentNode.Add(element);
             }
 
-            return inDoc;
+            return docToInsert;
         }
 
         /// <summary>
@@ -352,11 +352,11 @@ namespace L5XAutomationTool
         }
 
         /// <summary>
-        /// Retrieves all attributes for the specified XML element.
+        /// Retrieves all possible attributes for the specified XML element from the schema.
         /// </summary>
         /// <param name="element">The element to retrieve attributes for.</param>
         /// <returns>A list of attributes for the element.</returns>
-        internal List<XAttribute> GetAttributes(XElement element)
+        internal List<XAttribute> GetAllAttributes(XElement element)
         {
             XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
             XElement elementAttr = GetValidator().GetSchema().Descendants(Ns + "complexType").Single(i => i.Attribute("name")?.Value.ToString().Equals(basicSchemaElement.Attribute("type").Value.ToString()) ?? false);
@@ -364,7 +364,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
             List<XAttribute> attributesTochange = [];
 
-            // Iterate through each attribute and add it to the list
+            // Iterate through each attribute and add it to the list with 
             foreach (XElement attribute in attributesEl)
             {
                 string attributeValue = "";
@@ -388,7 +388,7 @@ namespace L5XAutomationTool
         {
             List<List<XAttribute>> allAttr = [];
             foreach (XElement el in elements)
-                allAttr.Add(GetAttributes(el));
+                allAttr.Add(GetAllAttributes(el));
             return allAttr;
         }
 

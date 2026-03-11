@@ -30,7 +30,7 @@ namespace XMLHandlerTests
             helper = new TestHelper();
 
             // Create a basic test schema
-            testSchema = helper.CreateTestSchema();
+            testSchema = TestHelper.CreateTestSchema();
             mockValidator.Setup(v => v.GetSchema()).Returns(testSchema);
 
             xmlHandler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
@@ -47,14 +47,14 @@ namespace XMLHandlerTests
         public void GetSimpleElements_ReturnsListOfElements_ExcludingCustomProperties()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
 
             // Act
             List<string> elements = xmlHandler.GetSimpleElements();
 
             // Assert
             Assert.IsNotNull(elements);
-            Assert.IsFalse(elements.Contains("CustomProperties"));
+            Assert.DoesNotContain("CustomProperties", elements);
         }
 
         [TestMethod]
@@ -77,6 +77,7 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(types);
+            Assert.HasCount(3, types, "The list should contain exactly 3 types.");
             Assert.Contains("Program", types);
             Assert.Contains("Task", types);
             Assert.Contains("Datatype", types);
@@ -108,18 +109,18 @@ namespace XMLHandlerTests
             // Arrange
             xmlHandler.inputFile = new(
                 new XElement("RSLogix5000Content",
-                    new XElement("Program", new XAttribute("Name", "MainProgram")),
+                    new XElement("AddOnInstructionDefinition", new XAttribute("Name", "MainAOI")),
                     new XElement("Datatype", new XAttribute("Name", "CustomType"))
                 )
             );
 
-            XDocument docToInsert = helper.CreateBasicTestDocument();
-            XElement element = new("Program",
-                new XAttribute("Name", "MainProgram"),
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
+            XElement element = new("AddOnInstructionDefinition",
+                new XAttribute("Name", "MainAOI"),
                 new XElement("Dependencies",
                     new XElement("Dependency",
-                        new XAttribute("Name", "CustomType"),
-                        new XAttribute("Type", "Datatype")
+                        new XAttribute("Type", "Datatype"),
+                        new XAttribute("Name", "CustomType")
                     )
                 )
             );
@@ -129,6 +130,7 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Descendants("Datatype").Count(), "The dependent Datatype element was not added to the document.");
         }
 
         [TestMethod]
@@ -182,7 +184,7 @@ namespace XMLHandlerTests
                 )
             );
 
-            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
             XElement element = new("LocalTag",
                 new XAttribute("Name", "TestTag"),
                 new XAttribute("ParentModule", "ParentModule")
@@ -202,19 +204,46 @@ namespace XMLHandlerTests
         public void CheckForDependencies_WithList_ProcessesAllElements()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
-            XDocument docToInsert = helper.CreateBasicTestDocument();
-            List<XElement> elements = new()
-            {
-                new("Program", new XAttribute("Name", "Program1")),
-                new("Task", new XAttribute("Name", "Task1"))
-            };
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument docToInsert = new(
+                new XElement("RSLogix5000Content",
+                    new XElement("Datatype", new XAttribute("Name", "Dependency1")),
+                    new XElement("Datatype", new XAttribute("Name", "Dependency2")),
+                    new XElement("Program", new XAttribute("Name", "Program1"),
+                        new XElement("Dependencies",
+                            new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency1")))),
+                    new XElement("Task", new XAttribute("Name", "Task1"),
+                        new XElement("Dependencies",
+                            new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency2")))))
+            );
+
+            List<XElement> elements =
+            [
+                new XElement("Program", new XAttribute("Name", "Program1"),
+                    new XElement("Dependencies",
+                        new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency1"))
+                    )
+                ),
+                new XElement("Task", new XAttribute("Name", "Task1"),
+                    new XElement("Dependencies",
+                        new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency2"))
+                    )
+                )
+            ];
 
             // Act
             XDocument result = xmlHandler.CheckForDependencies(docToInsert, elements);
 
             // Assert
             Assert.IsNotNull(result);
+            Assert.ContainsSingle(p => p.Attribute("Name")?.Value == "Program1",
+                result.Descendants("Program"), "The Program element with the correct name was not added to the document.");
+            Assert.ContainsSingle(t => t.Attribute("Name")?.Value == "Task1",
+                result.Descendants("Task"), "The Task element with the correct name was not added to the document.");
+            Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency1",
+                result.Descendants("Datatype"), "The Dependency1 element was not added to the document.");
+            Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency2",
+                result.Descendants("Datatype"), "The Dependency2 element was not added to the document.");
         }
 
         [TestMethod]
@@ -230,8 +259,8 @@ namespace XMLHandlerTests
                 )
             );
 
-            XDocument docToInsert = helper.CreateBasicTestDocument();
-            XElement taskElement = new XElement("Task",
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
+            XElement taskElement = new("Task",
                 new XAttribute("Name", "MainTask"),
                 new XElement("ScheduledProgram", new XAttribute("Name", "ScheduledProg"))
             );
@@ -241,6 +270,9 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Descendants("ScheduledProgram")
+                                      .Count(sp => sp.Attribute("Name")?.Value == "ScheduledProg"),
+                            "The ScheduledProgram element with the correct reference was not added to the document.");
         }
 
         [TestMethod]
@@ -264,7 +296,7 @@ namespace XMLHandlerTests
                 )
             );
 
-            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
             XElement element = xmlHandler.inputFile.Descendants("Program").First();
 
             // Act
@@ -282,9 +314,9 @@ namespace XMLHandlerTests
         public void CheckForDependencies_NoDependencies_HandlesGracefully()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
-            XDocument docToInsert = helper.CreateBasicTestDocument();
-            XElement element = new XElement("Program", new XAttribute("Name", "MainProgram"));
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
+            XElement element = new("Program", new XAttribute("Name", "MainProgram"));
 
             // Act
             XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
@@ -306,7 +338,7 @@ namespace XMLHandlerTests
                 )
             );
 
-            XDocument docToInsert = helper.CreateBasicTestDocument();
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
             XElement element = new XElement("LocalTag",
                 new XAttribute("Name", "TestTag"),
                 new XAttribute("ParentModule", "NonExistentModule")
@@ -361,22 +393,6 @@ namespace XMLHandlerTests
         [TestMethod]
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
-            "Test that GetAttributes returns a list of all attributes for a given XML element.")]
-        public void GetAttributes_ReturnsAllAttributes_ForElement()
-        {
-            // Arrange
-            XElement element = new("Program", new XAttribute("Name", "TestProgram"));
-
-            // Act
-            List<XAttribute> attributes = xmlHandler.GetAttributes(element);
-
-            // Assert
-            Assert.IsNotNull(attributes);
-        }
-
-        [TestMethod]
-        [TestCategory("XMLHandler_UnitTest")]
-        [TestProperty("Description",
             "Test that GetAttributes can process multiple elements and return a list of attribute lists, one for each element.")]
         public void GetAttributes_WithMultipleElements_ReturnsListOfAttributeLists()
         {
@@ -392,6 +408,67 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(allAttributes);
+            Assert.HasCount(2, allAttributes, "The number of attribute lists returned is incorrect.");
+
+            Assert.HasCount(38, allAttributes[0], "The number of attributes for the first element is incorrect.");
+
+            Assert.HasCount(17, allAttributes[1], "The number of attributes for the second element is incorrect.");
+            Assert.AreEqual("Name", allAttributes[1][0].Name.LocalName, "The attribute name for the second element is incorrect.");
+        }
+
+        [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
+        [TestProperty("Description",
+            "Test that GetAttributes returns the name of each attribute defined in the schema for a Program element.")]
+        public void GetAttributes_ReturnsAllAttributes_ForElement()
+        {
+            // Arrange
+            XElement programElement = new("Program", new XAttribute("Name", "TestProgram"));
+
+            // Act
+            List<XAttribute> attributes = xmlHandler.GetAllAttributes(programElement);
+
+            // Assert
+            Assert.IsNotNull(attributes);
+            Assert.HasCount(38, attributes, "The number of attributes returned is incorrect.");
+            Assert.Contains(attr => attr.Name == "Name", attributes, "The 'Name' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "UId", attributes, "The 'UId' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "ParentUId", attributes, "The 'ParentUId' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Type", attributes, "The 'Type' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "TestEdits", attributes, "The 'TestEdits' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "MainRoutineName", attributes, "The 'MainRoutineName' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "PreStateRoutineName", attributes, "The 'PreStateRoutineName' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "FaultRoutineName", attributes, "The 'FaultRoutineName' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "ExecutingTaskName", attributes, "The 'ExecutingTaskName' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Verified", attributes, "The 'Verified' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "EditsExist", attributes, "The 'EditsExist' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Disabled", attributes, "The 'Disabled' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "InitialStepIndex", attributes, "The 'InitialStepIndex' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "InitialState", attributes, "The 'InitialState' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "CompleteStateIfNotImpl", attributes, "The 'CompleteStateIfNotImpl' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "LossOfCommCmd", attributes, "The 'LossOfCommCmd' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "ExternalRequestAction", attributes, "The 'ExternalRequestAction' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "EquipmentId", attributes, "The 'EquipmentId' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "RecipePhaseNames", attributes, "The 'RecipePhaseNames' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "LastScanTime", attributes, "The 'LastScanTime' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "MaxScanTime", attributes, "The 'MaxScanTime' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "TagsUId", attributes, "The 'TagsUId' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "RoutinesUId", attributes, "The 'RoutinesUId' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Class", attributes, "The 'Class' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "SynchronizeRedundancyDataAfterExecution", attributes, "The 'SynchronizeRedundancyDataAfterExecution' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "UseAsFolder", attributes, "The 'UseAsFolder' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "AutoValueAssignStepToPhase", attributes, "The 'AutoValueAssignStepToPhase' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "AutoValueAssignPhaseToStepOnComplete", attributes, "The 'AutoValueAssignPhaseToStepOnComplete' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "AutoValueAssignPhaseToStepOnStopped", attributes, "The 'AutoValueAssignPhaseToStepOnStopped' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "AutoValueAssignPhaseToStepOnAborted", attributes, "The 'AutoValueAssignPhaseToStepOnAborted' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Revision", attributes, "The 'Revision' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "RevisionExtension", attributes, "The 'RevisionExtension' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "UnitID", attributes, "The 'UnitID' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "RetainSequenceIDOnReset", attributes, "The 'RetainSequenceIDOnReset' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "GenerateSequenceEvents", attributes, "The 'GenerateSequenceEvents' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "ValuesToUseOnStart", attributes, "The 'ValuesToUseOnStart' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "ValuesToUseOnReset", attributes, "The 'ValuesToUseOnReset' attribute was not found.");
+            Assert.Contains(attr => attr.Name == "Use", attributes, "The 'Use' attribute was not found.");
         }
 
         #endregion
@@ -405,16 +482,8 @@ namespace XMLHandlerTests
         public void LoadBasicFile_ReturnsXDocument()
         {
             // Act & Assert
-            try
-            {
-                XDocument doc = XMLHandler.LoadBasicFile();
-                Assert.IsNotNull(doc);
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                // Expected if template file doesn't exist in test environment
-                Assert.Inconclusive("Template file not found in test environment");
-            }
+            XDocument doc = XMLHandler.LoadBasicFile();
+            Assert.IsNotNull(doc);
         }
 
         [TestMethod]
@@ -424,16 +493,18 @@ namespace XMLHandlerTests
         public void InsertElement_AddsElement_ToDocument()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
-            XDocument doc = helper.CreateBasicTestDocument();
-            XElement program = new XElement("Program", new XAttribute("Name", "NewProgram"));
-            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument doc = TestHelper.CreateBasicTestDocument();
+            XElement program = new("Program", new XAttribute("Name", "NewProgram"));
+            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(["Programs", "Controller"]);
 
             // Act
             XDocument result = xmlHandler.InsertElement(doc, program);
 
             // Assert
-            Assert.IsNotNull(result);
+            Assert.IsNotNull(result, "The resulting document should not be null.");
+            Assert.ContainsSingle(p => p.Attribute("Name")?.Value == "NewProgram",
+                result.Descendants("Program"), "The 'Program' element with the name 'NewProgram' was not added to the document.");
         }
 
         [TestMethod]
@@ -443,8 +514,8 @@ namespace XMLHandlerTests
         public void InsertElement_ThrowsException_WhenElementAlreadyExists()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
-            XDocument doc = new XDocument(
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument doc = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XAttribute("Name", "TestController"),
@@ -455,8 +526,8 @@ namespace XMLHandlerTests
                 )
             );
 
-            XElement program = new XElement("Program", new XAttribute("Name", "ExistingProgram"));
-            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Programs", "Controller" });
+            XElement program = new("Program", new XAttribute("Name", "ExistingProgram"));
+            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(["Programs", "Controller"]);
 
             // Act
             Assert.ThrowsExactly<ClashingElementException>(() => xmlHandler.InsertElement(doc, program));
@@ -469,22 +540,15 @@ namespace XMLHandlerTests
         public void InsertElement_HandlesModules_WithCatalogNumber()
         {
             // Arrange
-            xmlHandler.inputFile = helper.CreateBasicTestDocument();
-            XDocument doc = helper.CreateBasicTestDocument();
-            XElement module = new XElement("Module", new XAttribute("CatalogNumber", "1234-5678"));
-            xmlHandler.ElementInfo.RootPath = new LinkedList<string>(new[] { "Controller" });
+            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument doc = TestHelper.CreateBasicTestDocument();
+            XElement module = new("Module", new XAttribute("CatalogNumber", "1234-5678"));
 
             // Act
-            try
-            {
-                XDocument result = xmlHandler.InsertElement(doc, module);
-                Assert.IsNotNull(result);
-            }
-            catch (Exception)
-            {
-                // Schema-related exceptions are acceptable in unit tests
-                Assert.Inconclusive("Schema validation prevented module insertion");
-            }
+            XDocument result = xmlHandler.InsertElement(doc, module);
+            Assert.IsNotNull(result);
+            Assert.Contains(p => p.Attribute("CatalogNumber")?.Value == "1234-5678",
+                result.Descendants("Module"), "The 'Module' element with the CatalogNumber '1234-5678' was not added to the document.");
         }
         #endregion
     }
