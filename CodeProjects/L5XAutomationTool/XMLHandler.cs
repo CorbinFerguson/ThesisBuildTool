@@ -18,7 +18,6 @@ namespace L5XAutomationTool
             "LocalTag",
             "Module",
             "Task"
-
         ];
 
         public XDocument inputFile;
@@ -31,20 +30,24 @@ namespace L5XAutomationTool
 
         #region Functions
 
-        // Function to check the element for dependent elements contained in docToInsert, and insert them
+        /// <summary>
+        /// Checks the specified element for dependencies and inserts them into the provided document.
+        /// </summary>
+        /// <param name="docToInsert">The document to insert dependencies into.</param>
+        /// <param name="element">The element to check for dependencies.</param>
+        /// <returns>The updated document with dependencies inserted.</returns>
         internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
-            // Check if there are any dependencies in the inserted element
             if (element.Element("Dependencies") != null)
             {
                 List<XElement> dependencies = [.. element.Descendants("Dependencies").Elements()];
                 foreach (XElement dependency in dependencies)
                 {
-                    // Check that element doesnt exist
+                    // Check that the dependent element does not already exist in the document
                     IEnumerable<XElement> clashingElements = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(dependency.Attribute("Name")?.Value) ?? false);
                     if (!clashingElements.Any())
                     {
-                        // If it doesn't, insert dependency into file
+                        // If it doesn't exist, insert the dependency into the document
                         XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
 
                         docToInsert = InsertElement(docToInsert, dependentElement);
@@ -53,7 +56,7 @@ namespace L5XAutomationTool
                 }
             }
 
-            // Check if there is a referenced Parent module(I/O objects) not already in the document and add it
+            // Check if there is a referenced Parent module (I/O objects) not already in the document and add it
             if (!element.Attribute("ParentModule")?.Value.ToString().Equals("Local") ?? false)
             {
                 string parentModule = element.Attribute("ParentModule").Value;
@@ -62,20 +65,20 @@ namespace L5XAutomationTool
                 if (!existingParents.Any())
                 {
                     ElementHelper temp = new(ElementInfo);
-                    // If it doesn't, insert dependency into file
+                    // Insert the parent module into the document
                     docToInsert = InsertElement(docToInsert, moduleParentEl);
                     ElementInfo = temp;
                 }
             }
 
-            // If the element is a task, and it has any scheduled programs, insert them
+            // If the element is a task and it has any scheduled programs, insert them
             if (element.Name.ToString().Equals("Task") && element.Descendants("ScheduledProgram").Any())
             {
-                // Save elementInfo state for task
+                // Save the current state of ElementInfo for the task
                 ElementInfo.BulkProgramParentGen = element.Attribute("Name").Value;
                 ElementHelper unmodified = new(ElementInfo);
 
-                // Insert the programs in the task
+                // Insert the programs scheduled in the task
                 IEnumerable<string> programNames = element.Descendants("ScheduledProgram").Select(i => i.Attribute("Name").Value);
                 List<XElement> programs = [.. inputFile.Descendants("Program")
                     .Where(i => programNames.Contains(i.Attribute("Name").Value.ToString()))
@@ -83,7 +86,7 @@ namespace L5XAutomationTool
                 if (programs.Count != 0)
                     InsertElement(docToInsert, programs);
 
-                // Return to ElementInfo state for task
+                // Restore the previous state of ElementInfo
                 ElementInfo.ResetElements();
                 ElementInfo = unmodified;
             }
@@ -91,47 +94,52 @@ namespace L5XAutomationTool
             return docToInsert;
         }
 
-        // Function to check a list of elements for dependencies
+        /// <summary>
+        /// Checks a list of elements for dependencies and inserts them into the provided document.
+        /// </summary>
+        /// <param name="docToInsert">The document to insert dependencies into.</param>
+        /// <param name="elements">The list of elements to check for dependencies.</param>
+        /// <returns>The updated document with dependencies inserted.</returns>
         internal XDocument CheckForDependencies(XDocument docToInsert, List<XElement> elements)
         {
+            // Iterate through each element and check for dependencies
             foreach (XElement element in elements)
                 docToInsert = CheckForDependencies(docToInsert, element);
             return docToInsert;
         }
 
-        // Function to get a list of the names for the nodes leading from the root(RSLogix5000) to element using the XSD schema document
+        /// <summary>
+        /// Finds the path from the specified element to the root schema element.
+        /// </summary>
+        /// <param name="element">The element to find the path for.</param>
+        /// <returns>A linked list of element names representing the path to the root schema.</returns>
+        /// <exception cref="EmptyListException">Thrown when the path to the root is empty.</exception>
         internal LinkedList<string> FindPathtoRootSchema(XElement element)
         {
             LinkedList<string> paths = new();
-
             string name = element.Name.ToString();
             XElement schemaElement = null;
 
-            // Attempt to find the elements leading from the chosen elements to root
             try
             {
+                // Locate the schema element corresponding to the provided element
                 schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute("name")?.Value.Equals(name) ?? false));
-
-                // Loop until RSLogix5000Content(root of L5X) is found
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
                 {
-                    // Go to parent complex type, find name of that
+                    // Traverse up the schema hierarchy to find the path to the root
                     name = schemaElement.Parent.Parent.Attribute("name").Value;
-
-                    // search for something with that type
                     schemaElement = validator.GetSchema().Descendants().Where(i => i.Name.Equals(Ns + "element")).Single(i => i.Attribute("type")?.Value.Equals(name) ?? false);
-
                     paths.AddLast(schemaElement.Attribute("name").Value);
                 }
                 if (paths.Count == 0)
                     throw new EmptyListException("Empty path to root. Started at RSLogix5000Content");
             }
-            // Catch the error thrown when there is ambiguity in finding the path
+            // Handle ambiguity in the schema path
             catch (InvalidOperationException ex)
             {
                 if (ex.Message.Contains("Sequence contains more than one"))
                 {
-                    // Get the parent options from the schema
+                    // Resolve ambiguity by selecting the appropriate parent type
                     IEnumerable<XElement> ambiguousElements = validator.GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("type")?.Value.Equals(name) ?? false);
                     List<string> parentSchemaType = [.. validator.GetSchema().Descendants()
                         .Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false)
@@ -158,9 +166,8 @@ namespace L5XAutomationTool
                     paths.AddLast(disambiguousParent);
                     paths.AddLast(chosenParentType);
 
-                    // Use the parent of the last element in the queue
+                    // Recursively find the path to the root for the chosen parent type
                     LinkedList<string> grandparentToRoot = FindPathtoRootSchema(new XElement(chosenParentType));
-
                     foreach (string node in grandparentToRoot)
                         paths.AddLast(node);
 
@@ -170,7 +177,10 @@ namespace L5XAutomationTool
             return paths;
         }
 
-        // Gets all the simple elements in the XML Schema
+        /// <summary>
+        /// Retrieves a list of simple element names from the XML schema, excluding "CustomProperties".
+        /// </summary>
+        /// <returns>A list of simple element names.</returns>
         internal List<String> GetSimpleElements()
         {
             IEnumerable<XElement> elements = validator.GetSchema().Descendants(Ns + "element");
@@ -179,15 +189,26 @@ namespace L5XAutomationTool
 
             foreach (XElement element in elements)
             {
+                // Exclude "CustomProperties" from the list of elements
                 if (!element.Attribute("name").Value.Equals("CustomProperties"))
                     elementsInList.Add(element.Attribute("name").Value);
             }
             return elementsInList;
         }
 
+        /// <summary>
+        /// Retrieves the validation service instance.
+        /// </summary>
+        /// <returns>The validation service instance.</returns>
         internal IValidationService GetValidator() { return validator; }
 
-        // Function to insert element into a document. Inserts the element's dependent elements as well
+        /// <summary>
+        /// Inserts an element into the specified document, including its dependencies.
+        /// </summary>
+        /// <param name="inDoc">The document to insert the element into.</param>
+        /// <param name="insertEl">The element to insert.</param>
+        /// <returns>The updated document with the element inserted.</returns>
+        /// <exception cref="ClashingElementException">Thrown when the element already exists in the document.</exception>
         internal XDocument InsertElement(XDocument inDoc, XElement insertEl)
         {
             XElement element = new(insertEl);
@@ -207,7 +228,7 @@ namespace L5XAutomationTool
                     searchFilter = "CatalogNumber";
             }
 
-            // Check that parent node exists in document using the schema
+            // Check that the parent node exists in the document using the schema
             while (!inDoc.Descendants(parentType).Any())
             {
                 element = new XElement(parentType, element);
@@ -227,7 +248,7 @@ namespace L5XAutomationTool
 
                     if (schemaElement.Descendants().Where(i => i.Name.Equals(Ns + "attribute") && i.Attribute("EditedDate") != null).Any())
                     {
-                        //Ensure edit information is up to date
+                        // Ensure edit information is up to date
                         XAttribute editedDate = new("EditedDate", DateTime.Now);
                         element.SetAttributeValue(editedDate.Name, editedDate.Value);
                     }
@@ -236,7 +257,7 @@ namespace L5XAutomationTool
                 }
                 catch (InvalidOperationException)
                 {
-                    // Multiple options for parent element, already handled in findRoot
+                    // Multiple options for parent element, already handled in FindPathtoRootSchema
                     parentType = ElementInfo.GetFirst();
                 }
             }
@@ -289,7 +310,7 @@ namespace L5XAutomationTool
             {
                 parentNode.Add(element.Elements());
             }
-            // if Attributes are different, add the missing attributes to the parent
+            // If attributes are different, add the missing attributes to the parent
             else
             {
                 foreach (XAttribute attribute in parentAttributes)
@@ -303,7 +324,12 @@ namespace L5XAutomationTool
             return inDoc;
         }
 
-        // Function to insert a list of elements
+        /// <summary>
+        /// Inserts a list of elements into the specified document.
+        /// </summary>
+        /// <param name="doc">The document to insert elements into.</param>
+        /// <param name="returnedElement">The list of elements to insert.</param>
+        /// <returns>The updated document with the elements inserted.</returns>
         internal XDocument InsertElement(XDocument doc, List<XElement> returnedElement)
         {
             LinkedList<string> unchangedPath = FindPathtoRootSchema(returnedElement.First());
@@ -315,14 +341,21 @@ namespace L5XAutomationTool
             return doc;
         }
 
-        // Loads a premade blank file containing basic structure for the program to build off of
+        /// <summary>
+        /// Loads a premade blank file containing the basic structure for the program.
+        /// </summary>
+        /// <returns>The loaded blank XML document.</returns>
         internal static XDocument LoadBasicFile()
         {
             XDocument doc = XDocument.Load("../../../../L5XFiles/TemplateFiles/EmptyTemplate.l5X");
             return doc;
         }
 
-        // Non-UI Utilizing function for testing
+        /// <summary>
+        /// Retrieves all attributes for the specified XML element.
+        /// </summary>
+        /// <param name="element">The element to retrieve attributes for.</param>
+        /// <returns>A list of attributes for the element.</returns>
         internal List<XAttribute> GetAttributes(XElement element)
         {
             XElement basicSchemaElement = GetValidator().GetSchema().Descendants(Ns + "element").Where(i => i.Attribute("name")?.Value.ToString().Equals(element.Name.ToString()) ?? false).DescendantsAndSelf().Single();
@@ -331,7 +364,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> attributesEl = elementAttr.Elements(Ns + "attribute");
             List<XAttribute> attributesTochange = [];
 
-            // Foreach subelement/value
+            // Iterate through each attribute and add it to the list
             foreach (XElement attribute in attributesEl)
             {
                 string attributeValue = "";
@@ -346,6 +379,11 @@ namespace L5XAutomationTool
             return attributesTochange;
         }
 
+        /// <summary>
+        /// Retrieves attributes for multiple XML elements.
+        /// </summary>
+        /// <param name="elements">The elements to retrieve attributes for.</param>
+        /// <returns>A list of attribute lists, one for each element.</returns>
         internal List<List<XAttribute>> GetAttributes(IEnumerable<XElement> elements)
         {
             List<List<XAttribute>> allAttr = [];
@@ -354,10 +392,15 @@ namespace L5XAutomationTool
             return allAttr;
         }
 
-        // Function to get all valid types contained in the document
+        /// <summary>
+        /// Retrieves a list of valid element types contained in the specified document.
+        /// </summary>
+        /// <param name="doc">The document to retrieve element types from.</param>
+        /// <returns>A list of valid element types.</returns>
+        /// <exception cref="EmptyListException">Thrown when no valid elements are found.</exception>
         internal List<string> GetElementTypes(XDocument doc)
         {
-            // Select Element Types
+            // Select unique element types from the document
             List<string> uniqueTypes = [.. doc.Descendants().Where(i => acceptedTypes.Contains(i.Name?.ToString())).Select(i => i.Name.ToString()).Distinct()];
 
             if (uniqueTypes.Count == 0)

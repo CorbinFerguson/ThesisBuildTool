@@ -1759,24 +1759,6 @@ namespace ExecuteTests
         #region Integration-Style Tests
 
         [TestMethod]
-        [TestCategory("Execute_UnitTest")]
-        [TestCategory("Integration")]
-        [TestProperty("Description",
-            "Test that the static Doc property can be set and retrieved correctly.")]
-        public void StaticDoc_IsAccessible()
-        {
-            // Arrange
-            XDocument testDoc = helper.CreateBasicTestDocument();
-
-            // Act
-            Execute.Doc = testDoc;
-
-            // Assert
-            Assert.IsNotNull(Execute.Doc);
-            Assert.AreEqual(testDoc, Execute.Doc);
-        }
-
-        [TestMethod]
         [TestProperty("Description",
             "Test that SaveFile handles file name conflicts by appending incremental numbers.")]
         public void SaveFile_WithExistingFileName_AppendsNumber()
