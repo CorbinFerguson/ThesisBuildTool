@@ -35,7 +35,7 @@ namespace L5XAutomationTool
         internal XDocument CheckForDependencies(XDocument docToInsert, XElement element)
         {
             // Check if there are any dependencies in the inserted element
-            if (element.Attribute("Dependencies") != null)
+            if (element.Element("Dependencies") != null)
             {
                 List<XElement> dependencies = [.. element.Descendants("Dependencies").Elements()];
                 foreach (XElement dependency in dependencies)
@@ -48,6 +48,7 @@ namespace L5XAutomationTool
                         XElement dependentElement = inputFile.Descendants(dependency.Attribute("Type").Value).Single(i => i.Attribute("Name").Value.Equals(dependency.Attribute("Name").Value));
 
                         docToInsert = InsertElement(docToInsert, dependentElement);
+                        ElementInfo.RootPath.Clear();
                     }
                 }
             }
