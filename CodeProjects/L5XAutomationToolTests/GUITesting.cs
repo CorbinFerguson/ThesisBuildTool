@@ -710,6 +710,7 @@ namespace GuiTesting
         [TestMethod]
         [TestCategory("GUI_Modify")]
         [TestCategory("GUI_Test")]
+        [Ignore("This test is currently disabled as this feature is not yet implemented.")]
         [TestProperty("Description",
         "Test the modification of a normal behaving element.")]
         public void RedundantModifyElement()

@@ -21,7 +21,7 @@ namespace L5XAutomationTool
 
             var xml = new XMLHandler(validation, disam);
             var app = new Execute(xml, messages, prompts, openFile, saveFile, validation, fs);
-            app.InitializeNew(); // same behavior as your previous startup default
+            Execute.InitializeNew(); // same behavior as your previous startup default
 
             // pass the instance "app" into the form so it can call instance methods.
             Application.Run(new Forms.ActionSelect(app));

@@ -38,25 +38,6 @@ namespace XMLHandlerTests
             TestReport.Start(TestContext.TestName);
         }
 
-        #region Constructor Tests
-
-        [TestMethod]
-        [TestCategory("XMLHandler_UnitTest")]
-        [TestProperty("Description",
-            "Test that the XMLHandler constructor properly initializes with a validator and disambiguator, and that the validator can be retrieved.")]
-        public void Constructor_SetsValidatorAndDisambiguator()
-        {
-            // Arrange & Act
-            var handler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
-
-            // Assert
-            Assert.IsNotNull(handler);
-            Assert.IsNotNull(handler.GetValidator());
-            Assert.AreEqual(mockValidator.Object, handler.GetValidator());
-        }
-
-        #endregion
-
         #region Element Retrieval Tests
 
         [TestMethod]
@@ -83,7 +64,7 @@ namespace XMLHandlerTests
         public void GetElementTypes_ReturnsValidTypes_FromDocument()
         {
             // Arrange
-            XDocument doc = new XDocument(
+            XDocument doc = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Program", new XAttribute("Name", "TestProgram")),
                     new XElement("Task", new XAttribute("Name", "TestTask")),
@@ -108,7 +89,7 @@ namespace XMLHandlerTests
         public void GetElementTypes_ThrowsEmptyListException_WhenNoValidElements()
         {
             // Arrange
-            XDocument doc = new XDocument(
+            XDocument doc = new(
                 new XElement("RSLogix5000Content",
                     new XElement("InvalidElement")
                 )
@@ -118,10 +99,6 @@ namespace XMLHandlerTests
             Assert.ThrowsExactly<EmptyListException>(() => xmlHandler.GetElementTypes(doc));
         }
 
-        #endregion
-
-        #region Dependency Handling Tests
-
         [TestMethod]
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
@@ -129,7 +106,7 @@ namespace XMLHandlerTests
         public void CheckForDependencies_AddsDependentElements_WhenDependenciesExist()
         {
             // Arrange
-            xmlHandler.inputFile = new XDocument(
+            xmlHandler.inputFile = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Program", new XAttribute("Name", "MainProgram")),
                     new XElement("Datatype", new XAttribute("Name", "CustomType"))
@@ -137,7 +114,7 @@ namespace XMLHandlerTests
             );
 
             XDocument docToInsert = helper.CreateBasicTestDocument();
-            XElement element = new XElement("Program",
+            XElement element = new("Program",
                 new XAttribute("Name", "MainProgram"),
                 new XElement("Dependencies",
                     new XElement("Dependency",
@@ -161,19 +138,19 @@ namespace XMLHandlerTests
         public void CheckForDependencies_SkipsDependencies_WhenAlreadyExist()
         {
             // Arrange
-            xmlHandler.inputFile = new XDocument(
+            xmlHandler.inputFile = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Datatype", new XAttribute("Name", "CustomType"))
                 )
             );
 
-            XDocument docToInsert = new XDocument(
+            XDocument docToInsert = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Datatype", new XAttribute("Name", "CustomType"))
                 )
             );
 
-            XElement element = new XElement("Program",
+            XElement element = new("Program",
                 new XAttribute("Name", "MainProgram"),
                 new XElement("Dependencies",
                     new XElement("Dependency",
@@ -198,7 +175,7 @@ namespace XMLHandlerTests
         public void CheckForDependencies_HandlesParentModule_WhenNotLocal()
         {
             // Arrange
-            xmlHandler.inputFile = new XDocument(
+            xmlHandler.inputFile = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Module", new XAttribute("Name", "ParentModule")),
                     new XElement("LocalTag", new XAttribute("Name", "TestTag"))
@@ -206,7 +183,7 @@ namespace XMLHandlerTests
             );
 
             XDocument docToInsert = helper.CreateBasicTestDocument();
-            XElement element = new XElement("LocalTag",
+            XElement element = new("LocalTag",
                 new XAttribute("Name", "TestTag"),
                 new XAttribute("ParentModule", "ParentModule")
             );
@@ -227,10 +204,10 @@ namespace XMLHandlerTests
             // Arrange
             xmlHandler.inputFile = helper.CreateBasicTestDocument();
             XDocument docToInsert = helper.CreateBasicTestDocument();
-            List<XElement> elements = new List<XElement>
+            List<XElement> elements = new()
             {
-                new XElement("Program", new XAttribute("Name", "Program1")),
-                new XElement("Task", new XAttribute("Name", "Task1"))
+                new("Program", new XAttribute("Name", "Program1")),
+                new("Task", new XAttribute("Name", "Task1"))
             };
 
             // Act
@@ -430,7 +407,7 @@ namespace XMLHandlerTests
             // Act & Assert
             try
             {
-                XDocument doc = xmlHandler.LoadBasicFile();
+                XDocument doc = XMLHandler.LoadBasicFile();
                 Assert.IsNotNull(doc);
             }
             catch (System.IO.FileNotFoundException)

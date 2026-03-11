@@ -3,31 +3,20 @@ using System.Xml.Linq;
 
 namespace L5XAutomationTool
 {
-    public class Execute
+    public class Execute(XMLHandler xml, IMessageService messages, IUserPromptService prompts, IOpenFileService openFile, ISaveFileService saveFile, IValidationService validation, IFileSystem fs)
     {
         #region Fields
-        private readonly XMLHandler _xml;
-        private readonly IMessageService _messages;
-        private readonly IUserPromptService _prompts;
-        private readonly IOpenFileService _openFile;
-        private readonly ISaveFileService _saveFile;
-        private readonly IValidationService _validation;
-        private readonly IFileSystem _fs;
+        private readonly XMLHandler _xml = xml;
+        private readonly IMessageService _messages = messages;
+        private readonly IUserPromptService _prompts = prompts;
+        private readonly IOpenFileService _openFile = openFile;
+        private readonly ISaveFileService _saveFile = saveFile;
+        private readonly IValidationService _validation = validation;
+        private readonly IFileSystem _fs = fs;
 
-        public static XDocument Doc = new XDocument();
+        public static XDocument Doc = new();
         private static readonly string outputPath = "../../../../L5XFiles/GeneratedFiles/";
         private static string outputName = "GenFile";
-
-        public Execute(XMLHandler xml, IMessageService messages, IUserPromptService prompts, IOpenFileService openFile, ISaveFileService saveFile, IValidationService validation, IFileSystem fs)
-        {
-            _xml = xml;
-            _messages = messages;
-            _prompts = prompts;
-            _openFile = openFile;
-            _saveFile = saveFile;
-            _validation = validation;
-            _fs = fs;
-        }
 
 
         #endregion
@@ -39,10 +28,7 @@ namespace L5XAutomationTool
             _prompts.OwnerForm = owner;
         }
 
-        public void InitializeNew()
-        {
-            Doc = _xml.LoadBasicFile();
-        }
+        public static void InitializeNew() => Doc = XMLHandler.LoadBasicFile();
 
         public void ValidateFile(bool showNoError = true)
         {
@@ -65,7 +51,7 @@ namespace L5XAutomationTool
             bool ok = _messages.Confirm("Are you sure you want to overwrite your existing file?", "Verify File Creation");
             if (ok)
             {
-                Doc = _xml.LoadBasicFile();
+                Doc = XMLHandler.LoadBasicFile();
                 _messages.Show("New Empty File Created.", "Info");
             }
         }
@@ -98,7 +84,7 @@ namespace L5XAutomationTool
             string attributeKey = (typeSelected == "Module") ? "CatalogNumber" : "Name";
 
             // Search for element
-            List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute(attributeKey)?.Value.ToString()).Distinct().ToList();
+            List<string> namesAvailable = [.. Doc.Descendants(typeSelected).Select(i => i.Attribute(attributeKey)?.Value.ToString()).Distinct()];
 
             // Let user select elements to modify
             List<string> namesSelected = _prompts.SelectMany("Select names of elements to modify", namesAvailable);
@@ -120,7 +106,7 @@ namespace L5XAutomationTool
             List<string> types = _xml.GetElementTypes(Doc);
             string typeSelected = _prompts.SelectOne("Select Element Type", types, "Delete Element");
 
-            List<string> namesAvailable = Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value).ToList();
+            List<string> namesAvailable = [.. Doc.Descendants(typeSelected).Select(i => i.Attribute("Name")?.Value.ToString() ?? i.Attribute("CatalogNumber").Value)];
 
             List<string> namesSelected = _prompts.SelectMany("Select names of elements to delete", namesAvailable);
 
@@ -158,7 +144,7 @@ namespace L5XAutomationTool
                     attributeFilter = "CatalogNumber";
 
                 // Find and display available elements of that type
-                List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
+                List<string> availableElements = [.. _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct()];
                 List<string> chosenIds = _prompts.SelectMany("Select elements to insert", availableElements);
 
                 List<XElement> returnedElement = ResolveElementFromFile(typeSelected, chosenIds);
@@ -176,7 +162,7 @@ namespace L5XAutomationTool
                         }
                         catch (ParentMissingException ex)
                         {
-                            List<XAttribute> requiredAttr = new List<XAttribute>();
+                            List<XAttribute> requiredAttr = [];
                             foreach (XElement schemAttr in ex.missingSchemaAttributes)
                             {
                                 string attributeName = schemAttr.Attribute("name").Value;
@@ -239,7 +225,7 @@ namespace L5XAutomationTool
                 attributeFilter = "CatalogNumber";
 
             // Find and display template elements of that type
-            List<string> availableElements = _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct().ToList();
+            List<string> availableElements = [.. _xml.inputFile.Descendants(typeSelected).Select(i => i.Attribute(attributeFilter)?.Value.ToString()).Distinct()];
             string chosenId = _prompts.SelectOne("Select element template", availableElements, "Create Element");
 
             // Get the selected element, then insert it
@@ -258,7 +244,7 @@ namespace L5XAutomationTool
                 if (element.Descendants("Port").Where(i => i.Attribute("Type").Value.Equals("Ethernet") && i.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
                 {
                     // Get all already used IP addresses
-                    List<string> takenIPs = Doc.Descendants("Module").Where(i => i.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(i => i.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(i => i.Attribute("Address").Value.ToString()).ToList();
+                    List<string> takenIPs = [.. Doc.Descendants("Module").Where(i => i.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(i => i.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(i => i.Attribute("Address").Value.ToString())];
 
                     // Prompt user for ethernet address or hostname value
                     string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
@@ -276,22 +262,22 @@ namespace L5XAutomationTool
             XDocument schema = _validation.GetSchema();
 
             IEnumerable<XElement> ambiguousElements = schema.Descendants(_xml.Ns + "element").Where(i => i.Attribute("name")?.Value.Equals(typeSelected + "s") ?? false);
-            List<string> parentSchemaType = schema.Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value).ToList();
-            List<string> parentType = schema.Descendants(_xml.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value).ToList();
+            List<string> parentSchemaType = [.. schema.Descendants().Where(i => ambiguousElements.Select(x => x.Parent.Parent.Attribute("name")?.Value.ToString()).ToList()?.Contains(i.Attribute("name")?.Value) ?? false).Select(i => i.Attribute("name").Value)];
+            List<string> parentType = [.. schema.Descendants(_xml.Ns + "element").Where(i => parentSchemaType.Contains(i.Attribute("type")?.Value)).Select(i => i.Attribute("name").Value)];
 
-            if (parentType.Count() > 1)
+            if (parentType.Count > 1)
             {
                 IEnumerable<XElement> parentElems = Doc.Descendants().Where(i => parentType.Contains(i.Name?.ToString()));
 
                 // Get all valid parents of available types
-                List<string> parents = parentElems.Select(i => i.Attribute("Name").Value.ToString()).ToList();
+                List<string> parents = [.. parentElems.Select(i => i.Attribute("Name").Value.ToString())];
 
                 // Prompt the user for the parent
                 string parentName = _prompts.SelectOne("Select parent for the elements being created", parents, "Create Element");
 
                 _xml.ElementInfo.ParentElementBulk = parentElems.Single(i => i.Attribute("Name")?.Value.Equals(parentName) ?? false);
             }
-            else if (parentType.Count() != 1)
+            else if (parentType.Count != 1)
             {
                 throw new EmptyListException("Attempted to Create an item with no valid parents");
             }
@@ -302,7 +288,7 @@ namespace L5XAutomationTool
             int quantity = int.Parse(itemQuantity);
 
             // Create and insert elements
-            List<string> bulkNames = new List<string>();
+            List<string> bulkNames = [];
             for (int i = 0; i < quantity; i++)
             {
                 if (typeSelected != "Module" || element.Attribute("Use") == null)
@@ -326,7 +312,7 @@ namespace L5XAutomationTool
                     if (element.Descendants("Port").Where(el => el.Attribute("Type").Value.Equals("Ethernet") && el.Attribute("Address") != null).Any() && element.Attribute("ParentModule").Value.Equals("Local"))
                     {
                         // Get all already used IP addresses
-                        List<string> takenIPs = Doc.Descendants("Module").Where(el => el.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(el => el.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(el => el.Attribute("Address").Value.ToString()).ToList();
+                        List<string> takenIPs = [.. Doc.Descendants("Module").Where(el => el.Attribute("ParentModule")?.Value.Equals("Local") ?? false).Descendants("Port").Where(el => el.Attribute("Type")?.Value.ToString().Equals("Ethernet") ?? false).Select(el => el.Attribute("Address").Value.ToString())];
 
                         // Prompt user for ethernet address or hostname value
                         string ipRegex = @"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|^HostName$";
@@ -367,7 +353,7 @@ namespace L5XAutomationTool
                 if (tasks.Any())
                 {
                     // Get list of names
-                    List<string> taskNames = tasks.Select(i => i.Attribute("Name").Value).ToList();
+                    List<string> taskNames = [.. tasks.Select(i => i.Attribute("Name").Value)];
                     taskNames.Add("Keep programs unscheduled");
 
                     // Prompt user for which task to assign the programs to
@@ -390,7 +376,7 @@ namespace L5XAutomationTool
                         // Add the program names to the chosen tasks scheduled programs
                         foreach (string programName in bulkNames)
                         {
-                            XElement scheduledProgram = new XElement("ScheduledProgram", new XAttribute("Name", programName));
+                            XElement scheduledProgram = new("ScheduledProgram", new XAttribute("Name", programName));
                             scheduledParent.Add(scheduledProgram);
                         }
 
@@ -413,7 +399,7 @@ namespace L5XAutomationTool
                 attributeFilter = "CatalogNumber";
 
             IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
-            if (candidates.Count() == 0)
+            if (!candidates.Any())
             {
                 // No element with that ID, skip
                 return null;
@@ -425,7 +411,7 @@ namespace L5XAutomationTool
             }
 
             // Multiple elements with same Name -> disambiguate by grandparent Name
-            List<string> parentOptions = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct().ToList();
+            List<string> parentOptions = [.. _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter).Value.Equals(id)).Select(i => i.Parent.Parent.Attribute("Name").Value.ToString()).Distinct()];
 
 
             string grandparentName = _prompts.SelectOne("Multiple elements named '" + id + "'. Select parent element you are accessing", parentOptions, "Import Element");
@@ -441,14 +427,14 @@ namespace L5XAutomationTool
             if (typeOfElement == "Module")
                 attributeFilter = "CatalogNumber";
 
-            List<XElement> elements = new List<XElement>();
+            List<XElement> elements = [];
 
             foreach (string id in identifiers)
             {
                 if (typeOfElement == "Module")
                 {
                     // Get all valid options. If there is no name, use port number instead
-                    List<string> parentOptions = new List<string>();
+                    List<string> parentOptions = [];
                     IEnumerable<XElement> candidates = _xml.inputFile.Descendants(typeOfElement).Where(i => i.Attribute(attributeFilter) != null && i.Attribute(attributeFilter).Value == id);
 
                     foreach (XElement elem in candidates)
@@ -467,7 +453,7 @@ namespace L5XAutomationTool
                             if (nameOfElement.Contains("at port"))
                             {
                                 int portIndex = nameOfElement.IndexOf("port ") + 5;
-                                string selectedPort = nameOfElement.Substring(portIndex);
+                                string selectedPort = nameOfElement[portIndex..];
                                 element = candidates.Single(el => el.Descendants("Port")?.Where(j => j.Attribute("Address").Value.ToString().Equals(selectedPort)).Any() ?? false);
                             }
                             // Using name to differentiate
@@ -489,7 +475,7 @@ namespace L5XAutomationTool
 
         private void SetAttributes(XElement element, List<XAttribute> attributesToChange)
         {
-            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", attributesToChange.Select(i => i.Name.ToString()).ToList());
+            List<string> selectedAttributeNames = _prompts.SelectMany("Select attributes to manually set value. (NO INPUT VALIDATION. USE WITH CAUTION)", [.. attributesToChange.Select(i => i.Name.ToString())]);
 
             foreach (string attributeName in selectedAttributeNames)
             {
@@ -524,7 +510,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> childElements = element.Elements();
             if (childElements.Any())
             {
-                List<string> childNames = childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct().ToList();
+                List<string> childNames = [.. childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct()];
                 List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, true);
 
                 // Access the elements selected and modify them recursively
@@ -548,7 +534,7 @@ namespace L5XAutomationTool
             bool retry = true;
 
             // Clash Resolution
-            List<string> actionOps = new List<string>() { "Cancel", "Replace", "Rename" };
+            List<string> actionOps = ["Cancel", "Replace", "Rename"];
             string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {insertElement.Attribute(attributeFilter).Value}?", actionOps, "Clashing Elements");
             switch (selected)
             {

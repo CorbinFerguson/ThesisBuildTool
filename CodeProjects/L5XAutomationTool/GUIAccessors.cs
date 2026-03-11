@@ -70,14 +70,14 @@ namespace L5XAutomationTool.GUIAccessors
         public Form OwnerForm { get; set; }
         public string SelectOne(string prompt, List<string> options, string title)
         {
-            var dlg = new DropdownGui(options.ToList(), prompt);
+            var dlg = new DropdownGui([.. options], prompt);
             dlg.ShowDialog(OwnerForm, out string selected);
             return selected;
         }
 
         public List<string> SelectMany(string prompt, List<string> options)
         {
-            var dlg = new MultiSelectDropdown(options.ToList(), prompt);
+            var dlg = new MultiSelectDropdown([.. options], prompt);
             dlg.ShowDialog(OwnerForm, out List<string> selected);
             return selected;
         }
@@ -99,7 +99,7 @@ namespace L5XAutomationTool.GUIAccessors
 
     public sealed class ValidationService : IValidationService
     {
-        private readonly ValidationHandler _inner = new ValidationHandler();
+        private readonly ValidationHandler _inner = new();
         public List<string> ValidateL5XFile(XDocument doc)
         {
             return _inner.ValidateL5XFile(doc);
@@ -107,7 +107,7 @@ namespace L5XAutomationTool.GUIAccessors
 
         public XDocument GetSchema()
         {
-            return _inner.GetSchema();
+            return ValidationHandler.GetSchema();
         }
     }
 
@@ -130,13 +130,9 @@ namespace L5XAutomationTool.GUIAccessors
 
     }
 
-    public sealed class SchemaDisambiguator : ISchemaDisambiguator
+    public sealed class SchemaDisambiguator(IUserPromptService prompts) : ISchemaDisambiguator
     {
-        private readonly IUserPromptService _prompts;
-        public SchemaDisambiguator(IUserPromptService prompts)
-        {
-            _prompts = prompts;
-        }
+        private readonly IUserPromptService _prompts = prompts;
 
         public string ChooseParentFor(string elementType, List<string> candidateParents)
         {
@@ -158,14 +154,14 @@ namespace L5XAutomationTool.GUIAccessors
             if (element.Name.ToString().Equals("Module") && element.Attribute("Name") == null)
                 searchFilter = "CatalogNumber";
 
-            List<string> actionOps = new List<string>() { "Cancel", "Replace", "Name" };
+            List<string> actionOps = ["Cancel", "Replace", "Name"];
             string selected = _prompts.SelectOne($"Element already exists. What would you like to change for {element.Attribute(searchFilter).Value}?", actionOps, "Conflict Resolution");
 
             switch (selected)
             {
                 case "Replace":
                     // Replace the already existing element
-                    clashingElements.Single();
+                    element = clashingElements.Single();
                     break;
                 case "Name":
                     string renameHeader;

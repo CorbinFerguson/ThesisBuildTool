@@ -29,11 +29,11 @@ namespace L5XAutomationTool
 
         #region Functions
 
-        public XDocument GetSchema() { return schema; }
+        public static XDocument GetSchema() { return schema; }
 
         public List<string> ValidateL5XFile(XDocument doc)
         {
-            List<string> invalidElements = new List<string>();
+            List<string> invalidElements = [];
 
             // Validate using XML schema, misses some things however
             doc.Validate(validationSchemaSet, (sender, error) => { invalidElements.Add("SCHEMA ERROR: Parent: " + (((XElement)sender).Parent.Attribute("Name")?.Value ?? ((XElement)sender).Parent.Name) + ". " + error.Message); }, true);
