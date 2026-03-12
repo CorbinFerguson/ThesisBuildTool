@@ -12,6 +12,8 @@ namespace ExecuteTests
     [TestClass]
     public class ExecuteTests
     {
+        #region Fields
+
         private Mock<XMLHandler> mockXmlHandler;
         private Mock<IMessageService> mockMessages;
         private Mock<IUserPromptService> mockPrompts;
@@ -23,11 +25,17 @@ namespace ExecuteTests
 
         private Execute execute;
         private TestHelper helper;
+
         public TestContext TestContext { get; set; }
+
+        #endregion
+
+        #region Setup and Teardown
 
         [TestInitialize]
         public void Setup()
         {
+            // Initialize mocks for dependencies
             mockValidation = new Mock<IValidationService>();
             mockDisambiguator = new Mock<ISchemaDisambiguator>();
 
@@ -46,6 +54,7 @@ namespace ExecuteTests
             mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>())).Returns([]);
             mockValidation.Setup(v => v.GetSchema()).Returns(TestHelper.CreateTestSchema());
 
+            // Initialize the Execute instance
             execute = new Execute(
                 mockXmlHandler.Object,
                 mockMessages.Object,
@@ -55,8 +64,12 @@ namespace ExecuteTests
                 mockValidation.Object,
                 mockFileSystem.Object
             );
+
+            // Start test reporting for the current test
             TestReport.Start(TestContext.TestName);
         }
+
+        #endregion
 
         #region InitializeNew Tests
 
@@ -92,8 +105,7 @@ namespace ExecuteTests
         {
             // Arrange
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>()))
-                .Returns([]);
+            mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>())).Returns([]);
 
             // Act
             execute.ValidateFile(true);
@@ -130,8 +142,7 @@ namespace ExecuteTests
         {
             // Arrange
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>()))
-                .Returns([]);
+            mockValidation.Setup(v => v.ValidateL5XFile(It.IsAny<XDocument>())).Returns([]);
 
             // Act
             execute.ValidateFile(false);
@@ -206,14 +217,19 @@ namespace ExecuteTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                out expectedPath))
-                .Returns(true);
+                out expectedPath)).Returns(true);
 
             // Act
             execute.SaveFile();
 
             // Assert
-            mockFileSystem.Verify(f => f.SaveXml(It.Is<XDocument>(doc => doc.ToString() == Execute.Doc.ToString()), It.Is<string>(path => path == expectedPath)), Times.Once);
+            mockFileSystem.Verify(
+                f => f.SaveXml(
+                    It.Is<XDocument>(doc => doc.ToString() == Execute.Doc.ToString()),
+                    It.Is<string>(path => path == expectedPath)
+                ),
+                Times.Once
+            );
         }
 
         [TestMethod]
@@ -230,8 +246,7 @@ namespace ExecuteTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                out nullPath))
-                .Returns(false);
+                out nullPath)).Returns(false);
 
             // Act
             execute.SaveFile();
@@ -254,8 +269,7 @@ namespace ExecuteTests
             // Arrange
             string filePath = "C:\\test\\input.L5X";
             XDocument loadedDoc = TestHelper.CreateBasicTestDocument();
-            mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
-                .Returns(true);
+            mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath)).Returns(true);
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(loadedDoc);
 
             // Act
@@ -316,8 +330,8 @@ namespace ExecuteTests
             mockXmlHandler.Verify(x => x.GetElementTypes(It.IsAny<XDocument>()), Times.Once);
             mockPrompts.Verify(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
 
-            // Verify that the modified element is updated in Execute.Doc
-            XElement modifiedElement = Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "MainProgram");
+            XElement modifiedElement = Execute.Doc.Descendants("Program")
+                .FirstOrDefault(p => p.Attribute("Name")?.Value == "MainProgram");
             Assert.IsNotNull(modifiedElement);
         }
 
@@ -361,13 +375,15 @@ namespace ExecuteTests
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>())).Returns(["TestProgram"]);
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["TestProgram"]);
 
             // Act
             execute.DeleteElement();
 
-            // Verify that the "TestProgram" element is removed
-            Assert.IsNull(Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "TestProgram"));
+            // Assert
+            Assert.IsNull(Execute.Doc.Descendants("Program")
+                .FirstOrDefault(p => p.Attribute("Name")?.Value == "TestProgram"));
         }
 
         [TestMethod]
@@ -423,7 +439,8 @@ namespace ExecuteTests
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>())).Returns(["ImportedProgram"]);
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["ImportedProgram"]);
 
             Execute.Doc = TestHelper.CreateBasicTestDocument();
 
@@ -463,7 +480,7 @@ namespace ExecuteTests
         [TestCategory("Execute_UnitTest")]
         [TestCategory("ImportElement")]
         [TestProperty("Description",
-            "Test that ImportElement loops and allows the user to import additional elements when they choose to add more.")]
+        "Test that ImportElement loops and allows the user to import additional elements when they choose to add more.")]
         public void ImportElement_UserWantsToAddMore_Loops()
         {
             // Arrange
@@ -800,7 +817,7 @@ namespace ExecuteTests
             Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             // add an attribute to the existing MainTask to verify that it wasnt modified after the clash
-            XElement element =  Execute.Doc.Descendants("AddOnInstructionDefinition").Single(t => t.Attribute("Name")?.Value == "TestAOI");
+            XElement element = Execute.Doc.Descendants("AddOnInstructionDefinition").Single(t => t.Attribute("Name")?.Value == "TestAOI");
             element.SetAttributeValue("ExistingAttribute", "Value");
 
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -1768,7 +1785,8 @@ namespace ExecuteTests
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(importDoc);
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>())).Returns(["ImportedProgram"]);
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["ImportedProgram"]);
 
             Execute.Doc = TestHelper.CreateBasicTestDocument();
 
