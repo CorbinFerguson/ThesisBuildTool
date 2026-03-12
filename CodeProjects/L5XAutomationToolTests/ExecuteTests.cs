@@ -786,33 +786,109 @@ namespace ExecuteTests
 
         [TestMethod]
         [TestProperty("Description",
-            "Test that CreateElement handles ClashingElementException and retries on rename.")]
-        public void CreateElement_WithClashingElement_HandlesRename()
+            "Test that CreateElement handles ClashingElementException and aborts on cancel.")]
+        public void CreateElement_WithClashingElement_HandlesCancel()
         {
             // Arrange
-            XDocument templateDoc = TestHelper.CreateBasicTestDocument();
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
-            mockXmlHandler.Object.inputFile = templateDoc;
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
+            // add an attribute to the existing MainTask to verify that it wasnt modified after the clash
+            XElement element =  Execute.Doc.Descendants("AddOnInstructionDefinition").Single(t => t.Attribute("Name")?.Value == "TestAOI");
+            element.SetAttributeValue("ExistingAttribute", "Value");
 
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Task");
+                .Returns("AddOnInstructionDefinition");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TemplateContinuous");
-            mockPrompts.Setup(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Cancel");
+                .Returns("TemplateFBAOI");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("NewTask");
-
-            Execute.Doc = TestHelper.CreateBasicTestDocument();
+                .Returns("TestAOI");
+            mockPrompts.Setup(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Cancel");
 
             // Act
             execute.CreateElement();
 
             // Assert
             mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+
+            // Verify that MainTask object still existing and has the "ExistingAttribute" attribute, which indicates that it was not replaced by the new element
+            XElement mainProg = Execute.Doc.Descendants("AddOnInstructionDefinition").FirstOrDefault(t => t.Attribute("Name")?.Value == "TestAOI" && t.Attribute("ExistingAttribute") != null);
+            Assert.IsNotNull(mainProg, "The existing MainTask element was removed from the document.");
         }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that CreateElement handles ClashingElementException and retries on rename.")]
+        public void CreateElement_WithClashingElement_HandlesRename()
+        {
+            // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
+            mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("AddOnInstructionDefinition");
+            mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("TemplateFBAOI");
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("1");
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("TestAOI");
+            mockPrompts.Setup(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Rename");
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a new")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("RenamedAOI");
+
+            // Act
+            execute.CreateElement();
+
+            // Assert
+            mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+            mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("Input a new")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+
+            // Verify that the renamed AOI exists in the document
+            Assert.IsNotNull(Execute.Doc.Descendants("AddOnInstructionDefinition").FirstOrDefault(t => t.Attribute("Name")?.Value == "RenamedAOI"));
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that CreateElement handles ClashingElementException and replaces the existing element.")]
+        public void CreateElement_WithClashingElement_HandlesReplace()
+        {
+            // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
+            // add an attribute to the existing AOI to verify that it was replaced after the clash
+            Execute.Doc.Descendants("AddOnInstructionDefinition").FirstOrDefault(t => t.Attribute("Name")?.Value == "TestAOI").SetAttributeValue("ExistingAttribute", "Value");
+
+            mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("AddOnInstructionDefinition");
+            mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("TemplateFBAOI");
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("1");
+            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("TestAOI");
+            mockPrompts.Setup(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Replace");
+
+            // Act
+            execute.CreateElement();
+
+            // Assert
+            mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+
+            // Verify that only one AOI exists in the document and it has been replaced
+            Assert.ContainsSingle(t => t.Attribute("Name")?.Value == "TestAOI" && t.Attribute("ExistingAttribute") is null, Execute.Doc.Descendants("AddOnInstructionDefinition"));
+        }
+
+
 
         [TestMethod]
         [TestProperty("Description",
