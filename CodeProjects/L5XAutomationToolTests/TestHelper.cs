@@ -79,6 +79,18 @@ namespace L5XAutomationToolTestHelpers
             );
         }
 
+        /// <summary>
+        /// Creates an empty L5X document for tests that need an empty document to modify
+        /// </summary>
+        /// 
+        public static XDocument CreateEmptyDocument()
+        {
+            return new XDocument(
+                new XElement("RSLogix5000Content",
+                    new XElement("Controller",
+                        new XAttribute("Name", "TestController"))));
+        }
+
         #endregion
 
         #region UI Timing and Common Interactions
