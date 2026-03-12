@@ -59,6 +59,10 @@ namespace L5XAutomationToolTestHelpers
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XAttribute("Name", "TestController"),
+                        new XElement("AddOnInstructionDefinitions",
+                            new XElement("AddOnInstructionDefinition",
+                                new XAttribute("Name", "TestAOI"))
+                        ),
                         new XElement("Programs",
                             new XElement("Program", new XAttribute("Name", "MainProgram"))
                         ),

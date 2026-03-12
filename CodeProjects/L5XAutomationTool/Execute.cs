@@ -213,7 +213,7 @@ namespace L5XAutomationTool
         public void CreateElement()
         {
             // Use template as input file
-            _xml.inputFile = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            _xml.inputFile = _fs.LoadXml("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
 
             // Pick element type to import
             List<string> types = _xml.GetElementTypes(_xml.inputFile);
