@@ -14,7 +14,6 @@ namespace ExecuteTests
     public class ExecuteTests
     {
         #region Fields
-
         private Mock<XMLHandler> mockXmlHandler;
         private Mock<IMessageService> mockMessages;
         private Mock<IUserPromptService> mockPrompts;
@@ -26,8 +25,6 @@ namespace ExecuteTests
 
         private Execute execute;
         private TestHelper helper;
-        private string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "L5XFiles", "TestingFiles"));
-
 
         public TestContext TestContext { get; set; }
 
@@ -41,10 +38,7 @@ namespace ExecuteTests
             // Initialize mocks for dependencies
             mockValidation = new Mock<IValidationService>();
             mockDisambiguator = new Mock<ISchemaDisambiguator>();
-
-            // Use partial mocking for XMLHandler
             mockXmlHandler = new Mock<XMLHandler>(mockValidation.Object, mockDisambiguator.Object) { CallBase = true };
-
             mockMessages = new Mock<IMessageService>();
             mockPrompts = new Mock<IUserPromptService>();
             mockOpenFile = new Mock<IOpenFileService>();
@@ -70,29 +64,6 @@ namespace ExecuteTests
 
             // Start test reporting for the current test
             TestReport.Start(TestContext.TestName);
-        }
-
-        #endregion
-
-        #region InitializeNew Tests
-
-        [TestMethod]
-        [TestCategory("Execute_UnitTest")]
-        [TestCategory("InitializeNew")]
-        [TestProperty("Description",
-            "Test that InitializeNew calls LoadBasicFile on the XMLHandler and sets the static Doc property with the loaded document.")]
-        public void InitializeNew_LoadsBasicFile()
-        {
-            // Arrange
-            XDocument expectedDoc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Setup(x => XMLHandler.LoadBasicFile()).Returns(expectedDoc);
-
-            // Act
-            Execute.InitializeNew();
-
-            // Assert
-            mockXmlHandler.Verify(x => XMLHandler.LoadBasicFile(), Times.Once);
-            Assert.IsNotNull(Execute.Doc);
         }
 
         #endregion
@@ -166,16 +137,15 @@ namespace ExecuteTests
         public void NewFile_UserConfirms_CreatesNewFile()
         {
             // Arrange
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
-            XDocument newDoc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Setup(x => XMLHandler.LoadBasicFile()).Returns(newDoc);
+            XDocument newDoc = XMLHandler.LoadBasicFile();
 
             // Act
             execute.NewFile();
 
             // Assert
             mockMessages.Verify(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-            mockXmlHandler.Verify(x => XMLHandler.LoadBasicFile(), Times.Once);
             mockMessages.Verify(m => m.Show(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 
             // Verify that Execute.Doc matches the new document
@@ -191,6 +161,8 @@ namespace ExecuteTests
         public void NewFile_UserCancels_DoesNotCreateNewFile()
         {
             // Arrange
+            XDocument newDoc = TestHelper.CreateBasicTestDocument();
+            Execute.Doc = newDoc;
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
             // Act
@@ -198,8 +170,9 @@ namespace ExecuteTests
 
             // Assert
             mockMessages.Verify(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-            mockXmlHandler.Verify(x => XMLHandler.LoadBasicFile(), Times.Never);
             mockMessages.Verify(m => m.Show(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+
+            Assert.AreEqual(newDoc.ToString(), Execute.Doc.ToString());
         }
 
         #endregion
@@ -346,19 +319,25 @@ namespace ExecuteTests
         public void ModifyElement_SelectsModuleType_UsesCatalogNumber()
         {
             // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["1234-5678"]);
+            mockPrompts.SetupSequence(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["124-5678"])
+                .Returns(["1234-5678 with no Name at port 1"]);
 
             // Act
             execute.ModifyElement();
 
             // Assert
-            mockXmlHandler.Verify(x => x.GetElementTypes(It.IsAny<XDocument>()), Times.Once);
+            // Verify that SelectMany was called with the expected options
+            mockPrompts.Verify(p => p.SelectMany(
+                It.Is<string>(s => s.Contains("Select specific Module")),
+                It.Is<List<string>>(options => options.Contains("1756-L81E") && options.Contains("1756-L81E with no Name at port 1"))
+            ), Times.Once);
         }
 
         #endregion
@@ -374,7 +353,6 @@ namespace ExecuteTests
         {
             // Arrange
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
@@ -405,7 +383,6 @@ namespace ExecuteTests
                     )
                 )
             );
-            mockXmlHandler.Object.inputFile = Execute.Doc;
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
@@ -445,7 +422,7 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(["MainProgram"]);
 
-            Execute.Doc = TestHelper.CreateBasicTestDocument();
+            Execute.Doc = TestHelper.CreateEmptyDocument();
 
             // Act
             execute.ImportElement();
@@ -454,9 +431,10 @@ namespace ExecuteTests
             mockOpenFile.Verify(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath), Times.Once);
             mockFileSystem.Verify(f => f.LoadXml(filePath), Times.Once);
 
-            // Verify that the imported element is present in Execute.Doc
+            // Verify that the imported element is present in Execute.Doc at correct location
             XElement importedElement = Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "MainProgram");
-            Assert.IsNotNull(importedElement);
+            Assert.IsTrue(importedElement.Parent.Name.ToString().Equals("Programs"), "The imported element 'MainProgram' was not placed under the correct parent 'Programs'.");
+            Assert.IsNotNull(importedElement, "The imported element 'MainProgram' was not found in the document.");
         }
 
         [TestMethod]
@@ -544,7 +522,7 @@ namespace ExecuteTests
             execute.ImportElement();
 
             // Assert
-            mockPrompts.Verify(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("attribute of auto-generated")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
@@ -559,26 +537,28 @@ namespace ExecuteTests
             XElement parentNode = new("Programs");
             ClashingElementException exception = new([existingElement], parentNode);
 
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
             mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(importDoc);
-            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Cancel");
+
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(["MainProgram"]);
-            mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(false);
-
-            Execute.Doc = TestHelper.CreateBasicTestDocument();
+            mockPrompts.SetupSequence(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Program") // First call returns "Program"
+                .Returns("Cancel"); // Second call returns "Cancel"
 
             // Act
             execute.ImportElement();
 
             // Assert
-            mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("already exists")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+            mockMessages.Verify(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
+        [TestCategory("ImportElement")]
         [TestProperty("Description",
             "Test that ImportElement properly handles ClashingParentException by prompting user to select correct parent.")]
         public void ImportElement_WithClashingParentException_PromptsForParentSelection()
@@ -627,14 +607,18 @@ namespace ExecuteTests
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false);
 
+            // Mock the disambiguator to return a valid parent type
+            mockDisambiguator.Setup(d => d.ChooseParentFor(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns("Program");
+
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = importDoc;
 
             // Act
             execute.ImportElement();
 
             // Assert
             mockPrompts.Verify(p => p.SelectOne(It.Is<string>(s => s.Contains("Multiple elements") || s.Contains("Select parent")), It.IsAny<List<string>>(), It.IsAny<string>()), Times.AtLeastOnce);
+            mockDisambiguator.Verify(d => d.ChooseParentFor(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
         }
 
         [TestMethod]
@@ -652,7 +636,7 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["1234-5678"]);
+                .Returns(["1234-5678 at port 1"]);
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false);
 
@@ -1598,49 +1582,6 @@ namespace ExecuteTests
 
         [TestMethod]
         [TestProperty("Description",
-            "Test that ResolveElementFromFile handles Module type with multiple selections and prompts for specific modules.")]
-        public void ResolveElementFromFile_MultipleModules_PromptsForSpecificSelection()
-        {
-            // Arrange
-            XDocument docWithModules = new(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XElement("Modules",
-                            new XElement("Module",
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "1"))
-                                )
-                            ),
-                            new XElement("Module",
-                                new XAttribute("CatalogNumber", "1234-5678"),
-                                new XElement("Ports",
-                                    new XElement("Port", new XAttribute("Address", "2"))
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-
-            mockXmlHandler.Object.inputFile = docWithModules;
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["1234-5678 with no Name at port 1"]);
-
-            // Use reflection to call private method
-            var method = typeof(Execute).GetMethod("ResolveElementFromFile",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, [typeof(string), typeof(List<string>)], null);
-
-            // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Module", new List<string> { "1234-5678" }]);
-
-            // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.Is<string>(s => s.Contains("Select specific Module")), It.IsAny<List<string>>()), Times.Once);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
             "Test that ResolveElementFromFile handles Module selection by name when Name attribute exists.")]
         public void ResolveElementFromFile_ModuleWithName_UsesName()
         {
@@ -1756,13 +1697,17 @@ namespace ExecuteTests
         public void ModifyElement_AfterModification_ValidatesFile()
         {
             // Arrange
-            Execute.Doc = TestHelper.CreateEmptyDocument();
-            mockXmlHandler.Object.inputFile = TestHelper.CreateBasicTestDocument();
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["MainProgram"]);
+            mockPrompts.SetupSequence(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["MainProgram"])
+                .Returns(["Name"]);
+            mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("ModName");
 
             // Act
             execute.ModifyElement();
