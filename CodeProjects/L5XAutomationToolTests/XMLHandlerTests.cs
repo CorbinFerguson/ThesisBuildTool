@@ -13,6 +13,8 @@ namespace XMLHandlerTests
     [TestClass]
     public class XMLHandlerTests
     {
+        #region Fields
+
         private Mock<IValidationService> mockValidator;
         private Mock<ISchemaDisambiguator> mockDisambiguator;
         private XMLHandler xmlHandler;
@@ -21,9 +23,14 @@ namespace XMLHandlerTests
 
         public TestContext TestContext { get; set; }
 
+        #endregion
+
+        #region Setup and Teardown
+
         [TestInitialize]
         public void Setup()
         {
+            // Initialize mocks for dependencies
             mockValidator = new Mock<IValidationService>();
             mockDisambiguator = new Mock<ISchemaDisambiguator>();
 
@@ -33,10 +40,14 @@ namespace XMLHandlerTests
             testSchema = TestHelper.CreateTestSchema();
             mockValidator.Setup(v => v.GetSchema()).Returns(testSchema);
 
+            // Initialize the XMLHandler instance
             xmlHandler = new XMLHandler(mockValidator.Object, mockDisambiguator.Object);
 
+            // Start test reporting for the current test
             TestReport.Start(TestContext.TestName);
         }
+
+        #endregion
 
         #region Element Retrieval Tests
 

@@ -1339,6 +1339,7 @@ namespace ExecuteTests
             XElement clashingElement = new("Program", new XAttribute("Name", "ExistingProgram"));
             XElement parentNode = new("Programs", clashingElement);
             XElement insertElement = new("Program", new XAttribute("Name", "ExistingProgram"));
+            parentNode.Add(insertElement);
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Cancel");
@@ -1361,9 +1362,35 @@ namespace ExecuteTests
             XElement clashingElement = new("Program", new XAttribute("Name", "ExistingProgram"));
             XElement parentNode = new("Programs", clashingElement);
             XElement insertElement = new("Program", new XAttribute("Name", "ExistingProgram"));
+            parentNode.Add(insertElement);
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Replace");
+
+            mockXmlHandler.Object.ElementInfo.RootPath = new LinkedList<string>();
+
+            // Act
+            bool result = execute.HandleClashes([clashingElement], parentNode, insertElement);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that HandleClashes returns true and renames element when user selects Rename.")]
+        public void HandleClashes_UserSelectsRename_ReturnsTrueAndRenamesElement()
+        {
+            // Arrange
+            XElement clashingElement = new("Program", new XAttribute("Name", "ExistingProgram"));
+            XElement parentNode = new("Programs", clashingElement);
+            XElement insertElement = new("Program", new XAttribute("Name", "ExistingProgram"));
+            parentNode.Add(insertElement);
+
+            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Rename");
+            mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("RenamedProgram");
 
             mockXmlHandler.Object.ElementInfo.RootPath = new LinkedList<string>();
 
@@ -1407,12 +1434,13 @@ namespace ExecuteTests
             XElement clashingElement = new("Program", new XAttribute("Name", "ExistingProgram"));
             XElement parentNode = new("Programs", clashingElement);
             XElement insertElement = new("Program", new XAttribute("Name", "ExistingProgram"));
+            parentNode.Add(insertElement);
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Cancel");
 
             mockXmlHandler.Object.ElementInfo.RootPath = new LinkedList<string>();
-            mockXmlHandler.Object.ElementInfo.RootPath.AddLast("SomePath");
+            mockXmlHandler.Object.ElementInfo.RootPath.AddLast(parentNode.Name.ToString());
 
             // Act
             execute.HandleClashes([clashingElement], parentNode, insertElement);

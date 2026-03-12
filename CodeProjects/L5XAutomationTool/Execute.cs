@@ -526,10 +526,10 @@ namespace L5XAutomationTool
                 SetAttributes(element, attr);
         }
 
-        internal bool HandleClashes(IEnumerable<XElement> clashingElements, XElement parentNode, XElement insertElement = null)
+        internal bool HandleClashes(IEnumerable<XElement> clashingElements, XElement parentNode, XElement insertElement)
         {
             string attributeFilter = "Name";
-            if (parentNode.Name.Equals("Module"))
+            if (parentNode.Name.ToString().Equals("Module"))
                 attributeFilter = "CatalogNumber";
             bool retry = true;
 
