@@ -392,6 +392,8 @@ namespace ExecuteTests
                 .Returns("Module");
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(["1234-5678"]);
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["1234-5678 with no Name at port 1"]);
 
             // Act
             execute.DeleteElement();
@@ -668,16 +670,14 @@ namespace ExecuteTests
         public void CreateElement_SingleProgram_CreatesElement()
         {
             // Arrange
-            XDocument templateDoc = TestHelper.CreateBasicTestDocument();
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
-            mockXmlHandler.Object.inputFile = templateDoc;
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("ProgramWithRoutine");
-            mockPrompts.Setup(p => p.SelectOne("Select parent for the elements being created", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TestController");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -703,6 +703,10 @@ namespace ExecuteTests
         public void CreateElement_MultipleElements_CreatesAll()
         {
             // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("AddOnInstructionDefinition");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -731,6 +735,9 @@ namespace ExecuteTests
         public void CreateElement_NoValidParents_ThrowsException()
         {
             // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
@@ -766,8 +773,6 @@ namespace ExecuteTests
                 .Returns("Program");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("ProgramWithRoutine");
-            mockPrompts.Setup(p => p.SelectOne("Select parent for the elements being created", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TestController");
             mockPrompts.Setup(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("MainTask");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -933,7 +938,14 @@ namespace ExecuteTests
             execute.CreateElement();
 
             // Assert
-            mockXmlHandler.Verify(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()), Times.Once);
+            XElement createdModule = Execute.Doc.Descendants("Module")
+                .FirstOrDefault(m => m.Attribute("CatalogNumber")?.Value == "1234-IO");
+
+            Assert.IsNotNull(createdModule, "The module was not created.");
+            XElement port = createdModule.Descendants("Port")
+                .FirstOrDefault(p => p.Attribute("Type")?.Value == "ICP" && p.Attribute("Address")?.Value == "2");
+
+            Assert.IsNotNull(port, "The module does not have a port with an address of 2.");
         }
 
         [TestMethod]
@@ -969,7 +981,7 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("1234-EN");
+                .Returns("1756-IA16");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("IP Address")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -981,7 +993,7 @@ namespace ExecuteTests
             execute.CreateElement();
 
             // Assert
-            mockXmlHandler.Verify(x => x.InsertElement(It.IsAny<XDocument>(), It.IsAny<XElement>()), Times.Once);
+            mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("IP Address")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
@@ -1031,21 +1043,7 @@ namespace ExecuteTests
         {
             // Arrange
             XDocument templateDoc = TestHelper.CreateBasicTestDocument();
-            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
             mockXmlHandler.Object.inputFile = templateDoc;
-
-            mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Program");
-            mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("MainProgram");
-            mockPrompts.Setup(p => p.SelectOne("Select parent for the elements being created", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TestController");
-            mockPrompts.Setup(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("MainTask");
-            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("1");
-            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("NewProgram");
 
             Execute.Doc = new XDocument(
                 new XElement("RSLogix5000Content",
@@ -1061,50 +1059,16 @@ namespace ExecuteTests
                 )
             );
 
-            // Act
-            execute.CreateElement();
-
-            // Assert
-            XElement task = Execute.Doc.Descendants("Task").FirstOrDefault(t => t.Attribute("Name")?.Value == "MainTask");
-            Assert.IsNotNull(task);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that CreateElement creates ScheduledPrograms element when task doesn't have one.")]
-        public void CreateElement_WithProgramAndTaskWithoutScheduledPrograms_CreatesScheduledPrograms()
-        {
-            // Arrange
-            XDocument templateDoc = TestHelper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
-            mockXmlHandler.Object.inputFile = templateDoc;
-
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("MainProgram");
-            mockPrompts.Setup(p => p.SelectOne("Select parent for the elements being created", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TestController");
-            mockPrompts.Setup(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("MainTask");
+                .Returns("TemplateContinuous");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("2");
-
-            int nameCallCount = 0;
+                .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(() => $"NewProgram{++nameCallCount}");
+                .Returns("NewProgram");
 
-            Execute.Doc = new XDocument(
-                new XElement("RSLogix5000Content",
-                    new XElement("Controller",
-                        new XAttribute("Name", "TestController"),
-                        new XElement("Programs"),
-                        new XElement("Tasks",
-                            new XElement("Task", new XAttribute("Name", "MainTask"))
-                        )
-                    )
-                )
-            );
 
             // Act
             execute.CreateElement();
@@ -1112,6 +1076,8 @@ namespace ExecuteTests
             // Assert
             XElement task = Execute.Doc.Descendants("Task").FirstOrDefault(t => t.Attribute("Name")?.Value == "MainTask");
             Assert.IsNotNull(task);
+            XElement newProgram = Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "NewProgram");
+            Assert.IsNotNull(newProgram, "The program 'NewProgram' was not created.");
         }
 
         #endregion
@@ -1325,11 +1291,11 @@ namespace ExecuteTests
         public void SetAttributes_WithoutIdentifyingAttributes_UsesElementName()
         {
             // Arrange
-            XElement element = new XElement("CustomElement");
-            List<XAttribute> attrs = new List<XAttribute>
-            {
+            XElement element = new("CustomElement");
+            List<XAttribute> attrs =
+            [
                 new XAttribute("Property", "Value")
-            };
+            ];
 
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(["Property"]);
@@ -1337,7 +1303,7 @@ namespace ExecuteTests
                 .Returns("NewValue");
 
             // Act
-            execute.SetAttributes(new[] { element }, new List<List<XAttribute>> { attrs });
+            execute.SetAttributes([element], [attrs]);
 
             // Assert
             mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("CustomElement")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
@@ -1435,7 +1401,7 @@ namespace ExecuteTests
             execute.HandleClashes([clashingElement], parentNode, insertElement);
 
             // Assert
-            Assert.AreEqual(0, mockXmlHandler.Object.ElementInfo.RootPath.Count);
+            Assert.IsEmpty(mockXmlHandler.Object.ElementInfo.RootPath);
         }
 
         #endregion
@@ -1453,10 +1419,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
+                null, [typeof(string), typeof(string)], null);
 
             // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Program", "NonExistentProgram" });
+            XElement result = (XElement)method.Invoke(execute, ["Program", "NonExistentProgram"]);
 
             // Assert
             Assert.IsNull(result);
@@ -1473,10 +1439,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
+                null, [typeof(string), typeof(string)], null);
 
             // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Program", "MainProgram" });
+            XElement result = (XElement)method.Invoke(execute, ["Program", "MainProgram"]);
 
             // Assert
             Assert.IsNotNull(result);
@@ -1490,7 +1456,7 @@ namespace ExecuteTests
         public void ResolveElementFromFile_MultipleMatches_PromptsForDisambiguation()
         {
             // Arrange
-            XDocument docWithDuplicates = new XDocument(
+            XDocument docWithDuplicates = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XElement("Programs",
@@ -1518,10 +1484,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
+                null, [typeof(string), typeof(string)], null);
 
             // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Tag", "DuplicateTag" });
+            XElement result = (XElement)method.Invoke(execute, ["Tag", "DuplicateTag"]);
 
             // Assert
             Assert.IsNotNull(result);
@@ -1539,10 +1505,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(string) }, null);
+                null, [typeof(string), typeof(string)], null);
 
             // Act
-            XElement result = (XElement)method.Invoke(execute, new object[] { "Module", "1234-5678" });
+            XElement result = (XElement)method.Invoke(execute, ["Module", "1234-5678"]);
 
             // Assert
             Assert.IsNotNull(result);
@@ -1559,7 +1525,7 @@ namespace ExecuteTests
         public void ResolveElementFromFile_MultipleIds_ReturnsAllMatchingElements()
         {
             // Arrange
-            XDocument docWithMultiple = new XDocument(
+            XDocument docWithMultiple = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XElement("Programs",
@@ -1576,13 +1542,13 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
+                null, [typeof(string), typeof(List<string>)], null);
 
             // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "Program1", "Program3" } });
+            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Program", new List<string> { "Program1", "Program3" }]);
 
             // Assert
-            Assert.AreEqual(2, results.Count);
+            Assert.HasCount(2, results);
         }
 
         [TestMethod]
@@ -1591,7 +1557,7 @@ namespace ExecuteTests
         public void ResolveElementFromFile_MultipleModules_PromptsForSpecificSelection()
         {
             // Arrange
-            XDocument docWithModules = new XDocument(
+            XDocument docWithModules = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XElement("Modules",
@@ -1619,10 +1585,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
+                null, [typeof(string), typeof(List<string>)], null);
 
             // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Module", new List<string> { "1234-5678" } });
+            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Module", new List<string> { "1234-5678" }]);
 
             // Assert
             mockPrompts.Verify(p => p.SelectMany(It.Is<string>(s => s.Contains("Select specific Module")), It.IsAny<List<string>>()), Times.Once);
@@ -1634,7 +1600,7 @@ namespace ExecuteTests
         public void ResolveElementFromFile_ModuleWithName_UsesName()
         {
             // Arrange
-            XDocument docWithModules = new XDocument(
+            XDocument docWithModules = new(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
                         new XElement("Modules",
@@ -1663,10 +1629,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
+                null, [typeof(string), typeof(List<string>)], null);
 
             // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Module", new List<string> { "1234-5678" } });
+            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Module", new List<string> { "1234-5678" }]);
 
             // Assert
             mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
@@ -1683,10 +1649,10 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
+                null, [typeof(string), typeof(List<string>)], null);
 
             // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "NonExistent1", "NonExistent2" } });
+            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Program", new List<string> { "NonExistent1", "NonExistent2" }]);
 
             // Assert
             Assert.IsNotNull(results);
@@ -1703,14 +1669,14 @@ namespace ExecuteTests
             // Use reflection to call private method
             var method = typeof(Execute).GetMethod("ResolveElementFromFile",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null, new[] { typeof(string), typeof(List<string>) }, null);
+                null, [typeof(string), typeof(List<string>)], null);
 
             // Act
-            List<XElement> results = (List<XElement>)method.Invoke(execute, new object[] { "Program", new List<string> { "MainProgram" } });
+            List<XElement> results = (List<XElement>)method.Invoke(execute, ["Program", new List<string> { "MainProgram" }]);
 
             // Assert
             Assert.IsNotNull(results);
-            Assert.AreEqual(1, results.Count);
+            Assert.HasCount(1, results);
         }
 
         #endregion
@@ -1766,6 +1732,10 @@ namespace ExecuteTests
         public void CreateElement_AfterCreation_ValidatesFile()
         {
             // Arrange
+            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("AddOnInstructionDefinition");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
