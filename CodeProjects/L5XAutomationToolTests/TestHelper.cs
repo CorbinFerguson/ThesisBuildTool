@@ -204,7 +204,7 @@ namespace L5XAutomationToolTestHelpers
             AutomationElement[] files = fileExplorer
                 .FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
 
-            AutomationElement loadedFile = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"));
+            AutomationElement loadedFile = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X")) ?? files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1"));
 
             loadedFile.DoubleClick();
         }

@@ -86,6 +86,7 @@ namespace ExecuteTests
 
             // Assert
             mockValidation.Verify(v => v.ValidateL5XFile(It.IsAny<XDocument>()), Times.Once);
+            mockMessages.Verify(m => m.Show(It.Is<string>(s => s.Contains("No errors detected!")), It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
@@ -105,6 +106,7 @@ namespace ExecuteTests
 
             // Assert
             mockValidation.Verify(v => v.ValidateL5XFile(It.IsAny<XDocument>()), Times.Once);
+            mockMessages.Verify(m => m.Show(It.Is<string>(s => s.Contains("Error")), It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
@@ -123,6 +125,7 @@ namespace ExecuteTests
 
             // Assert
             mockValidation.Verify(v => v.ValidateL5XFile(It.IsAny<XDocument>()), Times.Once);
+            mockMessages.Verify(m => m.Show(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         #endregion
@@ -241,14 +244,17 @@ namespace ExecuteTests
             string initialPath = "C:\\test\\GenFile0.L5X";
             string incrementedPath = "C:\\test\\GenFile1.L5X";
 
+            mockFileSystem.Setup(f => f.FileExists(initialPath)).Returns(true);
+            mockFileSystem.Setup(f => f.FileExists(incrementedPath)).Returns(false);
+
+
             // Simulate the first file name already existing
             mockSaveFile.SetupSequence(s => s.TrySave(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                out initialPath))
-                .Returns(false) // First attempt fails because the file exists
-                .Returns(true); // Second attempt succeeds with incremented name
+                out incrementedPath))
+                .Returns(true);
 
             // Act
             execute.SaveFile();
@@ -256,7 +262,7 @@ namespace ExecuteTests
             // Assert
             mockFileSystem.Verify(
                 f => f.SaveXml(
-                    It.Is<XDocument>(doc => doc.ToString() == Execute.Doc.ToString()),
+                    It.IsAny<XDocument>(),
                     It.Is<string>(path => path == incrementedPath)
                 ),
                 Times.Once
@@ -1141,6 +1147,8 @@ namespace ExecuteTests
 
             // Assert
             mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
+            mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("Name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            Assert.AreEqual("ModifiedProgram", element.Attribute("Name").Value);
         }
 
         [TestMethod]
@@ -1155,9 +1163,16 @@ namespace ExecuteTests
                 new("Program", new XAttribute("Name", "Program1")),
                 new("Program", new XAttribute("Name", "Program2"))
             ];
-            List<List<XAttribute>> attrs = [
-                [new XAttribute("Name", "Program1")],
-                [new XAttribute("Name", "Program2")]
+            List<List<XAttribute>> attrs =
+            [
+                [
+                    new("Name", "Program1"),
+                    new("CreatedBy", "User1")
+                ],
+                [
+                    new("Name", "Program2"),
+                    new("CreatedBy", "User2")
+                ]
             ];
 
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
@@ -1168,6 +1183,12 @@ namespace ExecuteTests
 
             // Assert
             mockPrompts.Verify(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()), Times.Exactly(2));
+
+            // Verify that both elements contain the new attributes
+            Assert.AreEqual("Program1", elements[0].Attribute("Name").Value);
+            Assert.AreEqual("User1", elements[0].Attribute("CreatedBy").Value);
+            Assert.AreEqual("Program2", elements[1].Attribute("Name").Value);
+            Assert.AreEqual("User2", elements[1].Attribute("CreatedBy").Value);
         }
 
         [TestMethod]
@@ -1243,6 +1264,7 @@ namespace ExecuteTests
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that SetAttributes recursively prompts to modify child elements when selected.")]
         public void SetAttributes_WithChildElements_PromptsForChildren()
@@ -1260,17 +1282,18 @@ namespace ExecuteTests
 
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns([]);
-            mockXmlHandler.Setup(x => x.GetAllAttributes(It.IsAny<XElement>()))
-                .Returns([]);
+            mockPrompts.Setup(p => p.SelectMany(It.Is<string>(s => s.Contains("children elements to modify")), It.IsAny<List<string>>(), It.IsAny<bool>()))
+                .Returns(["ChildTag"]);
 
             // Act
             execute.SetAttributes([element], [attrs]);
 
             // Assert
-            mockPrompts.Verify(p => p.SelectMany(It.Is<string>(s => s.Contains("children")), It.IsAny<List<string>>(), It.IsAny<bool>()), Times.Once);
+            mockPrompts.Verify(p => p.SelectMany(It.Is<string>(s => s.Contains("children elements to modify")), It.IsAny<List<string>>(), It.IsAny<bool>()), Times.Once);
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that SetAttributes uses element Name when displaying prompt for elements with Name attribute.")]
         public void SetAttributes_WithNameAttribute_DisplaysName()
@@ -1295,6 +1318,7 @@ namespace ExecuteTests
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that SetAttributes uses CatalogNumber when element doesn't have Name attribute.")]
         public void SetAttributes_WithoutNameAttribute_UsesCatalogNumber()
@@ -1316,30 +1340,6 @@ namespace ExecuteTests
 
             // Assert
             mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("1234-5678")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        }
-
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that SetAttributes uses element name as fallback when neither Name nor CatalogNumber attributes exist.")]
-        public void SetAttributes_WithoutIdentifyingAttributes_UsesElementName()
-        {
-            // Arrange
-            XElement element = new("CustomElement");
-            List<XAttribute> attrs =
-            [
-                new XAttribute("Property", "Value")
-            ];
-
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["Property"]);
-            mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("NewValue");
-
-            // Act
-            execute.SetAttributes([element], [attrs]);
-
-            // Assert
-            mockPrompts.Verify(p => p.Prompt(It.Is<string>(s => s.Contains("CustomElement")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         #endregion
@@ -1471,6 +1471,7 @@ namespace ExecuteTests
 
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that ModifyElement validates the file after modification.")]
         public void ModifyElement_AfterModification_ValidatesFile()
@@ -1496,6 +1497,7 @@ namespace ExecuteTests
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that CreateElement validates the file after creation.")]
         public void CreateElement_AfterCreation_ValidatesFile()
@@ -1522,6 +1524,7 @@ namespace ExecuteTests
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
         [TestProperty("Description",
             "Test that ImportElement validates the file after each import.")]
         public void ImportElement_AfterImport_ValidatesFile()

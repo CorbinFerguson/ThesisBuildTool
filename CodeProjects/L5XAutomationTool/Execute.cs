@@ -59,7 +59,7 @@ namespace L5XAutomationTool
         public void SaveFile()
         {
             // Save the document to a file
-            for (int i = 0; File.Exists(outputPath + outputName + ".L5X"); i++)
+            for (int i = 0; _fs.FileExists(outputPath + outputName + ".L5X"); i++)
                 outputName = Regex.Replace(outputName, @"\d", string.Empty) + i.ToString();
 
             string filter = " L5X Files(*.L5X)|*.L5X|XML Files(*.XML)|*.xml|All Files(*.*)|*.*";
@@ -510,7 +510,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> childElements = element.Elements();
             if (childElements.Any())
             {
-                List<string> childNames = [.. childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct()];
+                List<string> childNames = [.. childElements.Select(i => i.Attribute("Name").Value?.ToString() ?? i.Name.ToString()).Distinct()];
                 List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, true);
 
                 // Access the elements selected and modify them recursively
