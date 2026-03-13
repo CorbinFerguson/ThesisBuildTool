@@ -206,7 +206,8 @@ namespace GuiTesting
 
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
-            AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("BrokenXML.L5X"));
+            AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("BrokenXML.L5X"))
+                                       ?? files.SingleOrDefault(fil => fil.Name.Equals("BrokenXML"));
             TestReport.IsNotNull(templateBroken, "Select BrokenXML.L5X");
 
             // Double-click to load the broken template file
@@ -892,9 +893,10 @@ namespace GuiTesting
 
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
-            AutomationElement templateBroken = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"));
-            TestReport.IsNotNull(templateBroken, "Template file(TemplateProjectV1.L5X) not found.");
-            templateBroken.DoubleClick();
+            AutomationElement templateFile = files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1.L5X"))
+                                             ?? files.SingleOrDefault(fil => fil.Name.Equals("TemplateProjectV1"));
+            TestReport.IsNotNull(templateFile, "Template file (TemplateProjectV1.L5X) not found.");
+            templateFile.DoubleClick();
 
             // Select element type to import (AOI)
             TestReport.Section("Select element type(AOI) to import");
