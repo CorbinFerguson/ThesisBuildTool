@@ -331,39 +331,37 @@ namespace GuiTesting
         "Test that when the user modifies the file in a way that is not valid for the schema, an error window appears.")]
         public void ValidationErrorWindow()
         {
-            // CREATE
-            // Find and click create element button
+            TestReport.Section("Find and click create element button");
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
             createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
-            // Select element type to create
+            TestReport.Section("Select element type to create");
             Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Task"))).SingleOrDefault();
             TestReport.IsNotNull(selectedItem, "Select desired element type from dropdown");
             selectedItem.DoubleClick();
 
-            // Select element template to use
+            TestReport.Section("Select element template to use");
             Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             ListBoxItem selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateContinuous"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(selectedTemplate, "Select desired element type from dropdown");
             selectedTemplate.DoubleClick();
 
-            // Input quantity and names for elements to create
+            TestReport.Section("Input quantity and names for elements to create");
             int quantityToAdd = 2;
             TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
             TestHelper.TextboxSetValue(actionSelect, "genTaskWithError");
             TestHelper.TextboxSetValue(actionSelect, "illegal2ndTask");
 
-            // Find detected errors window and verify error message
+            TestReport.Section("Find detected errors window and verify error message");
             Window detectErrors = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Detected Errors"))).SingleOrDefault().AsWindow();
             TestReport.IsNotNull(detectErrors, "Open Detected Errors window");
 
             TextBox errorsBox = detectErrors.FindAllDescendants(win => win.ByControlType(ControlType.Text).And(win.ByName("ERROR:", PropertyConditionFlags.MatchSubstring))).SingleOrDefault()?.AsTextBox();
             TestReport.IsNotNull(errorsBox, "Read error message");
-            string errorMsg = errorsBox.Text;
 
-            // Click OK to close error window
+            TestReport.Section("Close error window");
             Button ok = detectErrors.FindAllDescendants(win => win.ByControlType(ControlType.Button).And(win.ByName("OK"))).SingleOrDefault()?.AsButton();
             ok.Click();
 
