@@ -32,6 +32,7 @@ namespace GuiTesting
         [TestInitialize]
         public void Startup()
         {
+            TestReport.Section("Startup: Initialize application and automation");
             // Terminate any running instances of the application before starting a new one
             Process[] running = Process.GetProcessesByName("L5XAutomationTool");
             foreach (Process proc in running)
@@ -57,6 +58,7 @@ namespace GuiTesting
         [TestCleanup]
         public void Teardown()
         {
+            TestReport.Section("Teardown: Close application and end test reporting");
             // Close the application and end test reporting
             app?.Close();
             TestReport.End();
@@ -77,7 +79,7 @@ namespace GuiTesting
             // Check that each button is visible
             foreach (AutomationElement button in buttons)
             {
-                TestReport.IsFalse(button.IsOffscreen, "Button is onscreen");
+                TestReport.IsFalse(button.IsOffscreen, $"{button.Name} is onscreen");
             }
 
             TestReport.Section("Verify that all buttons are there");
@@ -122,7 +124,7 @@ namespace GuiTesting
 
             foreach (AutomationElement button in mainMenuButtons)
             {
-                TestReport.Section(button.Name);
+                TestReport.Section($"Testing button: {button.Name}");
                 TestHelper.WaitMilliseconds(shortTimeoutMS);
                 // Ensure ActionSelect is enabled before operation
                 TestReport.IsTrue(actionSelect.IsEnabled, "Action select found");
@@ -152,7 +154,6 @@ namespace GuiTesting
                     TestReport.IsNotNull(close, "Press close button");
                     close.Click();
                 }
-
             }
         }
 
