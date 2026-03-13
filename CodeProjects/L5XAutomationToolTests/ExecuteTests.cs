@@ -231,6 +231,38 @@ namespace ExecuteTests
             mockFileSystem.Verify(f => f.SaveXml(It.IsAny<XDocument>(), It.IsAny<string>()), Times.Never);
         }
 
+        [TestMethod]
+        [TestProperty("Description",
+            "Test that SaveFile handles file name conflicts by appending incremental numbers.")]
+        public void SaveFile_WithExistingFileName_AppendsNumber()
+        {
+            // Arrange
+            Execute.Doc = TestHelper.CreateBasicTestDocument();
+            string initialPath = "C:\\test\\GenFile0.L5X";
+            string incrementedPath = "C:\\test\\GenFile1.L5X";
+
+            // Simulate the first file name already existing
+            mockSaveFile.SetupSequence(s => s.TrySave(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                out initialPath))
+                .Returns(false) // First attempt fails because the file exists
+                .Returns(true); // Second attempt succeeds with incremented name
+
+            // Act
+            execute.SaveFile();
+
+            // Assert
+            mockFileSystem.Verify(
+                f => f.SaveXml(
+                    It.Is<XDocument>(doc => doc.ToString() == Execute.Doc.ToString()),
+                    It.Is<string>(path => path == incrementedPath)
+                ),
+                Times.Once
+            );
+        }
+
         #endregion
 
         #region LoadFile Tests
@@ -1437,27 +1469,6 @@ namespace ExecuteTests
 
         #region Integration-Style Tests
 
-        [TestMethod]
-        [TestProperty("Description",
-            "Test that SaveFile handles file name conflicts by appending incremental numbers.")]
-        public void SaveFile_WithExistingFileName_AppendsNumber()
-        {
-            // Arrange
-            Execute.Doc = TestHelper.CreateBasicTestDocument();
-            string expectedPath = "C:\\test\\GenFile0.L5X";
-            mockSaveFile.Setup(s => s.TrySave(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                out expectedPath))
-                .Returns(true);
-
-            // Act
-            execute.SaveFile();
-
-            // Assert
-            mockFileSystem.Verify(f => f.SaveXml(It.IsAny<XDocument>(), It.IsAny<string>()), Times.Once);
-        }
 
         [TestMethod]
         [TestProperty("Description",
