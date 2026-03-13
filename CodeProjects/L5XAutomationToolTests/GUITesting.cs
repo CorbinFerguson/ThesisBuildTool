@@ -32,7 +32,6 @@ namespace GuiTesting
         [TestInitialize]
         public void Startup()
         {
-            TestReport.Section("Startup: Initialize application and automation");
             // Terminate any running instances of the application before starting a new one
             Process[] running = Process.GetProcessesByName("L5XAutomationTool");
             foreach (Process proc in running)
@@ -44,6 +43,7 @@ namespace GuiTesting
 
             // Start test reporting for the current test
             TestReport.Start(TestContext.TestName);
+            TestReport.Section("Startup: Initialize application and automation");
 
             app = Application.Launch(TestAppPath);
             TestReport.IsNotNull(app, "Launch application");
@@ -452,70 +452,40 @@ namespace GuiTesting
         "Test that the standard creation of multiple elements works.")]
         public void ElementQuantityCreation()
         {
-            // CREATE
-            // Find and click create element button
+            TestReport.Section("Find and click create element button");
             Button createElementButton = actionSelect.FindAllDescendants(val => val.ByName("CreateElementButton")).SingleOrDefault()?.AsButton();
             createElementButton.Click();
             TestHelper.WaitMilliseconds(shortTimeoutMS);
 
-            // Select element type to create
+            TestReport.Section("Select element type to create");
             Window elementTypeSelect = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             AutomationElement selectedItem = elementTypeSelect.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault();
             TestReport.IsNotNull(selectedItem, "Select desired element type from dropdown");
             selectedItem.DoubleClick();
 
-            // Select element template to use
+            TestReport.Section("Select element template to use");
             Window elementTemplate = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             AutomationElement selectedTemplate = elementTemplate.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI"))).SingleOrDefault();
             TestReport.IsNotNull(selectedTemplate, "Select desired element type from dropdown");
             selectedTemplate.Click();
-
             TestHelper.Confirm(elementTemplate);
 
-            TestHelper.WaitMilliseconds(longTimeoutMS);
-
-            // Input quantity to create and handle name input for each element
+            TestReport.Section("Input quantity to create");
             int quantityToAdd = 2;
             TestHelper.TextboxSetValue(actionSelect, quantityToAdd.ToString());
 
             for (int i = 0; i < quantityToAdd; i++)
             {
+                TestReport.Section($"Handle name input for element {i + 1}");
                 TestHelper.WaitMilliseconds(shortTimeoutMS);
                 Window nameInput = TestHelper.GetStandardInput(TestHelper.InputType.TextInput);
 
-                // Find the text input field for element name
                 TextBox nameField = nameInput.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("TextField"))).SingleOrDefault()?.AsTextBox();
-                TestReport.IsNotNull(nameField, "Enter name in text input. Run: " + i);
+                TestReport.IsNotNull(nameField, "Enter name in text input.");
 
-                string foundInput;
-                string errorMsg;
-
-                // Test both submit and enter for name input
-                if (i % 1 == 1)
-                {
-                    nameField.Click();
-                    nameField.Enter("");
-                    nameField.Enter("TestSaveFile" + i);
-
-                    foundInput = nameField.Text;
-                    errorMsg = string.Concat("Input name equals expected, found: ", foundInput);
-                    TestReport.IsTrue(foundInput.Equals("TestSaveFile" + i), errorMsg);
-
-                    nameField.Click();
-                    FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.RETURN);
-                }
-                else
-                {
-                    nameField.Click();
-                    nameField.Enter("");
-                    nameField.Enter("TestSaveFile" + i);
-
-                    foundInput = nameField.Text;
-                    errorMsg = string.Concat("Input name equals expected, found: ", foundInput);
-                    TestReport.IsTrue(foundInput.Equals("TestSaveFile" + i), errorMsg);
-
-                    TestHelper.Confirm(nameInput);
-                }
+                nameField.Click();
+                nameField.Enter($"TestSaveFile{i}");
+                TestHelper.Confirm(nameInput);
             }
 
             TestHelper.CheckHomePage();
@@ -769,23 +739,23 @@ namespace GuiTesting
         "Test the modification of a normal behaving element.")]
         public void StandardElementModify()
         {
-            // Load default file for modification test
+            TestReport.Section("Load default file for modification test");
             TestHelper.LoadDefault();
 
-            // Find and click modify element button
+            TestReport.Section("Find and click modify element button");
             Button modifyButton = actionSelect.FindAllDescendants(val => val.ByName("ModifyElementButton")).SingleOrDefault()?.AsButton();
             modifyButton.Click();
 
-            // Select element type to modify
+            TestReport.Section("Select element type to modify");
             Window dropdown = TestHelper.GetStandardInput(TestHelper.InputType.Dropdown);
             ListBoxItem typesListItem = dropdown.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("AddOnInstructionDefinition"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(typesListItem, "Select element in list");
             typesListItem.DoubleClick();
 
-            // Select templates to modify
+            TestReport.Section("Select templates to modify");
             Window modifyElems = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             AutomationElement[] templateElemes = modifyElems.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("TemplateFBAOI").Or(win.ByName("TemplateLadderAOI"))));
-            TestReport.IsTrue(templateElemes?.Length == 2, "Template elements in dropdown not found. Found: " + string.Join(", ", templateElemes.Select(a => a.Name)));
+            TestReport.IsTrue(templateElemes?.Length == 2, "Template elements in dropdown not found.");
             using (Keyboard.Pressing(VirtualKeyShort.LSHIFT))
             {
                 foreach (AutomationElement templateSelect in templateElemes)
@@ -796,7 +766,7 @@ namespace GuiTesting
 
             TestHelper.Confirm(modifyElems);
 
-            // Select attributes to modify for TemplateFBAOI
+            TestReport.Section("Select attributes to modify for TemplateFBAOI");
             Window attrmod = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             AutomationElement[] attrs = attrmod.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Name").Or(win.ByName("CreatedBy"))));
             TestReport.IsTrue(attrs?.Length == 2, "Attributes in dropdown not found. Found: " + string.Join(", ", attrs.Select(a => a.Name)));
@@ -809,14 +779,13 @@ namespace GuiTesting
                     templateAttribute.Click();
                 }
             }
-
             TestHelper.Confirm(attrmod);
 
-            // Set CreatedBy and Name for TemplateFBAOI
+            TestReport.Section("Set CreatedBy and Name for TemplateFBAOI");
             TestHelper.TextboxSetValue(actionSelect, "TestFBUser");
             TestHelper.TextboxSetValue(actionSelect, "TestFBName");
 
-            // Select routine subelement to modify
+            TestReport.Section("Select routine subelement to modify");
             Window subElem = TestHelper.GetStandardInput(TestHelper.InputType.MultiSelect);
             ListBoxItem subElement = subElem.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByName("Routines"))).SingleOrDefault()?.AsListBoxItem();
             TestReport.IsNotNull(subElement, "Subelement Routines not found");

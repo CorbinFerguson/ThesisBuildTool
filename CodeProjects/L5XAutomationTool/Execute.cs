@@ -510,7 +510,7 @@ namespace L5XAutomationTool
             IEnumerable<XElement> childElements = element.Elements();
             if (childElements.Any())
             {
-                List<string> childNames = [.. childElements.Select(i => i.Attribute("Name").Value?.ToString() ?? i.Name.ToString()).Distinct()];
+                List<string> childNames = [.. childElements.Select(i => i.Attribute("Name")?.ToString() ?? i.Name.ToString()).Distinct()];
                 List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, true);
 
                 // Access the elements selected and modify them recursively
