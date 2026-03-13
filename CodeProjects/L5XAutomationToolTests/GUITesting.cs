@@ -64,6 +64,8 @@ namespace GuiTesting
             TestReport.End();
         }
 
+        #region File Manipulation
+
         [TestMethod]
         [TestCategory("File Manipulation")]
         [TestCategory("GUI_Test")]
@@ -368,6 +370,10 @@ namespace GuiTesting
             TestHelper.CheckHomePage();
         }
 
+        #endregion
+
+        #region Create
+
         [TestMethod]
         [TestCategory("GUI_Create")]
         [TestCategory("GUI_Test")]
@@ -521,6 +527,10 @@ namespace GuiTesting
             TestHelper.CheckHomePage();
         }
 
+        #endregion
+
+        #region Delete
+
         [TestMethod]
         [TestCategory("GUI_Delete")]
         [TestCategory("GUI_Test")]
@@ -650,6 +660,10 @@ namespace GuiTesting
 
             TestHelper.CheckHomePage();
         }
+
+        #endregion
+
+        #region Modify
 
         [TestMethod]
         [TestCategory("GUI_Modify")]
@@ -834,6 +848,8 @@ namespace GuiTesting
 
             TestHelper.CheckHomePage();
         }
+
+        #endregion
 
         [TestMethod]
         [TestCategory("GUI_Import")]

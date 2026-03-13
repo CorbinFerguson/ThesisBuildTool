@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Reporting;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -1467,8 +1466,7 @@ namespace ExecuteTests
 
         #endregion
 
-        #region Integration-Style Tests
-
+        #region Misc Tests
 
         [TestMethod]
         [TestCategory("Execute_UnitTest")]
