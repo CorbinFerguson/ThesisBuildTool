@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
+  <Class Name="L5XAutomationTool.ElementHelper">
+    <Position X="1.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAABAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAIQAAAgA=</HashCode>
+      <FileName>ElementHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="L5XAutomationTool.Execute">
+    <Position X="7" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>BAmAAAAIAAAkEQAAAAJAAIEoCAAAAEGEFAAAAAAABAA=</HashCode>
+      <FileName>Execute.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_fs" />
+      <Field Name="_messages" />
+      <Field Name="_openFile" />
+      <Field Name="_prompts" />
+      <Field Name="_saveFile" />
+      <Field Name="_validation" />
+      <Field Name="_xml" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="L5XAutomationTool.Program" Collapsed="true">
+    <Position X="12" Y="9.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="L5XAutomationTool.XMLHandler">
+    <Position X="4.5" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAACGCAAAAQAAQAAAAAAAAAAAhCAgBAFAAAAAKAAAAA=</HashCode>
+      <FileName>XMLHandler.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="disambiguator" />
+      <Field Name="ElementInfo" />
+      <Field Name="validator" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="L5XAutomationTool.Forms.ActionSelect">
+    <Position X="10" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BBIAAAEAACAkABAgAiCAAAgKAGAAAAIAAAAAhAAACAA=</HashCode>
+      <FileName>Forms\ActionSelect.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_app" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="L5XAutomationTool.Forms.DropdownGui">
+    <Position X="11.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAACAABAQCAACAAAECAAAAAAAAEAAAAAABACA=</HashCode>
+      <FileName>Forms\DropdownGui.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="L5XAutomationTool.Forms.MultiSelectDropdown">
+    <Position X="15.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAIAAAACIABAQAIACAAAECAAAAAAAAEAAAAAAAACA=</HashCode>
+      <FileName>Forms\MultiSelectDropdown.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="L5XAutomationTool.Forms.TextInput">
+    <Position X="13.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAQAAAyBAQECAAAQAAAAAABAAAAIACA=</HashCode>
+      <FileName>Forms\TextInput.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="L5XAutomationTool.GUIAccessors.SchemaDisambiguator" BaseTypeListCollapsed="true">
+    <Position X="4" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAgABAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>GUIAccessors.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_prompts" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="System.Windows.Forms.Form" Collapsed="true">
+    <Position X="12.75" Y="4" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Public" Collapsed="true" />
+      <Compartment Name="Protected" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="System.Windows.Forms.Form.ControlCollection" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier />
+  </Class>
+  <Interface Name="L5XAutomationTool.IMessageService">
+    <Position X="8.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.IUserPromptService">
+    <Position X="4.5" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAEAAAAICAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.IOpenFileService">
+    <Position X="8" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.IFileSystem">
+    <Position X="3" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAABAAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.ISaveFileService">
+    <Position X="6.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.IValidationService">
+    <Position X="5.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="L5XAutomationTool.ISchemaDisambiguator">
+    <Position X="2" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>InterfaceAbstractions.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
