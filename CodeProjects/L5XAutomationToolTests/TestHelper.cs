@@ -203,6 +203,8 @@ namespace L5XAutomationToolTestHelpers
             filePathEdit.AsTextBox().Enter(TestXMLsPath);
             Keyboard.Press(VirtualKeyShort.ENTER);
 
+            WaitMilliseconds(shortWait);
+
             // Choose the specific template file and open it.
             AutomationElement[] files = fileExplorer
                 .FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));
