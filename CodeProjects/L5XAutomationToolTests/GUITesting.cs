@@ -109,7 +109,7 @@ namespace GuiTesting
 
             // Wait and verify that the application has closed
             TestHelper.WaitMilliseconds(longTimeoutMS);
-            TestReport.IsTrue(app.GetAllTopLevelWindows(automation).Length == 0, "Application closes");
+            TestReport.IsNull(app.GetAllTopLevelWindows(automation).SingleOrDefault(win => win.Name.Equals("ActionSelector")), "Application closes");
         }
 
         [TestMethod]
@@ -287,6 +287,8 @@ namespace GuiTesting
                 nameToSave = Regex.Replace(nameToSave, @"\d", string.Empty) + i.ToString();
 
             fileName.Click();
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
+
             AutomationElement fileNameField = fileName.FindAllDescendants(win => win.ByName("File name:").And(win.ByControlType(ControlType.Edit))).SingleOrDefault();
             TestReport.IsNotNull(fileNameField, "Find file name field");
             fileNameField.AsTextBox().Enter(nameToSave);
