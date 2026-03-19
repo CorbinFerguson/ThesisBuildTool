@@ -324,27 +324,31 @@ namespace ExecuteTests
         [TestCategory("Execute_UnitTest")]
         [TestCategory("ModifyElement")]
         [TestProperty("Description",
-            "Test that ModifyElement allows the user to select and modify elements of type Program from the document.")]
-        public void ModifyElement_SelectsProgramType_ModifiesElements()
+            "Test that ModifyElement allows the user to select and modify elements from the document.")]
+        public void ModifyElement_BasicFunctionality_ModifiesElement()
         {
             // Arrange
             Execute.Doc = TestHelper.CreateBasicTestDocument();
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(TestHelper.CreateBasicTestDocument());
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Program");
-            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["MainProgram"]);
+                .Returns("AddOnInstructionDefinition");
+            mockPrompts.SetupSequence(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns(["TestAOI"])
+                .Returns(["Name"]);
+            mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("NewName");
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<bool>()))
+                .Returns([]);
 
             // Act
             execute.ModifyElement();
 
             // Assert
-            mockXmlHandler.Verify(x => x.GetElementTypes(It.IsAny<XDocument>()), Times.Once);
             mockPrompts.Verify(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
 
-            XElement modifiedElement = Execute.Doc.Descendants("Program")
-                .FirstOrDefault(p => p.Attribute("Name")?.Value == "MainProgram");
+            XElement modifiedElement = Execute.Doc.Descendants("AddOnInstructionDefinition")
+                .FirstOrDefault(p => p.Attribute("Name")?.Value == "NewName");
             Assert.IsNotNull(modifiedElement);
         }
 
