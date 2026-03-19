@@ -356,15 +356,17 @@ namespace ExecuteTests
         public void ModifyElement_SelectsModuleType_UsesCatalogNumber()
         {
             // Arrange
-            XDocument templateDoc = XDocument.Load("../../../../L5XFiles/TemplateFiles/TemplateProjectV1.L5X");
-            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(TestHelper.CreateBasicTestDocument());
             Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
             mockPrompts.SetupSequence(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns(["1234-5678"])
-                .Returns(["1234-5678 with no Name at port 1"]);
+                .Returns(["1234-5678 with no Name at port 192.168.1.1"])
+                .Returns([]);
+            mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<bool>()))
+                .Returns([]);
 
             // Act
             execute.ModifyElement();
@@ -373,7 +375,7 @@ namespace ExecuteTests
             // Verify that SelectMany was called with the expected options
             mockPrompts.Verify(p => p.SelectMany(
                 It.Is<string>(s => s.Contains("Select specific Module")),
-                It.Is<List<string>>(options => options.Contains("1234-5678 with no Name at port 1"))
+                It.Is<List<string>>(options => options.Contains("1234-5678 with no Name at port 192.168.1.1"))
             ), Times.Once);
         }
 

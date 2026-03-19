@@ -9,7 +9,7 @@
 
         public MultiSelectDropdown(List<string> names, string text, bool acceptEmptyList = false)
         {
-            if (names.Count() == 0)
+            if (names.Count == 0)
             {
                 throw new EmptyListException("Attempted to initialize dropdown gui with no elements");
             }

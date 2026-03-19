@@ -517,7 +517,7 @@ namespace L5XAutomationTool
                 List<string> selectedChildren = _prompts.SelectMany("Select children elements to modify (hit confirm with none selected or X to skip this step)", childNames, true);
 
                 // Access the elements selected and modify them recursively
-                childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString())).Elements();
+                childElements = childElements.Where(i => selectedChildren.Contains(i.Attribute("Name")?.ToString() ?? i.Name.ToString()))?.Elements();
                 List<List<XAttribute>> attributes = _xml.GetAttributes(childElements);
                 SetAttributes(childElements, attributes);
             }
