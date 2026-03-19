@@ -1,2 +1,2 @@
 curl.exe -sO https://us-gre-lpus-jenkins.ncsa.endress.com/jnlpJars/agent.jar
-java -jar agent.jar -url https://us-gre-lpus-jenkins.ncsa.endress.com/ -secret 1ba9ee09e34ab7469ca6f5a83f4f29748d528e44b45ac8983af7fd36514322a8 -name NUSGREPCMD0037 -webSocket -workDir "c:\jenkins"
+java -jar agent.jar -noCertificateCheck -url https://us-gre-lpus-jenkins.ncsa.endress.com/ -secret 1ba9ee09e34ab7469ca6f5a83f4f29748d528e44b45ac8983af7fd36514322a8 -name NUSGREPCMD0037 -webSocket -workDir "c:\jenkins"
