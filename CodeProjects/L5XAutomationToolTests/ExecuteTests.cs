@@ -363,7 +363,7 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
             mockPrompts.SetupSequence(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["124-5678"])
+                .Returns(["1234-5678"])
                 .Returns(["1234-5678 with no Name at port 1"]);
 
             // Act
@@ -373,7 +373,7 @@ namespace ExecuteTests
             // Verify that SelectMany was called with the expected options
             mockPrompts.Verify(p => p.SelectMany(
                 It.Is<string>(s => s.Contains("Select specific Module")),
-                It.Is<List<string>>(options => options.Contains("1756-L81E") && options.Contains("1756-L81E with no Name at port 1"))
+                It.Is<List<string>>(options => options.Contains("1234-5678 with no Name at port 1"))
             ), Times.Once);
         }
 

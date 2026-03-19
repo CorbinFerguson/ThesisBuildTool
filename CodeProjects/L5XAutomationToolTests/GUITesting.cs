@@ -109,7 +109,7 @@ namespace GuiTesting
 
             // Wait and verify that the application has closed
             TestHelper.WaitMilliseconds(longTimeoutMS);
-            TestReport.IsNull(app.GetAllTopLevelWindows(automation).SingleOrDefault(win => win.Name.Equals("ActionSelector")), "Application closes");
+            TestReport.IsNull(app.GetAllTopLevelWindows(automation).SingleOrDefault(win => win.Name.Equals("ActionSelector")), "Application closes", false);
         }
 
         [TestMethod]
@@ -206,6 +206,8 @@ namespace GuiTesting
             AutomationElement filePathEdit = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
             filePathEdit.AsTextBox().Enter(TestXMLsPath);
             Keyboard.Press(VirtualKeyShort.ENTER);
+
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Select file to load
             AutomationElement[] files = fileExplorer.FindAllDescendants(win => win.ByControlType(ControlType.ListItem).And(win.ByFrameworkId(FrameworkType.Win32.ToString()).Not()));

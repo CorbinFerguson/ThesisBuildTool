@@ -75,7 +75,14 @@ namespace L5XAutomationToolTestHelpers
                         new XElement("Modules",
                             new XElement("Module",
                                 new XAttribute("Name", "TestModule"),
-                                new XAttribute("CatalogNumber", "1234-5678"))
+                                new XAttribute("CatalogNumber", "1234-5678"),
+                                new XElement("Ports",
+                                    new XElement("Port",
+                                        new XAttribute("Type", "Ethernet"),
+                                        new XAttribute("Address", "192.168.1.1")
+                                    )
+                                )
+                            )
                         )
                     )
                 )
