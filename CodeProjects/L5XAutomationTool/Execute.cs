@@ -173,9 +173,6 @@ namespace L5XAutomationTool
 
                                 ex.parentNode.SetAttributeValue(attributeName, newVal);
                             }
-                            // Remove all elements in returned elements up to that broken element
-                            int indexElement = returnedElement.FindIndex(el => ex.parentNode.Descendants(typeSelected).Any(deep => XNode.DeepEquals(el, deep)));
-                            returnedElement.RemoveRange(0, indexElement + 1);
 
                             Doc = _xml.InsertElement(Doc, ex.parentNode);
 
@@ -195,6 +192,12 @@ namespace L5XAutomationTool
                             // Reset the helper
                             _xml.ElementInfo.ResetElements();
                             _xml.ElementInfo.ParentElementBulk = parent;
+                            retry = true;
+                        }
+                        catch (AmbiguousSchemaPathException ex)
+                        {
+                            string selectedPath = _prompts.SelectOne("Multiple schema paths detected. Select the path you would like to use.", ex.CandidateParentNames, "Ambiguous Schema Path");
+                            _xml.ElementInfo.ParentElementBulk = new XElement(selectedPath);
                             retry = true;
                         }
                     } while (retry);
@@ -251,7 +254,7 @@ namespace L5XAutomationTool
                     string chosenIP = element.Descendants("Port").Single(i => i.Attribute("Type").Value.ToString().Equals("Ethernet")).Attribute("Address")?.Value ?? "192.168.1.1";
                     while (takenIPs.Contains(chosenIP))
                     {
-                        _prompts.Prompt("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex, "IP Value");
+                        chosenIP = _prompts.Prompt("Input User IP Address or 'HostName' for " + element.Attribute("Name")?.Value ?? element.Attribute("CatalogNumber").Value, "192.168.1.1", ipRegex, "IP Value");
                     }
                     // Set the value of IP
                     element.Descendants("Port").Single(i => i.Attribute("Type").Value.Equals("Ethernet")).Attribute("Address").SetValue(chosenIP);
@@ -291,7 +294,7 @@ namespace L5XAutomationTool
             List<string> bulkNames = [];
             for (int i = 0; i < quantity; i++)
             {
-                if (typeSelected != "Module" || element.Attribute("Use") == null)
+                if (typeSelected != "Module" && element.Attribute("Use") == null)
                 {
                     // Prompt user for name of item and assign it
                     string itemName = _prompts.Prompt("Input a name for created " + element.Name + " #" + (i + 1).ToString(), "", @"^[a-zA-Z]+(\w*[A-Za-z0-9])*$", "Create Element");

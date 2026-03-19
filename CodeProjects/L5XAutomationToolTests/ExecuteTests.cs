@@ -329,7 +329,7 @@ namespace ExecuteTests
         {
             // Arrange
             Execute.Doc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = TestHelper.CreateBasicTestDocument();
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(TestHelper.CreateBasicTestDocument());
 
             mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
@@ -536,24 +536,19 @@ namespace ExecuteTests
         {
             // Arrange
             string filePath = "C:\\test\\import.L5X";
-            XDocument importDoc = TestHelper.CreateBasicTestDocument();
-            XElement parentNode = new("Controller", new XAttribute("Name", "TestController"));
-            XElement schemaAttr = new("attribute", new XAttribute("name", "ProcessorType"));
-            ParentMissingException exception = new(parentNode, [schemaAttr]);
+
+            Execute.Doc = TestHelper.CreateEmptyDocument();
 
             mockOpenFile.Setup(o => o.TryOpen(It.IsAny<string>(), It.IsAny<string>(), out filePath))
                 .Returns(true);
-            mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(importDoc);
-            mockPrompts.Setup(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Program");
+            mockFileSystem.Setup(f => f.LoadXml(filePath)).Returns(TestHelper.CreateBasicTestDocument());
+            mockPrompts.SetupSequence(p => p.SelectOne(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("Routine")
+                .Returns("AddOnInstructionDefinition");
             mockPrompts.Setup(p => p.SelectMany(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns(["MainProgram"]);
-            mockPrompts.Setup(p => p.Prompt(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("1756-L83E");
+                .Returns(["MainRoutine"]);
             mockMessages.Setup(m => m.Confirm(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false);
-
-            Execute.Doc = TestHelper.CreateBasicTestDocument();
 
             // Act
             execute.ImportElement();
@@ -563,6 +558,8 @@ namespace ExecuteTests
         }
 
         [TestMethod]
+        [TestCategory("Execute_UnitTest")]
+        [TestCategory("ImportElement")]
         [TestProperty("Description",
             "Test that ImportElement properly handles ClashingElementException by invoking HandleClashes.")]
         public void ImportElement_WithClashingElementException_HandlesClash()
@@ -797,37 +794,6 @@ namespace ExecuteTests
         }
 
         [TestMethod]
-        [TestCategory("Execute_UnitTest")]
-        [TestCategory("CreateElement")]
-        [TestProperty("Description",
-            "Test that CreateElement properly handles Program elements and prompts for task assignment.")]
-        public void CreateElement_WithProgramType_PromptsForTaskAssignment()
-        {
-            // Arrange
-            XDocument templateDoc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = templateDoc;
-
-            mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("Program");
-            mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("ProgramWithRoutine");
-            mockPrompts.Setup(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("MainTask");
-            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("1");
-            mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns("NewProgram");
-
-            Execute.Doc = TestHelper.CreateEmptyDocument();
-
-            // Act
-            execute.CreateElement();
-
-            // Assert
-            mockPrompts.Verify(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
-        }
-
-        [TestMethod]
         [TestProperty("Description",
             "Test that CreateElement handles ClashingElementException and aborts on cancel.")]
         public void CreateElement_WithClashingElement_HandlesCancel()
@@ -970,7 +936,15 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
 
-            Execute.Doc = TestHelper.CreateEmptyDocument();
+            XDocument mainDoc = TestHelper.CreateBasicTestDocument();
+            mainDoc.Descendants("Module").Single().Add(
+                                new XAttribute("ParentModule", "Local"),
+                                new XElement("Ports",
+                                    new XElement("Port",
+                                        new XAttribute("Type", "ICP"),
+                                        new XAttribute("Address", "1")
+                                )));
+            Execute.Doc = mainDoc;
 
             // Act
             execute.CreateElement();
@@ -1019,13 +993,21 @@ namespace ExecuteTests
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Module");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("1756-IA16");
+                .Returns("1234-EN");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("IP Address")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("192.168.1.2");
 
-            Execute.Doc = TestHelper.CreateEmptyDocument();
+            XDocument mainDoc = TestHelper.CreateBasicTestDocument();
+            mainDoc.Descendants("Module").Single().Add(
+                                new XAttribute("ParentModule", "Local"),
+                                new XElement("Ports",
+                                    new XElement("Port",
+                                        new XAttribute("Type", "Ethernet"),
+                                        new XAttribute("Address", "192.168.1.1")
+                                )));
+            Execute.Doc = mainDoc;
 
             // Act
             execute.CreateElement();
@@ -1055,7 +1037,6 @@ namespace ExecuteTests
             );
 
             mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(templateDoc);
-            mockXmlHandler.Object.inputFile = templateDoc;
             mockXmlHandler.Object.ElementInfo.RootPath = new LinkedList<string>();
 
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
@@ -1080,9 +1061,6 @@ namespace ExecuteTests
         public void CreateElement_WithProgramAndTask_SchedulesProgram()
         {
             // Arrange
-            XDocument templateDoc = TestHelper.CreateBasicTestDocument();
-            mockXmlHandler.Object.inputFile = templateDoc;
-
             Execute.Doc = new XDocument(
                 new XElement("RSLogix5000Content",
                     new XElement("Controller",
@@ -1097,21 +1075,25 @@ namespace ExecuteTests
                 )
             );
 
-            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(TestHelper.CreateEmptyDocument());
+            mockFileSystem.Setup(f => f.LoadXml(It.IsAny<string>())).Returns(TestHelper.CreateBasicTestDocument());
             mockPrompts.Setup(p => p.SelectOne("Select Element Type", It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns("Program");
             mockPrompts.Setup(p => p.SelectOne("Select element template", It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns("TemplateContinuous");
+                .Returns("MainProgram");
+            mockPrompts.Setup(p => p.SelectOne(It.Is<string>(s => s.Contains("Select the parent task")), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns("MainTask");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("How many")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("1");
             mockPrompts.Setup(p => p.Prompt(It.Is<string>(s => s.Contains("Input a name")), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns("NewProgram");
 
 
+
             // Act
             execute.CreateElement();
 
             // Assert
+            mockPrompts.Verify(p => p.SelectOne("Select the parent task for inserted program", It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
             XElement task = Execute.Doc.Descendants("Task").FirstOrDefault(t => t.Attribute("Name")?.Value == "MainTask");
             Assert.IsNotNull(task);
             XElement newProgram = Execute.Doc.Descendants("Program").FirstOrDefault(p => p.Attribute("Name")?.Value == "NewProgram");

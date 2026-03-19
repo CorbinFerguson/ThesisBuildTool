@@ -61,8 +61,11 @@ namespace L5XAutomationToolTestHelpers
                         new XAttribute("Name", "TestController"),
                         new XElement("AddOnInstructionDefinitions",
                             new XElement("AddOnInstructionDefinition",
-                                new XAttribute("Name", "TestAOI"))
-                        ),
+                                new XAttribute("Name", "TestAOI"),
+                                new XElement("Routines",
+                                new XElement("Routine",
+                                new XAttribute("Name", "MainRoutine")
+                        )))),
                         new XElement("Programs",
                             new XElement("Program", new XAttribute("Name", "MainProgram"))
                         ),
