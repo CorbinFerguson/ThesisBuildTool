@@ -275,6 +275,7 @@ namespace GuiTesting
 
             filePathEdit = fileExp.FindAllDescendants(win => win.ByControlType(ControlType.Edit).And(win.ByName("Address", PropertyConditionFlags.MatchSubstring))).SingleOrDefault();
 
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
             string saveResultPath = Path.GetFullPath(Path.Combine(TestXMLsPath, "TestResults"));
             filePathEdit.AsTextBox().Enter(saveResultPath);
             Keyboard.Press(VirtualKeyShort.ENTER);
