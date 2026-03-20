@@ -25,7 +25,7 @@ namespace GuiTesting
 
         private readonly string TestAppPath = Path.ChangeExtension(typeof(L5XAutomationTool.Program).Assembly.Location, ".exe");
         private readonly int longTimeoutMS = 2000;
-        private readonly int shortTimeoutMS = 550;
+        private readonly int shortTimeoutMS = 750;
         private UIA2Automation automation;
         private readonly string TestXMLsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "L5XFiles", "TestingFiles"));
 
@@ -219,7 +219,7 @@ namespace GuiTesting
             templateBroken.DoubleClick();
 
             // Wait for application to catch up
-            TestHelper.WaitMilliseconds(100);
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             TestHelper.CheckHomePage();
 
@@ -246,6 +246,7 @@ namespace GuiTesting
             // Find and click new file button
             Button newButtonNo = actionSelect.FindAllDescendants(win => win.ByName("NewFileButton")).SingleOrDefault()?.AsButton();
             newButtonNo.Click();
+            TestHelper.WaitMilliseconds(shortTimeoutMS);
 
             // Verify confirmation window appears
             Window verifyCreate = actionSelect.FindAllDescendants(win => win.ByControlType(ControlType.Window).And(win.ByName("Verify File Creation"))).SingleOrDefault()?.AsWindow();

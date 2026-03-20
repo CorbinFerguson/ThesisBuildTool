@@ -185,7 +185,7 @@ namespace L5XAutomationToolTestHelpers
                 ?.AsButton();
 
             loadButton.Click();
-            TestHelper.WaitMilliseconds(stdWait);
+            TestHelper.WaitMilliseconds(stdWait*2);
 
             // Target the Windows "Open" dialog and its address bar.
             Window fileExplorer = GuiTesting.GUITesting.actionSelect

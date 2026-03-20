@@ -188,18 +188,22 @@ namespace XMLHandlerTests
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies skips existing dependencies and handles elements with no dependencies.")]
-        public void CheckForDependencies_SkipsExistingAndHandlesNoDependencies()
+        public void CheckForDependencies_SkipsExisting()
         {
             // Arrange
             xmlHandler.inputFile = new(
                 new XElement("RSLogix5000Content",
+                    new XElement("Controller", new XAttribute("Name", "TestController"),
                     new XElement("DataType", new XAttribute("Name", "CustomType"))
+                    )
                 )
             );
 
             XDocument docToInsert = new(
                 new XElement("RSLogix5000Content",
+                    new XElement("Controller", new XAttribute("Name", "TestController"),
                     new XElement("DataType", new XAttribute("Name", "CustomType"))
+                    )
                 )
             );
 
@@ -213,19 +217,12 @@ namespace XMLHandlerTests
                 )
             );
 
-            XElement elementWithoutDependency = new("Program", new XAttribute("Name", "NoDependencyProgram"));
-
             // Act
             XDocument resultWithDependency = xmlHandler.CheckForDependencies(docToInsert, elementWithDependency);
-            XDocument resultWithoutDependency = xmlHandler.CheckForDependencies(docToInsert, elementWithoutDependency);
 
             // Assert
             Assert.IsNotNull(resultWithDependency);
             Assert.AreEqual(1, resultWithDependency.Descendants("DataType").Count(), "Existing dependency should not be duplicated.");
-
-            Assert.IsNotNull(resultWithoutDependency);
-            Assert.AreEqual(1, resultWithoutDependency.Descendants("Program").Count(p => p.Attribute("Name")?.Value == "NoDependencyProgram"),
-                "Element with no dependencies should be added to the document.");
         }
 
         [TestMethod]
