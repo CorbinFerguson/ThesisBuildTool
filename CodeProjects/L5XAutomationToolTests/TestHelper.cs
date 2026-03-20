@@ -210,7 +210,7 @@ namespace L5XAutomationToolTestHelpers
             filePathEdit.AsTextBox().Enter(TestXMLsPath);
             Keyboard.Press(VirtualKeyShort.ENTER);
 
-            WaitMilliseconds(shortWait);
+            WaitMilliseconds((int)(shortWait * 1.5));
 
             // Choose the specific template file and open it.
             AutomationElement[] files = fileExplorer

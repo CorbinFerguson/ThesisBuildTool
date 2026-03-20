@@ -79,7 +79,7 @@ namespace XMLHandlerTests
                 new XElement("RSLogix5000Content",
                     new XElement("Program", new XAttribute("Name", "TestProgram")),
                     new XElement("Task", new XAttribute("Name", "TestTask")),
-                    new XElement("Datatype", new XAttribute("Name", "TestDatatype"))
+                    new XElement("DataType", new XAttribute("Name", "TestDatatype"))
                 )
             );
 
@@ -91,7 +91,7 @@ namespace XMLHandlerTests
             Assert.HasCount(3, types, "The list should contain exactly 3 types.");
             Assert.Contains("Program", types);
             Assert.Contains("Task", types);
-            Assert.Contains("Datatype", types);
+            Assert.Contains("DataType", types);
         }
 
         [TestMethod]
@@ -114,132 +114,57 @@ namespace XMLHandlerTests
         [TestMethod]
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
-            "Test that CheckForDependencies identifies and adds dependent elements to the document when dependencies exist in the source element.")]
-        public void CheckForDependencies_AddsDependentElements_WhenDependenciesExist()
-        {
-            // Arrange
-            xmlHandler.inputFile = new(
-                new XElement("RSLogix5000Content",
-                    new XElement("AddOnInstructionDefinition", new XAttribute("Name", "MainAOI")),
-                    new XElement("Datatype", new XAttribute("Name", "CustomType"))
-                )
-            );
-
-            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
-            XElement element = new("AddOnInstructionDefinition",
-                new XAttribute("Name", "MainAOI"),
-                new XElement("Dependencies",
-                    new XElement("Dependency",
-                        new XAttribute("Type", "Datatype"),
-                        new XAttribute("Name", "CustomType")
-                    )
-                )
-            );
-
-            // Act
-            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Descendants("Datatype").Count(), "The dependent Datatype element was not added to the document.");
-        }
-
-        [TestMethod]
-        [TestCategory("XMLHandler_UnitTest")]
-        [TestProperty("Description",
-            "Test that CheckForDependencies skips adding dependencies that already exist in the target document to avoid duplication.")]
-        public void CheckForDependencies_SkipsDependencies_WhenAlreadyExist()
-        {
-            // Arrange
-            xmlHandler.inputFile = new(
-                new XElement("RSLogix5000Content",
-                    new XElement("Datatype", new XAttribute("Name", "CustomType"))
-                )
-            );
-
-            XDocument docToInsert = new(
-                new XElement("RSLogix5000Content",
-                    new XElement("Datatype", new XAttribute("Name", "CustomType"))
-                )
-            );
-
-            XElement element = new("Program",
-                new XAttribute("Name", "MainProgram"),
-                new XElement("Dependencies",
-                    new XElement("Dependency",
-                        new XAttribute("Name", "CustomType"),
-                        new XAttribute("Type", "Datatype")
-                    )
-                )
-            );
-
-            // Act
-            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Descendants("Datatype").Count());
-        }
-
-        [TestMethod]
-        [TestCategory("XMLHandler_UnitTest")]
-        [TestProperty("Description",
-            "Test that CheckForDependencies properly handles elements with a ParentModule attribute when the module is not local.")]
-        public void CheckForDependencies_HandlesParentModule_WhenNotLocal()
-        {
-            // Arrange
-            xmlHandler.inputFile = new(
-                new XElement("RSLogix5000Content",
-                    new XElement("Module", new XAttribute("Name", "ParentModule")),
-                    new XElement("LocalTag", new XAttribute("Name", "TestTag"))
-                )
-            );
-
-            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
-            XElement element = new("LocalTag",
-                new XAttribute("Name", "TestTag"),
-                new XAttribute("ParentModule", "ParentModule")
-            );
-
-            // Act
-            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
-
-            // Assert
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        [TestCategory("XMLHandler_UnitTest")]
-        [TestProperty("Description",
             "Test that CheckForDependencies can process a list of multiple elements and check dependencies for each element.")]
-        public void CheckForDependencies_WithList_ProcessesAllElements()
+        public void CheckForDependencies_AddsDependencies_ForSingleAndMultipleElements()
         {
             // Arrange
-            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
-            XDocument docToInsert = new(
+            // inputFile must contain all referenced dependencies, parent modules, and scheduled programs
+            xmlHandler.inputFile = new XDocument(
                 new XElement("RSLogix5000Content",
-                    new XElement("Datatype", new XAttribute("Name", "Dependency1")),
-                    new XElement("Datatype", new XAttribute("Name", "Dependency2")),
-                    new XElement("Program", new XAttribute("Name", "Program1"),
-                        new XElement("Dependencies",
-                            new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency1")))),
-                    new XElement("Task", new XAttribute("Name", "Task1"),
-                        new XElement("Dependencies",
-                            new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency2")))))
+                    new XElement("Controller", new XAttribute("Name", "TestController"),
+                        new XElement("Datatypes",
+                            new XElement("DataType", new XAttribute("Name", "Dependency1")),
+                            new XElement("DataType", new XAttribute("Name", "Dependency2"))
+                        ),
+                        new XElement("Programs",
+                            new XElement("Program", new XAttribute("Name", "Program1"),
+                                new XElement("Dependencies",
+                                    new XElement("Dependency", new XAttribute("Type", "DataType"), new XAttribute("Name", "Dependency1"))
+                                )
+                            )
+                        ),
+                        new XElement("Tasks",
+                            new XElement("Task", new XAttribute("Name", "Task1"),
+                                new XElement("Dependencies",
+                                    new XElement("Dependency", new XAttribute("Type", "DataType"), new XAttribute("Name", "Dependency2"))
+                                ),
+                                new XElement("ScheduledProgram", new XAttribute("Name", "Program1"))
+                            )
+                        ),
+                        new XElement("Modules",
+                            new XElement("Module", new XAttribute("Name", "ParentModule1"))
+                        )
+                    )
+                )
             );
+
+            // docToInsert can be empty or partially filled
+            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
 
             List<XElement> elements =
             [
-                new XElement("Program", new XAttribute("Name", "Program1"),
+                (new XElement("Program", new XAttribute("Name", "Program1"),
                     new XElement("Dependencies",
-                        new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency1"))
+                        new XElement("Dependency", new XAttribute("Type", "DataType"), new XAttribute("Name", "Dependency1"))
                     )
-                ),
-                new XElement("Task", new XAttribute("Name", "Task1"),
+                )),
+                (new XElement("Task", new XAttribute("Name", "Task1"),
                     new XElement("Dependencies",
-                        new XElement("Dependency", new XAttribute("Type", "Datatype"), new XAttribute("Name", "Dependency2"))
-                    )
-                )
+                        new XElement("Dependency", new XAttribute("Type", "DataType"), new XAttribute("Name", "Dependency2"))
+                    ),
+                    new XAttribute("ParentModule", "ParentModule1"),
+                    new XElement("ScheduledProgram", new XAttribute("Name", "Program1"))
+                ))
             ];
 
             // Act
@@ -252,9 +177,55 @@ namespace XMLHandlerTests
             Assert.ContainsSingle(t => t.Attribute("Name")?.Value == "Task1",
                 result.Descendants("Task"), "The Task element with the correct name was not added to the document.");
             Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency1",
-                result.Descendants("Datatype"), "The Dependency1 element was not added to the document.");
+                result.Descendants("DataType"), "The Dependency1 element was not added to the document.");
             Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency2",
-                result.Descendants("Datatype"), "The Dependency2 element was not added to the document.");
+                result.Descendants("DataType"), "The Dependency2 element was not added to the document.");
+            Assert.ContainsSingle(m => m.Attribute("Name")?.Value == "ParentModule1",
+                result.Descendants("Module"), "The ParentModule1 element was not added to the document.");
+        }
+
+        [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
+        [TestProperty("Description",
+            "Test that CheckForDependencies skips existing dependencies and handles elements with no dependencies.")]
+        public void CheckForDependencies_SkipsExistingAndHandlesNoDependencies()
+        {
+            // Arrange
+            xmlHandler.inputFile = new(
+                new XElement("RSLogix5000Content",
+                    new XElement("DataType", new XAttribute("Name", "CustomType"))
+                )
+            );
+
+            XDocument docToInsert = new(
+                new XElement("RSLogix5000Content",
+                    new XElement("DataType", new XAttribute("Name", "CustomType"))
+                )
+            );
+
+            XElement elementWithDependency = new("Program",
+                new XAttribute("Name", "MainProgram"),
+                new XElement("Dependencies",
+                    new XElement("Dependency",
+                        new XAttribute("Name", "CustomType"),
+                        new XAttribute("Type", "DataType")
+                    )
+                )
+            );
+
+            XElement elementWithoutDependency = new("Program", new XAttribute("Name", "NoDependencyProgram"));
+
+            // Act
+            XDocument resultWithDependency = xmlHandler.CheckForDependencies(docToInsert, elementWithDependency);
+            XDocument resultWithoutDependency = xmlHandler.CheckForDependencies(docToInsert, elementWithoutDependency);
+
+            // Assert
+            Assert.IsNotNull(resultWithDependency);
+            Assert.AreEqual(1, resultWithDependency.Descendants("DataType").Count(), "Existing dependency should not be duplicated.");
+
+            Assert.IsNotNull(resultWithoutDependency);
+            Assert.AreEqual(1, resultWithoutDependency.Descendants("Program").Count(p => p.Attribute("Name")?.Value == "NoDependencyProgram"),
+                "Element with no dependencies should be added to the document.");
         }
 
         [TestMethod]
@@ -281,12 +252,13 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Descendants("ScheduledProgram")
-                                      .Count(sp => sp.Attribute("Name")?.Value == "ScheduledProg"),
-                            "The ScheduledProgram element with the correct reference was not added to the document.");
+            Assert.ContainsSingle(sp => sp.Attribute("Name")?.Value == "ScheduledProg",
+            result.Descendants("ScheduledProgram")
+            , "The ScheduledProgram element with the correct reference was not added to the document.");
         }
 
         [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies detects and handles circular dependencies to avoid infinite loops.")]
         public void CheckForDependencies_CircularDependencies_HandlesGracefully()
@@ -296,10 +268,10 @@ namespace XMLHandlerTests
                 new XElement("RSLogix5000Content",
                     new XElement("Program", new XAttribute("Name", "MainProgram"),
                         new XElement("Dependencies",
-                            new XElement("Dependency", new XAttribute("Name", "CustomType"), new XAttribute("Type", "Datatype"))
+                            new XElement("Dependency", new XAttribute("Name", "CustomType"), new XAttribute("Type", "DataType"))
                         )
                     ),
-                    new XElement("Datatype", new XAttribute("Name", "CustomType"),
+                    new XElement("DataType", new XAttribute("Name", "CustomType"),
                         new XElement("Dependencies",
                             new XElement("Dependency", new XAttribute("Name", "MainProgram"), new XAttribute("Type", "Program"))
                         )
@@ -316,28 +288,11 @@ namespace XMLHandlerTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Descendants("Program").Count());
-            Assert.AreEqual(1, result.Descendants("Datatype").Count());
+            Assert.AreEqual(1, result.Descendants("DataType").Count());
         }
 
         [TestMethod]
-        [TestProperty("Description",
-            "Test that CheckForDependencies handles elements with no dependencies gracefully.")]
-        public void CheckForDependencies_NoDependencies_HandlesGracefully()
-        {
-            // Arrange
-            xmlHandler.inputFile = TestHelper.CreateBasicTestDocument();
-            XDocument docToInsert = TestHelper.CreateBasicTestDocument();
-            XElement element = new("Program", new XAttribute("Name", "MainProgram"));
-
-            // Act
-            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Descendants("Program").Count());
-        }
-
-        [TestMethod]
+        [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies skips invalid ParentModule references.")]
         public void CheckForDependencies_InvalidParentModule_SkipsGracefully()
@@ -382,6 +337,9 @@ namespace XMLHandlerTests
             // Assert
             Assert.IsNotNull(path);
             Assert.IsNotEmpty(path);
+            LinkedList<string> expectedPath = new(["Programs", "Controller", "RSLogix5000Content"]);
+            Assert.HasCount(expectedPath.Count, path, "The number of elements in the path does not match the expected count.");
+            Assert.IsTrue(expectedPath.SequenceEqual(path), "The path returned does not match the expected path.");
         }
 
         [TestMethod]

@@ -12,7 +12,7 @@ namespace L5XAutomationTool
         [
             "AddOnInstructionDefinition",
             "Program",
-            "Datatype",
+            "DataType",
             "Routine",
             "Tag",
             "LocalTag",
@@ -123,7 +123,7 @@ namespace L5XAutomationTool
             try
             {
                 // Locate the schema element corresponding to the provided element
-                schemaElement = validator.GetSchema().Descendants().Single(i => i.Name.Equals(Ns + "element") && (i.Attribute("name")?.Value.Equals(name) ?? false));
+                schemaElement = validator.GetSchema().Descendants(Ns + "element").Single(i => i.Attribute("name")?.Value.Equals(name) ?? false);
                 while (!schemaElement.Attribute("name").Value.Equals("RSLogix5000Content"))
                 {
                     // Traverse up the schema hierarchy to find the path to the root
@@ -172,6 +172,10 @@ namespace L5XAutomationTool
                         paths.AddLast(node);
 
                     return paths;
+                }
+                else
+                {
+                    throw;
                 }
             }
             return paths;
