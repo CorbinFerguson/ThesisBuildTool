@@ -34,6 +34,6 @@ packages/
 CodeProjects/L5XFiles/*
 CodeProjects/L5XFiles/TestReports/
 !CodeProjects/L5XFiles/TestingFiles/
-CodeProjects/L5XFiles/TestingFiles/TestResults/*
-!CodeProjects/L5XFiles/TestingFiles/TestResults/GenFile.L5X
+CodeProjects/L5XFiles/TestingFiles/TestResults/**
+!CodeProjects/L5XFiles/TestingFiles/TestResults/
 !CodeProjects/L5XFiles/TemplateFiles/
