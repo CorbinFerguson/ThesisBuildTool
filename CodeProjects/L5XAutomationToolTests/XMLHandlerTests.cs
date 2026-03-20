@@ -294,8 +294,8 @@ namespace XMLHandlerTests
         [TestMethod]
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
-            "Test that CheckForDependencies skips invalid ParentModule references.")]
-        public void CheckForDependencies_InvalidParentModule_SkipsGracefully()
+            "Test that CheckForDependencies throws an exception when an invalid ParentModule reference is encountered.")]
+        public void CheckForDependencies_InvalidParentModule_ThrowsException()
         {
             // Arrange
             xmlHandler.inputFile = new XDocument(
@@ -305,17 +305,13 @@ namespace XMLHandlerTests
             );
 
             XDocument docToInsert = TestHelper.CreateBasicTestDocument();
-            XElement element = new XElement("LocalTag",
+            XElement element = new("LocalTag",
                 new XAttribute("Name", "TestTag"),
                 new XAttribute("ParentModule", "NonExistentModule")
             );
 
-            // Act
-            XDocument result = xmlHandler.CheckForDependencies(docToInsert, element);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Descendants("Module").Count());
+            // Act & Assert
+            Assert.ThrowsExactly<InvalidOperationException>(() => xmlHandler.CheckForDependencies(docToInsert, element));
         }
 
         #endregion

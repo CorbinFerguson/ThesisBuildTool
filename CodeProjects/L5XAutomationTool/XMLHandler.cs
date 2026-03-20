@@ -60,7 +60,16 @@ namespace L5XAutomationTool
             if (!element.Attribute("ParentModule")?.Value.ToString().Equals("Local") ?? false)
             {
                 string parentModule = element.Attribute("ParentModule").Value;
-                XElement moduleParentEl = inputFile.Descendants("Module").Single(i => i.Attribute("Name")?.Value.ToString().Equals(parentModule) ?? false);
+                XElement moduleParentEl;
+                try
+                {
+                    moduleParentEl = inputFile.Descendants("Module").Single(i => i.Attribute("Name")?.Value.ToString().Equals(parentModule) ?? false);
+
+                }
+                catch (InvalidOperationException ex)
+                {
+                    throw new InvalidOperationException("Attempted to create element from dependency, but no dependency found.", ex); ;
+                }                
                 IEnumerable<XElement> existingParents = docToInsert.Descendants().Where(i => i.Attribute("Name")?.Value.Equals(moduleParentEl?.Attribute("Name")?.Value) ?? false);
                 if (!existingParents.Any())
                 {
