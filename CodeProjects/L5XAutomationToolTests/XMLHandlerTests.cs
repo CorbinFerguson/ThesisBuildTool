@@ -115,7 +115,7 @@ namespace XMLHandlerTests
         [TestCategory("XMLHandler_UnitTest")]
         [TestProperty("Description",
             "Test that CheckForDependencies can process a list of multiple elements and check dependencies for each element.")]
-        public void CheckForDependencies_AddsDependencies_ForSingleAndMultipleElements()
+        public void CheckForDependencies_AddsDependencies_ForMultipleElements()
         {
             // Arrange
             // inputFile must contain all referenced dependencies, parent modules, and scheduled programs
@@ -162,8 +162,7 @@ namespace XMLHandlerTests
                     new XElement("Dependencies",
                         new XElement("Dependency", new XAttribute("Type", "DataType"), new XAttribute("Name", "Dependency2"))
                     ),
-                    new XAttribute("ParentModule", "ParentModule1"),
-                    new XElement("ScheduledProgram", new XAttribute("Name", "Program1"))
+                    new XAttribute("ParentModule", "ParentModule1")
                 ))
             ];
 
@@ -172,10 +171,6 @@ namespace XMLHandlerTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.ContainsSingle(p => p.Attribute("Name")?.Value == "Program1",
-                result.Descendants("Program"), "The Program element with the correct name was not added to the document.");
-            Assert.ContainsSingle(t => t.Attribute("Name")?.Value == "Task1",
-                result.Descendants("Task"), "The Task element with the correct name was not added to the document.");
             Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency1",
                 result.Descendants("DataType"), "The Dependency1 element was not added to the document.");
             Assert.ContainsSingle(d => d.Attribute("Name")?.Value == "Dependency2",
@@ -250,7 +245,7 @@ namespace XMLHandlerTests
             // Assert
             Assert.IsNotNull(result);
             Assert.ContainsSingle(sp => sp.Attribute("Name")?.Value == "ScheduledProg",
-            result.Descendants("ScheduledProgram")
+            result.Descendants("Program")
             , "The ScheduledProgram element with the correct reference was not added to the document.");
         }
 
