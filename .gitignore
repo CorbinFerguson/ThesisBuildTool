@@ -1,7 +1,7 @@
-
-#Ignore thumbnails created by Windows
+# Ignore thumbnails created by Windows
 Thumbs.db
-#Ignore files built by Visual Studio
+
+# Ignore files built by Visual Studio
 *.obj
 *.exe
 *.pdb
@@ -29,11 +29,30 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 .vs/
 .idea/
-#Nuget packages folder
+
+# NuGet packages folder
 packages/
+
+# --- L5X project rules ---
+
+# Ignore everything under L5XFiles by default
 CodeProjects/L5XFiles/*
+
+# Keep TestReports directory (but still ignored because of the above line)
+# If you actually want to track TestReports contents, add an exception.
 CodeProjects/L5XFiles/TestReports/
+
+# Unignore TestingFiles directory AND its contents so we can selectively re-apply ignores
 !CodeProjects/L5XFiles/TestingFiles/
+!CodeProjects/L5XFiles/TestingFiles/**
+
+# Inside TestingFiles, ignore everything under TestResults recursively
 CodeProjects/L5XFiles/TestingFiles/TestResults/**
+# But keep the TestResults directory itself (so the folder exists in the repo)
 !CodeProjects/L5XFiles/TestingFiles/TestResults/
+# And explicitly track just this file within TestResults
+!CodeProjects/L5XFiles/TestingFiles/TestResults/GenFile.L5X
+
+# Unignore TemplateFiles directory and (optionally) its contents
 !CodeProjects/L5XFiles/TemplateFiles/
+!CodeProjects/L5XFiles/TemplateFiles/**

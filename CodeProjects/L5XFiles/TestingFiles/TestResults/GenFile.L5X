@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="32.01" TargetName="GenProject" TargetType="Controller" ContainsContext="false" ExportDate="2025-07-23T08:48:59.7722546-04:00" ExportOptions="NoRawData L5KData DecoratedData ForceProtectedEncoding AllProjDocTrans">
+  <Controller Use="Target" Name="GenProject" ProcessorType="1756-L81E" MajorRev="32" MinorRev="11" ProjectCreationDate="2025-07-23T08:48:59.7762547-04:00" LastModifiedDate="2025-07-23T08:48:59.7762547-04:00" SFCExecutionControl="CurrentActive" SFCRestartPosition="MostRecent" SFCLastScan="DontScan" ProjectSN="16#0000_0000" MatchProjectToController="false" CanUseRPIFromProducer="false" InhibitAutomaticFirmwareUpdate="0" PassThroughConfiguration="EnabledWithAppend" DownloadProjectDocumentationAndExtendedProperties="true" DownloadProjectCustomProperties="true" ReportMinorOverflow="false">
+    <RedundancyInfo Enabled="false" KeepTestEditsOnSwitchOver="false" />
+    <Security Code="0" ChangesToDetect="16#ffff_ffff_ffff_ffff" />
+    <SafetyInfo />
+    <DataTypes />
+    <Modules />
+    <AddOnInstructionDefinitions>
+      <AddOnInstructionDefinition Name="TestSaveFile" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:57.413Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:57.457Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
+        <Parameters>
+          <Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Input - System Defined Parameter]]></Description>
+          </Parameter>
+          <Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Output - System Defined Parameter]]></Description>
+          </Parameter>
+        </Parameters>
+        <LocalTags />
+        <Routines>
+          <Routine Name="Logic" Type="FBD">
+            <FBDContent SheetSize="B - 11 x 17 in" SheetOrientation="Landscape">
+              <Sheet Number="1" />
+            </FBDContent>
+          </Routine>
+        </Routines>
+      </AddOnInstructionDefinition>
+      <AddOnInstructionDefinition Name="gobbagool" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:57.413Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:57.457Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
+        <Parameters>
+          <Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Input - System Defined Parameter]]></Description>
+          </Parameter>
+          <Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+            <Description><![CDATA[Enable Output - System Defined Parameter]]></Description>
+          </Parameter>
+        </Parameters>
+        <LocalTags />
+        <Routines>
+          <Routine Name="Logic" Type="FBD">
+            <FBDContent SheetSize="B - 11 x 17 in" SheetOrientation="Landscape">
+              <Sheet Number="1" />
+            </FBDContent>
+          </Routine>
+        </Routines>
+      </AddOnInstructionDefinition>
+    </AddOnInstructionDefinitions>
+    <AlarmDefinitions />
+    <Tags />
+    <Programs />
+    <Tasks />
+    <ParameterConnections />
+    <CommPorts />
+    <CST MasterID="0" />
+    <WallClockTime LocalTimeAdjustment="0" TimeZone="0" />
+    <Trends />
+    <DataLogs />
+    <TimeSynchronize Priority1="128" Priority2="128" PTPEnable="false" />
+    <InternetProtocol />
+    <EthernetPorts />
+    <AddOnInstructionDefinition Name="TestSaveFile" Revision="1.0" ExecutePrescan="false" ExecutePostscan="false" ExecuteEnableInFalse="false" CreatedDate="2025-09-16T19:56:57.413Z" CreatedBy="NCSA\nusgrepcmd0043" EditedDate="2025-09-16T19:56:57.457Z" EditedBy="NCSA\nusgrepcmd0043" SoftwareRevision="v32.01">
+      <Parameters>
+        <Parameter Name="EnableIn" TagType="Base" DataType="BOOL" Usage="Input" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+          <Description><![CDATA[Enable Input - System Defined Parameter]]></Description>
+        </Parameter>
+        <Parameter Name="EnableOut" TagType="Base" DataType="BOOL" Usage="Output" Radix="Decimal" Required="false" Visible="false" ExternalAccess="Read Only">
+          <Description><![CDATA[Enable Output - System Defined Parameter]]></Description>
+        </Parameter>
+      </Parameters>
+      <LocalTags />
+      <Routines>
+        <Routine Name="Logic" Type="FBD">
+          <FBDContent SheetSize="B - 11 x 17 in" SheetOrientation="Landscape">
+            <Sheet Number="1" />
+          </FBDContent>
+        </Routine>
+      </Routines>
+    </AddOnInstructionDefinition>
+  </Controller>
+</RSLogix5000Content>
