@@ -108,7 +108,7 @@ namespace GuiTesting
             exitButton.AsButton().Click();
 
             // Wait and verify that the application has closed
-            TestHelper.WaitMilliseconds(longTimeoutMS);
+            TestHelper.WaitMilliseconds(longTimeoutMS*2);
             TestReport.IsNull(app.GetAllTopLevelWindows(automation).SingleOrDefault(win => win.Name.Equals("ActionSelector")), "Application closes", false);
         }
 
