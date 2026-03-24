@@ -49,7 +49,6 @@ namespace GuiTesting
             TestReport.IsNotNull(app, "Launch application");
             TestHelper.WaitMilliseconds(longTimeoutMS);
 
-
             // Get the main window of the application
             actionSelect = app.GetAllTopLevelWindows(automation).Single(win => win.Name.Equals("ActionSelector"));
             TestReport.IsNotNull(actionSelect, "Find ActionSelect window");
@@ -62,6 +61,7 @@ namespace GuiTesting
             // Close the application and end test reporting
             app?.Close();
             TestReport.End();
+            TestHelper.WaitMilliseconds(longTimeoutMS);
         }
 
         #region File Manipulation
@@ -108,7 +108,7 @@ namespace GuiTesting
             exitButton.AsButton().Click();
 
             // Wait and verify that the application has closed
-            TestHelper.WaitMilliseconds(longTimeoutMS*2);
+            TestHelper.WaitMilliseconds(longTimeoutMS);
             TestReport.IsNull(app.GetAllTopLevelWindows(automation).SingleOrDefault(win => win.Name.Equals("ActionSelector")), "Application closes", false);
         }
 
