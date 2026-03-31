@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
   <Class Name="L5XAutomationTool.ElementHelper">
-    <Position X="1.5" Y="6.5" Width="1.5" />
+    <Position X="2.75" Y="6.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAABAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAIQAAAgA=</HashCode>
       <FileName>ElementHelper.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="L5XAutomationTool.Execute">
-    <Position X="7" Y="5.75" Width="1.5" />
+    <Position X="7.75" Y="5.75" Width="1.5" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
       <Compartment Name="Methods" Collapsed="true" />
@@ -18,13 +18,13 @@
       <FileName>Execute.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Field Name="_fs" />
+      <Field Name="_xml" />
       <Field Name="_messages" />
-      <Field Name="_openFile" />
       <Field Name="_prompts" />
+      <Field Name="_openFile" />
       <Field Name="_saveFile" />
       <Field Name="_validation" />
-      <Field Name="_xml" />
+      <Field Name="_fs" />
     </ShowAsAssociation>
   </Class>
   <Class Name="L5XAutomationTool.Program" Collapsed="true">
@@ -38,7 +38,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="L5XAutomationTool.XMLHandler">
-    <Position X="4.5" Y="5.75" Width="1.5" />
+    <Position X="5.5" Y="5.75" Width="1.5" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
@@ -47,9 +47,9 @@
       <FileName>XMLHandler.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
+      <Field Name="validator" />
       <Field Name="disambiguator" />
       <Field Name="ElementInfo" />
-      <Field Name="validator" />
     </ShowAsAssociation>
   </Class>
   <Class Name="L5XAutomationTool.Forms.ActionSelect">
@@ -100,15 +100,10 @@
       <Compartment Name="Public" Collapsed="true" />
       <Compartment Name="Protected" Collapsed="true" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="System.Windows.Forms.Form.ControlCollection" Collapsed="true">
-        <TypeIdentifier />
-      </Class>
-    </NestedTypes>
     <TypeIdentifier />
   </Class>
   <Interface Name="L5XAutomationTool.IMessageService">
-    <Position X="8.5" Y="11.5" Width="1.5" />
+    <Position X="8.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAQAAAAAAQAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
       <FileName>InterfaceAbstractions.cs</FileName>
