@@ -1,1 +1,0 @@
-LBSM components to import into existing applications when the Journal infrastructure is not needed.

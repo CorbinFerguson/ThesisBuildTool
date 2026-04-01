@@ -1,1 +1,0 @@
-LBSM Journal components to import into existing LBSM applications to add the Journal capability.
